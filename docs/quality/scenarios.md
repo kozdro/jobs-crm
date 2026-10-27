@@ -579,16 +579,6 @@ Scenariusze są testami zgodności specyfikacji, nie dekoracją dokumentacji. W 
 
 **Ważny test negatywny / błąd:** Bez akcji użytkownika nie pojawia się automatyczny wynik zakończenia ani wysłana wiadomość.
 
-## UC-037 — Przypomnienie skonfigurowanego zadania
-
-**Test:** `TC-037` · **Wymagania:** `FR-TN-002`, `FR-TN-004` · **Bramka:** `OPEN-009` · **Status:** `PLANNED / NOT EXECUTED`.
-
-**Warunek początkowy:** Zadanie ma przypomnienie skonfigurowane na podstawie przyszłej zatwierdzonej reguły.
-
-**Kroki:** 1. Ustaw przypomnienie zgodnie z zatwierdzoną konfiguracją. 2. Spełnij przesłankę reguły. 3. Sprawdź powiadomienie wewnętrzne.
-
-**Wynik:** Przypomnienie zależy od konfiguracji/reguły, a nie samego braku terminu. **Negatywny:** Zadanie bez terminu nie jest samo zaległe.
-
 ## UC-033 — Wejście do prywatnego Dashboardu po logowaniu
 
 **Test:** `TC-033` · **Status:** `PLANNED / NOT EXECUTED` (rezultat `APPROVED`, mechanizm `OPEN`) · **Wymagania:** `FR-AD-001`, `FR-DB-001`, `FR-DB-008` · **Reguły:** `BR-030` · **Bramki:** `OPEN-013`.
@@ -637,6 +627,16 @@ Scenariusze są testami zgodności specyfikacji, nie dekoracją dokumentacji. W 
 
 **Negatywny:** Bez decyzji `OPEN` nie ma podstaw do testowania konkretnych plików eksportu, okresów retencji ani undo.
 
+
+## UC-037 — Przypomnienie skonfigurowanego zadania
+
+**Test:** `TC-037` · **Wymagania:** `FR-TN-002`, `FR-TN-004` · **Bramka:** `OPEN-009` · **Status:** `PLANNED / NOT EXECUTED`.
+
+**Warunek początkowy:** Zadanie ma przypomnienie skonfigurowane na podstawie przyszłej zatwierdzonej reguły.
+
+**Kroki:** 1. Ustaw przypomnienie zgodnie z zatwierdzoną konfiguracją. 2. Spełnij przesłankę reguły. 3. Sprawdź powiadomienie wewnętrzne.
+
+**Wynik:** Przypomnienie zależy od konfiguracji/reguły, a nie samego braku terminu. **Negatywny:** Zadanie bez terminu nie jest samo zaległe.
 
 ## Stan planu testów
 
