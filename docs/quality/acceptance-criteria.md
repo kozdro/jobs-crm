@@ -178,6 +178,22 @@
 | **AC-GS-007** | Gdy zapytanie pasuje do firmy i notatki, wyniki rozróżniają grupy typów zamiast łączyć wszystkie rekordy bez etykiety. | FR-GS-007 |
 | **AC-GS-008** | Po wybraniu trafienia w notatkę lub firmę użytkownik może otworzyć właściwy kontekst, także dla zakończonej sprawy. | FR-GS-008 |
 
+## AD — Account & Data Management
+
+**Granica:** `AC-AD-001/002` weryfikują niezmienniki `APPROVED` (bez wyboru mechanizmu). `AC-AD-003`–`009` są wyłącznie warunkowymi kryteriami dla `FR PROPOSED`; nie mogą zostać uznane za wdrożeniowe testy MVP przed zgodą PO i zamknięciem odpowiednich `OPEN`.
+
+| ID | Status FR / Given–When–Then (na poziomie niezmiennika) | FR |
+|---|---|---|
+| **AC-AD-001** | APPROVED: Mając użytkownika po pomyślnym logowaniu, gdy wchodzi do produktu, otrzymuje swój Dashboard bez obowiązkowego onboardingu; metoda uwierzytelnienia jest `OPEN-013`. | FR-AD-001 |
+| **AC-AD-002** | APPROVED: Mając konta A i B oraz prywatne dane A, gdy B próbuje je odczytać przez widok, wyszukiwanie lub pobranie pliku, nie uzyskuje danych A; A zachowuje dostęp do swoich uprawnionych rekordów. Konkretny model dostępu `OPEN-013`. | FR-AD-002 |
+| **AC-AD-003** | PROPOSED: Jeśli PO dopuści samorejestrację, gdy nowa osoba przejdzie zatwierdzony proces, może otrzymać własne konto bez odziedziczenia danych innych kont; pola i aktywacja `OPEN-041`. | FR-AD-003 |
+| **AC-AD-004** | PROPOSED: Jeśli wylogowanie zostanie zatwierdzone, po jego wykonaniu dotychczasowy dostęp do prywatnego workspace'u wymaga ponownej autoryzacji zgodnie z `OPEN-042`. | FR-AD-004 |
+| **AC-AD-005** | PROPOSED: Jeśli zostanie zatwierdzona polityka sesji, dostęp w czasie trwania i po zakończeniu sesji respektuje tę politykę; czasy i mechanizm `OPEN-013/042`. | FR-AD-005 |
+| **AC-AD-006** | PROPOSED: Jeśli zatwierdzono odzyskiwanie, uprawniony użytkownik może odzyskać dostęp bez uzyskania dostępu do cudzego konta; procedura i komunikaty `OPEN-043`. | FR-AD-006 |
+| **AC-AD-007** | PROPOSED: Jeśli zatwierdzono edycję profilu, właściciel może zmienić dozwolone pola swojego profilu, ale nie cudzego; lista pól `OPEN-044`. | FR-AD-007 |
+| **AC-AD-008** | PROPOSED: Jeśli zatwierdzono eksport, tylko uprawniony właściciel może uruchomić i odebrać eksport w ustalonym zakresie; zakres/format `OPEN-032/045`. | FR-AD-008 |
+| **AC-AD-009** | PROPOSED: Jeśli zatwierdzono usuwanie konta, żądanie wymaga weryfikacji uprawnienia i respektuje zatwierdzoną politykę danych/powiązań; skutki i retencja `OPEN-005/006/032/046`. | FR-AD-009 |
+
 ## NV — Navigation
 
 | ID | Test akceptacji (Given / When / Then, opisowo) | Powiązany FR |

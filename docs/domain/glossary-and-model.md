@@ -6,6 +6,8 @@
 
 | Pojęcie | Znaczenie / odróżnienie |
 |---|---|
+| **Konto użytkownika** (*UserAccount*) | Kontekst wejścia do prywatnego workspace'u po zalogowaniu; rejestracja, odzyskiwanie, zarządzanie profilem i sesją są `PROPOSED/OPEN`, a nie opisanym tu mechanizmem Auth. |
+| **Prywatna przestrzeń danych** | Osobiste sprawy, kontakty, wydarzenia, notatki i dokumenty; niedostępne dla nieuprawnionych osób (`BR-030`, `NFR-001`). Fizyczna reprezentacja i zakres relacji własności: `OPEN-013/OPEN-032`. |
 | **Sprawa rekrutacyjna** (*RecruitmentCase*) | Niezależny, trwały kontekst potencjalnej pracy, aplikacji lub kontaktu; może mieć wiele okresów aktywności i zakończeń. Nie musi mieć ogłoszenia ani konkretnego stanowiska. |
 | **Organizacja** (*Organization*) | Firma/pracodawca, agencja lub inny podmiot; jedna organizacja może uczestniczyć w wielu sprawach. Jej rola w danej sprawie ma znaczenie. |
 | **Pracodawca** | Organizacja, dla której docelowo wykonuje się pracę; bywa nieujawniona, np. kontakt od agencji. |

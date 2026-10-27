@@ -578,9 +578,59 @@ Scenariusze są testami zgodności specyfikacji, nie dekoracją dokumentacji. W 
 
 **Ważny test negatywny / błąd:** Bez akcji użytkownika nie pojawia się automatyczny wynik zakończenia ani wysłana wiadomość.
 
+## UC-033 — Wejście do prywatnego Dashboardu po logowaniu
+
+**Test:** `TC-033` · **Status:** `PLANNED / NOT EXECUTED` (rezultat `APPROVED`, mechanizm `OPEN`) · **Wymagania:** `FR-AD-001`, `FR-DB-001`, `FR-DB-008` · **Reguły:** `BR-030` · **Bramki:** `OPEN-013`.
+
+**Warunek początkowy:** Istnieje uprawnione konto; sposób logowania zostanie zatwierdzony osobno.
+
+**Kroki:** (1) Użytkownik kończy prawidłowe logowanie. (2) Otwiera produkt. (3) Sprawdza ekran startowy.
+
+**Oczekiwany rezultat:** Pojawia się prywatny Dashboard, bez wymaganego onboardingu; metoda Auth nie jest przedmiotem tego testu.
+
+**Negatywny:** Nieuprawniony kontekst nie ujawnia prywatnych spraw. Dodatkowa polityka obsługi błędu: `OPEN-013`.
+
+## UC-034 — Izolacja prywatnych danych dwóch kont
+
+**Test:** `TC-034` · **Status:** `PLANNED / NOT EXECUTED` (`APPROVED` — niezmiennik) · **Wymagania:** `FR-AD-002`, `FR-DO-010`, `FR-GS-005` · **Reguły:** `BR-030` · **Bramki:** `OPEN-006/013/032`.
+
+**Warunek początkowy:** Dwa niezależne konta A/B; konto A ma sprawę, notatkę, kontakt i CV.
+
+**Kroki:** (1) A przegląda swoje dane. (2) B próbuje odnaleźć notatkę A przez Search. (3) B próbuje otworzyć sprawę i pobrać CV A przez odwołanie. (4) A ponownie otwiera własny dokument.
+
+**Oczekiwany rezultat:** A ma uprawniony dostęp; B nie otrzymuje danych ani prywatnych metadanych A.
+
+**Negatywny:** Zgodność nazwy firmy, URL lub identyfikatora pliku nie uprawnia B do odczytu rekordów A.
+
+## UC-035 — Samoobsługa konta (wariant do decyzji)
+
+**Test:** `TC-035` · **Status:** `PROPOSED / PLANNED CONDITIONAL / NOT EXECUTED` · **Wymagania:** `FR-AD-003`–`FR-AD-007` (wszystkie `PROPOSED`) · **Bramki:** `OPEN-013/041/042/043/044`.
+
+**Warunek początkowy:** PO wybrał wariant dopuszczający rejestrację, wylogowanie, sesje, odzyskiwanie i profil; bez tej decyzji scenariusz nie jest wykonywalny.
+
+**Kroki planowane:** (1) Utworzenie konta według zatwierdzonego trybu. (2) Wejście do produktu. (3) Edycja zatwierdzonego pola profilu. (4) Wylogowanie. (5) Sprawdzenie skutków zakończenia sesji. (6) Próba odzyskania dostępu zgodnie z polityką.
+
+**Oczekiwany rezultat warunkowy:** Operacje działają zgodnie z przyszłą decyzją, nie ujawniają danych innych kont.
+
+**Negatywny:** Brak automatycznie zatwierdzonego dostawcy Auth, kanału e-mail, czasu sesji i pól profilu.
+
+## UC-036 — Eksport i usunięcie własnych danych (wariant do decyzji)
+
+**Test:** `TC-036` · **Status:** `PROPOSED / PLANNED CONDITIONAL / NOT EXECUTED` · **Wymagania:** `FR-AD-008/009` (`PROPOSED`), `FR-AD-002` · **Reguły:** `BR-026/BR-030` · **Bramki:** `OPEN-005/006/032/045/046`.
+
+**Warunek początkowy:** PO zatwierdził zakres eksportu i politykę usunięcia; konto ma sprawy, historię i CV powiązane z wysłaną aplikacją.
+
+**Kroki planowane:** (1) Uprawniony właściciel uruchamia eksport. (2) Sprawdza dostępność tylko własnych danych. (3) Inne konto próbuje pobrać eksport. (4) Właściciel wnioskuje o usunięcie danych. (5) Sprawdza wynik zgodny z zatwierdzoną polityką.
+
+**Oczekiwany rezultat warunkowy:** Eksport i usunięcie respektują decyzję PO, poufność i historyczne powiązania; nie obiecujemy fizycznej kasacji ani konkretnego formatu przed decyzją.
+
+**Negatywny:** Bez decyzji `OPEN` nie ma podstaw do testowania konkretnych plików eksportu, okresów retencji ani undo.
+
+
 ## Stan planu testów
 
-- `TC-001`–`TC-032`: **PLANNED / NOT EXECUTED** — aplikacja i prototyp nie powstały.
+- `TC-001`–`TC-034`: **PLANNED / NOT EXECUTED** — aplikacja i prototyp nie powstały; `TC-033/034` wymagają rozstrzygnięcia mechanizmów bezpieczeństwa.
+- `TC-035`–`TC-036`: **PROPOSED / PLANNED CONDITIONAL / NOT EXECUTED** — dotyczą funkcji niewłączonych jeszcze decyzją PO do zatwierdzonego MVP.
 - Każdy scenariusz powiązano z wymaganiami, ale nie każde drobne FR wymaga osobnego E2E; pełną relację pokazuje [traceability](traceability.md).
 - Testy bezpieczeństwa, własności danych, awarie importu i walidacje są rozszerzane w [strategii testów](test-strategy.md).
 

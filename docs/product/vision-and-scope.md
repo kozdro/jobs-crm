@@ -32,6 +32,12 @@ Publiczne MVP to **pełniejszy produkt**, nie wyłącznie Kanban demo. Prace mo�
 
 Zatwierdzone zachowanie modułów: [katalog FR](../requirements/functional-requirements.md), [specyfikacje](../features/README.md).
 
+## Konto i własne dane — granica decyzji
+
+**APPROVED (wynik, nie mechanizm):** użytkownik trafia po zalogowaniu na Dashboard (`DEC-018`), a jego dokumenty oraz dane osobowe pozostają prywatne (`BR-030/NFR-001`). Jest to niezmiennik również wtedy, gdy aplikacja obsługuje więcej niż jedno konto.
+
+**PROPOSED, niezatwierdzone jako komplet MVP:** rejestracja samoobsługowa, wylogowanie/zarządzanie sesją, odzyskiwanie dostępu, edycja profilu, eksport oraz usunięcie konta. Wymagają rozstrzygnięcia `OPEN-013/OPEN-032/OPEN-041`–`OPEN-046`. Por. [Account & Data Management](../features/account-and-data-management.md) i `FR-AD-*`.
+
 ## Świadomie poza pierwszym MVP (`DEFERRED`)
 
 - Przyszły **AI Career Agent**: wyszukiwanie ofert, analiza dopasowania, personalizacja CV i wiadomości, przygotowywanie aplikacji, wsparcie follow-upów, integracje i wybrane działania **za zgodą użytkownika**. Agent i jego infrastruktura nie należą do MVP.

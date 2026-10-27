@@ -136,12 +136,28 @@
 | FR-NV-002 | DEC-017 | AC-NV-002 | UC-020/TC-020 UC-024/TC-024 | OPEN-017 | AC + UC/TC planned |
 | FR-NV-003 | DEC-017 | AC-NV-003 | UC-024/TC-024 UC-029/TC-029 | OPEN-017 | AC + UC/TC planned |
 
+## AD — Account & Data Management (statusy wymagania jawne)
+
+| Wymaganie | Podstawa `DEC/BR/NFR` | AC | Scenariusze / TC | Bramka | Status FR i pokrycie |
+|---|---|---|---|---|---|
+| FR-AD-001 | DEC-018 BR-030 | AC-AD-001 | UC-033/TC-033 | OPEN-013 | APPROVED (limited) · PLANNED / NOT EXECUTED |
+| FR-AD-002 | BR-030 NFR-001 | AC-AD-002 | UC-034/TC-034 UC-036/TC-036* | OPEN-006/OPEN-013/OPEN-032 | APPROVED (invariant) · PLANNED / NOT EXECUTED |
+| FR-AD-003 | — | AC-AD-003 | UC-035/TC-035* | OPEN-041/OPEN-013 | PROPOSED · CONDITIONAL / NOT EXECUTED |
+| FR-AD-004 | — | AC-AD-004 | UC-035/TC-035* | OPEN-042/OPEN-013 | PROPOSED · CONDITIONAL / NOT EXECUTED |
+| FR-AD-005 | NFR-001 | AC-AD-005 | UC-035/TC-035* | OPEN-013/OPEN-042 | PROPOSED · CONDITIONAL / NOT EXECUTED |
+| FR-AD-006 | — | AC-AD-006 | UC-035/TC-035* | OPEN-043/OPEN-013 | PROPOSED · CONDITIONAL / NOT EXECUTED |
+| FR-AD-007 | — | AC-AD-007 | UC-035/TC-035* | OPEN-044/OPEN-002 | PROPOSED · CONDITIONAL / NOT EXECUTED |
+| FR-AD-008 | NFR-007 | AC-AD-008 | UC-036/TC-036* | OPEN-032/OPEN-045 | PROPOSED · CONDITIONAL / NOT EXECUTED |
+| FR-AD-009 | NFR-007 | AC-AD-009 | UC-036/TC-036* | OPEN-005/OPEN-006/OPEN-032/OPEN-046 | PROPOSED · CONDITIONAL / NOT EXECUTED |
+
+\* Scenariusz warunkowy dla funkcji `PROPOSED` — zapis w macierzy nie oznacza ich zatwierdzenia.
+
 ## Raport pokrycia (na etapie dokumentacji)
 
-- FR: **126**, każde z odpowiadającym mu AC.
-- Scenariusze UC/TC: **32 / 32** jako **PLANNED**, bez wykonania.
-- FR ze skojarzonym scenariuszem UC: **126**.
-- FR bez dedykowanego E2E: **0**; nie mylić z brakiem AC.
+- FR: **135** (126 dotychczasowych `APPROVED` + 2 `APPROVED` ograniczone do niezmienników + 7 `PROPOSED`), każde z co najmniej jednym AC.
+- Scenariusze UC/TC: **36 / 36**: `TC-001`–`TC-034` PLANNED oraz `TC-035/036` warunkowe PROPOSED; **żadnego nie wykonano**.
+- FR ze skojarzonym UC/TC: **135** (w tym 7 przez scenariusze warunkowe).
+- FR bez dedykowanego UC/TC: **0**; powiązanie z UC nie stanowi automatycznie wykonanej asercji.
 
 **Nie** interpretuj obecności `TC-*` jako zielonego testu. Zagadnienia `P0 OPEN` i wrażliwe funkcje muszą zostać rozstrzygnięte przed implementacją i odbiorem.
 

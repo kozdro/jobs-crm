@@ -44,12 +44,19 @@
 | OPEN-038 | P1 · Search | Szczegóły dopasowania, filtrowania, kolejności, zachowanie wobec archiwum i dużych wyników. |
 | OPEN-039 | P1 · Dashboard | Definicje zwięzłych statystyk i zasad „ostatniej aktywności” bez mieszania z czysto technicznymi korektami. |
 | OPEN-040 | P1 · Tasks | Zatwierdzony słownik statusów zadań i dokładne zasady rozliczenia przypomnień. |
+| OPEN-041 | P0 · Konto / udostępnienie | Czy i kiedy użytkownik sam tworzy konto? Rejestracja otwarta, zaproszenia czy konto zakładane przez właściciela; zasady aktywacji i kontroli dostępu. `FR-AD-003 PROPOSED`. |
+| OPEN-042 | P0 · Sesja | Zasady wylogowania, czasu życia sesji, jej wygasania i zakończenia w innych kontekstach; bez wyboru technologii ani wartości domyślnych. `FR-AD-004/005 PROPOSED`. |
+| OPEN-043 | P1 · Odzyskiwanie konta | Czy i jak użytkownik odzyskuje dostęp, jakie potwierdzenia są wymagane, jak uniknąć wycieku danych; bez narzucania e-maila/dostawcy. `FR-AD-006 PROPOSED`. |
+| OPEN-044 | P1 · Profil | Zakres danych profilu, edytowalność, walidacje i wpływ zmian na uwierzytelnianie. `FR-AD-007 PROPOSED`. |
+| OPEN-045 | P0 · Eksport danych | Czy i jaki eksport własnych danych jest wymagany w pierwszym wydaniu, jaki zakres (sprawy/historia/dokumenty/kontakty), format, sposób ochrony i dostarczenia? `FR-AD-008 PROPOSED`; por. `OPEN-032`. |
+| OPEN-046 | P0 · Usunięcie konta | Zakres i skutki usuwania danych, historia, wersje dokumentów, kopie, retencja, potwierdzenie i nieodwracalność; bez zakładania natychmiastowej kasacji. `FR-AD-009 PROPOSED`; por. `OPEN-005/006/032`. |
 
 ## Kolejność decyzji
 
 1. **Przed szczegółowym prototypowaniem:** `OPEN-017`, `OPEN-018`, `OPEN-024`, `OPEN-028` i dotknięte przepływy z `OPEN-001/OPEN-029` (można prototypować warianty bez przedstawiania ich jako gotowych).
 2. **Przed implementacją danego modułu:** wszystkie powiązane `P0`, jego `P1` wpływające na testowalność oraz uzgodnione AC.
-3. **Przed wyborem stacku i infrastruktury:** `OPEN-013/OPEN-014` i backlog [Technical Discovery](../technical/discovery-backlog.md), z ADR dla decyzji istotnych.
+3. **Przed dopuszczeniem wielu użytkowników lub implementacją samoobsługi konta:** `OPEN-013/OPEN-032/OPEN-041`–`OPEN-046` adekwatnie do zatwierdzonych funkcji; nie implementuj propozycji jako obowiązującego MVP.
+4. **Przed wyborem stacku i infrastruktury:** `OPEN-013/OPEN-014` i backlog [Technical Discovery](../technical/discovery-backlog.md), z ADR dla decyzji istotnych.
 
 ### Wstępne obszary konfliktów interpretacyjnych (nie są sprzecznymi decyzjami)
 
