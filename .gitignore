@@ -1,0 +1,20 @@
+# Edytory i system operacyjny
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Pliki tymczasowe narzędzi dokumentacyjnych
+__pycache__/
+.pytest_cache/
+*.pyc
+*.tmp
+*.bak
+
+# Lokalna konfiguracja i poufne dane
+.env
+.env.*
+!.env.example
+secrets/
+private/
