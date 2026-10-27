@@ -29,7 +29,3 @@ Kolejność pierwszeństwa i zasady rozwiązywania konfliktów opisuje [standard
 - `DEFERRED`: świadomie poza pierwszym wydaniem lub na późniejszym etapie.
 
 Ta dokumentacja umożliwia dalszy UX Discovery i Technical Discovery, **ale nie stanowi zezwolenia na implementowanie niewyjaśnionych wymagań**. Szczegóły: [bramki decyzyjne](docs/decisions/open-questions.md) i [raport audytu](docs/quality/documentation-audit.md).
-
-## Lokalny start Git
-
-Po rozpakowaniu pakietu z `.git/` repo jest zainicjalizowane na gałęzi `main`, **bez remote i bez commitów**. Zweryfikuj `git status`, ustaw własną tożsamość Git i wykonaj pierwszy commit. Zdalne prywatne repo GitHub można utworzyć w osobnym, świadomie zatwierdzonym kroku. Nie ma tutaj konfiguracji CI, deploymentu ani kodu aplikacji.
