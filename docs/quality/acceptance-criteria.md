@@ -236,3 +236,19 @@
 | **AC-HE-008-01** | Odbycie wymaga świadomego potwierdzenia; sama zmiana terminu nie wystarcza. | FR-HE-008 |
 | **AC-HE-011-01** | Upływ czasu nie oznacza nierozliczonego spotkania jako odbytego. | FR-HE-011 |
 | **AC-HE-012-01** | Sugestia rozliczenia nie zmienia sama statusu wydarzenia. | FR-HE-012 |
+
+
+### Uzupełniające przypadki negatywne i awaryjne
+
+| ID | Kryterium | FR |
+|---|---|---|
+| **AC-LC-016-02** | Po wskazaniu zatwierdzonego wyniku zakończenie nadal wymaga rozstrzygnięcia otwartych zadań/wydarzeń; bez tego nie zostaje finalizowane (OPEN-029). | FR-LC-016 |
+| **AC-LC-018-02** | Dla każdego otwartego elementu użytkownik wybiera anuluj, zachowaj albo odłącz; nie przesądzamy efektu technicznego OPEN-029. | FR-LC-018 |
+| **AC-LC-019-02** | Powtórne zamknięcie po wznowieniu tworzy nowy historyczny wynik bez zmiany starego. | FR-LC-019 |
+| **AC-IM-008-02** | Wiersze odrzucone w zaakceptowanym częściowym imporcie nie są raportowane jako zapisane; semantyka transakcji OPEN-010. | FR-IM-008 |
+| **AC-IM-011-02** | Awaria w trakcie importu nie upoważnia do raportowania wszystkich wierszy jako zakończonych; faktyczny zakres i strategia retry/rollback OPEN-010/035. | FR-IM-011 |
+| **AC-IM-014-02** | Zmiana danych sprawy między podglądem a zatwierdzeniem nie prowadzi do cichego nadpisania; rozwiązanie konfliktu OPEN-010/024. | FR-IM-014 |
+| **AC-DO-010-02** | Uprawniony właściciel zachowuje dostęp do swoich dokumentów w dozwolonym kontekście; model Auth OPEN-013. | FR-DO-010 |
+| **AC-DO-005-02** | Usunięcie lub edycja wersji CV powiązanej z wysłaną aplikacją nie może po cichu przepisać historycznej wersji; skutki usuwania OPEN-006/036. | FR-DO-005 |
+| **AC-HE-007-02** | Wcześniejszy termin po przełożeniu jest możliwy do odtworzenia, bez fikcyjnego odnotowania odbycia w starym terminie. | FR-HE-007 |
+| **AC-HE-002-02** | Data wpisania zdarzenia do CRM nie zostaje zastąpiona nową datą historycznego zdarzenia po korekcie; edytowalność OPEN-004. | FR-HE-002 |
