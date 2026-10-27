@@ -21,7 +21,7 @@
 | **Zakończenie** (*ClosureRecord*) | Fakt zakończenia sprawy z obowiązkowym wynikiem; zachowywany także po wznowieniu. |
 | **Akcja biznesowa** | Jawna czynność użytkownika dotycząca życia sprawy, np. „Oznacz jako aplikowane”; nie jest ręczną korektą błędu. |
 | **Wpis historii** (*HistoryEntry*) | Istotne udokumentowane zdarzenie biznesowe lub notatka, z datą zdarzenia i datą dodania do CRM, jeśli je rozróżnia. Nie jest logiem technicznym. |
-| **Wydarzenie kalendarza** (*CalendarEvent*) | Planowana lub dodana po fakcie rozmowa/spotkanie z własnym cyklem życia, także z wieloma uczestnikami. Nie każdy wpis historii jest wydarzeniem kalendarza. |
+| **Wydarzenie kalendarza** (*CalendarEvent*) | Planowana lub dodana po fakcie rozmowa/spotkanie z własnym cyklem życia, także z wieloma uczestnikami. Przełożenie zmienia termin z zachowaniem historii dat, nie jest osobnym zatwierdzonym statusem (`OPEN-021`). Nie każdy wpis historii jest wydarzeniem kalendarza. |
 | **Zadanie** (*Task*) | Działanie do wykonania, ogólne lub związane ze sprawą; sugestia systemowa nie jest automatycznie zadaniem. |
 | **Sugestia** (*Suggestion*) | Rekomendacja z reguł, a nie autonomiczne działanie. |
 | **Dokument/wersja** (*Document/DocumentVersion*) | Plik dostępny globalnie w bibliotece lub tylko dla sprawy; wersja CV może zostać wskazana jako faktycznie wysłana. |

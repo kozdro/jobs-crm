@@ -16,7 +16,7 @@ Organizować kolejne działania i przypomnienia dotyczące spraw lub pracy ogól
 
 ## Przypadki brzegowe
 
-- Brak terminu jest dozwolony dla zadania.
+- Brak terminu jest dozwolony; sam brak terminu nie wyzwala zaległości ani przypomnienia. Przypomnienie wymaga konfiguracji/reguły (`OPEN-009`), sugestia jest osobnym bytem.
 - Brak informacji o odpowiedzi nie dowodzi milczenia adresata; sugestia nie może twierdzić, że odpowiedź na pewno nie przyszła.
 - Sugestia follow-upu może być nieaktualna po imporcie historycznych rekordów; import nie tworzy zaległych sugestii.
 - Sprawa zakończona z otwartymi zadaniami wymaga decyzji; nie usuwać ich domyślnie.

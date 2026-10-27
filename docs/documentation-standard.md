@@ -17,10 +17,12 @@
 - `OPEN-NNN` — kwestia do rozstrzygnięcia, właściciel i bramka.
 - `BR-NNN` — reguła biznesowa, obowiązująca w domenie.
 - `FR-XX-NNN` — wymaganie funkcjonalne, gdzie `XX` to moduł (`LC`, `RW`, `DB`, `QC`, `IM`, `HE`, `TN`, `DO`, `CC`, `GS`, `NV`).
-- `AC-XX-NNN` — kryterium akceptacji wymagania `FR-XX-NNN` (ten sam sufiks).
+- `AC-XX-NNN` — zachowane główne AC wymagania `FR-XX-NNN`; `AC-XX-NNN-01` itd. — dodatkowe niezależne kryteria tego samego FR. Każdy FR ma co najmniej jedno AC; każdy AC należy do jednego FR. Nie zmieniaj istniejących ID.
 - `NFR-NNN` — wymaganie niefunkcjonalne; wartości otwarte są `OPEN`, nie domyślne.
 - `UC-NNN` — scenariusz end-to-end na poziomie użytkownika; `TC-NNN` — planowany test danego scenariusza.
 - `UX-NNN` — ekran lub przepływ w architekturze informacji.
+
+Pełną listę dodatkowych AC wskazuje traceability; stan zatwierdzenia FR i wykonania TC są odrębne. `PLANNED / NOT EXECUTED` nie znaczy `PASSED`.
 
 Nie zmieniaj znaczenia istniejącego identyfikatora po zatwierdzeniu, zamiast tego udokumentuj zmianę i jej wpływ. Nie używaj raz zwolnionych ID ponownie.
 

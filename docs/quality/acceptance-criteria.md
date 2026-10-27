@@ -2,7 +2,7 @@
 
 **Stan:** `BASELINED`; `AC-*` to weryfikowalna formalizacja zatwierdzonego zakresu `FR-*`. Przypadki zależne od `OPEN-*` nie mogą być traktowane jako kompletne testy wdrożeniowe do momentu rozstrzygnięcia szczegółów.
 
-**Struktura:** jeden główny test akceptacyjny dla każdego FR, dodatkowo regresje i granice w [scenariuszach UC/TC](scenarios.md). Nie oznacza to, że testy uruchomiono.
+**Struktura:** zachowujemy główne AC i dodajemy niezależne kryteria z sufiksem `-01`, `-02` itd. Pełną listę dla każdego FR zawiera [traceability](traceability.md). Niczego nie uruchomiono.
 
 
 ## LC — Recruitment Lifecycle & Stages
@@ -204,7 +204,35 @@
 
 ## Warunki akceptacji specyfikacji
 
-1. Każdy `FR-*` musi mieć dokładnie odpowiadający `AC-*`.
+1. Każdy `FR-*` musi mieć co najmniej jedno AC; dodatkowe AC stosują sufiksy `-01`, `-02` itd.
 2. AC zależne od `OPEN` pozostaje scenariuszem kontrolnym, ale jego szczegółowe dane wejściowe będą sprecyzowane po decyzji PO.
 3. Dla implementacji wprowadź testy negatywne z [UC/TC](scenarios.md) i security/regresje; nie deklaruj wykonania testu na podstawie samego dokumentu.
 
+
+
+## Dodatkowe niezależne kryteria dla ryzykownych FR
+
+**Status testów:** `PLANNED / NOT EXECUTED`. Szczegóły zależne od `OPEN` nie są tu przesądzane.
+
+| ID | Warunek | FR |
+|---|---|---|
+| **AC-LC-015-01** | Ręczna korekta nie dodaje fikcyjnego kontaktu, CV ani zaproszenia; audyt korekt OPEN-004/020. | FR-LC-015 |
+| **AC-LC-016-01** | Bez wyniku zamknięcia nie powstaje zakończenie ani zmiana na Zakończone; słownik OPEN-001. | FR-LC-016 |
+| **AC-LC-017-01** | Ponowne zamknięcie po wznowieniu nie nadpisuje poprzedniego wyniku. | FR-LC-017 |
+| **AC-LC-018-01** | Nierozstrzygnięte otwarte zadanie/wydarzenie blokuje ciche zamknięcie; szczegóły opcji OPEN-029. | FR-LC-018 |
+| **AC-LC-019-01** | Wznowienie pozostawia poprzednie zakończenia i pozwala na następny cykl. | FR-LC-019 |
+| **AC-IM-006-01** | Błędy mapowania są jawne w podglądzie; nieznane wartości OPEN-022. | FR-IM-006 |
+| **AC-IM-008-01** | Brak zgody na partial import nie pozwala cicho zapisać wybranych wierszy. | FR-IM-008 |
+| **AC-IM-010-01** | Raport wyjaśnia powód pominięcia każdego wiersza; forma po awarii OPEN-010. | FR-IM-010 |
+| **AC-IM-011-01** | Ponowiony wsad nie może cicho zdublować danych; identyfikacja i retry OPEN-035/010. | FR-IM-011 |
+| **AC-IM-012-01** | Brak daty nie generuje bieżącej fikcyjnej daty wysłania ani zdarzeń. | FR-IM-012 |
+| **AC-IM-014-01** | Aktualizacja istniejącej sprawy po konflikcie wymaga jawnej decyzji; współbieżność OPEN-010/024. | FR-IM-014 |
+| **AC-DO-002-01** | Ten sam dokument z biblioteki można użyć w dwóch sprawach bez utraty identyfikacji wysłanej wersji. | FR-DO-002 |
+| **AC-DO-005-01** | Podłączenie nowszej wersji nie zastępuje historycznie wysłanej wersji CV; retencja OPEN-006/036. | FR-DO-005 |
+| **AC-DO-010-01** | Nieuprawniony użytkownik nie może odczytać dokumentu ani prywatnych metadanych; mechanizm OPEN-013. | FR-DO-010 |
+| **AC-HE-002-01** | Korekta rzeczywistej daty wpływa na chronologię, nie fałszuje daty wpisu; zasady OPEN-004. | FR-HE-002 |
+| **AC-HE-003-01** | Korekta techniczna nie pojawia się jako fikcyjne wydarzenie biznesowe. | FR-HE-003 |
+| **AC-HE-007-01** | Przełożenie zachowuje dawny termin tego samego wydarzenia bez statusu Przełożone; enum OPEN-021. | FR-HE-007 |
+| **AC-HE-008-01** | Odbycie wymaga świadomego potwierdzenia; sama zmiana terminu nie wystarcza. | FR-HE-008 |
+| **AC-HE-011-01** | Upływ czasu nie oznacza nierozliczonego spotkania jako odbytego. | FR-HE-011 |
+| **AC-HE-012-01** | Sugestia rozliczenia nie zmienia sama statusu wydarzenia. | FR-HE-012 |

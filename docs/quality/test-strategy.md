@@ -15,7 +15,7 @@
 |---|---|---|
 | Domena / unit | Niezmienniki biznesowe | Cztery statusy, kwalifikujące zaproszenie, wynik zamknięcia, korekta ≠ wydarzenie, powiązanie CV ≠ wysyłka. |
 | Integracyjny | Granice modułów | Quick Capture → Lifecycle, Event → Contact History, Import → Dedupe/History, Close → Tasks/Calendar, Search → zamknięte sprawy. |
-| E2E | Ścieżki rzeczywistego użytkownika | `UC-001`–`UC-032`: sprawa bez aplikacji, CTO, agencja, wznowienie, częściowy Excel, rekruter w kilku sprawach. |
+| E2E | Ścieżki rzeczywistego użytkownika | `UC-001`–`UC-037`: sprawa bez aplikacji, CTO, agencja, wznowienie, częściowy Excel, rekruter w kilku sprawach. |
 | Security / Privacy | Dane osobowe, pliki i zewnętrzne URL-e | Brak dostępu do cudzych dokumentów, nieuprawniony podgląd, bezpieczny import, SSRF/URL fetch, wyciek poprzez logi, walidacja uploadu. |
 | Manual / UX | Spójność zachowania | DnD z walidacją, drawer vs pełna strona, scenariusze klawiatury, komunikaty po awarii, użyteczność mapowania importu. |
 | Regresja | Zachowanie po zmianach | DnD/korekta nie wywołują akcji, brak autopass wydarzeń, brak autozamknięć, stare closure po wznowieniu, idempotencja importu. |
@@ -43,4 +43,4 @@ W szczególności przetestuj:
 3. Security/privacy review dla danych osobowych, plików, linków i importu zakończony bez znanych blockerów.
 4. Dokumentacja i traceability aktualne; środowisko testowe i wyniki są jawnie udokumentowane.
 
-Bez implementacji status każdego `TC` to `PLANNED / NOT EXECUTED`; wyników nie wolno dopowiadać.
+Bez implementacji testy mają stan `NOT EXECUTED`; `TC-035/036` dotyczą warunkowych funkcji `PROPOSED`. Nie deklaruj wyników bez uruchomienia.

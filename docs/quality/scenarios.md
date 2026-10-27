@@ -18,9 +18,10 @@ Scenariusze są testami zgodności specyfikacji, nie dekoracją dokumentacji. W 
 2. Wprowadź ręcznie ofertę lub jeden URL.
 3. Zweryfikuj dane.
 4. Wybierz Zapisz.
-5. Przejrzyj kartę sprawy..
+5. Zobacz potwierdzenie zapisu na Dashboardzie.
+6. Następnie świadomie wybierz otwarcie utworzonej sprawy i przejrzyj jej kartę.
 
-**Oczekiwany rezultat:** Powstaje sprawa Zapisane z linkiem, bez faktu wysłania CV. Użytkownik pozostaje na Dashboardzie.
+**Oczekiwany rezultat:** Po zapisie sprawa ma status `Zapisane` i link, bez zdarzenia wysłania CV; pozostajesz na Dashboardzie. Dopiero krok 6 otwiera sprawę.
 
 **Ważny test negatywny / błąd:** Nie może powstać zdarzenie aplikowania ani automatyczne zaproszenie do rekrutacji.
 
@@ -178,7 +179,7 @@ Scenariusze są testami zgodności specyfikacji, nie dekoracją dokumentacji. W 
 2. Przełóż termin.
 3. Sprawdź widok kalendarza i historię sprawy..
 
-**Oczekiwany rezultat:** Nowy termin wydarzenia jest dostępny; wydarzenie nie staje się odbyte wyłącznie z powodu przesunięcia.
+**Oczekiwany rezultat:** Nowy termin **tego samego wydarzenia** jest widoczny, poprzedni termin można odtworzyć; przełożenie nie oznacza odbycia ani odrębnego trwałego statusu.
 
 **Ważny test negatywny / błąd:** System nie tworzy fikcyjnego potwierdzenia odbycia pierwotnej rozmowy.
 
@@ -528,7 +529,7 @@ Scenariusze są testami zgodności specyfikacji, nie dekoracją dokumentacji. W 
 
 ## UC-030 — Zadania bez terminu i ich prezentacja
 
-**Test:** `TC-030` · **Wymagania:** `FR-TN-001`, `FR-TN-002`, `FR-TN-003`, `FR-TN-004`, `FR-DB-002` · **Reguły:** `BR-011`, `BR-020`
+**Test:** `TC-030` · **Wymagania:** `FR-TN-001`, `FR-TN-002`, `FR-TN-003`, `FR-DB-002` · **Reguły:** `BR-011`, `BR-020`
 **Bramki:** `OPEN-002`, `OPEN-009`, `OPEN-040`
 
 **Warunek początkowy:** Użytkownik ma ogólną czynność i czynność związaną z rekrutacją.
@@ -538,9 +539,9 @@ Scenariusze są testami zgodności specyfikacji, nie dekoracją dokumentacji. W 
 1. Dodaj zadanie ogólne bez terminu.
 2. Dodaj zadanie do sprawy z tytułem i opisem.
 3. Otwórz Zadania, Dashboard i kartę sprawy.
-4. Zweryfikuj przypomnienie wewnątrz aplikacji..
+4. Sprawdź, że brak terminu sam nie uruchamia zaległości ani przypomnienia.
 
-**Oczekiwany rezultat:** Oba zadania istnieją z właściwym kontekstem, bez wymogu terminu, i są widoczne w odpowiednich modułach.
+**Oczekiwany rezultat:** Oba zadania istnieją bez wymogu terminu i we właściwych kontekstach. Przypomnienie weryfikuje oddzielny `UC-037`.
 
 **Ważny test negatywny / błąd:** Brak terminu nie blokuje zapisu; sugestia nie staje się automatycznie zadaniem.
 
@@ -577,6 +578,16 @@ Scenariusze są testami zgodności specyfikacji, nie dekoracją dokumentacji. W 
 **Oczekiwany rezultat:** Sprawa nie jest samoczynnie Zakończone, a brak odpowiedzi w CRM nie jest nazywany potwierdzonym milczeniem rekrutera.
 
 **Ważny test negatywny / błąd:** Bez akcji użytkownika nie pojawia się automatyczny wynik zakończenia ani wysłana wiadomość.
+
+## UC-037 — Przypomnienie skonfigurowanego zadania
+
+**Test:** `TC-037` · **Wymagania:** `FR-TN-002`, `FR-TN-004` · **Bramka:** `OPEN-009` · **Status:** `PLANNED / NOT EXECUTED`.
+
+**Warunek początkowy:** Zadanie ma przypomnienie skonfigurowane na podstawie przyszłej zatwierdzonej reguły.
+
+**Kroki:** 1. Ustaw przypomnienie zgodnie z zatwierdzoną konfiguracją. 2. Spełnij przesłankę reguły. 3. Sprawdź powiadomienie wewnętrzne.
+
+**Wynik:** Przypomnienie zależy od konfiguracji/reguły, a nie samego braku terminu. **Negatywny:** Zadanie bez terminu nie jest samo zaległe.
 
 ## UC-033 — Wejście do prywatnego Dashboardu po logowaniu
 
@@ -629,7 +640,7 @@ Scenariusze są testami zgodności specyfikacji, nie dekoracją dokumentacji. W 
 
 ## Stan planu testów
 
-- `TC-001`–`TC-034`: **PLANNED / NOT EXECUTED** — aplikacja i prototyp nie powstały; `TC-033/034` wymagają rozstrzygnięcia mechanizmów bezpieczeństwa.
+- `TC-001`–`TC-034` oraz `TC-037`: **PLANNED / NOT EXECUTED** — aplikacja i prototyp nie powstały; `TC-033/034` wymagają rozstrzygnięcia mechanizmów bezpieczeństwa.
 - `TC-035`–`TC-036`: **PROPOSED / PLANNED CONDITIONAL / NOT EXECUTED** — dotyczą funkcji niewłączonych jeszcze decyzją PO do zatwierdzonego MVP.
 - Każdy scenariusz powiązano z wymaganiami, ale nie każde drobne FR wymaga osobnego E2E; pełną relację pokazuje [traceability](traceability.md).
 - Testy bezpieczeństwa, własności danych, awarie importu i walidacje są rozszerzane w [strategii testów](test-strategy.md).

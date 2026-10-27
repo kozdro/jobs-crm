@@ -6,7 +6,11 @@
 
 Aktywnie poszukująca pracy osoba korzysta równolegle z portali pracy (m.in. Just Join IT, No Fluff Jobs, theprotocol, LinkedIn), poczty, stron firmowych i bezpośrednich kontaktów. Nie ma jednej wiarygodnej pamięci tego, czy, kiedy, na co i jak aplikowała; z kim rozmawiała; jakie dokumenty wysłała; na czym skończył się proces i co jeszcze należy zrobić.
 
-**Core problem:** rozproszona historia poszukiwania pracy powoduje utratę kontekstu, powtórne aplikacje, pomijanie follow-upów i trudność w odtwarzaniu przebiegu rekrutacji.
+**Fakty z discovery:** właściciel projektu nie prowadzi arkusza/rejestru, używa portali ofert, poczty, LinkedIna i formularzy, wysyła spontaniczne aplikacje oraz kontaktuje się z rekruterami, CEO i CTO. Po miesiącach trudno odtworzyć aplikacje, kontakty, daty, dokumenty, ustalenia i wyniki; potrzebna jest centralna przeszukiwalna historia.
+
+**Potencjalne skutki (niepotwierdzone jako zdarzenia):** ponowna aplikacja bez świadomości wcześniejszej próby lub pominięty follow-up.
+
+**Hipoteza:** podobny problem może dotyczyć innych kandydatów IT/digital; nie prowadzono badań potwierdzających skalę.
 
 ## Wizja (`APPROVED`)
 
