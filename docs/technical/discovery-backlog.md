@@ -1,6 +1,6 @@
-# Backlog Technical Discovery — bez wyboru stacku
+# Backlog Technical Discovery — historyczny punkt wyjścia
 
-**Stan:** `BASELINED` jako katalog pytań. Warianty technologiczne są **`OPEN`/`PROPOSED`**, a nie zatwierdzone. Nie ma aplikacyjnego boilerplate'u, migracji DB ani infrastruktury.
+**Stan:** HISTORICAL BASELINE (przed Technical Discovery). **Technical Discovery zakończono 2026-10-28**, a zatwierdzone wybory opisano w [rejestrze 1.1–1.40](discovery-decisions.md), [architekturze](architecture.md) i [ADR](../decisions/adr/README.md). Poniższa tabela to oryginalna lista pytań, nie aktualny stan wyboru stacku. Nie ma jeszcze aplikacji ani infrastruktury.
 
 ## Wymagane analizy przed architekturą
 
