@@ -1,7 +1,7 @@
 # Mapa dokumentacji — Jobs CRM
 
 | Pytanie | Autorytatywny dokument |
-|---|---|
+| --- | --- |
 | Po co i dla kogo? | [Wizja i zakres](product/vision-and-scope.md), [persony/JTBD](product/users-and-jtbd.md) |
 | Skąd pochodzą ustalenia? | [Pochodzenie baseline'u](product/discovery-provenance.md) |
 | Jak rozumiemy pojęcia? | [Słownik i model](domain/glossary-and-model.md) |
