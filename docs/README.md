@@ -9,7 +9,7 @@
 | Co aplikacja musi robić? | [Wymagania FR](requirements/functional-requirements.md) |
 | Co z jakością i bezpieczeństwem? | [NFR](requirements/nonfunctional-requirements.md), [strategia testowa](quality/test-strategy.md) |
 | Co dokładnie oznacza akceptacja? | [Kryteria AC](quality/acceptance-criteria.md) |
-| Jak użytkownik się porusza? | [Architektura informacji](ux/information-architecture.md), [przepływy](ux/interaction-flows.md) |
+| Jak użytkownik się porusza? | [Architektura informacji](ux/information-architecture.md), [przepływy](ux/interaction-flows.md), [UX Blueprint v1](ux/blueprint.md), [ekrany](ux/screen-blueprints.md), [kontrakty interakcji](ux/flow-contracts.md), [rejestr wyborów UX](ux/blueprint-decisions.md) |
 | Co dzieje się w poszczególnych modułach? | [Indeks funkcji](features/README.md), [specyfikacje funkcji](features/), [Account & Data Management](features/account-and-data-management.md) |
 | Co zatwierdzono? | [Rejestr DEC](decisions/product-decisions.md) |
 | Czego nie wiemy? | [Rejestr OPEN](decisions/open-questions.md) |
@@ -27,3 +27,7 @@
 - Zmienione zależności i pokrycie aktualizuj w `quality/traceability.md` oraz scenariuszach.
 
 **Nie** nadawaj statusu `APPROVED` własnej propozycji agenta. Reguły dokumentacyjne nie zastępują osobnej zgody właściciela produktu.
+
+## UX Blueprint v1 (2026-10-28)
+
+Szczegółowy projekt UX i dokumenty pod prototypowanie znajdują się w `ux/blueprint.md`, `ux/screen-blueprints.md`, `ux/flow-contracts.md` i `ux/blueprint-decisions.md`. Wybory PO z rozmowy 1.1–1.32 są odróżnione od rekomendacji dobranych pod delegacją. Dokumenty **nie** zatwierdzają nierozstrzygniętych `OPEN-*`, technologii ani nie uruchamiają testów.
