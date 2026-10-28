@@ -16,7 +16,7 @@
 - `DEC-NNN` — decyzja produktowa, źródło zatwierdzenia.
 - `OPEN-NNN` — kwestia do rozstrzygnięcia, właściciel i bramka.
 - `BR-NNN` — reguła biznesowa, obowiązująca w domenie.
-- `FR-XX-NNN` — wymaganie funkcjonalne, gdzie `XX` to moduł (`LC`, `RW`, `DB`, `QC`, `IM`, `HE`, `TN`, `DO`, `CC`, `GS`, `NV`).
+- `FR-XX-NNN` — wymaganie funkcjonalne, gdzie `XX` to moduł (`LC`, `RW`, `DB`, `QC`, `IM`, `HE`, `TN`, `DO`, `CC`, `GS`, `NV`, `AD`). `AD` oznacza **Account & Data Management**.
 - `AC-XX-NNN` — zachowane główne AC wymagania `FR-XX-NNN`; `AC-XX-NNN-01` itd. — dodatkowe niezależne kryteria tego samego FR. Każdy FR ma co najmniej jedno AC; każdy AC należy do jednego FR. Nie zmieniaj istniejących ID.
 - `NFR-NNN` — wymaganie niefunkcjonalne; wartości otwarte są `OPEN`, nie domyślne.
 - `UC-NNN` — scenariusz end-to-end na poziomie użytkownika; `TC-NNN` — planowany test danego scenariusza.

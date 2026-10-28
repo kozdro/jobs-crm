@@ -605,7 +605,7 @@ Scenariusze są testami zgodności specyfikacji, nie dekoracją dokumentacji. W 
 
 ## UC-035 — Samoobsługa konta (wariant do decyzji)
 
-**Test:** `TC-035` · **Status:** `PROPOSED / PLANNED CONDITIONAL / NOT EXECUTED` · **Wymagania:** `FR-AD-003`–`FR-AD-007` (wszystkie `PROPOSED`) · **Bramki:** `OPEN-013/041/042/043/044`.
+**Test:** `TC-035` · **Status:** `PROPOSED / PLANNED CONDITIONAL / NOT EXECUTED` · **Wymagania:** `FR-AD-003`, `FR-AD-004`, `FR-AD-005`, `FR-AD-006`, `FR-AD-007` (wszystkie `PROPOSED`) · **Bramki:** `OPEN-013/041/042/043/044`.
 
 **Warunek początkowy:** PO wybrał wariant dopuszczający rejestrację, wylogowanie, sesje, odzyskiwanie i profil; bez tej decyzji scenariusz nie jest wykonywalny.
 
@@ -617,7 +617,7 @@ Scenariusze są testami zgodności specyfikacji, nie dekoracją dokumentacji. W 
 
 ## UC-036 — Eksport i usunięcie własnych danych (wariant do decyzji)
 
-**Test:** `TC-036` · **Status:** `PROPOSED / PLANNED CONDITIONAL / NOT EXECUTED` · **Wymagania:** `FR-AD-008/009` (`PROPOSED`), `FR-AD-002` · **Reguły:** `BR-026/BR-030` · **Bramki:** `OPEN-005/006/032/045/046`.
+**Test:** `TC-036` · **Status:** `PROPOSED / PLANNED CONDITIONAL / NOT EXECUTED` · **Wymagania:** `FR-AD-008`, `FR-AD-009` (`PROPOSED`), `FR-AD-002` · **Reguły:** `BR-026/BR-030` · **Bramki:** `OPEN-005/006/032/045/046`.
 
 **Warunek początkowy:** PO zatwierdził zakres eksportu i politykę usunięcia; konto ma sprawy, historię i CV powiązane z wysłaną aplikacją.
 

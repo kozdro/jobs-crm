@@ -1,6 +1,8 @@
-# Audyt spójności i gotowości dokumentacji — bootstrap
+# Audyt spójności i gotowości dokumentacji — bootstrap (snapshot historyczny)
 
 **Data:** 2026-10-27. **Stan:** `BASELINED` (audyt dokumentów, nie audyt implementacji). **Materiał wejściowy:** zatwierdzony baseline właściciela projektu przekazany w zadaniu. Pełna transkrypcja poprzedniego czatu nie była załączona jako osobny zasób.
+
+> **Snapshot historyczny bootstrapu.** Liczby i oceny w tym raporcie dotyczą stanu dokumentacji z 27 października 2026 r., **nie** aktualnych metryk po Documentation Hardening (PR #1). Zachowano je bez aktualizacji dla odtwarzalności pierwotnego audytu. Aktualne powiązania znajdują się w [traceability](traceability.md), a bieżące kryteria w [katalogu AC](acceptance-criteria.md).
 
 ## Zakres pokrycia
 
