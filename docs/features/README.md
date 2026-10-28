@@ -14,5 +14,6 @@ Każda specyfikacja opisuje cel, aktorów, warunki wejścia, scenariusz główny
 | Documents | [documents.md](documents.md) | `FR-DO-*` |
 | Companies & Contacts | [companies-and-contacts.md](companies-and-contacts.md) | `FR-CC-*` |
 | Global Search | [global-search.md](global-search.md) | `FR-GS-*` |
+| Account & Data Management | [account-and-data-management.md](account-and-data-management.md) | `FR-AD-*` (statusy mieszane: APPROVED/PROPOSED) |
 
 Nawigacja `FR-NV-*` ma własne źródło w [UX IA](../ux/information-architecture.md), bez nadmiarowej osobnej specyfikacji. AC są kanoniczne w [kryteriach akceptacji](../quality/acceptance-criteria.md).

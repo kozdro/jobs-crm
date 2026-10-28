@@ -38,3 +38,7 @@ Quick Capture, Companies & Contacts, Tasks/Events, History, Documents, Workspace
 ## Blokery i granice
 
 `OPEN-001/OPEN-002/OPEN-003/OPEN-004/OPEN-018/OPEN-019/OPEN-020/OPEN-027/OPEN-029/OPEN-034/OPEN-040`; wyniki zamknięcia i dokładny automat statusów nie są w pełni rozstrzygnięte. **Nie** dopisuj pełnej macierzy przejść jako faktu.
+
+## Niezmienniki przy powtórnym zamknięciu
+
+Po wznowieniu następne zamknięcie nie nadpisuje wcześniejszych ClosureRecord (`AC-LC-017-01`, `AC-LC-019-02`). Brak wyniku i nierozstrzygnięte otwarte elementy blokują zakończenie (`AC-LC-016-01/02`, `AC-LC-018-01/02`); słowniki i efekty pozostają `OPEN-001/029`.

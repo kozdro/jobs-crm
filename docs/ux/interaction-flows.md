@@ -40,7 +40,8 @@ Dokładna lista wyników i zachowanie „zachowaj/odłącz” są `OPEN-001/OPEN
 
 `UX-005 lub UX-011 → wydarzenie → zmiana terminu / rozliczenie`
 
-- Wydarzenie ma osobne stany: przełożenie, odbyte, anulowane, nieodbyte.
+- Przełożenie to **operacja zmiany terminu** jednego wydarzenia z zachowaniem historii wcześniejszych terminów, nie osobny zatwierdzony trwały status.
+- Wydarzenie można rozliczyć jako odbyte, nieodbyte lub anulowane. Ostateczny enum stanów `OPEN-021`.
 - Jeśli termin minął, brak oznaczenia „odbyte” nie powoduje samoczynnej zmiany: system proponuje rozliczenie.
 - Można dodać rozmowę już odbytą bez jej wcześniejszego planowania.
 - Wielu uczestników łączy wydarzenie z rzeczywistą historią odpowiednich kontaktów.

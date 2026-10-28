@@ -1,8 +1,8 @@
 # Katalog wymagań funkcjonalnych — FR
 
-**Stan:** `BASELINED` na 2026-10-27. Wymagania są formalizacją jawnie zatwierdzonego zakresu (`APPROVED`). Ich szczegóły, gdy oznaczono `OPEN`, **nie** są zatwierdzone. Wszystkie pozycje należą do zakresu publicznego **MVP**, nie ustalają kolejności implementacji. Kolejność realizacji pozostaje `OPEN` — nie przypisujemy sztucznego rankingu Must/Should.
+**Stan:** `BASELINED` na 2026-10-27. Wymagania wcześniejszych modułów formalizują zatwierdzony zakres (`APPROVED`); dopisany obszar `AD` odróżnia niezmienniki `APPROVED` od funkcji `PROPOSED`. Szczegóły zależne od `OPEN` **nie** są zatwierdzone. Dotychczasowe moduły należą do publicznego MVP; pozycje `PROPOSED` nie powiększają automatycznie zakresu MVP. Kolejność implementacji pozostaje `OPEN` — nie przypisujemy sztucznego rankingu Must/Should.
 
-**Legenda:** `ID` to trwały identyfikator, `DEC/BR` to normatywne źródła, `OPEN` to zależności do rozstrzygnięcia przed implementacją danego przepływu, `AC` to jednoznaczny warunek w [katalogu AC](../quality/acceptance-criteria.md). Status każdego FR poniżej: `APPROVED` **w podanym zakresie**.
+**Legenda:** `ID` to trwały identyfikator, `DEC/BR` to normatywne źródła, `OPEN` to zależności do rozstrzygnięcia przed implementacją danego przepływu, `AC` to kryteria w [katalogu AC](../quality/acceptance-criteria.md). Status `APPROVED` dotyczy wcześniejszych modułów tylko w podanym zakresie; w tabeli `AD` status jest wskazany dla każdego FR.
 
 Każdy FR ma co najmniej jedno testowalne AC. Macierz powiązań ze scenariuszami i testami E2E: [traceability](../quality/traceability.md).
 
@@ -199,6 +199,22 @@ Każdy FR ma co najmniej jedno testowalne AC. Macierz powiązań ze scenariuszam
 | **FR-GS-006** | Global Search obejmuje opisy wydarzeń. | DEC-038 | OPEN-038 | AC-GS-006 |
 | **FR-GS-007** | Wyniki wyszukiwania są grupowane według typu rekordu. | DEC-038 | OPEN-038 | AC-GS-007 |
 | **FR-GS-008** | Wynik wyszukiwania pozwala otworzyć odpowiedni rekord lub kontekst. | DEC-038 BR-012 | OPEN-005/OPEN-038 | AC-GS-008 |
+
+## AD — Account & Data Management
+
+**Specyfikacja:** [Account & Data Management](../features/account-and-data-management.md). `APPROVED` dotyczy jedynie rezultatu logowania i niezmiennika prywatności; pozostałe wiersze to `PROPOSED` (nie stanowią zatwierdzonego przyrostu MVP).
+
+| ID | Status | Wymaganie | Podstawa | Bramka `OPEN` | Kryterium |
+|---|---|---|---|---|---|
+| **FR-AD-001** | APPROVED (ograniczone) | Po zalogowaniu użytkownik ma dostęp do swojego prywatnego workspace'u z Dashboardem jako ekranem wejścia; metoda logowania nie jest określona. | DEC-018 BR-030 | OPEN-013 | AC-AD-001 |
+| **FR-AD-002** | APPROVED (niezmiennik) | Dane rekrutacyjne, kontakty, historia i dokumenty właściciela nie mogą zostać ujawnione innemu nieuprawnionemu użytkownikowi przez widoki, wyszukiwanie lub dostęp do plików. | BR-030 NFR-001 | OPEN-006/OPEN-013/OPEN-032 | AC-AD-002 |
+| **FR-AD-003** | PROPOSED | Użytkownik może samodzielnie zarejestrować konto. | — | OPEN-041/OPEN-013 | AC-AD-003 |
+| **FR-AD-004** | PROPOSED | Użytkownik może wylogować się i zakończyć bieżącą sesję. | — | OPEN-042/OPEN-013 | AC-AD-004 |
+| **FR-AD-005** | PROPOSED | System obsługuje bezpieczną kontynuację i zakończenie sesji zgodnie z zatwierdzonymi regułami. | NFR-001 | OPEN-013/OPEN-042 | AC-AD-005 |
+| **FR-AD-006** | PROPOSED | Użytkownik może odzyskać dostęp do swojego konta zgodnie z zatwierdzoną polityką. | — | OPEN-043/OPEN-013 | AC-AD-006 |
+| **FR-AD-007** | PROPOSED | Użytkownik może przeglądać i modyfikować podstawowe dane własnego profilu. | — | OPEN-044/OPEN-002 | AC-AD-007 |
+| **FR-AD-008** | PROPOSED | Użytkownik może wystąpić o eksport własnych danych. | NFR-007 | OPEN-032/OPEN-045 | AC-AD-008 |
+| **FR-AD-009** | PROPOSED | Użytkownik może zainicjować usunięcie swojego konta i powiązanych danych zgodnie z zatwierdzoną polityką. | NFR-007 | OPEN-005/OPEN-006/OPEN-032/OPEN-046 | AC-AD-009 |
 
 ## NV — Navigation
 

@@ -39,3 +39,8 @@ Status lub data z arkusza mogą odzwierciedlać stan historyczny, ale import nie
 ## Decyzje blokujące
 
 `OPEN-001/OPEN-002/OPEN-010/OPEN-022/OPEN-023/OPEN-024/OPEN-035`, limity `OPEN-007`, formaty dat `OPEN-037`. Wstępny opis nie jest specyfikacją atomicznego zapisu ani obsługi transakcji.
+
+## Dodatkowe niezmienniki QA (bez zatwierdzania transakcyjności)
+
+- W przypadku awarii nie wolno przedstawiać niezweryfikowanego zapisu wiersza jako sukcesu (`AC-IM-011-02`). Nie zakładamy pełnego rollbacku ani retry bez `OPEN-010/035`.
+- Zmiana istniejącej sprawy między preview i zapisem nie pozwala na ciche nadpisanie bez rozstrzygnięcia konfliktu (`AC-IM-014-02`).

@@ -16,14 +16,14 @@ Utrzymać jedną, prawdziwą chronologię sprawy oraz cykl życia zaplanowanych 
 ## Wydarzenie kalendarza
 
 1. Użytkownik dodaje spotkanie/rozmowę z możliwością kilku uczestników.
-2. Może przełożyć termin, oznaczyć jako odbyte, nieodbyte lub anulowane.
+2. Może przełożyć termin tego samego wydarzenia z zachowaniem wcześniejszych terminów; może oznaczyć wydarzenie jako odbyte, nieodbyte lub anulowane. Przełożenie nie jest osobnym zatwierdzonym statusem.
 3. Może zarejestrować rozmowę już odbytą, nie tworząc fikcyjnego wcześniejszego planu.
 4. Po terminie wydarzenie pozostaje **nierozliczone**, dopóki nie zostanie potwierdzone; system proponuje użytkownikowi rozliczenie.
 5. Historia kontaktu obejmuje zdarzenie tylko, gdy kontakt rzeczywiście był jego uczestnikiem (`BR-019/BR-027`).
 
 ## Alternatywy / bezpieczeństwo semantyczne
 
-- „Przełożone” nie jest „odbyte”; porządek pierwotnych terminów i sposobu prezentacji wymaga `OPEN-021`.
+- Zmiana terminu nie oznacza odbycia; wcześniejszy termin pozostaje odtwarzalny. Słownik stanów i prezentacja historii zmian: `OPEN-021/OPEN-037`.
 - Termin w przeszłości bez potwierdzenia → propozycja rozliczenia, nie zmiana automatyczna.
 - Korekta daty rzeczywistego zdarzenia może zmienić kolejność na osi czasu; zasady edycji `OPEN-004`.
 - Kilka wydarzeń i osób nie może tworzyć zduplikowanych faktów historii.

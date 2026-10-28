@@ -6,7 +6,11 @@
 
 Aktywnie poszukująca pracy osoba korzysta równolegle z portali pracy (m.in. Just Join IT, No Fluff Jobs, theprotocol, LinkedIn), poczty, stron firmowych i bezpośrednich kontaktów. Nie ma jednej wiarygodnej pamięci tego, czy, kiedy, na co i jak aplikowała; z kim rozmawiała; jakie dokumenty wysłała; na czym skończył się proces i co jeszcze należy zrobić.
 
-**Core problem:** rozproszona historia poszukiwania pracy powoduje utratę kontekstu, powtórne aplikacje, pomijanie follow-upów i trudność w odtwarzaniu przebiegu rekrutacji.
+**Fakty z discovery:** właściciel projektu nie prowadzi arkusza/rejestru, używa portali ofert, poczty, LinkedIna i formularzy, wysyła spontaniczne aplikacje oraz kontaktuje się z rekruterami, CEO i CTO. Po miesiącach trudno odtworzyć aplikacje, kontakty, daty, dokumenty, ustalenia i wyniki; potrzebna jest centralna przeszukiwalna historia.
+
+**Potencjalne skutki (niepotwierdzone jako zdarzenia):** ponowna aplikacja bez świadomości wcześniejszej próby lub pominięty follow-up.
+
+**Hipoteza:** podobny problem może dotyczyć innych kandydatów IT/digital; nie prowadzono badań potwierdzających skalę.
 
 ## Wizja (`APPROVED`)
 
@@ -31,6 +35,12 @@ Publiczne MVP to **pełniejszy produkt**, nie wyłącznie Kanban demo. Prace mo�
 6. Quick Capture: ręczne dodanie, pojedynczy URL ze Smart Import oraz import CSV/XLSX.
 
 Zatwierdzone zachowanie modułów: [katalog FR](../requirements/functional-requirements.md), [specyfikacje](../features/README.md).
+
+## Konto i własne dane — granica decyzji
+
+**APPROVED (wynik, nie mechanizm):** użytkownik trafia po zalogowaniu na Dashboard (`DEC-018`), a jego dokumenty oraz dane osobowe pozostają prywatne (`BR-030/NFR-001`). Jest to niezmiennik również wtedy, gdy aplikacja obsługuje więcej niż jedno konto.
+
+**PROPOSED, niezatwierdzone jako komplet MVP:** rejestracja samoobsługowa, wylogowanie/zarządzanie sesją, odzyskiwanie dostępu, edycja profilu, eksport oraz usunięcie konta. Wymagają rozstrzygnięcia `OPEN-013/OPEN-032/OPEN-041`–`OPEN-046`. Por. [Account & Data Management](../features/account-and-data-management.md) i `FR-AD-*`.
 
 ## Świadomie poza pierwszym MVP (`DEFERRED`)
 

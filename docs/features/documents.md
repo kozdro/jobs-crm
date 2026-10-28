@@ -23,3 +23,7 @@ Udostępniać bibliotekę dokumentów wielokrotnego użytku i prywatne załączn
 ## Powiązania
 
 `DEC-039–041`, `BR-026/BR-030`, `NFR-001`, `FR-DO-*`, `AC-DO-*`, `UX-012/UX-005`, `UC-018`. Zależności: Lifecycle, Quick Capture, Company/Contact, security/storage Technical Discovery.
+
+## Granica operacji historycznych
+
+Operacje na wersji CV powiązanej z faktycznie wysłaną aplikacją nie mogą po cichu zmienić historycznej tożsamości wersji (`AC-DO-005-02`). Dokładna polityka usuwania, archiwizacji i retencji wciąż wymaga `OPEN-006/036`; nie narzuca się tutaj blokady usuwania ani soft delete.

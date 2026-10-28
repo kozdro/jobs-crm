@@ -10,10 +10,10 @@
 | Co z jakością i bezpieczeństwem? | [NFR](requirements/nonfunctional-requirements.md), [strategia testowa](quality/test-strategy.md) |
 | Co dokładnie oznacza akceptacja? | [Kryteria AC](quality/acceptance-criteria.md) |
 | Jak użytkownik się porusza? | [Architektura informacji](ux/information-architecture.md), [przepływy](ux/interaction-flows.md) |
-| Co dzieje się w poszczególnych modułach? | [Indeks funkcji](features/README.md), [specyfikacje funkcji](features/) |
+| Co dzieje się w poszczególnych modułach? | [Indeks funkcji](features/README.md), [specyfikacje funkcji](features/), [Account & Data Management](features/account-and-data-management.md) |
 | Co zatwierdzono? | [Rejestr DEC](decisions/product-decisions.md) |
 | Czego nie wiemy? | [Rejestr OPEN](decisions/open-questions.md) |
-| Co testujemy? | [Scenariusze UC/TC](quality/scenarios.md), [traceability](quality/traceability.md), [audyt dokumentacji](quality/documentation-audit.md) |
+| Co testujemy? | [Scenariusze UC/TC](quality/scenarios.md), [traceability](quality/traceability.md), [historyczny audyt bootstrapu (snapshot, nieaktualne metryki)](quality/documentation-audit.md) |
 | Jak będziemy podejmować decyzje techniczne? | [Backlog discovery](technical/discovery-backlog.md), [ryzyka/PoC](technical/risks-and-pocs.md), [ADR](decisions/adr/README.md) |
 | Jak pracuje agent? | [AGENTS.md](../AGENTS.md), [szablon zadania](templates/agent-task.md) |
 | Jak aktualizować dokumenty? | [Standard dokumentacji](documentation-standard.md) |
