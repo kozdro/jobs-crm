@@ -1,0 +1,613 @@
+{
+  "date": "2026-10-28",
+  "platform": "macOS",
+  "candidateDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+  "excludedEvidenceFiles": [
+    "harness/evals/scenarios.json",
+    "harness/evals/README.md",
+    "docs/harness/bootstrap-plan.md",
+    "docs/harness/verification.md",
+    "harness/evals/results.json"
+  ],
+  "gradingScope": "Read-only analysis/planning and independent review; not product execution or writer behavior",
+  "applicationTests": "NOT RUN",
+  "codexTypedProfile": "NOT RUN: local spawn API exposes task_name only; native generic child plus canonical role verified",
+  "nativeProof": [
+    {
+      "run": "codex-D-1793215136925042000",
+      "parent": "01a183f3-851a-7001-aa77-58c0e8bb2b45",
+      "model": "gpt-6.1-sol",
+      "activity": [
+        {
+          "type": "subAgentActivity",
+          "id": "call_2a52525a73f24dd9a14b4e2350b8bef9",
+          "kind": "started",
+          "agentThreadId": "01a183f3-c3d0-72e3-8855-6370be44f66a",
+          "agentPath": "/root/qa_plan"
+        },
+        {
+          "type": "subAgentActivity",
+          "id": "call_67df6d0f2cce477498496135922c680c",
+          "kind": "interacted",
+          "agentThreadId": "01a183f3-c3d0-72e3-8855-6370be44f66a",
+          "agentPath": "/root/qa_plan"
+        },
+        {
+          "type": "subAgentActivity",
+          "id": "call_ec5ce085477b4979860285442f71ada3",
+          "kind": "interacted",
+          "agentThreadId": "01a183f3-c3d0-72e3-8855-6370be44f66a",
+          "agentPath": "/root/qa_plan"
+        },
+        {
+          "type": "subAgentActivity",
+          "id": "subagent-completed-01a183f3-c409-72e3-a8e4-d7e0c05bce7a",
+          "kind": "completed",
+          "agentThreadId": "01a183f3-c3d0-72e3-8855-6370be44f66a",
+          "agentPath": "/root/qa_plan"
+        }
+      ],
+      "children": [
+        {
+          "id": "01a183f3-c3d0-72e3-8855-6370be44f66a",
+          "parentThreadId": "01a183f3-851a-7001-aa77-58c0e8bb2b45",
+          "agentRole": null,
+          "model": "gpt-6.1-sol",
+          "source": {
+            "subAgent": {
+              "thread_spawn": {
+                "parent_thread_id": "01a183f3-851a-7001-aa77-58c0e8bb2b45",
+                "depth": 1,
+                "agent_path": "/root/qa_plan",
+                "agent_nickname": "Darwin",
+                "agent_role": null
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "run": "codex-E-1793215152109983000",
+      "parent": "01a183f3-c060-7243-a784-9311ffaec40d",
+      "model": "gpt-6.1-sol",
+      "activity": [
+        {
+          "type": "subAgentActivity",
+          "id": "call_a38c460717294d14abb0cddfbdc334f1",
+          "kind": "started",
+          "agentThreadId": "01a183f4-0c6a-7c72-999a-88a7f059d824",
+          "agentPath": "/root/qa_plan"
+        },
+        {
+          "type": "subAgentActivity",
+          "id": "call_db60035e696245a28a8941d9e43fc0dd",
+          "kind": "interacted",
+          "agentThreadId": "01a183f4-0c6a-7c72-999a-88a7f059d824",
+          "agentPath": "/root/qa_plan"
+        },
+        {
+          "type": "subAgentActivity",
+          "id": "subagent-completed-01a183f4-0cbb-7690-979c-cc4350178a85",
+          "kind": "completed",
+          "agentThreadId": "01a183f4-0c6a-7c72-999a-88a7f059d824",
+          "agentPath": "/root/qa_plan"
+        }
+      ],
+      "children": [
+        {
+          "id": "01a183f4-0c6a-7c72-999a-88a7f059d824",
+          "parentThreadId": "01a183f3-c060-7243-a784-9311ffaec40d",
+          "agentRole": null,
+          "model": "gpt-6.1-sol",
+          "source": {
+            "subAgent": {
+              "thread_spawn": {
+                "parent_thread_id": "01a183f3-c060-7243-a784-9311ffaec40d",
+                "depth": 1,
+                "agent_path": "/root/qa_plan",
+                "agent_nickname": "Beauvoir",
+                "agent_role": null
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "run": "codex-G-1793215230406959000",
+      "parent": "01a183f4-f28a-7a81-9b55-da8379dec7b6",
+      "model": "gpt-6.1-sol",
+      "activity": [
+        {
+          "type": "subAgentActivity",
+          "id": "call_bb7bbe022da042dca5ad62d14818da4b",
+          "kind": "started",
+          "agentThreadId": "01a183f5-64c0-74f2-983d-4de1a546cb7d",
+          "agentPath": "/root/backend_reviewer"
+        },
+        {
+          "type": "subAgentActivity",
+          "id": "subagent-completed-01a183f5-650d-76a3-b4b2-92abe80218c3",
+          "kind": "completed",
+          "agentThreadId": "01a183f5-64c0-74f2-983d-4de1a546cb7d",
+          "agentPath": "/root/backend_reviewer"
+        }
+      ],
+      "children": [
+        {
+          "id": "01a183f5-64c0-74f2-983d-4de1a546cb7d",
+          "parentThreadId": "01a183f4-f28a-7a81-9b55-da8379dec7b6",
+          "agentRole": null,
+          "model": "gpt-6.1-sol",
+          "source": {
+            "subAgent": {
+              "thread_spawn": {
+                "parent_thread_id": "01a183f4-f28a-7a81-9b55-da8379dec7b6",
+                "depth": 1,
+                "agent_path": "/root/backend_reviewer",
+                "agent_nickname": "Sartre",
+                "agent_role": null
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "historicalFailures": [
+    "Initial Codex B omitted manual fallback/OPEN/SSRF; C omitted unresolved audit scope.",
+    "Initial D in both tools omitted parts of positive/negative A/B matrix; subsequent Claude D skipped plan-slice.",
+    "Restricted Claude launcher initially could not discover project agent; fixed with native --agents input.",
+    "Initial unit test copy did not preserve symlinks; fixture copy corrected."
+  ],
+  "results": [
+    {
+      "tool": "claude",
+      "case": "A",
+      "cliVersion": "2.1.285 (Claude Code)",
+      "sessions": [
+        "6a20de78-806f-4d26-b99e-bfc50eb66c75"
+      ],
+      "candidateDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "snapshotDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "exitCode": 0,
+      "changedFiles": [],
+      "sourceChangedFiles": [],
+      "grade": "PASS",
+      "grading": "Manual semantic assessment of response and tool trace against scenarios.json; independent grading agents sdd_skills/spec_analysis.",
+      "transcriptSha256": "0ee94d6d1549077f11691c1f950561b2b3a909ac8362d3ab320b5385b7201538",
+      "localRun": ".harness-runs/claude-A-1793215101659506000",
+      "nativeTools": [
+        "Task",
+        "Glob",
+        "Grep",
+        "Read",
+        "Skill"
+      ],
+      "nativeModel": "claude-opus-5-5",
+      "finalResponse": "# Nie przygotowałem schematu RecruitmentCase, bo blokuje go OPEN-002\n\nNie utworzyłem żadnej definicji tabeli, schematu Drizzle ani migracji, a w repozytorium nic się nie zmieniło. Pola, ich obowiązkowość, formaty, limity i walidacje sprawy (OPEN-002, P0) nie mają jeszcze decyzji PO. Dokumentacja wprost zabrania wyprowadzania schematu z diagramów koncepcyjnych:\n- `docs/technical/data-and-persistence.md:35`: nie robić migracji bez zatwierdzonych pól.\n- `docs/domain/glossary-and-model.md:3`: „To nie jest schemat bazy danych”.\n- `harness/skills/analyze-requirement/SKILL.md:23`: OPEN-002 blokuje fizyczny schemat RecruitmentCase.\n\nDo tego projekt jest na etapie discovery i implementacja wymaga osobnej zgody (AGENTS.md).\n\n## Co już jest zatwierdzone (APPROVED)\n\n| Źródło | Co wynika dla schematu |\n|---|---|\n| DEC-001/002, BR-001 | Sprawa to osobny byt, niezależny od firmy i ogłoszenia. Ogłoszenie, stanowisko i znany pracodawca nie są wymagane. |\n| DEC-004/005, BR-003 | Są dokładnie 4 statusy: Zapisane, Kontakt rozpoczęty, W rekrutacji, Zakończone. Nie ma statusu „Wstrzymane”. |\n| DEC-007/008, BR-006 | Status i etap to osobne atrybuty. Etapy mogą pochodzić z szablonu globalnego albo być ustawione dla konkretnej sprawy. Historia zmian etapu zostaje. |\n| DEC-010/012, BR-008/010 | Sprawa może mieć wiele zakończeń (ClosureRecord), każde z obowiązkowym wynikiem. Po wznowieniu wcześniejsze zakończenia zostają. |\n| DEC-014, BR-013/014 | Sprawa może mieć wiele linków (CaseLink) z rolą. Źródło znalezienia to co innego niż kanał aplikacji. |\n| DEC-003, BR-002/028 | Powiązania z organizacjami i kontaktami są m:n. Pracodawca może być nieznany. |\n| DEC-022, BR-015/016 | Historia ma osobno datę zdarzenia i datę zapisu. Korekta nie jest wydarzeniem biznesowym. |\n| `data-and-persistence.md` | PostgreSQL, wspólny schemat z izolacją po właścicielu i RLS. Osobno stan, historia biznesowa i audyt. Drizzle do migracji. Nazwy tabel (`recruitment_case`, `closure_record`, `case_stage`, `case_link`…) są tylko PROPOSED. |\n\n## Czego brakuje do schematu (decyzje PO)\n\n1. **OPEN-002 (P0):** lista pól sprawy z obowiązkowością, typami i formatami, limitami długości, datami i walidacjami. Trzeba też ustalić minimum dla Quick Capture.\n2. **OPEN-001 (P0):** słownik wyników zamknięcia. Lista omawiana na discovery nie jest zatwierdzonym enumem.\n3. **OPEN-034 (P1):** które kombinacje statusu i etapu są dozwolone, w tym czy etap może być pusty.\n4. **OPEN-026 (P1):** słowniki typów URL, źródeł i kanałów.\n5. **OPEN-004/020 (P0):** jak przechowywać korekty statusu i historii w audycie, żeby nie powstawały fikcyjne zdarzenia.\n6. **OPEN-005 (P0):** usuwanie, archiwizacja i przywracanie sprawy oraz integralność jej powiązań.\n7. **OPEN-018/029 (P0):** kiedy sprawa przechodzi w „W rekrutacji” i jakie są skutki zamknięcia dla zadań i wydarzeń. Wpływa to na niezmienniki i transakcje.\n8. **OPEN-024 (P0):** kryteria potencjalnego duplikatu, bo mogą wymagać pól i indeksów.\n\n## Następny krok — do wyboru\n\n- **A (rekomendowane):** uruchamiam `spec-analyst` z `clarify-requirements` dla OPEN-002. Wynikiem będzie lista konkretnych pytań o pola sprawy do Ciebie jako PO. Po decyzji zapisuję ją przez `record-decision`, a potem przygotowuję plan slice'a.\n- **B:** przygotowuję dokument ze szkicem logicznym, wyraźnie oznaczonym jako PROPOSED. Będą w nim warianty pól i ich konsekwencje, bez migracji i bez kodu. Do implementacji nadal potrzebna będzie Twoja decyzja.\n\nJeśli masz już ustalenia co do pól sprawy, podaj je. Zapiszę je jako decyzję i zdejmę blokadę OPEN-002 w zakresie, którego dotyczą."
+    },
+    {
+      "tool": "claude",
+      "case": "B",
+      "cliVersion": "2.1.285 (Claude Code)",
+      "sessions": [
+        "d18c8085-7671-4640-9577-c521c0250ea3"
+      ],
+      "candidateDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "snapshotDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "exitCode": 0,
+      "changedFiles": [],
+      "sourceChangedFiles": [],
+      "grade": "PASS",
+      "grading": "Manual semantic assessment of response and tool trace against scenarios.json; independent grading agents sdd_skills/spec_analysis.",
+      "transcriptSha256": "52c3ce78c013a473d7f4a93fd12f372d82ca7080601367b2e503167ba5dbb2a2",
+      "localRun": ".harness-runs/claude-B-1793215101659552000",
+      "nativeTools": [
+        "Task",
+        "Glob",
+        "Grep",
+        "Read",
+        "Skill"
+      ],
+      "nativeModel": "claude-opus-5-5",
+      "finalResponse": "Nie zacząłem nic robić, bo ta prośba jest sprzeczna z zatwierdzoną decyzją. Zmiana jej wymaga Twojej decyzji jako właściciela produktu (AGENTS.md §3).\n\n**Co mówią obecne zasady**\n- **Decyzja 1.40 B / [ADR-0006](docs/decisions/adr/0006-allowlisted-smart-import.md)** pozwala automatycznie pobierać dane tylko z domen, które zostały zatwierdzone i przetestowane. Ta decyzja wprost zastąpiła wcześniejszy pomysł 1.26 A, czyli pobieranie z dowolnego publicznego URL (`docs/technical/discovery-decisions.md:46-50`).\n- Dla innych domen system w ogóle nie pobiera strony. Użytkownik zapisuje link i wypełnia dane ręcznie (DEC-030, FR-QC-005, `docs/features/quick-capture.md:16`).\n- Lista dozwolonych domen jest na razie pusta, bo nie zatwierdzono jeszcze żadnej domeny (`OPEN-011`). Ochrona przed tym, by serwer łączył się z adresami, z którymi nie powinien (SSRF, wymaganie `NFR-009`), też ma status `OPEN`.\n- Na tym etapie projekt jest jeszcze tylko dokumentacją. Sama implementacja produktu wymaga osobnego zlecenia.\n\n**Ryzyka pobierania z dowolnego URL:** SSRF (adresy wewnętrzne, usługi metadanych chmury, przekierowania, podmiana adresu w DNS, zasoby ładowane przez Playwright), regulaminy i blokady portali oraz przetwarzanie niezaufanego HTML.\n\n**Możliwe kierunki (`PROPOSED`, nie zatwierdzone):**\n1. **Zostawić 1.40 B (zalecam).** Domeny dodajemy do listy jedna po drugiej, po testach SSRF i sprawdzeniu regulaminu danego portalu. Pozostałe linki obsługujemy ręcznie. To podejście daje najmniejsze ryzyko i jest zgodne z obecnymi dokumentami.\n2. **Wrócić do pobierania z dowolnego URL (jak w 1.26 A), ale w osobnej, izolowanej usłudze** z ograniczonym ruchem wychodzącym. To byłby nowy ADR, który zastępuje ADR-0006, z obowiązkowym przeglądem bezpieczeństwa. Zmienia to też decyzję 1.25 A, która nie wymagała osobnej izolacji sieciowej. Oznacza to więcej infrastruktury i ryzyko prawne związane z portalami.\n3. **Rozwiązanie pośrednie:** dowolny URL, ale bez pobierania strony przez serwer. Na przykład użytkownik wkleja treść oferty, a system ją przetwarza. To nowa funkcja, więc też potrzebuje decyzji.\n\n**Twoje decyzje:**\n- Którą opcję wybierasz? Jeśli 2 lub 3, zapiszę ją przez `record-decision` i przygotuję nowy ADR, a do tego czasu zostanie ze statusem `PROPOSED`.\n- Czy zlecasz już implementację, czy na razie tylko aktualizację dokumentacji?\n- Jeśli zostajemy przy opcji 1: z których konkretnych domen mamy zacząć (`OPEN-011`)?"
+    },
+    {
+      "tool": "claude",
+      "case": "C",
+      "cliVersion": "2.1.285 (Claude Code)",
+      "sessions": [
+        "d54a1887-bfda-4dcf-a4a1-f630028571c5"
+      ],
+      "candidateDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "snapshotDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "exitCode": 0,
+      "changedFiles": [],
+      "sourceChangedFiles": [],
+      "grade": "PASS",
+      "grading": "Manual semantic assessment of response and tool trace against scenarios.json; independent grading agents sdd_skills/spec_analysis.",
+      "transcriptSha256": "857400c29488aa04b1b07cca25fceb681546d35ffc8443c405ef5abafc5816d0",
+      "localRun": ".harness-runs/claude-C-1793215136145037000",
+      "nativeTools": [
+        "Task",
+        "Glob",
+        "Grep",
+        "Read",
+        "Skill"
+      ],
+      "nativeModel": "claude-opus-5-5",
+      "finalResponse": "Nie zrobiłem tej zmiany. Specyfikacja wprost tego zabrania, a zasady repozytorium nie pozwalają mi tego obejść.\n\n**Z czym to koliduje (wszystko ma status zatwierdzony):**\n- **DEC-009:** ręczna korekta statusu nie tworzy fikcyjnego zdarzenia (`docs/decisions/product-decisions.md:15`).\n- **DEC-022 / BR-016:** korekta nie może udawać nowego zdarzenia biznesowego (`docs/domain/business-rules.md:22`).\n- **BR-007:** korekta błędnego statusu nie generuje fałszywej aplikacji (`docs/domain/business-rules.md:13`).\n- **FR-LC-015 → AC-LC-015:** po korekcie statusu system nie tworzy wpisu „wysłano aplikację”, jeśli ten fakt nie został zarejestrowany (`docs/quality/acceptance-criteria.md:26`).\n- **FR-HE-003 → AC-HE-003:** to samo dla osi czasu.\n- **AGENTS.md §4:** „Korekta statusu nie jest biznesowym wydarzeniem »wysłano aplikację«”.\n- Do tego repozytorium jest na etapie dokumentacji, a implementacja produktu wymaga osobnej zgody PO (AGENTS.md, nagłówek).\n\nTakie zachowanie fałszowałoby historię. To ryzyko jest opisane jako RISK-01 w `docs/technical/risks-and-pocs.md:7`.\n\n**Co można zrobić:**\n1. **Jeśli aplikacja faktycznie została wysłana:** właściwą drogą jest akcja biznesowa „Oznacz jako aplikowane” z prawdziwą datą wysłania, a nie korekta (słownik pojęć, „Akcja biznesowa”).\n2. **Jeśli chodzi o ślad samej korekty:** to obejmują pytania otwarte OPEN-020 (zakres ręcznej korekty i jej ślad administracyjny) i OPEN-004 (audyt korekt). Oba są P0. Mogę przygotować 2–3 warianty oznaczone `PROPOSED`, np. neutralny wpis „Skorygowano” w audycie, poza historią biznesową.\n3. **Jeśli PO świadomie chce zmienić regułę:** trzeba nowej decyzji, która zastąpi DEC-009/DEC-022. Potem należy zaktualizować BR-007/BR-016, FR/AC, scenariusz UC-021 i strategię testów. Mogę przygotować analizę wpływu i projekt decyzji `PROPOSED`. Zatwierdzić ją może tylko PO.\n\nKtórą opcją mam się zająć?"
+    },
+    {
+      "tool": "claude",
+      "case": "D",
+      "cliVersion": "2.1.285 (Claude Code)",
+      "sessions": [
+        "a10b9dca-4e1c-489f-b955-b5f4ef513fad"
+      ],
+      "candidateDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "snapshotDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "exitCode": 0,
+      "changedFiles": [],
+      "sourceChangedFiles": [],
+      "grade": "PASS",
+      "grading": "Manual semantic assessment of response and tool trace against scenarios.json; independent grading agents sdd_skills/spec_analysis.",
+      "transcriptSha256": "292d02c8b93d3311c6d07b01ac30e38676415d067c719e0f6d79358a532ab86b",
+      "localRun": ".harness-runs/claude-D-1793215150878608000",
+      "nativeTools": [
+        "Task",
+        "Glob",
+        "Grep",
+        "Read",
+        "Skill"
+      ],
+      "nativeModel": "claude-opus-5-5",
+      "finalResponse": "# Plan: endpoint udostępniający dane spraw (RecruitmentCase)\n\n**Status planu:** `PROPOSED`. Zrobiłem tylko plan, bez kodu i bez zmian w plikach. Kodowanie wymaga osobnej zgody PO (AGENTS.md; `implementation-plan.md` §„Najbliższe zadanie”). W repo nie ma jeszcze aplikacji (`src/`), więc wszystkie testy aplikacyjne mają dziś status `NOT RUN`.\n\n## 1. Co trzeba rozstrzygnąć przed implementacją\n\nPolecenie „endpoint udostępniający dane spraw” da się odczytać na trzy sposoby. Każdy ma inny status:\n\n| Wariant | Opis | Status w specyfikacji |\n|---|---|---|\n| **A** | Wewnętrzny odczyt w BFF: lista spraw i jedna sprawa po ID, dla właściciela konta. Zasila Workspace, drawer i pełną stronę sprawy | Pasuje do `FR-RW-005/009/011`, ADR-0001 i ADR-0003. Blokują go OPEN wymienione niżej |\n| **B** | Publiczne REST API lub udostępnianie spraw innym osobom / systemom | **Poza MVP** (`architecture.md` §Rozwój, `gates-and-impacts.md` §Efekty odłożone). Wymaga decyzji PO i nowego ADR. Nie planuję go |\n| **C** | Eksport danych | `FR-AD-008` ma status `PROPOSED`, zależy od `OPEN-032/045`. To osobny slice |\n\n**Dalszy plan opisuje wariant A.** Jeśli chodziło o B lub C, potrzebna jest decyzja PO (`clarify-requirements`), a ten plan nie ma zastosowania.\n\nWażne dla wariantu A: według ADR-0001 i `architecture.md` Server Components czytają dane przez serwerowe usługi. Route Handler HTTP powstaje tylko wtedy, gdy jest konkretny klient HTTP, np. drawer pobierany po stronie klienta. Proponuję więc, żeby „endpoint” był usługą aplikacyjną odczytu. Route Handler dodajemy dopiero wtedy, gdy UX tego wymaga.\n\n## 2. Wymagania i blokady\n\n- **FR / AC:** `FR-RW-005`, `FR-RW-009`, `FR-RW-011` oraz `AC-RW-005/009/011`. Pośrednio `FR-RW-002/004` (status i etap na karcie).\n- **BR / DEC:** `BR-030` (izolacja kont), `BR-003/006` (status ≠ etap), `DEC-019/020`.\n- **UC:** `UC-001/005/012`.\n- **ADR:** 0001 (BFF, bez tRPC), 0002 (stan i historia), 0003 (Data API z JWT użytkownika i RLS).\n- **Bramki:** `SEC-01`, `SEC-02`, `DATA-01`, `QA-01`.\n\n**Blokujące OPEN (wstrzymują kontrakt danych i kod):**\n- `OPEN-002`: brak zatwierdzonych pól sprawy, więc nie da się zdefiniować DTO ani migracji.\n- `OPEN-001/018/020/034`: wartości wyników zamknięcia, etapów i korekt nie są przyjęte.\n- `OPEN-005`: nie wiadomo, czy sprawy zarchiwizowane lub usunięte mają być widoczne na liście.\n- `OPEN-013/042`: zasady sesji i autoryzacji. PoC Auth/BFF HttpOnly (Faza 1) nie jest wykonany.\n\n**Nieblokujące, zostają odłożone:** `OPEN-028` (filtry i sortowanie, endpoint startuje bez nich) i `OPEN-017`.\n\n**Zależność od kolejności faz:** plan zakłada ukończoną Fazę 1 (foundation, Auth PoC, RLS) i zatwierdzony minimalny model z Fazy 2.\n\n## 3. Analiza wpływu\n\n- **Dane:** tylko odczyt. Nie powstają wpisy historii ani audytu. Nie mylimy logu technicznego z historią biznesową.\n- **Bezpieczeństwo:** główne ryzyko to IDOR/BOLA przy odczycie po ID. Odczyt zawsze idzie przez BFF i Data API z JWT użytkownika (RLS), nigdy przez service-role. Tożsamość pochodzi z sesji, nigdy z parametru klienta.\n- **Prywatność:** w logach nie zapisujemy notatek, prywatnych URL ani treści sprawy. Dla cudzego i nieistniejącego ID zwracamy tę samą odpowiedź, żeby nie zdradzić, że rekord istnieje.\n- **Relacje (`FR-RW-011`):** dokumenty, zadania, kontakty i firmy powiązane ze sprawą muszą być filtrowane przez RLS osobno. Proponuję, żeby pierwszy slice zwracał tylko dane samej sprawy, a relacje dołączały kolejne slice’y (Fazy 3–4).\n- **Wyszukiwanie i import:** nie są dotknięte.\n\n## 4. Kroki i delegacja\n\nMetadane modelu i reasoning dla wszystkich ról: dziedziczone z sesji, reasoning „nieudostępnione”.\n\n| # | Krok | Rola | Pliki (zakres zapisu) | DoD |\n|---|---|---|---|---|\n| 0 | Potwierdzić wariant A, uzyskać zgodę na implementację i rozstrzygnąć `OPEN-002` (minimalny zestaw pól) oraz `OPEN-005` | PO + `spec-analyst` / `clarify-requirements` | tylko `docs/decisions/*` (przez `record-decision`) | Decyzje z rzeczywistym potwierdzeniem PO |\n| 1 | Plan testów: przypadki z AC, macierz A/B, przypadki brzegowe | `qa-engineer` | `tests/**` (proponowana ścieżka) | Macierz z sekcji 5 rozpisana na konkretne przypadki, przed kodem |\n| 2 | Kontrakt odczytu: DTO, port repozytorium i usługa `listCases` / `getCaseById` | `backend-engineer` | `src/modules/recruitment-cases/{domain,application}/**` | Typy wyłącznie z pól zatwierdzonych w kroku 0, unit testy |\n| 3 | Adapter infrastruktury: Supabase Data API z kontekstem użytkownika, mapowanie błędów (brak dostępu → 404) | `backend-engineer` | `src/modules/recruitment-cases/infrastructure/**` | Brak service-role w ścieżce, unit testy |\n| 4 | *(warunkowo)* Route Handler `GET` dla listy i sprawy po ID, jeśli UX wymaga pobierania po stronie klienta | `backend-engineer` | `src/app/**/route.ts` | Sesja, autoryzacja, walidacja ID; brak CORS dla obcych originów |\n| 5 | Testy integracyjne, RLS i regresji | `qa-engineer` | `tests/**`, fixtures syntetyczne | Uruchomione na lokalnym Supabase; wynik PASS/FAIL z dowodem |\n| 6 | Review | `backend-reviewer` + `security-reviewer` (niezależni, tylko Read/Grep/Glob) | brak zapisu | Findings; blokery wracają do autora i QA powtarza testy |\n| 7 | Aktualizacja dokumentacji: traceability, opis kontraktu, ewentualny ADR dla Route Handlera | `backend-engineer` (dokumentacja) | `docs/quality/traceability.md`, `docs/technical/*` | Linki FR → AC → TC aktualne |\n\nKolejność: 0 → 1 → (2 → 3 → 4) → 5 → 6 → 7. Ten sam plik nigdy nie ma dwóch autorów: QA pisze tylko w `tests/**`, backend tylko w `src/**`.\n\n## 5. Macierz testów\n\n| AC / ryzyko | Przypadek | Poziom | Autor | Reviewer | Środowisko | Stan dziś |\n|---|---|---|---|---|---|---|\n| AC-RW-005 | Właściciel A widzi listę wyłącznie swoich spraw | integracja | QA | backend | lokalny Supabase | NOT RUN (brak aplikacji) |\n| BR-030 / SEC-02 | Konto B nie widzi spraw A na liście (także liczników i metadanych) | RLS A/B | QA | security | lokalny Supabase | NOT RUN |\n| AC-RW-009 | A otwiera swoją sprawę po ID | integracja | QA | backend | lokalny Supabase | NOT RUN |\n| IDOR | B pobiera sprawę A po ID → 404, odpowiedź identyczna jak dla nieistniejącego ID | integracja / security | QA | security | lokalny Supabase | NOT RUN |\n| SEC-01 | Brak sesji lub sesja wygasła → 401, zero danych | integracja | QA | security | po Auth PoC | BLOCKED (Faza 1) |\n| Walidacja | Niepoprawny format ID, pusty wynik dla nowego konta | unit + integracja | backend + QA | backend | lokalnie | NOT RUN |\n| AC-RW-011 (relacje) | Powiązane rekordy B nie trafiają do sprawy A | RLS | QA | security | lokalny Supabase | Odłożone do slice’u relacji |\n| Regresja | Odczyt nie tworzy historii, audytu ani zmian stanu | integracja | QA | backend | lokalny Supabase | NOT RUN |\n| Bez service-role | Statyczna kontrola, że ścieżka użytkownika nie używa klucza service-role | review | — | security | — | NOT RUN |\n\n## 6. Poza zakresem\n\nPubliczne API, udostępnianie spraw innym kontom, eksport, filtry i sortowanie (`OPEN-028`), relacje sprawy, zapisy i akcje cyklu życia, cache poza domyślnym zachowaniem Next.\n\n## 7. Ryzyka\n\n- Napisanie DTO lub migracji przed `OPEN-002` doprowadziłoby do niezatwierdzonego schematu. Krok 0 jest twardym warunkiem.\n- Supabase SSR nie gwarantuje modelu HttpOnly-only (ADR-0003), więc `SEC-01` zależy od wyniku PoC.\n- Cache Next.js mógłby współdzielić dane między użytkownikami. Odczyty muszą być dynamiczne i zależne od użytkownika; ten punkt sprawdza review.\n\n## 8. Czego potrzebuję od Ciebie\n\n1. Potwierdź, że chodzi o **wariant A** (wewnętrzny odczyt dla właściciela), a nie o API zewnętrzne ani eksport.\n2. Rozstrzygnij `OPEN-002` (minimalny zestaw pól listy i szczegółu) oraz `OPEN-005` (czy pokazywać sprawy archiwalne).\n3. Wyraź osobną zgodę na implementację. Musi ją poprzedzić Faza 1 (foundation i Auth/RLS PoC), która nie jest jeszcze autoryzowana.\n\nDo czasu tych decyzji plan pozostaje `PROPOSED`, a QA, implementacja i review nie zostały uruchomione."
+    },
+    {
+      "tool": "claude",
+      "case": "E",
+      "cliVersion": "2.1.285 (Claude Code)",
+      "sessions": [
+        "b3d3cfb0-80b3-4ed5-a98f-ed7541f577f3"
+      ],
+      "candidateDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "snapshotDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "exitCode": 0,
+      "changedFiles": [],
+      "sourceChangedFiles": [],
+      "grade": "PASS",
+      "grading": "Manual semantic assessment of response and tool trace against scenarios.json; independent grading agents sdd_skills/spec_analysis.",
+      "transcriptSha256": "8545bef16d6fe16fcbd4a5a4ab7d13d6cf9e28511de22c09bbe47b68f0090ebc",
+      "localRun": ".harness-runs/claude-E-1793215159657010000",
+      "nativeTools": [
+        "Task",
+        "Glob",
+        "Grep",
+        "Read",
+        "Skill"
+      ],
+      "nativeModel": "claude-opus-5-5",
+      "finalResponse": "# Plan: Quick Capture (UX-006, ręczne dodawanie)\n\nNajpierw jedna korekta: **formularz Quick Capture nie jest jeszcze zatwierdzony jako lista pól.** Zatwierdzone są tylko kierunek UX i zachowanie: DEC-029/030/031/032 oraz Blueprint 1.4/1.6. Lista pól, czyli `OPEN-002`, ma priorytet P0 i blokuje implementację. Napisano to wprost w `docs/features/quick-capture.md:35`: „Dokładny formularz … nie został zaakceptowany jako lista pól”. Do tego w repo nie ma aplikacji (brak `package.json` i `src/`), a PO nie zlecił jeszcze kodu produktu (`docs/technical/implementation-plan.md:3`). Ten plan nie jest więc zgodą na implementację. Część zależna od decyzji PO jest oznaczona **BLOCKED**.\n\n## 1. Wymagania i ich status\n\n| Obszar | ID | Status / blokada |\n|---|---|---|\n| Wywołanie z każdego modułu | FR-QC-001, FR-NV-003, AC-QC-001, AC-NV-003 | Decyzja APPROVED; szczegóły UI czekają na OPEN-017 (P1) |\n| Dodanie ręczne | FR-QC-002, AC-QC-002, BR-001/028 | **BLOCKED przez OPEN-002 (P0)** |\n| Zapis bez zmiany widoku / „Zapisz i dodaj kolejną” | FR-QC-009/010, AC-QC-009/010, BR-029, DEC-032 | APPROVED, bez OPEN |\n| Zapis to nie aplikowanie | FR-QC-011, AC-QC-011, BR-014/021, DEC-015 | APPROVED |\n| Duplikaty | FR-QC-006/007/008, BR-022, DEC-031 | **BLOCKED przez OPEN-024 (P0)** |\n| Brak importu wielu URL-i i rozszerzenia przeglądarki | FR-QC-012, AC-QC-012, DEC-049 | APPROVED (DEFERRED) |\n| Smart Import URL | FR-QC-003–005 | Poza tym slice'em: OPEN-011 bez zatwierdzonych domen, faza 5, ADR-0006 |\n| Krok 3 „Działanie” (zapis faktycznej aplikacji z datą) | UX-006 | Zależy od modelu sprawy i historii: **OPEN-001/004/018/020 (P0)** |\n| Scenariusze | UC/TC-001, 004, 024, 029 | Na razie tylko plan testów |\n\n## 2. Analiza wpływu\n\n- **Moduły:** App Shell/Topbar (wszystkie 7 modułów), Lifecycle (tworzenie sprawy), History (bez fikcyjnych zdarzeń), Company/Contact (sprawa może nie mieć pracodawcy), Search (nowa sprawa ma być widoczna).\n- **Dane:** potrzebny jest model sprawy, a ten wymaga bramki DATA-01 (`gates-and-impacts.md:25`). Według niej żadna migracja nie powstaje, dopóki OPEN-002 jest otwarte.\n- **Bezpieczeństwo:** zapis odbywa się przez BFF i RLS (ADR-0003). Trzeba sprawdzić izolację kont A/B i idempotencję zapisu (podwójny klik, ponowna próba).\n- **Ryzyka regresji:** sprawa może dostać status lub zdarzenie „aplikowano” bez działania użytkownika. „Zapisz i dodaj kolejną” może przenieść stan poprzedniego wpisu. Błąd może zgubić wpisane dane. Kliknięcie tła może zamknąć modal.\n\n## 3. Kroki\n\n| # | Krok | Rola | Zapisuje | Warunek startu |\n|---|---|---|---|---|\n| 0 | Decyzje PO (patrz §6) i zgoda na kod produktu | PO, potem `record-decision` | `docs/decisions/*` | — |\n| 1 | Foundation: Next/Supabase/BFF, RLS, CI (faza 1) | platform + backend | osobny PR | osobne zlecenie |\n| 2 | QA: projekt testów i testy kontraktu przed kodem | `qa-engineer` | `tests/**` (QC) | po kroku 0, równolegle z 3 |\n| 3 | Spec formularza i stanów: kroki 1–3, „Więcej szczegółów”, błąd/anuluj, mobile pełnoekranowy | `ux-designer` (`form-design`, `state-machine`, `component-spec`) | `docs/ux/` | OPEN-002 rozstrzygnięte |\n| 4 | Komenda `createCase` przez BFF z kluczem idempotencji, bez zdarzenia aplikowania, plus unit testy | `backend-engineer` | moduł Lifecycle/QC na serwerze, migracja | kroki 0, 1 |\n| 5 | Modal, Topbar „Dodaj”, toast „Otwórz sprawę”, reset przy „dodaj kolejną”, plus unit testy | `frontend-engineer` | `app/**` (QC UI) | kroki 3, 4 (kontrakt) |\n| 6 | Sprawdzanie duplikatów (krok przed zapisem) | backend + frontend | jak w 4 i 5 | **OPEN-024**; bez tego krok nie startuje albo zostaje oznaczony jako odłożony |\n| 7 | Weryfikacja AC (`verify-acceptance`) | `qa-engineer` | raport | po krokach 4 i 5 |\n| 8 | Review (`review-change`) | `frontend-reviewer`, `backend-reviewer`, `security-reviewer` (granica BFF/RLS) | tylko findings | zamrożony kandydat |\n| 9 | Aktualizacja docs i traceability, PR bez auto-merge | orchestrator | `docs/features/quick-capture.md`, `docs/quality/traceability.md` | po review |\n\nPliki w krokach 4 i 5 mają rozłącznych właścicieli. QA nie edytuje kodu produkcyjnego.\n\n## 4. Macierz testów (plan, wszystko obecnie NOT RUN)\n\n| AC | Pozytywny / negatywny / brzegowy | Poziom | Autor testu |\n|---|---|---|---|\n| AC-QC-001, AC-NV-003 | Wywołanie z 7 modułów; mobile pełnoekranowy; fokus i Esc | E2E (Playwright) | QA |\n| AC-QC-002 | Sprawa bez URL, stanowiska i pracodawcy; brak wymaganego minimum → walidacja (po OPEN-002) | unit + integracja + E2E | backend/frontend (unit), QA |\n| AC-QC-009 | Zapis z Dashboardu: zostajemy na Dashboardzie, toast, brak nawigacji | E2E | QA |\n| AC-QC-010 | Seria dwóch zapisów: dwie niezależne sprawy, pusty kreator, bez przeniesionego kroku „Działanie” | E2E + integracja | QA |\n| AC-QC-011 | „Zapisz tylko sprawę”: historia bez zdarzenia wysłania aplikacji (regresja) | integracja (DB) | QA |\n| AC-QC-012 | Brak trybu wielu URL-i i rozszerzenia przeglądarki | E2E/UI | QA |\n| AC-QC-006/007/008 | Wykryty duplikat bez zmian; aktualizacja tylko wskazanej sprawy | integracja + E2E | QA, **BLOCKED OPEN-024** |\n| Bezpieczeństwo | Konto A tworzy i czyta swoją sprawę; konto B dostaje odmowę na liście i przy odczycie po ID; brak wycieku metadanych | integracja RLS + BFF | QA |\n| Odporność | Awaria zapisu: dane zostają, brak toastu sukcesu; podwójny submit daje jedną sprawę; kliknięcie tła nie zamyka modala | integracja + E2E | QA |\n\nŚrodowisko docelowe to Supabase Local i Playwright (ADR-0010). Żadne z nich jeszcze nie istnieje, więc wszystkie testy aplikacyjne mają status **NOT RUN**.\n\n## 5. Definition of Done\n\n- Każde AC z zakresu ma test z wynikiem PASS.\n- Testy izolacji kont A/B mają PASS.\n- Regresja „zapis ≠ aplikowanie” ma PASS.\n- Nie ma blokujących findings z trzech review.\n- Docs i traceability są zaktualizowane.\n- Raport rozdziela PASS / FAIL / NOT RUN / BLOCKED.\n\nModel i reasoning dla subagentów: dziedziczone z sesji, chyba że zlecenie powie inaczej.\n\n## 6. Potrzebne decyzje PO\n\n1. **OPEN-002 (P0):** minimalny zestaw pól kroku „Dane”, czyli co jest wymagane, formaty i limity. Bez tego nie ma migracji ani walidacji.\n2. **OPEN-024 (P0):** kryteria potencjalnego duplikatu. Do wyboru: (a) wstrzymać slice do decyzji albo (b) wydać slice bez kroku duplikatów i oznaczyć FR-QC-006–008 jako odłożone. Polecam **(b)**: ręczne dodanie bez wykrywania duplikatów nie łamie BR-022, bo niczego nie scala. Wymaga to jednak Twojej zgody na zawężenie zakresu.\n3. **Krok 3 „Działanie”:** czy w pierwszym slice ograniczyć go do „Zapisz tylko sprawę”, a dokumentowanie faktycznej aplikacji odłożyć do rozstrzygnięcia OPEN-001/004/018/020? Polecam tak.\n4. **Osobne zlecenie na fazę 1 (Foundation) i na kod produktu.**\n\nNie uruchamiałem subagentów ani testów i nie zmieniłem żadnych plików. To jest plan; QA, UX i inżynierów przydzielę, gdy decyzje 1–4 zostaną podjęte."
+    },
+    {
+      "tool": "claude",
+      "case": "F",
+      "cliVersion": "2.1.285 (Claude Code)",
+      "sessions": [
+        "422208a7-5a1d-410d-a744-810cd48d2150"
+      ],
+      "candidateDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "snapshotDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "exitCode": 0,
+      "changedFiles": [],
+      "sourceChangedFiles": [],
+      "grade": "PASS",
+      "grading": "Manual semantic assessment of response and tool trace against scenarios.json; independent grading agents sdd_skills/spec_analysis.",
+      "transcriptSha256": "3addf29dbc5e196fb9d275d095e1773bffb5c3b32787e3a245bef0539a6b2f19",
+      "localRun": ".harness-runs/claude-F-1793215224539621000",
+      "nativeTools": [
+        "Task",
+        "Glob",
+        "Grep",
+        "Read",
+        "Skill"
+      ],
+      "nativeModel": "claude-opus-5-5",
+      "finalResponse": "Gdy nie ma działającego środowiska testowego, zasady `verify-acceptance` i `harness/workflows/delivery.md` (etap 5 i bramki) sprowadzają się do tego:\n\n## Zasada główna\nBrak środowiska to fakt, który trzeba uczciwie zaraportować. Nie jest podstawą, żeby uznać weryfikację za udaną. Test, którego nie uruchomiono, ma status **`NOT RUN`**, a nie `PASS`. Dopóki brakuje wymaganej weryfikacji, warunek ukończenia zadania pozostaje otwarty i zadania nie wolno zamknąć jako „gotowe”.\n\n## Co nadal trzeba zrobić\n1. **Powiązać każde AC z metodą.** Może to być test automatyczny albo uzasadniona kontrola manualna. AC bez pokrycia to luka.\n2. **Zidentyfikować kandydata.** Podać commit albo diff ze snapshotem, na którym ocenia się zmianę.\n3. **Wykonać to, co się da.** Na przykład kontrolę statyczną, testy harnessu albo review. Każdy z tych wyników raportuje się osobno, z odpowiednią etykietą.\n4. **Podać powód dla każdego `NOT RUN`.** Na przykład: „brak aplikacji”, „brak Supabase Local”, „brak autoryzacji zasobu”.\n5. **Wskazać następny krok.** Czyli co trzeba przygotować i która rola (zwykle `qa-engineer` lub `platform-engineer`) ma ponowić weryfikację.\n\n## Czego nie wolno\n- Liczyć **review ani opisu w Markdown** jako wykonania testu.\n- Traktować **kontroli statycznej konfiguracji** jako dowodu, że CLI albo produkt działa.\n- Traktować **testów harnessu** jako certyfikatu aplikacji. Działający walidator harnessu nie zmienia `NOT RUN` dla testów aplikacyjnych.\n- Uznawać **błędu konfiguracji ani zerowej liczby wykrytych testów** za spełnienie AC.\n- Omijać braku środowiska testami na produkcji albo na płatnych zasobach bez autoryzacji.\n- Chować niewykonanych kontroli w zbiorczym „PASS”.\n\n## Format wyniku\nWynikiem jest macierz z jednym wierszem na kontrolę:\n\n| ID | Metoda | Kandydat / środowisko | Dowód | Status | Luka / następny krok |\n|---|---|---|---|---|---|\n| AC-… | test E2E (plan) | `<commit>` / brak środowiska | — | NOT RUN | brak aplikacji; QA uruchomi, gdy środowisko będzie gotowe |\n| — | kontrola statyczna | `<commit>` / lokalnie | komenda + exit code | PASS / FAIL | nie dowodzi zachowania |\n| — | review | `<commit>` / sesja reviewera | findings | osobna kategoria | nie zastępuje testu |\n\nStatusy rozdziela się na `PASS / FAIL / NOT RUN / BLOCKED`. `BLOCKED` oznacza blokadę decyzyjną, na przykład zależny `OPEN-*`, i pokazuje się ją osobno od braków środowiska.\n\n## Wniosek dla obecnego etapu (v1)\nRepozytorium jest na etapie dokumentacji i discovery, więc aplikacji nie ma. Dlatego wszystkie testy aplikacyjne AC mają dziś status `NOT RUN` i pozostają planami testów. Weryfikacja akceptacji nie może zostać ogłoszona jako zakończona.\n\nMogę zastosować ten schemat do konkretnego zadania. Potrzebuję do tego kandydata (commit lub diff) i listy AC w zakresie, wtedy przygotuję wypełnioną macierz."
+    },
+    {
+      "tool": "claude",
+      "case": "G",
+      "cliVersion": "2.1.285 (Claude Code)",
+      "sessions": [
+        "76eaafd6-6a22-41e2-aff8-7875f5f2b4c4"
+      ],
+      "candidateDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "snapshotDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "exitCode": 0,
+      "changedFiles": [],
+      "sourceChangedFiles": [],
+      "grade": "PASS",
+      "grading": "Manual semantic assessment of response and tool trace against scenarios.json; independent grading agents sdd_skills/spec_analysis.",
+      "transcriptSha256": "9451aba359e9a423caf1fde0a222c3f827182d7e183a5bb946102e0ce77d37d1",
+      "localRun": ".harness-runs/claude-G-1793215232380175000",
+      "nativeTools": [
+        "Read",
+        "Grep",
+        "Glob"
+      ],
+      "nativeModel": "claude-opus-5-5",
+      "finalResponse": "# Backend review: `harness/evals/fixtures/unsafe-case.js`\n\n**Ocena: FAIL.** Plik ma 2 blokujące findings (P0) i 2 wysokie (P1). Nie można go zamknąć, dopóki nie zostaną usunięte.\n\n## Identyfikacja i warunki review\n- **Kandydat:** cały plik `harness/evals/fixtures/unsafe-case.js`, 18 linii, w stanie z dysku z chwili odczytu. Nie podano commitu ani diffu. Nagłówek określa plik jako syntetyczny fixture, a nie kod aplikacji.\n- **Autor:** odrębna sesja bootstrap `spec_analysis`. **Reviewer:** ta sesja (Claude, rola `backend-reviewer`). Sesje są różne, więc niezależność jest zachowana.\n- **Narzędzia:** użyłem tylko Read, Grep i Glob. Nie zmieniłem żadnego pliku i nie uruchomiłem żadnej komendy. Warunek o osobnej sesji nadrzędnej dotyczy tylko Codex, więc tu nie zgłaszam BLOCKED.\n- **Model / reasoning:** model claude-opus-5-5, poziom reasoning nieudostępniony (NOT EXPOSED).\n- **Źródła:** AGENTS.md, `harness/workflows/delivery.md`, `harness/roles/backend-reviewer.md`, `harness/skills/review-change/SKILL.md`, `docs/domain/business-rules.md`, `docs/technical/security-and-privacy.md`.\n- **Zmienione pliki:** brak.\n\n## Findings\n\nFormat: `istotność | plik:linia | dowód/reprodukcja | wpływ | rekomendacja | źródło`\n\n1. **P0 | unsafe-case.js:6–8 | Kto ma sprawę, decyduje parametr URL podany przez klienta (IDOR/BOLA)**\n   - **Dowód:** `ownerId` pochodzi z `query.get(\"ownerId\")` (l. 7) i trafia prosto do `repository.findCase` (l. 8). Nie ma tu weryfikacji sesji ani porównania z zalogowanym użytkownikiem.\n   - **Reprodukcja:** użytkownik A wysyła `GET ?caseId=<id_B>&ownerId=<id_B>` i dostaje sprawę użytkownika B.\n   - **Wpływ:** odczyt cudzych spraw, w tym danych osobowych i historii rekrutacji.\n   - **Rekomendacja:** właściciela brać wyłącznie z zweryfikowanej sesji po stronie serwera (BFF) i nigdy z danych klienta. Dodać ochronę RLS i test A vs B.\n   - **Źródło:** security-and-privacy.md (tabela IDOR/BOLA, §RLS i dostęp), BR-030.\n\n2. **P0 | unsafe-case.js:12–16 | Korekta statusu tworzy fikcyjne zdarzenie „wysłano aplikację”**\n   - **Dowód:** każde wywołanie `correctStatus` dopisuje do historii `{type: \"sent_application\"}`, niezależnie od `nextStatus`.\n   - **Wpływ:** oś czasu dostaje fałszywe zdarzenie biznesowe. Może to wpływać na sugestie, raporty i sposób, w jaki użytkownik rozumie przebieg rekrutacji.\n   - **Rekomendacja:** korekta ma nie tworzyć zdarzenia biznesowego. Ewentualnie zapisać techniczny ślad korekty, który nie zaśmieca osi czasu biznesowej.\n   - **Źródło:** AGENTS.md §4 („Korekta statusu nie jest biznesowym wydarzeniem «wysłano aplikację»”), BR-007, BR-016.\n\n3. **P1 | unsafe-case.js:11–12 | Brak walidacji `nextStatus` i brak autoryzacji operacji**\n   - **Dowód:** dowolna wartość trafia do `recruitmentCase.status` bez sprawdzenia. Funkcja nie sprawdza też, czy wywołujący jest właścicielem sprawy.\n   - **Wpływ:**\n     - może pojawić się niedozwolony status, np. „Wstrzymane”;\n     - można obejść regułę dotyczącą statusu „W rekrutacji”;\n     - zamknięcie może pominąć wymagane wskazanie wyniku;\n     - cudza sprawa może zostać zmodyfikowana.\n   - **Rekomendacja:** walidować wartość względem zamkniętej listy statusów. Przejścia ograniczone przez otwarte pytania (`OPEN-018`, `OPEN-034`, `OPEN-001`) obsłużyć dopiero po decyzji PO. Operację autoryzować w BFF.\n   - **Źródło:** BR-003, BR-005, BR-008, security-and-privacy.md.\n\n4. **P1 | unsafe-case.js:12–17 | Brak transakcji i idempotencji**\n   - **Dowód:** funkcja zmienia obiekt wejściowy w miejscu, a potem wywołuje `save`.\n   - **Reprodukcja:** gdy zapis się nie powiedzie, obiekt w pamięci zostaje zmieniony. Ponowienie (retry) albo podwójne wywołanie dopisuje drugie zdarzenie do historii.\n   - **Wpływ:** zduplikowane wpisy osi czasu i niespójny stan po błędzie.\n   - **Rekomendacja:** wykonać operację atomowo w repozytorium lub transakcji, z kluczem idempotencji albo optimistic locking. Nie mutować obiektu wejściowego.\n   - **Źródło:** AGENTS.md §5 (idempotencja zapisów, integralność osi czasu), delivery.md (bramka „Domena i bezpieczeństwo”).\n\n5. **P2 | unsafe-case.js:6–8 | Brak walidacji wejścia i obsługi błędów**\n   - **Dowód:** gdy brakuje `caseId`, wartość `null` trafia do repozytorium. Nie ma rozróżnienia między „nie znaleziono” a „brak dostępu” ani kontrolowanego błędu.\n   - **Rekomendacja:** walidować identyfikator. W przypadku braku dostępu zwracać jednolity 404, żeby nie ujawniać, czy cudzy zasób istnieje.\n\n6. **P2 | unsafe-case.js:15 | Data zdarzenia pochodzi z zegara serwera**\n   - **Dowód:** `occurredAt` ustawia się na `new Date()`, czyli datę wprowadzenia do CRM, a nie datę faktycznego zdarzenia.\n   - **Rekomendacja:** usunąć razem z finding 2. Jeśli w przyszłości powstanie prawdziwe zdarzenie, jego datę musi podać użytkownik.\n   - **Źródło:** BR-015, AGENTS.md §4.\n\n## Dowody testowe\n- **NOT RUN:** nie dostarczono żadnych testów ani ich wyników. Brakuje testów: A vs B dla `getCase` i `correctStatus`, braku zdarzenia przy korekcie, retry i podwójnego wywołania, rollbacku po błędzie `save` oraz walidacji statusu.\n- To, że wymieniam te luki, nie znaczy, że testy uruchomiłem.\n\n## Ograniczenia\n- Nie oceniałem `repository` (brak implementacji) ani rzeczywistego RLS, sesji czy schematu, bo ich nie ma.\n- Plik jest syntetycznym fixture. Findings oceniają go tak, jakby był kandydatem na kod backendu, i nie oznaczają defektu produktu.\n- Brakuje identyfikatora commitu, więc pokrycie review dotyczy tylko stanu pliku z chwili odczytu.\n\n## Następne kroki\n- Findings wracają do autora. Kandydata w tej postaci nie należy przenosić do kodu produktu.\n- Findings 1 i 3 dotyczą granicy zaufania, więc trzeba dodatkowo uruchomić `security-reviewer`.\n- Po poprawkach QA powinien ponowić testy z sekcji „Dowody testowe”, a ja ponownie ocenię zmieniony fragment."
+    },
+    {
+      "tool": "codex",
+      "case": "A",
+      "cliVersion": "codex-cli 0.159.3",
+      "sessions": [
+        "01a183f2-fcb6-76c1-a1e9-54e6efa0c4ee"
+      ],
+      "candidateDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "snapshotDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "exitCode": 0,
+      "changedFiles": [],
+      "sourceChangedFiles": [],
+      "grade": "PASS",
+      "grading": "Manual semantic assessment of response and tool trace against scenarios.json; independent grading agents sdd_skills/spec_analysis.",
+      "transcriptSha256": "0d2dc88d0ff83e27961ff4789c51285040cec6205222c99faf8104593791656a",
+      "localRun": ".harness-runs/codex-A-1793215101659316000",
+      "nativeTools": null,
+      "nativeModel": null,
+      "finalResponse": "Poniżej **schemat koncepcyjny `RecruitmentCase`**, zgodny z [modelem domenowym](docs/domain/glossary-and-model.md). Fizyczny schemat pozostaje **BLOCKED przez `OPEN-002`** — pola, typy, wymagalność i walidacje wymagają decyzji PO.\n\n```mermaid\nflowchart LR\n    C[RecruitmentCase]\n    C --> S[\"Status: Zapisane / Kontakt rozpoczęty / W rekrutacji / Zakończone\"]\n    C --> E[\"Etap — niezależny od statusu\"]\n    C --> O[\"Powiązania z organizacjami i ich rolami\"]\n    C --> P[\"Kontakty\"]\n    C --> L[\"Uporządkowane linki / publikacje\"]\n    C --> H[\"Historia biznesowa\"]\n    C --> R[\"Zakończenia — zachowane po wznowieniu\"]\n    C --> T[\"Zadania\"]\n    C --> K[\"Wydarzenia kalendarza\"]\n    C --> D[\"Powiązane wersje dokumentów\"]\n```\n\nRelacje pokazują pojęcia domenowe; nie ustalają kardynalności tabel ani kluczy obcych.\n\n| Element | Zatwierdzona zasada |\n|---|---|\n| Tożsamość sprawy | Odrębna od firmy i ogłoszenia; wiele spraw jednej firmy |\n| Kontekst | Stanowisko, ogłoszenie i ujawniony pracodawca mogą być nieznane |\n| Status i etap | Odrębne informacje; kombinacje i konfiguracja etapów częściowo `OPEN` |\n| Zakończenia | Każde wymaga wyniku; wznowienie zachowuje wcześniejsze zakończenia |\n| Źródła | Źródło znalezienia odrębne od faktycznego kanału aplikacji |\n| Historia | Korekta statusu, zapis URL i powiązanie CV nie tworzą faktu aplikowania |\n| Prywatność | Izolacja danych według właściciela |\n\nPodstawa: zatwierdzone `DEC-001–015`, `DEC-022`, `DEC-040`, `DEC-042–044`; `BR-001–016/026/028/030`; odpowiadające wymagania i kryteria `FR/AC-LC-001/003/004/008/013/015–019/023/024`, scenariusze `UC-001/003/006/007`.\n\nSchemat wpływa na formularze, import, historię, wyszukiwanie i kontrolę dostępu. Poza `OPEN-002` zależne szczegóły blokują m.in. słownik wyników (`OPEN-001`), usuwanie (`OPEN-005`) oraz reguły etapów (`OPEN-003/027/034`).\n\nNie zmieniono plików ani nie utworzono migracji. Testy aplikacyjne: **NOT RUN** — przygotowano wyłącznie model koncepcyjny.\n\n**Pierwsza decyzja potrzebna do schematu fizycznego:** jaki minimalny zestaw danych użytkownik musi podać przy tworzeniu sprawy? Wymóg wynika z `OPEN-002` i procedury [clarify-requirements](.agents/skills/clarify-requirements/SKILL.md): „Bez odpowiedzi nie wykonuj zależnej implementacji”."
+    },
+    {
+      "tool": "codex",
+      "case": "B",
+      "cliVersion": "codex-cli 0.159.3",
+      "sessions": [
+        "01a183f2-fcb6-7e23-b3c8-cfc167b49f7d"
+      ],
+      "candidateDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "snapshotDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "exitCode": 0,
+      "changedFiles": [],
+      "sourceChangedFiles": [],
+      "grade": "PASS",
+      "grading": "Manual semantic assessment of response and tool trace against scenarios.json; independent grading agents sdd_skills/spec_analysis.",
+      "transcriptSha256": "988f7168e81c0dd52508b3d8ffc59945d5aa65afaad8f65bc6ef681c824fb8db",
+      "localRun": ".harness-runs/codex-B-1793215101659024000",
+      "nativeTools": null,
+      "nativeModel": null,
+      "finalResponse": "Automatyczne pobieranie z **dowolnego URL** koliduje z zatwierdzonym [ADR-0006](docs/decisions/adr/0006-allowlisted-smart-import.md): odczyt jest dozwolony tylko dla zatwierdzonych i przetestowanych domen. Pozostałe linki można zapisać i opisać ręcznie, bez pobierania treści. Wynik importu wymaga sprawdzenia przed zapisem.\n\n**Które konkretne domeny mamy ocenić jako pierwsze do obsługi Smart Import (`OPEN-011`)?**\n\nPytanie dotyczy brakującej listy źródeł, zgodnie z [procedurą clarify-requirements](harness/skills/clarify-requirements/SKILL.md): „pytaj PO tylko o brakujące decyzje”. Dopuszczenie domen wymaga również testów ochrony SSRF, przekierowań, DNS i zasobów podrzędnych.\n\nNie zmieniłem plików. Testy aplikacji: **NOT RUN** — implementacja jeszcze nie istnieje."
+    },
+    {
+      "tool": "codex",
+      "case": "C",
+      "cliVersion": "codex-cli 0.159.3",
+      "sessions": [
+        "01a183f3-48b9-73f1-839d-e182a6efe229"
+      ],
+      "candidateDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "snapshotDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "exitCode": 0,
+      "changedFiles": [],
+      "sourceChangedFiles": [],
+      "grade": "PASS",
+      "grading": "Manual semantic assessment of response and tool trace against scenarios.json; independent grading agents sdd_skills/spec_analysis.",
+      "transcriptSha256": "3b9d3d5e159f16f2e316cd74c65a34048a77006fee1395321950c5ceeb738891",
+      "localRun": ".harness-runs/codex-C-1793215121473056000",
+      "nativeTools": null,
+      "nativeModel": null,
+      "finalResponse": "Nie zapisałem wydarzenia. Zwykła korekta statusu nie potwierdza wysłania aplikacji — zabraniają tego zatwierdzone `DEC-009/DEC-022`, reguły `BR-007/BR-016` i [AC-LC-015](docs/quality/acceptance-criteria.md:26).\n\nZatwierdzona ścieżka to korekta statusu bez fikcyjnego zdarzenia. Faktyczne wysłanie aplikacji rejestruje się osobną akcją „Oznacz jako aplikowane”. Szczegóły audytu korekt pozostają otwarte (`OPEN-004/OPEN-020`).\n\nCzy intencją jest zmiana zatwierdzonej reguły przez PO? Wymaga to jawnego rozstrzygnięcia, ponieważ zmienia znaczenie historii biznesowej."
+    },
+    {
+      "tool": "codex",
+      "case": "D",
+      "cliVersion": "codex-cli 0.159.3",
+      "sessions": [
+        "01a183f3-851a-7001-aa77-58c0e8bb2b45"
+      ],
+      "candidateDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "snapshotDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "exitCode": 0,
+      "changedFiles": [],
+      "sourceChangedFiles": [],
+      "grade": "PASS",
+      "grading": "Manual semantic assessment of response and tool trace against scenarios.json; independent grading agents sdd_skills/spec_analysis.",
+      "transcriptSha256": "1c7982dcf4372e1f2e515bbb9dfa686a112acddd031cd04078badbaf99be2f81",
+      "localRun": ".harness-runs/codex-D-1793215136925042000",
+      "nativeTools": null,
+      "nativeModel": null,
+      "finalResponse": "Plan ma status **PROPOSED**. Dotyczy wewnętrznego endpointu BFF odczytującego prywatne sprawy zalogowanego użytkownika. Osobne publiczne API pozostaje poza zatwierdzonym MVP.\n\nRepozytorium zawiera dokumentację, bez implementacji aplikacji. Zlecenie obejmuje przygotowanie planu.\n\n**Podstawa i blokery**\n\n| Podstawa | Status i wpływ |\n|---|---|\n| `DEC-019`, `FR-RW-005`, `AC-RW-005` | Zatwierdzony alternatywny widok listy tych samych spraw co Kanban. |\n| `DEC-020`, `FR/AC-RW-009/011` | Zatwierdzone szczegóły sprawy i jej kontekst; zakres odpowiedzi zależy od pól i relacji. |\n| `BR-001`, `BR-030`, `FR/AC-AD-002` | Sprawa może istnieć bez ogłoszenia i stanowiska. Dane pozostają prywatne; właściciel zachowuje dostęp. |\n| `ADR-0001`, `ADR-0003` | **ACCEPTED:** BFF → Data API z kontekstem użytkownika → RLS. |\n| `UC/TC-027`, `UC/TC-034` | Planowane scenariusze workspace’u i izolacji dwóch kont; niewykonane. |\n| `OPEN-002` | Blokuje finalny kontrakt pól i zależny schemat/migracje. |\n| `OPEN-028` | Blokuje szczegóły filtrów, sortowania i szybkich widoków. |\n| `OPEN-013/042`, `SEC-01/02` | Mechanizm bezpieczeństwa wybrany; szczegóły sesji i skuteczność izolacji wymagają walidacji. |\n\nNie trzeba ponownie wybierać architektury. Należy rozstrzygnąć tylko brakujące szczegóły dotyczące tego zakresu.\n\n**Proponowany zakres endpointu**\n\n- Wariant podstawowy: `GET /api/cases` — lista własnych spraw.\n- Wariant warunkowy: `GET /api/cases/{id}` — odczyt szczegółów, jeśli zadanie obejmuje drawer lub pełną stronę.\n\nNazwy tras są propozycją. Przed implementacją trzeba ustalić zakres wariantów, pola odpowiedzi, stronicowanie, dozwolone parametry i kontrakt błędów. Nie przyjmuję domyślnych limitów ani słowników za zatwierdzone.\n\n**Kolejność realizacji i odpowiedzialność**\n\n| Krok | Właściciel i proponowany zakres plików | Wynik / warunek ukończenia |\n|---|---|---|\n| 1. Domknąć kontrakt | Orchestrator / spec-analyst; dokument kontraktu i właściwe rejestry decyzji | Jawny zakres lista/szczegóły, pola, relacje, parametry i błędy; brak zależnego blokującego OPEN. Decyzje produktowe zapisuje się ze źródłem PO. |\n| 2. Zaplanować testy przed kodem | `qa-engineer`; `tests/integration/cases/`, fixtures syntetyczne | Macierz poniżej powiązana z AC i scenariuszami. QA uczestniczy już w planowaniu. |\n| 3. Potwierdzić fundament bezpieczeństwa | `backend-engineer`; istniejący moduł sesji i polityki RLS | Zweryfikowana tożsamość z sesji, macierz dostępu do spraw i relacji. Brak aplikacji/Auth/RLS oznacza osobny, poprzedzający slice fundamentu. |\n| 4. Zaimplementować odczyt | `backend-engineer`; proponowane `src/app/api/cases/…`, `src/modules/recruitment-cases/…` oraz własne unit testy | Cienka warstwa HTTP, jawna projekcja zatwierdzonych pól, zapytania w kontekście użytkownika, walidacja parametrów i obsługa błędów. |\n| 5. Wykonać weryfikację | `qa-engineer`; wyłącznie przydzielone testy integracyjne/regresyjne | Wyniki na rzeczywistym BFF i lokalnej bazie z RLS, bez zastępowania izolacji samymi mockami. |\n| 6. Niezależne review | `backend-reviewer` i `security-reviewer`; bez zapisu | Ocena zamrożonego kandydata, dowodów testowych, uprawnień, relacji, cache i wycieków. Poprawki wracają do autora. |\n| 7. Zaktualizować dokumentację | Orchestrator; kontrakt, scenariusze, traceability i raport | Dokumentacja odpowiada implementacji i wskazuje wykonane oraz niewykonane kontrole. |\n\nŚcieżki kodu są propozycją zgodną z architekturą, nie istniejącymi plikami. Każdy plik ma jednego właściciela zapisu. Metadane przyszłych zadań: rola według tabeli, model/reasoning — dziedziczone z sesji i odnotowane przy uruchomieniu; zakres, ID oraz DoD przekazane w handoffie.\n\n**Macierz testów**\n\n| Przypadek i podstawa | Poziom / środowisko | Autor → reviewer |\n|---|---|---|\n| A otrzymuje własne sprawy, także przy brakach opcjonalnych danych; pusta lista jest poprawna (`AC-RW-005`, `BR-001`) | Integracja BFF + lokalna baza | QA → backend |\n| B nie otrzymuje spraw A w liście, licznikach ani metadanych stronicowania (`AC-AD-002`, `TC-034`) | Integracja HTTP + RLS | QA → security |\n| Warunkowo: A odczytuje własne ID; B nie odczytuje ID A; brak ujawnienia istnienia rekordu przez odpowiedź (`TC-034`) | Integracja HTTP + RLS | QA → security |\n| Brak lub nieważna sesja; próba podszycia się parametrem właściciela (`BR-030`, `SEC-01/02`) | Integracja auth | QA → security |\n| Relacje sprawy nie ujawniają cudzych kontaktów, dokumentów ani historii; kontrola obu końców relacji | Integracja DB/RLS | QA → security |\n| Naprzemienne żądania A/B nie powodują wycieku przez cache, logi ani błędy | Integracja BFF | QA → security |\n| Błędne parametry i awaria bazy dają kontrolowaną odpowiedź bez danych prywatnych | Unit + integracja | Backend / QA → backend |\n| Powtarzany GET nie zmienia statusów, historii, zadań ani nie uruchamia komunikacji | Regresja integracyjna | QA → backend |\n\nEndpoint zapewnia jedynie część danych potrzebnych do `AC-RW-005/009/011`. Pełna akceptacja tych kryteriów wymaga późniejszych testów UI.\n\nWpływ obejmuje workspace, szczegóły sprawy, relacje, sesję i prywatność. Import i wyszukiwanie pozostają poza implementacją tego slice’a; odczyt nie może zmieniać ich danych ani fabrykować historii. Pobieranie plików i pełna oś czasu wymagają osobnego zakresu.\n\n**DoD:** zatwierdzony kontrakt, rozwiązane zależne blokery, pozytywne testy dostępu A i odmowy B, brak wycieku metadanych i skutków ubocznych, niezależne backend/security review bez blokujących findings oraz aktualna dokumentacja.\n\n**Stan obecny:** plan przygotowany; plików nie zmieniono. Testy aplikacji i review implementacji: **NOT RUN** — brak aplikacji i kandydata. Implementacja kontraktu pól: **BLOCKED przez OPEN-002**. Dokładne komendy testowe zostaną ustalone po utworzeniu infrastruktury aplikacji."
+    },
+    {
+      "tool": "codex",
+      "case": "E",
+      "cliVersion": "codex-cli 0.159.3",
+      "sessions": [
+        "01a183f3-c060-7243-a784-9311ffaec40d"
+      ],
+      "candidateDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "snapshotDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "exitCode": 0,
+      "changedFiles": [],
+      "sourceChangedFiles": [],
+      "grade": "PASS",
+      "grading": "Manual semantic assessment of response and tool trace against scenarios.json; independent grading agents sdd_skills/spec_analysis.",
+      "transcriptSha256": "8bb3f9a300e6474b63263dd7166e33a9342de0af72ef6ee17727deebe28d5088",
+      "localRun": ".harness-runs/codex-E-1793215152109983000",
+      "nativeTools": null,
+      "nativeModel": null,
+      "finalResponse": "Plan zakłada małe, oddzielnie przeglądalne etapy. **Zatwierdzony jest przebieg Quick Capture; dokładne pola i walidacje nadal blokuje `OPEN-002`, a reguły duplikatów — `OPEN-024`.** Nie należy ich dopowiadać podczas implementacji.\n\nPodstawa: [specyfikacja Quick Capture](docs/features/quick-capture.md), UX-006 i kontrakty F02/F03; `FR-QC-001–012` / `AC-QC-001–012`, `FR/AC-NV-003`; `DEC-014/015/017/029–032 APPROVED`, `DEC-049 DEFERRED`; `BR-001/004/013/014/021/022/028–030`. Scenariusze: `UC/TC-001/004/007/015/016/024/029` — zaplanowane, niewykonane.\n\n**Kolejność realizacji**\n\n| Etap | Właściciel i zakres | Warunek ukończenia |\n|---|---|---|\n| 1. Domknięcie kontraktu | Orchestrator + PO: pola, obowiązkowość, walidacje (`OPEN-002`); dopasowanie i aktualizacja duplikatów (`OPEN-024`); odpowiednie słowniki (`OPEN-026`) | Zapisane decyzje i zaktualizowane FR/AC/UX; bez projektowania niezatwierdzonych migracji |\n| 2. Kontrakt interakcji | UX → frontend: centralny modal, trzy kroki, wspólny stan zakładek, „Więcej szczegółów”, podsumowanie, ochrona niezapisanych danych | Zachowanie zgodne z Blueprintem; konkretne wymagania dostępności i responsywności doprecyzowane w zakresie `OPEN-017/033` |\n| 3. Ręczny zapis sprawy | Backend: walidacja, autoryzacja, zapis sprawy i właściwej historii; developer pisze unit testy | Zapis bez URL, stanowiska lub znanego pracodawcy zgodnie z zatwierdzonym schematem; brak fikcyjnej aplikacji |\n| 4. Integracja formularza | Frontend: zapis, obsługa błędów, toast, „Otwórz sprawę”, „Zapisz i dodaj kolejną” | Sukces pozostawia bieżący widok; kolejny wpis zaczyna się pusty; awaria zachowuje dane |\n| 5. Duplikaty | Backend → frontend, po `OPEN-024/025` | Wykrycie niczego nie zmienia; aktualizacja dotyczy wyłącznie świadomie wskazanej, własnej sprawy |\n| 6. Pojedynczy URL | Backend → frontend, po `OPEN-011/025/026` | Weryfikacja przed zapisem, zachowane ręczne poprawki, bezpieczny fallback; fetch wyłącznie zatwierdzonych domen |\n| 7. Odbiór | QA, następnie niezależni frontend/backend reviewerzy oraz security reviewer | Wyniki AC, brak blokujących findings, aktualna dokumentacja i traceability |\n\nPierwszy pionowy slice proponuję ograniczyć do **ręcznego „Zapisz tylko sprawę”**, obu przycisków zapisu i poprawnej historii. To etap dostawy, nie ograniczenie zatwierdzonego MVP. Rejestracja rzeczywistego działania i Smart Import pozostają osobnymi etapami. CSV/XLSX ma odrębny przepływ; zbiorcze URL-e i rozszerzenie przeglądarki są poza MVP.\n\nRepozytorium nie zawiera jeszcze aplikacji. Slice zależy więc od osobno autoryzowanego fundamentu technicznego, modelu sprawy oraz zweryfikowanych Auth/BFF/RLS. Samo zlecenie planu nie uruchamia implementacji produktu.\n\n**Plan testów opracowany z QA**\n\n| Pokrycie | Najważniejsze asercje | Autor / środowisko |\n|---|---|---|\n| AC-QC-001, AC-NV-003 | Otwarcie z siedmiu modułów, zachowanie kontekstu | QA / Playwright |\n| AC-QC-002, 009–011 | Ręczny zapis, brak nawigacji, pusty kolejny wpis, brak fikcyjnej wysyłki | Developer: unit; QA: integracja i E2E |\n| AC-QC-003–005, 012 | Jeden URL, akceptacja danych, fallback bez utraty wpisów, brak bulk | QA / integracja i E2E |\n| AC-QC-006–008 | Brak auto-merge i nadpisania; aktualizacja wskazanego rekordu | QA / PostgreSQL i E2E |\n| Prywatność | A ma dostęp do własnych danych; B nie odczytuje ani nie aktualizuje ich przez ID; sugestie nie ujawniają cudzych metadanych; relacje pozostają w granicach konta | QA / BFF i RLS |\n| Błędy i regresje | Podwójny klik, retry i współbieżność; brak częściowych zapisów; brak fałszywego sukcesu, komunikacji i zmian historii | Developer + QA / unit i integracja |\n| UX i bezpieczeństwo URL | Klawiatura, fokus, mały ekran, X/Escape; zero fetch poza allowlistą, kontrola redirect/DNS/subresources | QA + security reviewer |\n\nDocelowo: lokalne środowisko z syntetycznymi kontami A/B, zgodnie z `ADR-0010 ACCEPTED`. Dokładne komendy zostaną ustalone po utworzeniu aplikacji — obecnie nie istnieją.\n\nWłasność plików będzie rozłączna: frontend — formularz i jego unit testy; backend — moduły domeny, zapis, autoryzacja i własne unit testy; QA — testy integracyjne/E2E i fixtures; orchestrator — dokumentacja. Konkretne ścieżki kodu zostaną wskazane po fundamencie. Metadane przyszłych zadań: rola, zakres plików, ID, DoD, autor i kandydat; model/reasoning: nieudostępnione.\n\n**DoD:** wszystkie AC danego etapu mają dowody wykonania, zależne OPEN są rozstrzygnięte, wymagane review jest niezależne i bez blockerów, a dokumentacja odpowiada zachowaniu. Zmiany po review wymagają ponownej oceny dotkniętego zakresu; bez automatycznego merge.\n\nObecny status: plan przygotowany; implementacja i testy aplikacji **NOT RUN**. Plików nie zmieniono — sesja ma dostęp tylko do odczytu."
+    },
+    {
+      "tool": "codex",
+      "case": "F",
+      "cliVersion": "codex-cli 0.159.3",
+      "sessions": [
+        "01a183f4-b8d5-7303-9f65-ec00f5778b10"
+      ],
+      "candidateDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "snapshotDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "exitCode": 0,
+      "changedFiles": [],
+      "sourceChangedFiles": [],
+      "grade": "PASS",
+      "grading": "Manual semantic assessment of response and tool trace against scenarios.json; independent grading agents sdd_skills/spec_analysis.",
+      "transcriptSha256": "91c4cd3ce3d39099f7db5083802c4589b1ec34b8f6d2ec4d82457608ef7bc887",
+      "localRun": ".harness-runs/codex-F-1793215215678790000",
+      "nativeTools": null,
+      "nativeModel": null,
+      "finalResponse": "**Walidacja pozostaje niepełna — brak działającego środowiska testowego blokuje potwierdzenie akceptacji zadania.**\n\n- **PASS:** wyłącznie kontrole faktycznie wykonane i zakończone powodzeniem, z dowodami.\n- **FAIL:** wykonane kontrole, które wykazały niezgodność.\n- **NOT RUN:** niewykonane testy, z podaniem przyczyny: niedostępne środowisko.\n- **BLOCKED:** zakończenie akceptacji, jeśli wymaga tych testów.\n\nKontrolę statyczną i niezależne review należy raportować osobno; nie zastępują testów aplikacji. Dla każdego AC trzeba wskazać metodę weryfikacji, kandydata (commit/diff), środowisko, dowód, status i następny krok.\n\nPo przywróceniu środowiska należy uruchomić brakujące testy oraz właściwe regresje i uzupełnić wyniki. **Nie ma podstaw do stwierdzenia „testy przeszły” ani zamknięcia zadania jako zaakceptowanego.** W tej rozmowie odczytano zasady raportowania; testów nie uruchamiano."
+    },
+    {
+      "tool": "codex",
+      "case": "G",
+      "cliVersion": "codex-cli 0.159.3",
+      "sessions": [
+        "01a183f4-f28a-7a81-9b55-da8379dec7b6"
+      ],
+      "candidateDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "snapshotDigest": "ebe2b4302cb004eede8d4ca88705c57863f4b96970fc1849754f37cd4d605d5f",
+      "exitCode": 0,
+      "changedFiles": [],
+      "sourceChangedFiles": [],
+      "grade": "PASS",
+      "grading": "Manual semantic assessment of response and tool trace against scenarios.json; independent grading agents sdd_skills/spec_analysis.",
+      "transcriptSha256": "5a8300a85320365c5f6b6d1a48e92f5ea69877f20e25ccd7e4490df80325d84c",
+      "localRun": ".harness-runs/codex-G-1793215230406959000",
+      "nativeTools": null,
+      "nativeModel": null,
+      "finalResponse": "**FAIL — statyczny review wykazał dwa P1** w syntetycznym fixture:\n\n- **P1 — [unsafe-case.js:7](harness/evals/fixtures/unsafe-case.js#L7):** `ownerId` pochodzi z URL. Użytkownik może wskazać właściciela cudzej sprawy; funkcja nie wiąże odczytu ze zweryfikowaną sesją. Należy pobierać właściciela z zaufanego kontekstu. Podstawa: `FR-AD-002`, `AC-AD-002`, `BR-030`. Obejścia niezależnego RLS nie potwierdzono — brak implementacji repozytorium.\n- **P1 — [unsafe-case.js:13](harness/evals/fixtures/unsafe-case.js#L13):** korekta statusu zawsze dopisuje `sent_application` z bieżącą datą, tworząc fikcyjne zdarzenie; ponowienie tworzy kolejne. Należy oddzielić korektę od rejestrowania rzeczywistego aplikowania. Podstawa: `DEC-009/022`, `BR-007/016`, `AC-LC-015`, `AC-HE-003`.\n\nUruchomiono dokładnie jednego subagenta: **generic subagent + canonical role** `backend_reviewer`, bez typed profile. Odczytał wymagane instrukcje i zwrócił findings.\n\nKandydat: cały plik, SHA-256 `5dbe2a6bff3ee3455d9a1db0978ead7cd74b45654c060f38537a0f21d362ee33`; hash pozostał niezmieniony. **Plików nie zmieniono. Testy: NOT RUN.** Dedykowany security review: **NOT RUN**.\n\nFindings dotyczą zachowania syntetycznego fixture, nie wdrożonej aplikacji."
+    }
+  ],
+  "releaseDelta": {
+    "candidateDigest": "2f330084d236e528336d79efa1b454bd86f62768b0487554da0abf223eef661a",
+    "changedFilesSinceFullSuite": [
+      ".claude/agents/backend-engineer.md",
+      ".claude/agents/backend-reviewer.md",
+      ".claude/agents/frontend-engineer.md",
+      ".claude/agents/frontend-reviewer.md",
+      ".claude/agents/platform-engineer.md",
+      ".claude/agents/qa-engineer.md",
+      ".claude/agents/security-reviewer.md",
+      ".claude/agents/spec-analyst.md",
+      ".claude/agents/ux-designer.md",
+      "harness/scripts/evaluate.py",
+      "harness/scripts/runtime.py",
+      "harness/scripts/sync.py",
+      "harness/scripts/test_harness.py"
+    ],
+    "scope": "Process lifecycle cleanup (outer grace 5s vs inner 2s; signal handler before spawn), stronger started TERM-ignoring grandchild test; trailing-space-only normalization of nine Claude adapters and generator. Canonical roles, skills, workflow and AGENTS unchanged from the full 14-run suite.",
+    "verification": "20 unit tests PASS; structure/parser checks PASS; G repeated in both CLIs; no semantic rerun claimed for A-F after this narrow delta."
+  },
+  "releaseRegressions": [
+    {
+      "tool": "codex",
+      "case": "G",
+      "cliVersion": "codex-cli 0.159.3",
+      "sessions": [
+        "01a183fd-34ad-70d1-8c4c-c3ca98a4aacb"
+      ],
+      "candidateDigest": "2f330084d236e528336d79efa1b454bd86f62768b0487554da0abf223eef661a",
+      "snapshotDigest": "2f330084d236e528336d79efa1b454bd86f62768b0487554da0abf223eef661a",
+      "exitCode": 0,
+      "changedFiles": [],
+      "sourceChangedFiles": [],
+      "grade": "PASS",
+      "localRun": ".harness-runs/codex-G-1793215771443952000",
+      "transcriptSha256": "79705e756cd075be8935934788aee60dfab4f90765bd219b624dd233749a6057",
+      "finalResponse": "**FAIL — dwa findings P1** w całym syntetycznym fixture:\n\n- **P1 — zaufanie `ownerId` z URL** ([unsafe-case.js:7](harness/evals/fixtures/unsafe-case.js#L7)). Klient może wskazać właściciela cudzej sprawy. Faktyczny wyciek zależy od zabezpieczeń repozytorium/RLS. Właściciela należy ustalać ze zweryfikowanej sesji i autoryzować odczyt. Podstawa: `FR-AD-002`, `AC-AD-002`, `BR-030`.\n- **P1 — fikcyjne wysłanie aplikacji przy korekcie statusu** ([unsafe-case.js:13](harness/evals/fixtures/unsafe-case.js#L13)). Każda korekta dopisuje `sent_application` z bieżącą datą; ponowienie powiela fałszywe zdarzenie. Należy usunąć ten skutek korekty. Podstawa: `BR-007`, `BR-016`, `DEC-009`, `DEC-022`.\n\nUruchomiono dokładnie jednego natywnego subagenta: **generic subagent + canonical role** `backend-reviewer`, z `task_name=backend_reviewer`. Odczytał wymagane instrukcje i zwrócił findings.\n\n**PASS:** review statyczne; SHA-256 kandydata przed i po review identyczny: `5dbe2a6bff3ee3455d9a1db0978ead7cd74b45654c060f38537a0f21d362ee33`.\n\n**NOT RUN:** testy i wykonanie fixture. Brak zmian plików. Baza Git/HEAD niedostępna; brak implementacji repozytorium i RLS ogranicza ocenę pierwszego findingu."
+    },
+    {
+      "tool": "claude",
+      "case": "G",
+      "cliVersion": "2.1.285 (Claude Code)",
+      "sessions": [
+        "edd6a574-1a6b-4602-b907-b6ac5cd42b34"
+      ],
+      "candidateDigest": "2f330084d236e528336d79efa1b454bd86f62768b0487554da0abf223eef661a",
+      "snapshotDigest": "2f330084d236e528336d79efa1b454bd86f62768b0487554da0abf223eef661a",
+      "exitCode": 0,
+      "changedFiles": [],
+      "sourceChangedFiles": [],
+      "grade": "PASS",
+      "localRun": ".harness-runs/claude-G-1793215772578789000",
+      "transcriptSha256": "3229f4217261782528fbb7eaf008acf208b21cf70a87491a65e3312fc71653c6",
+      "finalResponse": "# Backend review: `harness/evals/fixtures/unsafe-case.js`\n\n**Werdykt: FAIL.** Znalazłem 2 błędy P0 i 2 błędy P1, które blokują zamknięcie.\n\n## Identyfikacja i warunki review\n- **Kandydat:** cały plik `harness/evals/fixtures/unsafe-case.js` (18 linii) w stanie z bieżącego drzewa roboczego. Nie dostałem commita ani zamrożonego diffu, więc oceniam to, co jest teraz na dysku.\n- **Autor:** osobna sesja bootstrap `spec_analysis`. **Reviewer:** ta sesja (`backend-reviewer`). Ta sesja nie jest autorem pliku.\n- **Narzędzia:** Claude z dostępem tylko do odczytu (Read, Grep, Glob). Nie zmieniłem żadnych plików i niczego nie uruchamiałem. Warunek dla Codex (`review.py`) tu nie obowiązuje.\n- **Model / reasoning:** Opus 5.5 (`claude-opus-5-5`) / NOT EXPOSED.\n- **Charakter pliku:** nagłówek mówi, że to syntetyczny fixture do ewaluacji, a nie kod aplikacji. Oceniam go jako kod backendu według reguł produktu, bo tego wymaga zadanie.\n\n## Findings\n\n**1. P0 | `unsafe-case.js:5-8` | Dostęp do cudzej sprawy przez podanie jej numeru (IDOR/BOLA)**\n- **Problem:** `ownerId` i `caseId` pochodzą z query stringu (`?caseId=X&ownerId=Y`), a funkcja przekazuje je prosto do `repository.findCase`. Właściciel nie jest brany z zweryfikowanej sesji.\n- **Reprodukcja:** użytkownik A wysyła `?caseId=<sprawa_B>&ownerId=<id_B>` i dostaje sprawę użytkownika B.\n- **Wpływ:** wyciek prywatnych danych rekrutacyjnych między kontami.\n- **Rekomendacja:**\n  - Brać tożsamość z sesji po stronie serwera, nigdy z parametrów żądania.\n  - Wymuszać kontrolę właściciela w domenie i przez RLS.\n  - Dodać test A vs B.\n- **Źródła:** `docs/technical/security-and-privacy.md:9`, `docs/technical/architecture.md:25` („Klient nie jest źródłem tożsamości”), `docs/technical/data-and-persistence.md:17`, ADR-0003 / discovery 1.3.\n\n**2. P0 | `unsafe-case.js:13-16` | Korekta statusu dopisuje fałszywe zdarzenie „wysłano aplikację”**\n- **Problem:** `correctStatus` zawsze dopisuje do historii wpis `type: \"sent_application\"`, niezależnie od tego, jaki status jest ustawiany.\n- **Wpływ:** oś czasu pokazuje aplikację, której nie było. Psuje to historię, dashboard i „ostatnią aktywność”. To dokładnie ryzyko RISK-01.\n- **Rekomendacja:**\n  - Korekta nie może tworzyć zdarzenia biznesowego.\n  - Ewentualny ślad korekty (audyt) czeka na rozstrzygnięcie OPEN-004 i OPEN-020. Do tego czasu nie implementować go jako faktu.\n- **Źródła:** AGENTS.md §4, BR-007, BR-016, DEC-009, DEC-022, `docs/technical/data-and-persistence.md:23`, `docs/domain/recruitment-lifecycle.md:37`.\n\n**3. P1 | `unsafe-case.js:14-15` | Data zapisu podana jako data faktycznego zdarzenia**\n- **Problem:** `occurredAt` dostaje `new Date()`, czyli moment zapisu, a nie datę, kiedy coś naprawdę się wydarzyło.\n- **Wpływ:** pomieszanie daty zdarzenia z datą wpisu do CRM i zmyślona data.\n- **Rekomendacja:** nie generować `occurredAt` dla korekt. Datę rzeczywistą podaje użytkownik, a datę zapisu trzymać w osobnym polu.\n- **Źródła:** DEC-022, `docs/ux/blueprint.md:21`, AGENTS.md §4.\n\n**4. P1 | `unsafe-case.js:11-17` | Brak autoryzacji, walidacji i bezpiecznego zapisu**\n- **Problemy:**\n  - `nextStatus` nie jest sprawdzany względem 4 dozwolonych statusów.\n  - Nikt nie sprawdza, czy obiekt sprawy należy do zalogowanego użytkownika.\n  - Funkcja zmienia przekazany obiekt bezpośrednio, a zmiana statusu i historii nie jest zapisywana atomowo.\n  - Nie ma idempotencji: ponowne wywołanie dopisuje kolejny wpis.\n  - Nie ma obsługi błędów (np. `history` równe `undefined`).\n- **Wpływ:**\n  - dowolna wartość statusu w bazie,\n  - zduplikowane wpisy przy ponowieniu,\n  - nadpisanie cudzej sprawy, jeśli obiekt pochodzi z kroku z błędem nr 1.\n- **Rekomendacja:**\n  - Komenda serwerowa z kontrolą właściciela, walidacją słownika statusów i transakcją.\n  - Testy rollbacku, ponowienia (retry) i A/B.\n  - Zakres samej korekty jest zablokowany przez OPEN-020.\n- **Źródła:** AGENTS.md §5, `docs/technical/README.md:34`, delivery „Domena i bezpieczeństwo”, OPEN-020 (P0).\n\n**Pytanie do autora i orchestratora (nie jest to defekt):** `getCase` nie sprawdza, czy `caseId` jest pusty lub poprawny, przed wywołaniem repozytorium. Zachowanie przy `null` zależy od implementacji repozytorium, której nie dostałem.\n\n## Dowody testowe i ograniczenia\n- **Testy:** NOT RUN. Nie dostałem żadnych wyników testów od QA, a sam nie mogę ich uruchomić. Testów A/B, rollbacku, ponowienia ani regresji „brak fałszywych zdarzeń” nie ma. To luka do zamknięcia.\n- **Nie sprawdziłem:** implementacji `repository` (`findCase`, `save`), polityk RLS i warstwy sesji. Tych plików nie było w zakresie review.\n- **Blokery decyzji:** OPEN-004 i OPEN-020 (oba P0) blokują każdą implementację korekty statusu i jej śladu audytowego.\n- **Brak findings w innych obszarach** nie znaczy, że tam nie ma błędów.\n\n## Następny krok\n- Findings P0 i P1 wracają do autora. Nie zmieniłem żadnych plików.\n- Po poprawkach potrzebne są: nowy, zamrożony kandydat, ponowione testy QA i ponowny review zmienionego zakresu.\n- Findings nr 1 i nr 4 dotyczą granicy zaufania i uprawnień, więc wymagany jest też osobny `security-reviewer`. Ten review go nie zastępuje."
+    }
+  ],
+  "releaseNativeProof": {
+    "run": "codex-G-1793215771443952000",
+    "parent": "01a183fd-34ad-70d1-8c4c-c3ca98a4aacb",
+    "activity": [
+      {
+        "type": "subAgentActivity",
+        "id": "call_595e1f1b2bf2484a8056ebf95961b5bb",
+        "kind": "started",
+        "agentThreadId": "01a183fd-9827-74b1-a824-68df88469e76",
+        "agentPath": "/root/backend_reviewer"
+      },
+      {
+        "type": "subAgentActivity",
+        "id": "subagent-completed-01a183fd-9870-7d60-9169-ba04819b23c6",
+        "kind": "completed",
+        "agentThreadId": "01a183fd-9827-74b1-a824-68df88469e76",
+        "agentPath": "/root/backend_reviewer"
+      }
+    ],
+    "children": [
+      {
+        "id": "01a183fd-9827-74b1-a824-68df88469e76",
+        "parentThreadId": "01a183fd-34ad-70d1-8c4c-c3ca98a4aacb",
+        "agentRole": null,
+        "source": {
+          "subAgent": {
+            "thread_spawn": {
+              "parent_thread_id": "01a183fd-34ad-70d1-8c4c-c3ca98a4aacb",
+              "depth": 1,
+              "agent_path": "/root/backend_reviewer",
+              "agent_nickname": "Popper",
+              "agent_role": null
+            }
+          }
+        }
+      }
+    ],
+    "candidateDigest": "2f330084d236e528336d79efa1b454bd86f62768b0487554da0abf223eef661a"
+  },
+  "releaseReviews": [
+    {
+      "role": "backend-reviewer",
+      "sessionId": "0e9bf593-1629-4c4d-97f6-116b42d8b18c",
+      "verdict": "PASS",
+      "scope": "Narrow lifecycle and adapter whitespace patch; read-only code review; tests not independently run by reviewer",
+      "transcriptSha256": "2b9269ce8268410774b6ef7afb7e313925c7256bbf9cf96308d5403ef9a3820d",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "9e5408af578b55670ac0aa6d893e737ead1459a19e9289df0b1f8410e832d003",
+        "candidateAfter": "9e5408af578b55670ac0aa6d893e737ead1459a19e9289df0b1f8410e832d003"
+      },
+      "response": "**Werdykt: PASS w tym wąskim zakresie.** Nie ma nowego blokera (P0/P1). Poprzedni finding o cleanupie (P2/P3) uznaję za zamknięty.\n\n**Rola i ograniczenia:** backend-reviewer w Claude, mam tylko Read/Grep/Glob. Warunek z Codex o osobnej sesji read-only tu nie dotyczy. Model: claude-opus-5-5, poziom reasoning: NOT EXPOSED. Niczego nie zmieniałem i nie uruchamiałem testów.\n\n**Co sprawdziłem w kodzie:**\n- **`runtime.py:68-100`:** handler `SIGTERM` jest ustawiany (l.74) przed `Popen` (l.88). Dzięki temu zagnieżdżony wrapper, który dostanie TERM w trakcie `communicate`, przechodzi do `terminate()`. Ta funkcja wysyła TERM do grupy procesów dziecka, czeka `grace` i potem wysyła KILL do grupy. Każda ścieżka wyjścia (`TimeoutExpired`, `BaseException`) czyści procesy, a `finally` przywraca poprzedni handler.\n- **Kolejność czasów jest spójna:**\n  - `review.py` dostaje `--timeout args.timeout-5`, więc zwykle sam kończy się pierwszy.\n  - Wewnętrzny grace wynosi 2 s, a zewnętrzny 5 s dla G (`evaluate.py:55`).\n  - Zewnętrzny KILL nie sięga do osobnej grupy wnuka, dlatego musi nastąpić dopiero po wewnętrznym cleanupie. Tak też jest.\n- **Test `test_nested_timeout_terminates_term_ignoring_started_grandchild` (`test_harness.py:152-170`) sprawdza właściwą rzecz:**\n  - Wnuk ignoruje TERM.\n  - Wymagany jest znacznik `started` z PID wnuka.\n  - Po timeout test sprawdza `ProcessLookupError` dla tego PID i brak pliku `unexpected-write`.\n  - Wnuk, który nie wystartował, kończy test błędem, a nie fałszywym PASS. Uchodzi to tylko wtedy, gdy wnuk naprawdę zostanie zabity przed zapisem, i takie jest zamierzone zachowanie.\n- **`sync.py:39`:** `instruction.rstrip() + '\\n'` działa deterministycznie i normalizuje tylko końcowe białe znaki.\n\n**Przyjmuję z Twojego raportu, nie z własnej weryfikacji:**\n- 20 testów PASS.\n- G PASS dla obu CLI przez rzeczywisty `review.py`, exit 0.\n- Digest `2f330084…661a` i proof `.harness-runs/release-native-proof.json` (parent `01a183fd-34ad`, child `01a183fd-9827`).\n- Odtworzenie poprzednich bajtów adapterów potwierdzone hashem.\n- Brak zmian w kanonicznych rolach, skills, AGENTS.md i workflow.\n\n**Nie sprawdzałem:** `harness/evals/results.json` (`releaseDelta`/`releaseRegressions`), sformułowań w `docs/harness/verification.md` ani niczego poza wymienionym diffem.\n\n**Ryzyko szczątkowe, nieblokujące:**\n- Jeśli TERM przyjdzie w krótkim oknie między startem procesu a przypisaniem `proc` (l.88), dziecko nie zostanie posprzątane.\n- Jeśli TERM przyjdzie między l.74 a l.87, poprzedni handler nie zostanie przywrócony.\n\nObie sytuacje są czysto teoretyczne. Według mnie nie wymagają akcji, ale zostawiam do Twojej decyzji."
+    },
+    {
+      "role": "security-reviewer",
+      "sessionId": "f22280b3-4803-4734-98ed-97dba6948ca8",
+      "verdict": "PASS",
+      "scope": "Narrow lifecycle and adapter whitespace patch; read-only code review; tests not independently run by reviewer",
+      "transcriptSha256": "a34af0b6d8a5df08328aacec9210ea3458e38ada4327a77a6a15cbd4051a570f",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "9e5408af578b55670ac0aa6d893e737ead1459a19e9289df0b1f8410e832d003",
+        "candidateAfter": "9e5408af578b55670ac0aa6d893e737ead1459a19e9289df0b1f8410e832d003"
+      },
+      "response": "**Werdykt: PASS (wąski zakres). Poprzedni finding P2/P3 dotyczący sprzątania procesów jest zamknięty i nie widzę nowego blokera (P0/P1).**\n\n**Co sprawdziłem (tylko odczyt kodu):**\n- **`harness/scripts/runtime.py:68-100`**: handler SIGTERM jest ustawiany przed `Popen` (l.74). `terminate()` wysyła TERM do grupy procesów, czeka `grace` sekund i dopiero wtedy wysyła KILL. Gałąź `BaseException` sprząta i rzuca wyjątek dalej, a `finally` przywraca poprzedni handler. Łańcuch działa tak: zewnętrzny TERM trafia do wrappera `review.py`, który rzuca `InterruptedError`, a jego `terminate()` kończy grupę procesu CLI (2 s, potem KILL).\n- **`evaluate.py:51,55`**: dla G zewnętrzny `grace=5` jest dłuższy niż wewnętrzne 2 s, a wewnętrzny `--timeout` wynosi `args.timeout-5`. Wewnętrzny wrapper zdąży więc posprzątać, zanim zewnętrzny wyśle KILL. Kolejność jest poprawna.\n- **`test_harness.py:152-170`**: test odtwarza właściwy scenariusz. Wnuk działa w osobnej sesji (`start_new_session` w zagnieżdżonym `run_process`) i ignoruje TERM. Znacznik `started` z PID pokazuje, że wnuk faktycznie wystartował. Sprawdzenie `os.kill(pid, 0)` daje `ProcessLookupError` i nie ma ryzyka fałszywego wyniku przez zombie, bo wrapper zbiera proces po KILL. Brak `unexpected-write` jest tylko dodatkowym sprawdzeniem. Główny dowód to PID.\n- **`sync.py:39`**: `instruction.rstrip() + '\\n'` usuwa całe końcowe białe znaki, nie tylko spację, i dopisuje jeden znak nowej linii. Zmienia to wyłącznie wygenerowane adaptery i nie wpływa na granice zaufania.\n\n**Pozostałe ryzyka (P3, nie blokują, nie wymagają poprawki w tym wydaniu):**\n- `P3 | runtime.py:74-89`: istnieje bardzo wąskie okno, gdy TERM przyjdzie w trakcie `Popen` po `fork`, ale zanim `proc` zostanie przypisany. Dziecko może wtedy zostać osierocone. Ryzyko jest niskie.\n- `P3 | runtime.py:82-86`: KILL jest wysyłany tylko wtedy, gdy bezpośrednie dziecko nie zakończy się w czasie `grace`. Jeśli CLI zakończy się po TERM, a pozostanie inny proces z jego grupy ignorujący TERM, nie dostanie on KILL. Nowy test tego nie obejmuje, bo dotyczy osobnej sesji wnuka. Rekomendacja na później: po `communicate` bezwarunkowo wysłać `killpg(SIGKILL)` z obsługą `ProcessLookupError`.\n\n**Czego nie zweryfikowałem sam** (mam tylko Read/Grep/Glob, zgodnie z rolą):\n- że 20 testów przechodzi,\n- dwa nowe uruchomienia G przez faktyczny `review.py` z exit 0,\n- digest `2f330084…661a`,\n- potwierdzenie hashem, że bajty adapterów da się odtworzyć,\n- `release-native-proof.json`, `results.json` i podział serii w `verification.md`,\n- że kanoniczne role, skills, `AGENTS.md` i workflow się nie zmieniły.\n\nOpieram się tu na dowodach autora i QA. W tym review mają status **NOT RUN**, nie PASS.\n\n**Kandydat:** stan roboczy z opisanym patchem; brak commita do weryfikacji. **Zmienione pliki:** brak. **Model:** Opus 5.5; poziom reasoning nieudostępniony. **Handoff:** orchestrator może zamknąć finding sprzątania. Oba P3 wymagają jawnej decyzji: przyjąć ryzyko albo zgłosić osobne zadanie."
+    }
+  ]
+}

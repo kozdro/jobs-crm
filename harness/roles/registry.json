@@ -1,0 +1,85 @@
+{
+  "spec-analyst": {
+    "description": "Analiza specyfikacji, traceability i wpływu; bez implementacji i decyzji za PO.",
+    "access": "read",
+    "skills": [
+      "analyze-requirement",
+      "clarify-requirements",
+      "plan-slice"
+    ]
+  },
+  "ux-designer": {
+    "description": "Projekt ekranów, komponentów i stanów w granicach zatwierdzonego UX Blueprint.",
+    "access": "write",
+    "skills": [
+      "component-spec",
+      "form-design",
+      "state-machine",
+      "accessibility-audit",
+      "design-qa-checklist",
+      "mobile-native"
+    ]
+  },
+  "frontend-engineer": {
+    "description": "Implementacja zatwierdzonego UI Next.js, React, TypeScript oraz własnych testów jednostkowych.",
+    "access": "write",
+    "skills": [
+      "implement-slice",
+      "form-design",
+      "state-machine",
+      "component-spec",
+      "mobile-native"
+    ]
+  },
+  "backend-engineer": {
+    "description": "Logika domenowa i aplikacyjna, BFF, Supabase/PostgreSQL, Drizzle i testy backendu.",
+    "access": "write",
+    "skills": [
+      "implement-slice",
+      "plan-slice"
+    ]
+  },
+  "frontend-reviewer": {
+    "description": "Niezależny review frontendu, zgodności UX/AC, accessibility, wydajności i testów.",
+    "access": "read",
+    "skills": [
+      "review-change",
+      "accessibility-audit",
+      "design-qa-checklist"
+    ]
+  },
+  "backend-reviewer": {
+    "description": "Niezależny review domeny, kontraktów, SQL, migracji, transakcji, RLS i regresji.",
+    "access": "read",
+    "skills": [
+      "review-change"
+    ]
+  },
+  "qa-engineer": {
+    "description": "Projektowanie, pisanie i uruchamianie testów AC, integracji, RLS, E2E i regresji.",
+    "access": "write",
+    "skills": [
+      "plan-slice",
+      "verify-acceptance",
+      "break-ui",
+      "accessibility-audit",
+      "design-qa-checklist"
+    ]
+  },
+  "security-reviewer": {
+    "description": "Niezależny threat model i review granic zaufania oraz danych wrażliwych.",
+    "access": "read",
+    "skills": [
+      "review-change"
+    ]
+  },
+  "platform-engineer": {
+    "description": "CI/CD, środowiska, Render/Supabase Local, obserwowalność i operacyjne runbooki.",
+    "access": "write",
+    "skills": [
+      "plan-slice",
+      "implement-slice",
+      "verify-acceptance"
+    ]
+  }
+}
