@@ -1,7 +1,7 @@
 # Jobs CRM
 
-> **Status projektu:** dokumentacyjny bootstrap / Product + Functional + UX Discovery.
-> **Stan na:** 2026-10-27. **Język dokumentacji:** polski.
+> **Status projektu:** Technical Discovery completed / architecture documented; implementation not started.
+> **Stan na:** 2026-10-28. **Język dokumentacji:** polski.
 > **Nie jest to repozytorium implementacji ani prototypu UI.**
 
 Jobs CRM to projekt osobistego CRM wspierającego poszukiwanie pracy. Zastępuje rozproszoną pamięć o aplikacjach, firmach, kontaktach, rozmowach, zadaniach, terminach i dokumentach jednym uporządkowanym workspace'em. Pierwszy rynek to Polska; początkowi użytkownicy to osoby aktywnie poszukujące pracy w IT/digital.
@@ -28,4 +28,4 @@ Kolejność pierwszeństwa i zasady rozwiązywania konfliktów opisuje [standard
 - `PROPOSED`: sugestie do zatwierdzenia, **nie** obowiązujące zachowanie.
 - `DEFERRED`: świadomie poza pierwszym wydaniem lub na późniejszym etapie.
 
-Ta dokumentacja umożliwia dalszy UX Discovery i Technical Discovery, **ale nie stanowi zezwolenia na implementowanie niewyjaśnionych wymagań**. Szczegóły: [bramki decyzyjne](docs/decisions/open-questions.md) i [raport audytu](docs/quality/documentation-audit.md).
+Technical Discovery 1.1–1.40 zakończono, a etap prototypu pominięto decyzją właściciela. [Architektura i decyzje techniczne](docs/technical/README.md), [ADR](docs/decisions/adr/README.md), [plan implementacji](docs/technical/implementation-plan.md). **Nie stanowi to zezwolenia na implementowanie niewyjaśnionych wymagań**. Szczegóły: [bramki decyzyjne](docs/decisions/open-questions.md) i [raport audytu](docs/quality/documentation-audit.md).
