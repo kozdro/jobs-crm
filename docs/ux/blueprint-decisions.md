@@ -87,4 +87,4 @@ Samo **prototypowanie wariantowe na danych fikcyjnych** jest możliwe teraz. Nie
 - [ ] Weryfikacja UX na interaktywnym prototypie — **NOT EXECUTED**.
 - [ ] Finalne reguły pól, stanów, usuwania, dostępności i techniczne ADR — poza tym etapem.
 
-**Następny krok:** interaktywny prototyp na fikcyjnych danych; następnie sprawdzenie ścieżek z [flow-contracts.md](flow-contracts.md). Kod aplikacji i wybór stacku dopiero po właściwych bramkach.
+**Aktualizacja 2026-10-28:** właściciel projektu świadomie pominął interaktywny prototyp. Technical Discovery 1.1–1.40 ukończono; [architektura](../technical/README.md) i [ADR](../decisions/adr/README.md) są punktem wejścia do planu SDD/AIDD. Testy interakcji należy wykonać podczas implementacji. Niezamknięte domenowe OPEN nie zostały zatwierdzone przez sam wybór technologii.

@@ -14,7 +14,7 @@
 | Co zatwierdzono? | [Rejestr DEC](decisions/product-decisions.md) |
 | Czego nie wiemy? | [Rejestr OPEN](decisions/open-questions.md) |
 | Co testujemy? | [Scenariusze UC/TC](quality/scenarios.md), [traceability](quality/traceability.md), [historyczny audyt bootstrapu (snapshot, nieaktualne metryki)](quality/documentation-audit.md) |
-| Jak będziemy podejmować decyzje techniczne? | [Backlog discovery](technical/discovery-backlog.md), [ryzyka/PoC](technical/risks-and-pocs.md), [ADR](decisions/adr/README.md) |
+| Jaką architekturę zatwierdzono? | [Technical Discovery — mapa](technical/README.md), [rejestr 40 decyzji](technical/discovery-decisions.md), [architektura](technical/architecture.md), [ADR](decisions/adr/README.md), [bramki](technical/gates-and-impacts.md) |
 | Jak pracuje agent? | [AGENTS.md](../AGENTS.md), [szablon zadania](templates/agent-task.md) |
 | Jak aktualizować dokumenty? | [Standard dokumentacji](documentation-standard.md) |
 
@@ -31,3 +31,7 @@
 ## UX Blueprint v1 (2026-10-28)
 
 Szczegółowy projekt UX i dokumenty pod prototypowanie znajdują się w `ux/blueprint.md`, `ux/screen-blueprints.md`, `ux/flow-contracts.md` i `ux/blueprint-decisions.md`. Wybory PO z rozmowy 1.1–1.32 są odróżnione od rekomendacji dobranych pod delegacją. Dokumenty **nie** zatwierdzają nierozstrzygniętych `OPEN-*`, technologii ani nie uruchamiają testów.
+
+## Technical Discovery (2026-10-28)
+
+PO zatwierdził wybory 1.1–1.40, w tym allowlistę domen dla Smart Import (1.40 B zastępuje 1.26 A w zakresie automatycznego pobierania). Nie przeprowadzano prototypu ani testów aplikacji. Szczegóły, ADR oraz blokady wdrożeniowe: [Technical Discovery](technical/README.md).

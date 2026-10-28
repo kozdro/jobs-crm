@@ -1,6 +1,6 @@
 # Kwestie otwarte i bramki decyzyjne (OPEN)
 
-**Stan:** `BASELINED`. Wszystkie poniższe wiersze mają status **`OPEN`**, nie są propozycjami przyjętego rozwiązania. Właściciel rozstrzygnięcia: **PO** dla produktu/domeny/UX; **PO + Tech Lead** dla decyzji technicznych. Priorytet `P0` blokuje właściwy fragment implementacji; `P1` przed ukończeniem danej funkcji; `P2` późniejsze discovery.
+**Stan:** `BASELINED` z aktualizacją po Technical Discovery 2026-10-28. Wiersze poniżej zachowują status **`OPEN` w zakresie nierozstrzygniętych szczegółów**, nie są propozycjami przyjętego rozwiązania. Właściciel rozstrzygnięcia: **PO** dla produktu/domeny/UX; **PO + Tech Lead** dla decyzji technicznych. Priorytet `P0` blokuje właściwy fragment implementacji; `P1` przed ukończeniem danej funkcji; `P2` późniejsze discovery.
 
 | ID | Priorytet / bramka | Nierozstrzygnięte pytanie / wymagane rozstrzygnięcie |
 |---|---|---|
@@ -50,6 +50,10 @@
 | OPEN-044 | P1 · Profil | Zakres danych profilu, edytowalność, walidacje i wpływ zmian na uwierzytelnianie. `FR-AD-007 PROPOSED`. |
 | OPEN-045 | P0 · Eksport danych | Czy i jaki eksport własnych danych jest wymagany w pierwszym wydaniu, jaki zakres (sprawy/historia/dokumenty/kontakty), format, sposób ochrony i dostarczenia? `FR-AD-008 PROPOSED`; por. `OPEN-032`. |
 | OPEN-046 | P0 · Usunięcie konta | Zakres i skutki usuwania danych, historia, wersje dokumentów, kopie, retencja, potwierdzenie i nieodwracalność; bez zakładania natychmiastowej kasacji. `FR-AD-009 PROPOSED`; por. `OPEN-005/006/032`. |
+
+## Aktualizacja Technical Discovery (2026-10-28)
+
+Wybory technologiczne i część polityk określono w [rejestrze 1.1–1.40](../technical/discovery-decisions.md) oraz [ADR](adr/README.md). **Nie należy interpretować poniższych pytań, szczególnie OPEN-012/013/014/041/042/043/045/046, jako całkowitego braku decyzji:** są *częściowo rozstrzygnięte*; pozostają OPEN dla wskazanych szczegółów operacyjnych, prawnych i technicznych oraz weryfikacji. Konkretnie: OPEN-041 — otwarta rejestracja; OPEN-043 — reset przez e-mail; OPEN-045 — podstawowy CSV/XLSX plus osobne pliki; OPEN-046 — nieodwracalne self-service delete bez okresu na cofnięcie; OPEN-012 — Next.js/Supabase/Render; OPEN-014 — kierunek hostingu i cele backup; OPEN-011 — allowlista domen bez zatwierdzonych pozycji. Nie wolno ponownie zadawać PO tych samych pytań o *już zatwierdzone warianty*.
 
 ## Kolejność decyzji
 

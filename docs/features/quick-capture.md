@@ -13,7 +13,7 @@ Globalna akcja dodawania otwiera opcje: **ręcznie**, **jeden URL przez Smart Im
 ## Przebieg — ręczne lub pojedynczy URL
 
 1. Wybierz sposób dodania; dla URL podaj **jeden** link.
-2. Smart Import próbuje pozyskać informacje o ofercie. System **prezentuje je do weryfikacji**, nie zapisuje bez tej decyzji.
+2. Smart Import próbuje pozyskać informacje o ofercie **wyłącznie z domen uprzednio zatwierdzonych i przetestowanych** (TD 1.40 B). Dla pozostałych domen od razu przechodzi do ręcznego uzupełnienia, nie pobierając zawartości URL. System **prezentuje je do weryfikacji**, nie zapisuje bez tej decyzji.
 3. Jeśli odczyt się nie uda, dostępne pozostaje ręczne wprowadzenie. Nie znikają dane wpisane przez użytkownika — sposób obsługi błędów technicznych jeszcze `OPEN-011`.
 4. System ujawnia potencjalne duplikaty; użytkownik decyduje o nowej sprawie lub, w odpowiednim przebiegu, świadomej aktualizacji istniejącej.
 5. `Zapisz`: potwierdzenie utworzenia/aktualizacji bez przejścia do nowego ekranu; można osobno otworzyć sprawę. `Zapisz i dodaj kolejną`: przygotowuje następny niezależny wpis.
@@ -33,3 +33,7 @@ Globalna akcja dodawania otwiera opcje: **ręcznie**, **jeden URL przez Smart Im
 ## Zależności / OPEN
 
 Lifecycle, Company/Contact, Case Links, Import, History. `OPEN-002/OPEN-011/OPEN-024/OPEN-025/OPEN-026`, a także bezpieczeństwo pobieranych URL (`NFR-009`). Dokładny formularz jest przedmiotem UX Discovery, nie został zaakceptowany jako lista pól.
+
+## Uzgodniona techniczna granica źródeł (2026-10-28)
+
+[ADR-0006](../decisions/adr/0006-allowlisted-smart-import.md) zastępuje wcześniejszą intencję automatycznego pobierania ze wszystkich publicznych URL. Konkretnych domen jeszcze nie zatwierdzono (`OPEN-011`). Użytkownik nadal może dodać adres z dowolnej strony bez automatycznej ekstrakcji.
