@@ -40,7 +40,7 @@ Zatwierdzone zachowanie modułów: [katalog FR](../requirements/functional-requi
 
 **APPROVED (wynik, nie mechanizm):** użytkownik trafia po zalogowaniu na Dashboard (`DEC-018`), a jego dokumenty oraz dane osobowe pozostają prywatne (`BR-030/NFR-001`). Jest to niezmiennik również wtedy, gdy aplikacja obsługuje więcej niż jedno konto.
 
-**PROPOSED, niezatwierdzone jako komplet MVP:** rejestracja samoobsługowa, wylogowanie/zarządzanie sesją, odzyskiwanie dostępu, edycja profilu, eksport oraz usunięcie konta. Wymagają rozstrzygnięcia `OPEN-013/OPEN-032/OPEN-041`–`OPEN-046`. Por. [Account & Data Management](../features/account-and-data-management.md) i `FR-AD-*`.
+**Technical Discovery 2026-10-28 — decyzje PO (APPROVED co do kierunku):** otwarta rejestracja, e-mail/hasło i Google OAuth, sesje wielourządzeniowe, odzyskiwanie przez e-mail, podstawowy eksport CSV/XLSX oraz nieodwracalne samoobsługowe usunięcie konta. **Nie zatwierdzono** szczegółów profilu, limitów sesji, zakresu prawnego eksportu i polityki danych: `OPEN-013/OPEN-032/OPEN-041`–`OPEN-046`. Zob. [rejestr decyzji technicznych](../technical/discovery-decisions.md). Por. [Account & Data Management](../features/account-and-data-management.md) i `FR-AD-*`.
 
 ## Świadomie poza pierwszym MVP (`DEFERRED`)
 
@@ -54,8 +54,8 @@ Zatwierdzone zachowanie modułów: [katalog FR](../requirements/functional-requi
 ## Zasady graniczne
 
 - Nie utożsamiaj ogłoszenia ze sprawą, wysłanej aplikacji z zaimportowanym URL ani kontaktu z faktem wysłania CV.
-- Nie podejmuj decyzji technologicznych, dopóki ich warianty nie przejdą osobnego discovery.
-- Bezpieczeństwo prywatnych dokumentów i danych kontaktowych jest wymaganiem; **mechanizm** nie został wybrany.
+- Wyboru technologii dokonano podczas Technical Discovery; przed wdrożeniem sprawdź ADR i pozostające bramki integracyjne.
+- Bezpieczeństwo prywatnych dokumentów i danych kontaktowych jest wymaganiem; Supabase/RLS/BFF wybrano jako kierunek, ale szczegóły i pozytywne testy bezpieczeństwa są bramką przed publicznym wdrożeniem.
 - Nie zamykaj spraw ani nie wysyłaj wiadomości automatycznie na podstawie ciszy w CRM.
 
 ## Otwarte warunki dalszego projektowania
