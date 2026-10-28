@@ -1,6 +1,6 @@
 # Feature: CSV/XLSX Import
 
-**Stan:** `BASELINED` (ogólny proces `APPROVED`; transakcje i szczegółowe mapowania `OPEN`). **Aktor:** użytkownik importujący historię aplikowania. **FR:** `FR-IM-001`–`FR-IM-014`.
+**Stan:** `BASELINED` (ogólny proces `APPROVED`; transakcyjność **wybrana technicznie** w TD 1.28–1.30, implementacja i szczegółowe mapowania nadal `OPEN`). **Aktor:** użytkownik importujący historię aplikowania. **FR:** `FR-IM-001`–`FR-IM-014`.
 
 ## Cel i zakres
 
@@ -44,3 +44,7 @@ Status lub data z arkusza mogą odzwierciedlać stan historyczny, ale import nie
 
 - W przypadku awarii nie wolno przedstawiać niezweryfikowanego zapisu wiersza jako sukcesu (`AC-IM-011-02`). Nie zakładamy pełnego rollbacku ani retry bez `OPEN-010/035`.
 - Zmiana istniejącej sprawy między preview i zapisem nie pozwala na ciche nadpisanie bez rozstrzygnięcia konfliktu (`AC-IM-014-02`).
+
+## Decyzja techniczna 2026-10-28
+
+Wybrano parsowanie/preview **w pamięci bez trwałego stagingu wierszy**, jedną atomową transakcję dla zaakceptowanych wierszy oraz trwały rejestr idempotency key i fingerprint. Szczegóły SQL/RPC/RLS/retry nadal wymagają testu; patrz [ADR-0005](../decisions/adr/0005-atomic-inmemory-import.md) i [kontrakt importu](../technical/imports-and-jobs.md). Starsze wzmianki o `OPEN-010/035` oznaczają niezamknięte szczegóły wykonania, nie brak wyboru strategii.
