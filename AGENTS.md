@@ -68,3 +68,23 @@ Raport powinien zawierać: **cel i zakres**, użyte `FR/AC/BR/DEC/UC`, analizę 
 Dla przyszłych zadań agentowych podaj w metadanych: **model, poziom reasoning (jeśli środowisko udostępnia), rolę, zakres plików, identyfikatory wymagań, DoD**. Model i reasoning są dobierane do złożoności zadania, nie stanowią decyzji architektonicznej.
 
 Szablon zadania: [docs/templates/agent-task.md](docs/templates/agent-task.md).
+
+## 7. Agentic harness v1 — delegacja i quality gates
+
+Główna sesja jest orchestratorem. Używaj [wspólnego workflow](harness/workflows/delivery.md), [ról](harness/roles/) i [instrukcji harnessu](docs/harness/README.md). Deleguj adekwatne fragmenty zadania do wyspecjalizowanych subagentów; nie uruchamiaj wszystkich ról ani kolejnego poziomu delegacji. Przydzielaj rozłączne zakresy zapisu.
+
+- Backend: `backend-engineer` + `qa-engineer` + niezależny `backend-reviewer`.
+- Frontend: `frontend-engineer` + QA + `frontend-reviewer`; `ux-designer` według potrzeb.
+- Full-stack: obaj inżynierowie, QA i obaj reviewerzy. Granice zaufania/auth/RLS/Storage/import/dane wrażliwe: dodatkowo `security-reviewer`.
+- Platforma/harness: `platform-engineer`, QA i reviewer właściwy dla zmiany; bezpieczeństwo uprawnień wymaga security review.
+- Niejednoznaczne wymaganie: `spec-analyst` oraz `clarify-requirements`. Najpierw sprawdź źródła; nie pytaj ponownie o zatwierdzony wybór ani nie blokuj niezależnego zakresu.
+
+Przed przygotowaniem planu **załaduj i zastosuj `plan-slice`** (natywne wywołanie skillu albo odczyt jego kanonicznego SKILL.md); samo wymienienie nazwy nie jest zastosowaniem procedury. Analogicznie załaduj właściwy skill przed implementacją, weryfikacją i review.
+
+Skills `analyze-requirement`, `plan-slice`, `implement-slice`, `verify-acceptance`, `review-change`, `record-decision` obsługują etapy z §2; `clarify-requirements` tylko potrzebne rozstrzygnięcia. QA projektuje i **implementuje testy**, uczestnicząc już w planowaniu; developerzy piszą własne unit testy. Skills designowe są pomocnicze wobec UX Blueprint i decyzji, nie nadają uprawnień do nowych zachowań.
+
+Review musi być niezależny od autora; reviewer raportuje findings i nie poprawia ocenianego kodu. Claude reviewer ma tylko Read/Grep/Glob. Codex reviewer wymaga odrębnego rodzica read-only przez `harness/scripts/review.py`; konfiguracja roli nie zmienia uprawnień rodzica. Procedura i ograniczenia: [delivery](harness/workflows/delivery.md).
+
+Nie zamykaj zadania z blokującymi findings, zależnym OPEN lub brakującą wymaganą weryfikacją. W raporcie rozdziel `PASS / FAIL / NOT RUN / BLOCKED`, podaj komendy, środowisko, kandydata i dowody. Sam review ani opis w Markdown nie jest wykonaniem testu. Testy harnessu nie są testami aplikacji. Bootstrap harnessu jest autoryzowany; inicjalizacja produktu nadal wymaga osobnego zlecenia.
+
+Przy pytaniach o biblioteki/SDK/CLI używaj aktualnej dokumentacji przez Context7 (resolve-library-id → query-docs), a przy jego niedostępności źródeł oficjalnych. Nie wymaga to ponownego researchu przy zwykłym refactoringu logiki domenowej lub code review. Reviewer z ograniczonymi narzędziami otrzymuje zweryfikowane źródła od orchestratora.

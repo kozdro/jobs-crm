@@ -14,3 +14,14 @@
 - **Raport:** pliki, wyniki testów, ryzyka, decyzje, nieukończony zakres.
 
 Nie wpisuj fikcyjnych identyfikatorów. Agent ma najpierw zidentyfikować konkretne zapisy z repozytorium.
+
+## Handoff harnessu
+
+- **Rola / identyfikator sesji / autor:**
+- **Właściciel zapisu i dozwolone pliki:**
+- **Baza Git / kandydat (SHA albo identyfikowalny snapshot diffu):**
+- **Niezależny reviewer / sesja (nie autor):**
+- **Security review wymagany / uzasadnienie:**
+- **Dowody:** komenda/procedura, środowisko, exit code/liczba testów, `PASS / FAIL / NOT RUN / BLOCKED`, powód niewykonania.
+
+Routing i bramki: [workflow harnessu](../../harness/workflows/delivery.md).
