@@ -18,6 +18,7 @@ Właściciel produktu zatwierdził w rozmowie wybory **Technical Discovery 1.1�
 | [security-and-privacy.md](security-and-privacy.md) | Auth/BFF, prywatność, threat model, kontrola dostępu, usuwanie |
 | [imports-and-jobs.md](imports-and-jobs.md) | Smart Import, CSV/XLSX, atomowość, idempotencja, worker |
 | [operations-and-quality.md](operations-and-quality.md) | Hosting, kopie zapasowe, RPO/RTO, obserwowalność, testy, CI/CD |
+| [foundation-plan.md](foundation-plan.md) | Plan Foundation: małe PR, aktualność wersji, PoC Auth/RLS/RPC, OPEN, QA, operacje i następne zadanie; PROPOSED, bez inicjalizacji |
 | [implementation-plan.md](implementation-plan.md) | Sekwencja developmentu, pionowe slice'y, bramki i DoD |
 | [gates-and-impacts.md](gates-and-impacts.md) | Pozostałe OPEN, konflikty, PoC i wpływ na istniejące FR/AC |
 

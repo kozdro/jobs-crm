@@ -14,9 +14,9 @@
 | 5. Imports/background | CSV/XLSX + atomowy RPC, import registry; pgmq worker; allowlisted URL adapters; bezpieczny fallback | rollback/idempotency/SSRF testy i świadoma akceptacja |
 | 6. Public release readiness | Dashboard, komunikaty/powiadomienia, dostępność, account export/deletion, backup/restore, monitoring, regulamin/prywatność | wszystkie adekwatne P0/P1 zamknięte, RPO/RTO sprawdzone, security review, pełne AC/TC |
 
-## Najbliższe zadanie w odrębnym PR
+## Foundation Planning i najbliższe zadanie w odrębnym PR
 
-**Implementation Kickoff / Foundation Plan:** przygotować specyfikację technicznego slice'a, finalną macierz uprawnień oraz *małe eksperymenty weryfikujące* Supabase HttpOnly+BFF, RLS Data API/RPC z atomową transakcją i możliwości backupu plików. Możliwe są testy PoC na syntetycznych danych, bez budowy pełnego produktu. Przed pierwszym kodem aplikacyjnym uzyskać osobną zgodę PO na zakres zadania i rozstrzygnąć powiązane OPEN. PoC nie mogą tworzyć użytkowników produkcyjnych ani włączać publicznej rejestracji.
+[Foundation Plan](foundation-plan.md) doprecyzowuje fazę 1: PR-F1 scaffold/CI bez usług, PR-F2 lokalny syntetyczny DB/RLS, PR-F3 Auth HttpOnly BFF, PR-F4 atomowy RPC, PR-F5 worker/queue i config, PR-F6 przyjęcie dowodów i integracja zatwierdzonych adapterów Auth/BFF. F5 jest wymagany przed funkcją background; manualny slice może być osobno autoryzowany po F1–F4/F6 i bramkach domenowych. Plan obejmuje też przyszłe zadania DB+Storage restore przed publicznym uruchomieniem. **Najbliższy proponowany PR implementacyjny: PR-F1**, wyłącznie po osobnej autoryzacji PO na jego konkretną kartę. Możliwe późniejsze PoC używają danych syntetycznych, bez budowy pełnego produktu. Przed pierwszym kodem aplikacyjnym uzyskać osobną zgodę PO na zakres zadania i rozstrzygnąć powiązane OPEN. PoC nie mogą tworzyć użytkowników produkcyjnych ani włączać publicznej rejestracji.
 
 ## Wzorzec pracy agenta
 
