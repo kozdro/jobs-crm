@@ -6,5 +6,9 @@ strictDepBuilds: true
 # Native resolver binaries are supplied as pinned optional packages; deny fallback downloads.
 allowBuilds:
   unrs-resolver@1.12.2: false
+  # Platform binaries are pinned optional packages; disallow fallback download scripts.
+  esbuild@0.18.20: false
+  esbuild@0.25.12: false
+  esbuild@0.28.2: false
 # Refuse silent changes to the release-age policy during future installs.
 minimumReleaseAgeStrict: true
