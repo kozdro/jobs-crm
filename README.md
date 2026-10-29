@@ -1,8 +1,10 @@
 # Jobs CRM
 
-> **Status projektu:** Technical Discovery completed / architecture documented; implementation not started.
-> **Stan na:** 2026-10-28. **Język dokumentacji:** polski.
-> **Nie jest to repozytorium implementacji ani prototypu UI.**
+> **Status projektu:** PR-F1 Application Scaffold & CI — implementacja fundamentu bez usług.
+> **Stan na:** 2026-10-29. **Język dokumentacji:** polski.
+> Minimalny scaffold techniczny; funkcje biznesowe i infrastruktura pozostają kolejnymi etapami.
+
+Uruchamianie aplikacji i testów: [Foundation F1](docs/technical/foundation-f1.md).
 
 Jobs CRM to projekt osobistego CRM wspierającego poszukiwanie pracy. Zastępuje rozproszoną pamięć o aplikacjach, firmach, kontaktach, rozmowach, zadaniach, terminach i dokumentach jednym uporządkowanym workspace'em. Pierwszy rynek to Polska; początkowi użytkownicy to osoby aktywnie poszukujące pracy w IT/digital.
 

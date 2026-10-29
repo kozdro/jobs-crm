@@ -1,6 +1,8 @@
 # Foundation — scaffold Next.js, typy i granica BFF
 
-**Stan:** DRAFT / PROPOSED plan wykonania, 2026-10-28. **Testy aplikacji:** wszystkie `PLANNED / NOT RUN`. Ten dokument nie autoryzuje instalacji ani inicjalizacji. Zakres etapów i osobna zgoda PO: [Foundation Plan](foundation-plan.md). Podstawa: [ADR-0001/0010 ACCEPTED](../decisions/adr/README.md), TD1.31/1.32/1.35–1.38 i [architektura](architecture.md). Scaffold nie realizuje biznesowych FR/AC; NFR-001–003 pozostają obowiązującymi ograniczeniami, otwarte szczegóły NFR-004–011 nie otrzymują domyślnych wartości.
+**Aktualizacja F1, 2026-10-29:** realizacja autoryzowana przez PO zadaniem „Jobs CRM — PR-F1 Application Scaffold & CI”, także Tailwind v4 / shadcn/ui + Base UI / Lucide React ([ADR-0011](../decisions/adr/0011-frontend-foundation.md)). Instrukcje i aktualne dowody: [F1](foundation-f1.md). Poniższy plan z 2026-10-28 zachowuje historyczne propozycje i oczekiwania; jego adnotacje NOT RUN nie zastępują wyników raportu F1.
+
+Podstawa: ADR-0001/0010 ACCEPTED, TD1.31/1.32/1.35–1.38 i [architektura](architecture.md). Scaffold nie realizuje biznesowych FR/AC; NFR-001–003 pozostają ograniczeniami. Otwarte szczegóły NFR-004–011 nie otrzymują domyślnych wartości. Historyczne propozycje poniżej opisują baseline przed preflight; wykonane wyniki rozstrzyga raport F1.
 
 ## 1. Kompatybilny zestaw kandydatów
 
@@ -24,7 +26,7 @@ Weryfikacja **2026-10-28**: Context7 resolve→query dla Next.js i typescript-es
 
 ## 2. Minimalny kontrakt PR-F1
 
-Scaffold powstaje ręcznie lub przez kontrolowane przeniesienie minimalnych plików, po autoryzacji PO. W następnym zadaniu nie uruchamiać generatora z domyślnym nadpisywaniem `AGENTS.md`/harnessu. Nie wybierać Tailwind, UI kit, React Compiler, Cache Components ani dodatkowej biblioteki klienta jako skutku ubocznego generatora. Brak tych elementów w scaffold nie rozstrzyga późniejszych decyzji UX/stylowania. Jedna techniczna strona nie jest projektem biznesowego ekranu.
+Scaffold powstaje ręcznie lub przez kontrolowane przeniesienie minimalnych plików, po autoryzacji PO. W następnym zadaniu nie uruchamiać generatora z domyślnym nadpisywaniem `AGENTS.md`/harnessu. Tailwind CSS v4, shadcn/ui z Base UI oraz Lucide React są od 2026-10-29 jawnym zakresem F1. React Compiler, Cache Components i dodatkowe biblioteki klienta wymagają osobnego uzasadnienia; generator nie może dodać ich jako skutku ubocznego. Docelowy design system pozostaje OPEN-017. Jedna techniczna strona nie jest projektem biznesowego ekranu.
 
 | Właściciel zapisu F1 | Pliki / komponenty do utworzenia lub doprecyzowania |
 |---|---|
@@ -69,4 +71,14 @@ Client Components otrzymują minimalne DTO, nigdy obiekt sesji, JWT, refresh tok
 
 F1 jest gotowy, kiedy zatwierdzony zestaw przechodzi fresh install, wszystkie jego kontrole QA mają dowody na dokładnym SHA, nie wprowadzono usług/danych/kodu domeny, nie zmieniono instrukcji harnessu, oraz niezależny frontend/backend review nie pozostawia P0/P1. Security finding o env lub granicy serwera wymaga oceny i poprawy; sukces scaffold nie dowodzi bezpieczeństwa przyszłych sesji.
 
-STOP zakresu zależnego: nierozwiązany konflikt wersji, konieczność omijania peer checks/strict TS, generator nadpisujący AGENTS, potrzeba produktu lub niezatwierdzonej polityki w env. Aktualizacje pinów lub zmiana configu po review wymagają ponownej dotkniętej weryfikacji. Poza zakresem F1: Supabase CLI/Docker/DB/migracje, sesje/cookies, formularze kont i spraw, provisioning, worker, biblioteki importu i design system.
+STOP zakresu zależnego: nierozwiązany konflikt wersji, konieczność omijania peer checks/strict TS, generator nadpisujący AGENTS, potrzeba produktu lub niezatwierdzonej polityki w env. Aktualizacje pinów lub zmiana configu po review wymagają ponownej dotkniętej weryfikacji. Poza zakresem F1: Supabase CLI/Docker/DB/migracje, sesje/cookies, formularze kont i spraw, provisioning, worker, biblioteki importu i finalny design system.
+
+## 6. Obowiązujący kontrakt UI F1 (rozszerzenie PO)
+
+- Tailwind v4: `@tailwindcss/postcss`, import `tailwindcss` w `src/app/globals.css`, import CSS w root layout. CSS-first `@theme inline` mapuje neutralne semantyczne custom properties; bez konfiguracji v3, rozbudowanego brandingu i dark mode.
+- shadcn/ui jest kodem repozytorium podlegającym review. `components.json`: `base-nova`, RSC/TSX, `tailwind.config` pusty, `cssVariables: true`, `baseColor: neutral`, aliasy `@/components`, `@/components/ui`, `@/lib/utils`, `iconLibrary: lucide`. Tylko komponenty rzeczywiście używane na stronie technicznej; źródło i instrukcje dodawania w raporcie F1.
+- Primitives pochodzą z Base UI. Nie dodajemy drugiego systemu primitives ani biblioteki motion.
+- Standardowe ikony UI: nazwane importy `lucide-react`, spójny rozmiar i stroke; dekoracyjne `aria-hidden`, icon-only button wymaga dostępnej nazwy. Własny SVG wymaga uzasadnienia (np. ilustracja).
+- Smoke na produkcyjnym starcie potwierdza computed styles Tailwind, komponent shadcn i SVG Lucide, responsywność, semantykę oraz brak błędów konsoli. Nie jest akceptacją docelowego UX lub NFR-005.
+
+Źródła sprawdzone przed implementacją: [Tailwind/Next](https://tailwindcss.com/docs/installation/framework-guides/nextjs), [manual shadcn](https://ui.shadcn.com/docs/installation/manual), [Base UI](https://base-ui.com/react/overview/quick-start), [Lucide React](https://lucide.dev/guide/packages/lucide-react).

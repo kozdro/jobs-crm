@@ -21,3 +21,12 @@ private/
 
 # Local harness transcripts; may contain account or session metadata
 .harness-runs/
+
+# Application and test build artifacts
+node_modules/
+.next/
+next-env.d.ts
+*.tsbuildinfo
+coverage/
+playwright-report/
+test-results/

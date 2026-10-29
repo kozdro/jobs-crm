@@ -1,6 +1,8 @@
 # Foundation — macierz QA i protokół dowodów
 
-**Stan:** DRAFT / PROPOSED, 2026-10-28. **Status każdego testu aplikacji, PoC i infrastruktury w tym dokumencie: `PLANNED / NOT RUN`.** W tym zadaniu powstaje plan testów; nie aplikacja, test fixtures w bazie ani środowisko. Brak implementacji jest powodem niewykonania, a nie pozytywnym wynikiem. Lokalne ID `FQA-*` identyfikują przypadki tego planu, nie zastępują istniejących AC/TC.
+**Aktualizacja F1, 2026-10-29:** FQA-01–09 implementowane w autoryzowanym PR-F1. Aktualne wyniki, komendy i kandydat: [raport F1](foundation-f1.md). FQA-10–56 pozostają PLANNED / NOT RUN. Poniższy historyczny status planowania nie jest bieżącym wynikiem F1.
+
+**Status macierzy:** kontrakty FQA-01–09 mają implementację i wyniki w raporcie F1; pozostałe przypadki są planem. Lokalne ID FQA nie zastępują istniejących AC/TC. NOT RUN nie jest wynikiem pozytywnym.
 
 Podstawa: [Foundation Plan](foundation-plan.md), [PoC Auth/RLS/RPC](foundation-pocs.md), [platforma i DR](foundation-platform.md), [OPEN i biznesowy slice](foundation-gates.md), [scaffold](foundation-frontend.md), [strategia QA](../quality/test-strategy.md), [AC](../quality/acceptance-criteria.md), [traceability](../quality/traceability.md), [ADR-0001/0003/0005/0007/0009/0010](../decisions/adr/README.md). QA przygotowuje i później implementuje integracyjne, security i E2E testy; inżynierowie piszą unit testy własnego kodu. Autor niniejszego planu QA: natywny generic subagent + kanoniczna rola qa-engineer; model/reasoning `NOT EXPOSED`. Niezależny QA review planu musi wykonać inna sesja.
 
@@ -14,7 +16,7 @@ Podstawa: [Foundation Plan](foundation-plan.md), [PoC Auth/RLS/RPC](foundation-p
 
 ## F1 — scaffold i minimalne CI
 
-Wszystkie wiersze: **PLANNED / NOT RUN**. Odpowiedzialny inżynier pisze unit/config testy; QA implementuje smoke i testy granic, platform przygotowuje czysty CI.
+Aktualne wyniki FQA-01–09: [raport F1](foundation-f1.md). Odpowiedzialny inżynier pisze unit/config testy; QA implementuje smoke i testy granic, platform przygotowuje czysty CI.
 
 | ID / testowany kontrakt | Poziom | Środowisko | Oczekiwanie / kryterium PASS | Odpowiedzialny agent | Etap |
 |---|---|---|---|---|---|
@@ -25,7 +27,7 @@ Wszystkie wiersze: **PLANNED / NOT RUN**. Odpowiedzialny inżynier pisze unit/co
 | FQA-05 Env: poprawne/brakujące/niepoprawne | Unit | L0 | Scaffold działa bez DB/Auth; wymagany dla aktywnego trybu env walidowany; błędy nazwane bez wartości; brak niejawnego targetu produkcji | frontend-engineer | F1 |
 | FQA-06 Redakcja i publiczny bundle | Unit + build inspection | L0 | Syntetyczny sekret-canary w server env nie występuje w browser assets, HTML/RSC, logach ani raporcie błędu; publiczne zmienne tylko jawnie dozwolone | frontend-engineer + QA | F1; ponownie F3/F5 |
 | FQA-07 Production build/start | Integracja procesu | L0 | Fresh build oraz start działają na skonfigurowanym porcie bez usług; brak zależności od lokalnego cache/dist lub env autora | platform-engineer + QA | F1 |
-| FQA-08 Techniczny smoke | Playwright E2E | L0 + production start | HTTP200 strony i side-effect-free `/health/ready`, obecny semantyczny główny obszar/tytuł; brak client errors i sekretnych danych. Smoke nie dowodzi biznesowych AC | QA | F1 |
+| FQA-08 Techniczny smoke | Playwright E2E | L0 + production start | HTTP200 strony i side-effect-free `/health/ready`, obecny semantyczny główny obszar/tytuł, `lang=pl`, rzeczywiste computed styles Tailwind v4, używany komponent shadcn/Base UI i ikona Lucide, brak overflow na mobile; brak client errors i sekretnych danych. Smoke nie dowodzi biznesowych AC | QA | F1 |
 | FQA-09 Required CI nie pomija błędów | CI regression | Izolowany testowy PR L0 | Celowo czerwony typecheck/test oraz skipped zależny job nie dają zielonego końcowego gate; exact head SHA i wymagane joby identyfikowalne; fork nie dostaje sekretów | platform-engineer + QA | F1 przed przyjęciem pipeline |
 
 ## F2 — migracje i RLS A/B
@@ -54,12 +56,12 @@ Wszystkie wiersze: **PLANNED / NOT RUN**. AUTH-01–13 z [PoC](foundation-pocs.m
 | ID / testowany kontrakt | Poziom | Środowisko | Oczekiwanie / kryterium PASS | Odpowiedzialny agent | Etap |
 |---|---|---|---|---|---|
 | FQA-22 Email/password | HTTP integration + E2E | L2, konta przygotowane | Poprawne dane tworzą świeży opaque handle; błędne nie tworzą konta/sesji. Brak tokenów/hasła w JSON/HTML/URL/logach; signup wyłączony | backend unit + QA | F3; AUTH-01 |
-| FQA-23 Cookie i brak tokenów JS | Browser security + header inspection | L2 HTTPS | HttpOnly/Secure/SameSite/Path i brak Domain zgodne z kontraktem; access/refresh/provider tokens i verifier nie trafiają do JS/storage/DOM/RSC/bundle/logów; skopiowany cookie bez aktywnej sesji nie autoryzuje | QA | F3; AUTH-03/07 |
+| FQA-23 Cookie i brak tokenów JS | Browser security + header inspection | L2 HTTPS | HttpOnly/Secure/SameSite/Path i brak Domain zgodne z kontraktem; przed wykorzystaniem APP_ORIGIN zatwierdzony kontrakt normalizacji/schematu według [odroczeń F1](foundation-f1.md); access/refresh/provider tokens i verifier nie trafiają do JS/storage/DOM/RSC/bundle/logów; skopiowany cookie bez aktywnej sesji nie autoryzuje | QA | F3; AUTH-03/07 |
 | FQA-24 OAuth pozytywny real Google | E2E z dostawcą | G | PKCE start i serwerowy exchange tworzą sesję uprzednio przygotowanego konta; brak konta dla nieprzygotowanej tożsamości; callback usuwa kod z URL i nie ujawnia tokenów | QA + platform test config | F3; AUTH-02 |
 | FQA-25 OAuth negatywny | HTTP integration + E2E | L2 + G w live wariancie | Zły/brak verifier, replay code, callback innego browsera, odmowa consent, zły next/redirect odrzucone bez sesji i open redirect; mock i live osobno oznaczone | QA + backend unit | F3; AUTH-02 |
 | FQA-26 Refresh i zaufany user | Integration | L2 | Wymuszone wygaśnięcie powoduje server-only refresh; tożsamość z aktualnej weryfikacji, brak zaufania do klientowego owner/user object; Auth/broker outage fail-closed | backend unit + QA | F3; AUTH-04/07 |
 | FQA-27 Refresh race i crash | Wieloprocesowa fault integration | L2, 20 równoległych żądań | Jeden spójny owner/generacja, bez powrotu do starej pary i niezamierzonego global logout; kill zwycięzcy nie pozostawia wiecznej blokady ani nie wydaje tokenów JS | QA + backend instrumentation | F3; AUTH-05 |
-| FQA-28 CSRF i publiczne wejścia | HTTP security + E2E | L2, dwa originy | Cross-origin form/POST, obcy/brak CSRF token i GET mutujący nie dają efektu; login/reset request bez sesji wiąże CSRF z jednorazowym pre-auth nonce cookie; login CSRF/session fixation odmówione; test login/logout/reset/Actions/Handlers. Własny Origin i session-bound token działają; SameSite sam nie daje PASS | QA | F3; AUTH-06 |
+| FQA-28 CSRF i publiczne wejścia | HTTP security + E2E | L2, dwa originy | Cross-origin form/POST, obcy/brak CSRF token i GET mutujący nie dają efektu; login/reset request bez sesji wiąże CSRF z jednorazowym pre-auth nonce cookie; login CSRF/session fixation odmówione; test login/logout/reset/Actions/Handlers. Własny Origin i session-bound token działają; normalizacja i schemat APP_ORIGIN według odrębnie zatwierdzonego kontraktu z [odroczeń F1](foundation-f1.md); SameSite sam nie daje PASS | QA | F3; AUTH-06 |
 | FQA-29 Expiry/reload/offline | E2E + integration | L2, skrócony fixture TTL | Po rzeczywistym wygaśnięciu BFF nie ujawnia prywatnych DTO; cookie usuwane poprawnie, jednoznaczny re-login bez redirect loop; back/reload/bfcache nie ujawnia starego cache; każda uwierzytelniona odpowiedź i Set-Cookie ma private, no-store | QA | F3; AUTH-07 |
 | FQA-30 Logout i refresh po logout | Integration concurrency + E2E | L2, trzy sesje A | Po potwierdzonym logout stary handle i opóźniony refresh nie wskrzeszają sesji; pozostałe sesje A pozostają aktywne; lokalny i upstream wynik osobne | QA | F3; AUTH-08 |
 | FQA-31 Wybrana/pozostałe sesje | Integration/security + E2E | L2, trzy sesje A + B | Zakończona dokładnie wybrana sesja lub others według akcji; B nietknięte; osobny dowód user-scoped provider revocation. Brak wspieranego target-by-id = FAIL tego kontraktu, nie zamiana na global | QA | F3; AUTH-09 |

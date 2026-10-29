@@ -1,0 +1,52 @@
+{
+  "name": "jobs-crm",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@12.16.1",
+  "engines": {
+    "node": "24.22.2",
+    "pnpm": "12.16.1"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "typecheck": "next typegen && tsc --noEmit",
+    "lint": "eslint . --max-warnings=0",
+    "format:check": "prettier --check src tests scripts *.ts *.mjs package.json components.json pnpm-workspace.yaml .prettierrc.json .github/workflows/app-ci.yml",
+    "format:write": "prettier --write src tests scripts *.ts *.mjs package.json components.json pnpm-workspace.yaml .prettierrc.json .github/workflows/app-ci.yml",
+    "test:unit": "vitest run",
+    "test:boundaries": "node scripts/test-boundaries.mjs",
+    "test:canary": "node scripts/test-canary.mjs",
+    "build": "next build",
+    "start": "next start",
+    "test:e2e:foundation": "playwright test --project=foundation",
+    "ui": "shadcn"
+  },
+  "dependencies": {
+    "@base-ui/react": "1.9.0",
+    "clsx": "2.1.1",
+    "lucide-react": "1.63.0",
+    "next": "16.4.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "server-only": "0.0.1",
+    "tailwind-merge": "3.7.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "24.19.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.4.3",
+    "eslint-config-prettier": "10.1.8",
+    "postcss": "8.5.32",
+    "prettier": "3.9.10",
+    "shadcn": "4.23.0",
+    "tailwindcss": "4.3.3",
+    "typescript": "6.0.3",
+    "vitest": "5.0.5"
+  },
+  "type": "module"
+}
