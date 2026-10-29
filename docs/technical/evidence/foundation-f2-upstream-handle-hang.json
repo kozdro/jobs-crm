@@ -1,0 +1,55 @@
+{
+  "observedAt": "2026-10-29T15:46:18.705919+00:00",
+  "command": "pnpm test:integration:f2",
+  "commandStatus": "BLOCKED",
+  "nativeExitObserved": null,
+  "nativeSummaryObserved": false,
+  "assertionReport": ".foundation-f2/evidence/2026-10-29T15-36-37-239Z-a4a6925d.json",
+  "assertionReportSha256": "5386779f714caaf786a751de4017d2ce6e46f38e8cbf18d43010dfc739be5072",
+  "assertionCasesPassed": 84,
+  "ownProcessAncestry": [
+    {
+      "pid": 62528,
+      "ppid": 62527,
+      "comm": "/private/tmp/jobs-crm-f1-toolchain/node-v24.22.2-darwin-arm64/bin/node"
+    },
+    {
+      "pid": 62527,
+      "ppid": 62519,
+      "comm": "node"
+    },
+    {
+      "pid": 62519,
+      "ppid": 62517,
+      "comm": "sh"
+    },
+    {
+      "pid": 62517,
+      "ppid": 62516,
+      "comm": "/Users/kozdro/.cache/node/corepack/v1/pnpm/12.16.1/pnpm-native"
+    },
+    {
+      "pid": 62516,
+      "ppid": 62515,
+      "comm": "/opt/homebrew/opt/node/bin/node"
+    },
+    {
+      "pid": 62515,
+      "ppid": 62514,
+      "comm": "pnpm"
+    },
+    {
+      "pid": 62514,
+      "ppid": 94463,
+      "comm": "/bin/zsh"
+    }
+  ],
+  "openHandle": {
+    "pid": 62528,
+    "fd": 18,
+    "type": "Unix socket",
+    "peer": "local Docker Desktop unix socket"
+  },
+  "dockerResources": "All three owned target cleanups passed; post-check no F2 containers/networks/volumes; state only evidence",
+  "reason": "All assertions passed, but native process remained alive with owned upstream Docker socket; no exit 0 observed"
+}

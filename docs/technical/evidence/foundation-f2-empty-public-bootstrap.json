@@ -1,0 +1,18 @@
+{
+  "relations": [],
+  "functions": [],
+  "schema_acl": [
+    "pg_database_owner=UC/pg_database_owner",
+    "=U/pg_database_owner",
+    "postgres=U/pg_database_owner",
+    "anon=U/pg_database_owner",
+    "authenticated=U/pg_database_owner",
+    "service_role=U/pg_database_owner"
+  ],
+  "anon_create": false,
+  "authenticated_create": false,
+  "projectId": "jobs-crm-f2-baseline-2381834c3231",
+  "containerId": "c78c46faa19b48b8246d8524ad1fb8eb0eb3f8600502603800d0b140af5ce577",
+  "imageId": "sha256:c141fd17ac6a76c4323e90b3aee8ff1a23d2e89e547c2b963cfadc309c079cc2",
+  "command": "read-only public catalog diagnostic; own DB only"
+}

@@ -1,8 +1,8 @@
 # Foundation — macierz QA i protokół dowodów
 
-**Aktualizacja F1, 2026-10-29:** FQA-01–09 implementowane w autoryzowanym PR-F1. Aktualne wyniki, komendy i kandydat: [raport F1](foundation-f1.md). FQA-10–56 pozostają PLANNED / NOT RUN. Poniższy historyczny status planowania nie jest bieżącym wynikiem F1.
+**Aktualizacja F1/F2, 2026-10-29:** FQA-01–09 mają wyniki w [raporcie F1](foundation-f1.md). FQA-10–21 mają implementację i lokalne wyniki wykonania na podstawie odrębnego zadania PO; komendy, kandydat i bramki review/CI: [raport F2](foundation-f2.md). FQA-22–56 pozostają PLANNED / NOT RUN. Poniższe historyczne statusy planowania nie są bieżącymi wynikami F1/F2.
 
-**Status macierzy:** kontrakty FQA-01–09 mają implementację i wyniki w raporcie F1; pozostałe przypadki są planem. Lokalne ID FQA nie zastępują istniejących AC/TC. NOT RUN nie jest wynikiem pozytywnym.
+**Status macierzy:** bieżący stan implementacji i wykonania FQA-01–21 podają raporty F1/F2; pozostałe przypadki są planem. Lokalne ID FQA nie zastępują istniejących AC/TC. NOT RUN nie jest wynikiem pozytywnym.
 
 Podstawa: [Foundation Plan](foundation-plan.md), [PoC Auth/RLS/RPC](foundation-pocs.md), [platforma i DR](foundation-platform.md), [OPEN i biznesowy slice](foundation-gates.md), [scaffold](foundation-frontend.md), [strategia QA](../quality/test-strategy.md), [AC](../quality/acceptance-criteria.md), [traceability](../quality/traceability.md), [ADR-0001/0003/0005/0007/0009/0010](../decisions/adr/README.md). QA przygotowuje i później implementuje integracyjne, security i E2E testy; inżynierowie piszą unit testy własnego kodu. Autor niniejszego planu QA: natywny generic subagent + kanoniczna rola qa-engineer; model/reasoning `NOT EXPOSED`. Niezależny QA review planu musi wykonać inna sesja.
 

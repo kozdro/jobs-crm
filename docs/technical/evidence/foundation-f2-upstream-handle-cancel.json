@@ -1,0 +1,26 @@
+{
+  "observedAt": "2026-10-29T15:46:49.604642+00:00",
+  "command": "pnpm test:integration:f2",
+  "commandExitCode": 1,
+  "commandStatus": "FAIL: post-test process lifecycle hang, operator stopped own process",
+  "intervention": {
+    "signal": "SIGTERM",
+    "pid": 62528,
+    "forcedSIGKILL": false
+  },
+  "nativeCounts": {
+    "tests": 86,
+    "pass": 85,
+    "fail": 1,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "assertionCases": {
+    "pass": 84,
+    "fail": 0
+  },
+  "remainingTrackedProcesses": [],
+  "tap": "/tmp/jobs-crm-f2-qa-r10.tap",
+  "assertionReport": ".foundation-f2/evidence/2026-10-29T15-36-37-239Z-a4a6925d.json",
+  "reason": "All assertions completed, but the owned test process retained an upstream Docker Unix socket and did not exit; SIGTERM caused test-file failure. This is not an RLS assertion failure or command PASS."
+}

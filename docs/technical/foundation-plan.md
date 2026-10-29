@@ -2,7 +2,9 @@
 
 **Aktualizacja PR-F1, 2026-10-29:** PO w zadaniu „Jobs CRM — PR-F1 Application Scaffold & CI” autoryzował inicjalizację, lokalne zależności, implementację, testy, niezależny review, commit/push/PR bez merge i provisioningu. Rozszerzenie obejmuje Tailwind CSS v4, shadcn/ui z Base UI i Lucide React — [ADR-0011](../decisions/adr/0011-frontend-foundation.md). Wyniki F1 i instrukcje: [raport F1](foundation-f1.md). Pozostałe etapy i testy zachowują statusy poniżej.
 
-**Baseline planu powstał 2026-10-28 jako PROPOSED. F1 ma obecnie osobną autoryzację; F2–F6 i ich testy pozostają PROPOSED / PLANNED / NOT RUN.** Zgoda F1 nie obejmuje usług, migracji ani provisioningu.
+**Aktualizacja PR-F2, 2026-10-29:** osobne zadanie PO „Jobs CRM — PR-F2 Supabase Local, Drizzle & RLS A/B” autoryzuje lokalny syntetyczny PoC, migracje, testy, CI i publikację PR bez merge. Zakres, bieżące wyniki i ograniczenia: [raport F2](foundation-f2.md). F3–F6 pozostają PROPOSED / PLANNED / NOT RUN. Zgoda F2 nie obejmuje cloud, produkcji, deploymentu ani modelu sprawy.
+
+**Baseline planu powstał 2026-10-28 jako PROPOSED.** Autoryzacje wykonania F1/F2 są odrębne od zatwierdzenia szczegółów produktu i wyników testów.
 
 ## 1. Executive summary
 
@@ -86,7 +88,7 @@ Weryfikacja dokumentacji: Context7 `resolve-library-id` → `query-docs` dla Nex
 
 ## 5. Kolejność małych PR
 
-Identyfikatory PR-F* są lokalnymi nazwami planu, nie nowymi FR/AC ani numerami GitHub. Każdy PR wymaga osobnej autoryzacji wskazanego zakresu. Kontrakty testów poniżej są planem; bieżące wyniki F1 wskazuje raport, F2–F6 pozostają **PLANNED / NOT RUN**. Wspólny DoD: konkretna baza/kandydat, implementacja tylko przydzielonego zakresu, dowody QA, niezależny review, brak P0/P1, aktualna dokumentacja i zero sekretów. Review security jest dodatkowe tam, gdzie wskazano; nie nadaje zgody na cloud ani produkt.
+Identyfikatory PR-F* są lokalnymi nazwami planu, nie nowymi FR/AC ani numerami GitHub. Każdy PR wymaga osobnej autoryzacji wskazanego zakresu. Bieżące wyniki F1/F2 wskazują raporty; F3–F6 pozostają **PLANNED / NOT RUN**. Wspólny DoD: konkretna baza/kandydat, implementacja tylko przydzielonego zakresu, dowody QA, niezależny review, brak P0/P1, aktualna dokumentacja i zero sekretów. Review security jest dodatkowe tam, gdzie wskazano; nie nadaje zgody na cloud ani produkt.
 
 ### PR-F1 — minimalny scaffold i CI bez usług
 
@@ -98,6 +100,8 @@ Identyfikatory PR-F* są lokalnymi nazwami planu, nie nowymi FR/AC ani numerami 
 - **Poza zakresem:** Supabase CLI/Docker, migracje/DB, Auth SDK, worker, cloud, cookies/sesje, RecruitmentCase, finalny design system, instalatory przepisujące instrukcje repo.
 
 ### PR-F2 — izolowany local DB/migracje i syntetyczny RLS
+
+Autoryzacja wykonania udzielona 2026-10-29; implementacja i dowody: [F2](foundation-f2.md). Poniższa karta zachowuje kontrakt zakresu; nie jest zbiorczym wynikiem testów.
 
 - **Cel/zakres:** odtwarzalne Supabase Local, jeden tor wykonywania migracji Drizzle, techniczne fixture owner/child, jawne granty, deny-by-default RLS. Schemat wyłącznie w eksperymencie; żadnego RecruitmentCase.
 - **Decyzje/zależności:** PR-F1; osobna zgoda na lokalne kontenery i syntetyczne PoC oraz disposable target, bez resetu cudzych baz. Dokładny local DB/CLI pin i procedura migracji z [platformy](foundation-platform.md). OPEN-002 pozostaje otwarte.

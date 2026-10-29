@@ -1,0 +1,4721 @@
+{
+  "runId": "2026-10-29T15-24-44-221Z-45896f52",
+  "baseSha": "d0c645f48e323cae722720d4262cba2d558e6fd0",
+  "generatedAt": "2026-10-29T15:28:04.748Z",
+  "command": "pnpm test:integration:f2",
+  "node": "v24.22.2",
+  "model": "inherited NOT EXPOSED",
+  "role": "native generic subagent + canonical qa-engineer",
+  "status": "PASS",
+  "suiteComplete": true,
+  "tests": 84,
+  "passed": 84,
+  "failed": 0,
+  "skipped": 0,
+  "outcomes": [
+    {
+      "name": "FQA-10 baseline actual local identity network bindings versions and empty ledger preflight",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-10 baseline actual local identity network bindings versions and empty ledger preflight",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:10.909Z",
+      "durationMs": 3574,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-11 baseline fresh apply canonical Drizzle history and exact no-op rerun",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-11 baseline fresh apply canonical Drizzle history and exact no-op rerun",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:14.484Z",
+      "durationMs": 9959,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-13/20/RLS-12 signup remains closed with real A/B login and empty default/explicit public OpenAPI",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-13/20/RLS-12 signup remains closed with real A/B login and empty default/explicit public OpenAPI",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:24.444Z",
+      "durationMs": 2345,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-13/19/20/RLS-12 actual catalog RLS policies grants invokers constraints and roles",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-13/19/20/RLS-12 actual catalog RLS policies grants invokers constraints and roles",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:26.789Z",
+      "durationMs": 1975,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-20/RLS-12 non-exposed schemas GraphQL and disabled Realtime surface",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-20/RLS-12 non-exposed schemas GraphQL and disabled Realtime surface",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:28.765Z",
+      "durationMs": 350,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-13/RLS-01 anon, absent and invalid JWT deny every table CRUD and RPC",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-13/RLS-01 anon, absent and invalid JWT deny every table CRUD and RPC",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:29.400Z",
+      "durationMs": 397,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-14/RLS-02 A against B list/ID/count and embedded relations",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-14/RLS-02 A against B list/ID/count and embedded relations",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:29.797Z",
+      "durationMs": 75,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-15/RLS-03 A against B probe_item own INSERT and spoof/NULL owner",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-15/RLS-03 A against B probe_item own INSERT and spoof/NULL owner",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:29.872Z",
+      "durationMs": 35,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-16/RLS-04 A against B probe_item UPDATE owner transfer, unfiltered guard and broad mass isolation",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-16/RLS-04 A against B probe_item UPDATE owner transfer, unfiltered guard and broad mass isolation",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:29.907Z",
+      "durationMs": 66,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-17/RLS-05 A against B probe_item DELETE own/cross, unfiltered guard and broad mass isolation",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-17/RLS-05 A against B probe_item DELETE own/cross, unfiltered guard and broad mass isolation",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:29.973Z",
+      "durationMs": 83,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-15/RLS-03 A against B probe_label own INSERT and spoof/NULL owner",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-15/RLS-03 A against B probe_label own INSERT and spoof/NULL owner",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:30.057Z",
+      "durationMs": 38,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-16/RLS-04 A against B probe_label UPDATE owner transfer, unfiltered guard and broad mass isolation",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-16/RLS-04 A against B probe_label UPDATE owner transfer, unfiltered guard and broad mass isolation",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:30.095Z",
+      "durationMs": 63,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-17/RLS-05 A against B probe_label DELETE own/cross, unfiltered guard and broad mass isolation",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-17/RLS-05 A against B probe_label DELETE own/cross, unfiltered guard and broad mass isolation",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:30.159Z",
+      "durationMs": 65,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-15/RLS-03 A against B probe_link own INSERT and spoof/NULL owner",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-15/RLS-03 A against B probe_link own INSERT and spoof/NULL owner",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:30.224Z",
+      "durationMs": 38,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-16/RLS-04 A against B probe_link UPDATE owner transfer, unfiltered guard and broad mass isolation",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-16/RLS-04 A against B probe_link UPDATE owner transfer, unfiltered guard and broad mass isolation",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:30.262Z",
+      "durationMs": 64,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-17/RLS-05 A against B probe_link DELETE own/cross, unfiltered guard and broad mass isolation",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-17/RLS-05 A against B probe_link DELETE own/cross, unfiltered guard and broad mass isolation",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:30.327Z",
+      "durationMs": 75,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-18/RLS-06 A against B both link endpoints/FK and relation reassignment",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-18/RLS-06 A against B both link endpoints/FK and relation reassignment",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:30.402Z",
+      "durationMs": 39,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-19/RLS-07/08 A against B invoker view and minimal RPC",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-19/RLS-07/08 A against B invoker view and minimal RPC",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:30.441Z",
+      "durationMs": 39,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-15/RLS-09 A against B Auth user metadata spoof with freshly issued JWT",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-15/RLS-09 A against B Auth user metadata spoof with freshly issued JWT",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:30.480Z",
+      "durationMs": 148,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-14/RLS-02 B against A list/ID/count and embedded relations",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-14/RLS-02 B against A list/ID/count and embedded relations",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:30.628Z",
+      "durationMs": 58,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-15/RLS-03 B against A probe_item own INSERT and spoof/NULL owner",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-15/RLS-03 B against A probe_item own INSERT and spoof/NULL owner",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:30.686Z",
+      "durationMs": 34,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-16/RLS-04 B against A probe_item UPDATE owner transfer, unfiltered guard and broad mass isolation",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-16/RLS-04 B against A probe_item UPDATE owner transfer, unfiltered guard and broad mass isolation",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:30.720Z",
+      "durationMs": 53,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-17/RLS-05 B against A probe_item DELETE own/cross, unfiltered guard and broad mass isolation",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-17/RLS-05 B against A probe_item DELETE own/cross, unfiltered guard and broad mass isolation",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:30.773Z",
+      "durationMs": 58,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-15/RLS-03 B against A probe_label own INSERT and spoof/NULL owner",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-15/RLS-03 B against A probe_label own INSERT and spoof/NULL owner",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:30.832Z",
+      "durationMs": 29,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-16/RLS-04 B against A probe_label UPDATE owner transfer, unfiltered guard and broad mass isolation",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-16/RLS-04 B against A probe_label UPDATE owner transfer, unfiltered guard and broad mass isolation",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:30.862Z",
+      "durationMs": 54,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-17/RLS-05 B against A probe_label DELETE own/cross, unfiltered guard and broad mass isolation",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-17/RLS-05 B against A probe_label DELETE own/cross, unfiltered guard and broad mass isolation",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:30.917Z",
+      "durationMs": 61,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-15/RLS-03 B against A probe_link own INSERT and spoof/NULL owner",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-15/RLS-03 B against A probe_link own INSERT and spoof/NULL owner",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:30.979Z",
+      "durationMs": 35,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-16/RLS-04 B against A probe_link UPDATE owner transfer, unfiltered guard and broad mass isolation",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-16/RLS-04 B against A probe_link UPDATE owner transfer, unfiltered guard and broad mass isolation",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:31.014Z",
+      "durationMs": 52,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-17/RLS-05 B against A probe_link DELETE own/cross, unfiltered guard and broad mass isolation",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-17/RLS-05 B against A probe_link DELETE own/cross, unfiltered guard and broad mass isolation",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:31.066Z",
+      "durationMs": 56,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-18/RLS-06 B against A both link endpoints/FK and relation reassignment",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-18/RLS-06 B against A both link endpoints/FK and relation reassignment",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:31.123Z",
+      "durationMs": 48,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-19/RLS-07/08 B against A invoker view and minimal RPC",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-19/RLS-07/08 B against A invoker view and minimal RPC",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:31.171Z",
+      "durationMs": 39,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-15/RLS-09 B against A Auth user metadata spoof with freshly issued JWT",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-15/RLS-09 B against A Auth user metadata spoof with freshly issued JWT",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:31.211Z",
+      "durationMs": 153,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "RLS-11 concurrent interleaved A/B HTTP requests retain isolated identity",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "RLS-11 concurrent interleaved A/B HTTP requests retain isolated identity",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:31.364Z",
+      "durationMs": 169,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "Cleanup baseline: only exact owned project containers volumes network and directory removed",
+      "environment": "baseline",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "Cleanup baseline: only exact owned project containers volumes network and directory removed",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:31.534Z",
+      "durationMs": 1397,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-10 replica actual local identity network bindings versions and empty ledger preflight",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-10 replica actual local identity network bindings versions and empty ledger preflight",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:25:58.434Z",
+      "durationMs": 3056,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-11 second independent fresh project has identical actual schema ACL policies constraints functions ledger",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-11 second independent fresh project has identical actual schema ACL policies constraints functions ledger",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:01.490Z",
+      "durationMs": 4551,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-13/20/RLS-12 signup remains closed with real A/B login and empty default/explicit public OpenAPI",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-13/20/RLS-12 signup remains closed with real A/B login and empty default/explicit public OpenAPI",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:06.041Z",
+      "durationMs": 2429,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-13/19/20/RLS-12 actual catalog RLS policies grants invokers constraints and roles",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-13/19/20/RLS-12 actual catalog RLS policies grants invokers constraints and roles",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:08.470Z",
+      "durationMs": 2057,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-20/RLS-12 non-exposed schemas GraphQL and disabled Realtime surface",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-20/RLS-12 non-exposed schemas GraphQL and disabled Realtime surface",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:10.527Z",
+      "durationMs": 363,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-13/RLS-01 anon, absent and invalid JWT deny every table CRUD and RPC",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-13/RLS-01 anon, absent and invalid JWT deny every table CRUD and RPC",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:11.172Z",
+      "durationMs": 466,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-14/RLS-02 A against B list/ID/count and embedded relations",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-14/RLS-02 A against B list/ID/count and embedded relations",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:11.638Z",
+      "durationMs": 81,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-15/RLS-03 A against B probe_item own INSERT and spoof/NULL owner",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-15/RLS-03 A against B probe_item own INSERT and spoof/NULL owner",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:11.720Z",
+      "durationMs": 49,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-16/RLS-04 A against B probe_item UPDATE owner transfer, unfiltered guard and broad mass isolation",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-16/RLS-04 A against B probe_item UPDATE owner transfer, unfiltered guard and broad mass isolation",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:11.770Z",
+      "durationMs": 96,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-17/RLS-05 A against B probe_item DELETE own/cross, unfiltered guard and broad mass isolation",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-17/RLS-05 A against B probe_item DELETE own/cross, unfiltered guard and broad mass isolation",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:11.867Z",
+      "durationMs": 75,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-15/RLS-03 A against B probe_label own INSERT and spoof/NULL owner",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-15/RLS-03 A against B probe_label own INSERT and spoof/NULL owner",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:11.942Z",
+      "durationMs": 36,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-16/RLS-04 A against B probe_label UPDATE owner transfer, unfiltered guard and broad mass isolation",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-16/RLS-04 A against B probe_label UPDATE owner transfer, unfiltered guard and broad mass isolation",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:11.978Z",
+      "durationMs": 63,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-17/RLS-05 A against B probe_label DELETE own/cross, unfiltered guard and broad mass isolation",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-17/RLS-05 A against B probe_label DELETE own/cross, unfiltered guard and broad mass isolation",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:12.042Z",
+      "durationMs": 73,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-15/RLS-03 A against B probe_link own INSERT and spoof/NULL owner",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-15/RLS-03 A against B probe_link own INSERT and spoof/NULL owner",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:12.116Z",
+      "durationMs": 36,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-16/RLS-04 A against B probe_link UPDATE owner transfer, unfiltered guard and broad mass isolation",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-16/RLS-04 A against B probe_link UPDATE owner transfer, unfiltered guard and broad mass isolation",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:12.152Z",
+      "durationMs": 57,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-17/RLS-05 A against B probe_link DELETE own/cross, unfiltered guard and broad mass isolation",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-17/RLS-05 A against B probe_link DELETE own/cross, unfiltered guard and broad mass isolation",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:12.209Z",
+      "durationMs": 72,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-18/RLS-06 A against B both link endpoints/FK and relation reassignment",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-18/RLS-06 A against B both link endpoints/FK and relation reassignment",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:12.281Z",
+      "durationMs": 52,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-19/RLS-07/08 A against B invoker view and minimal RPC",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-19/RLS-07/08 A against B invoker view and minimal RPC",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:12.334Z",
+      "durationMs": 36,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-15/RLS-09 A against B Auth user metadata spoof with freshly issued JWT",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-15/RLS-09 A against B Auth user metadata spoof with freshly issued JWT",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:12.371Z",
+      "durationMs": 133,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-14/RLS-02 B against A list/ID/count and embedded relations",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-14/RLS-02 B against A list/ID/count and embedded relations",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:12.504Z",
+      "durationMs": 54,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-15/RLS-03 B against A probe_item own INSERT and spoof/NULL owner",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-15/RLS-03 B against A probe_item own INSERT and spoof/NULL owner",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:12.558Z",
+      "durationMs": 24,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-16/RLS-04 B against A probe_item UPDATE owner transfer, unfiltered guard and broad mass isolation",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-16/RLS-04 B against A probe_item UPDATE owner transfer, unfiltered guard and broad mass isolation",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:12.583Z",
+      "durationMs": 47,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-17/RLS-05 B against A probe_item DELETE own/cross, unfiltered guard and broad mass isolation",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-17/RLS-05 B against A probe_item DELETE own/cross, unfiltered guard and broad mass isolation",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:12.630Z",
+      "durationMs": 46,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-15/RLS-03 B against A probe_label own INSERT and spoof/NULL owner",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-15/RLS-03 B against A probe_label own INSERT and spoof/NULL owner",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:12.677Z",
+      "durationMs": 32,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-16/RLS-04 B against A probe_label UPDATE owner transfer, unfiltered guard and broad mass isolation",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-16/RLS-04 B against A probe_label UPDATE owner transfer, unfiltered guard and broad mass isolation",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:12.710Z",
+      "durationMs": 59,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-17/RLS-05 B against A probe_label DELETE own/cross, unfiltered guard and broad mass isolation",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-17/RLS-05 B against A probe_label DELETE own/cross, unfiltered guard and broad mass isolation",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:12.770Z",
+      "durationMs": 64,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-15/RLS-03 B against A probe_link own INSERT and spoof/NULL owner",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-15/RLS-03 B against A probe_link own INSERT and spoof/NULL owner",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:12.834Z",
+      "durationMs": 52,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-16/RLS-04 B against A probe_link UPDATE owner transfer, unfiltered guard and broad mass isolation",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-16/RLS-04 B against A probe_link UPDATE owner transfer, unfiltered guard and broad mass isolation",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:12.886Z",
+      "durationMs": 47,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-17/RLS-05 B against A probe_link DELETE own/cross, unfiltered guard and broad mass isolation",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-17/RLS-05 B against A probe_link DELETE own/cross, unfiltered guard and broad mass isolation",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:12.933Z",
+      "durationMs": 47,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-18/RLS-06 B against A both link endpoints/FK and relation reassignment",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-18/RLS-06 B against A both link endpoints/FK and relation reassignment",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:12.981Z",
+      "durationMs": 39,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-19/RLS-07/08 B against A invoker view and minimal RPC",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-19/RLS-07/08 B against A invoker view and minimal RPC",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:13.021Z",
+      "durationMs": 35,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-15/RLS-09 B against A Auth user metadata spoof with freshly issued JWT",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-15/RLS-09 B against A Auth user metadata spoof with freshly issued JWT",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:13.056Z",
+      "durationMs": 151,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "RLS-11 concurrent interleaved A/B HTTP requests retain isolated identity",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "RLS-11 concurrent interleaved A/B HTTP requests retain isolated identity",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:13.207Z",
+      "durationMs": 180,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "Cleanup replica: only exact owned project containers volumes network and directory removed",
+      "environment": "replica",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "Cleanup replica: only exact owned project containers volumes network and directory removed",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:13.388Z",
+      "durationMs": 1472,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-10 fault actual local identity network bindings versions and empty ledger preflight",
+      "environment": "fault",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-10 fault actual local identity network bindings versions and empty ledger preflight",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:39.957Z",
+      "durationMs": 3132,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-10 live owned fault manifest project tamper refuses before first DDL",
+      "environment": "fault",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-10 live owned fault manifest project tamper refuses before first DDL",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:43.090Z",
+      "durationMs": 3125,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-10 live owned fault manifest port tamper refuses before first DDL",
+      "environment": "fault",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-10 live owned fault manifest port tamper refuses before first DDL",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:46.215Z",
+      "durationMs": 3112,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-10 live owned fault manifest config-hash tamper refuses before first DDL",
+      "environment": "fault",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-10 live owned fault manifest config-hash tamper refuses before first DDL",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:49.327Z",
+      "durationMs": 3001,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-10 live owned fault manifest image-id tamper refuses before first DDL",
+      "environment": "fault",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-10 live owned fault manifest image-id tamper refuses before first DDL",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:52.328Z",
+      "durationMs": 3352,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-11 synthetic v0 to v1 upgrade retains fixture and owner policies",
+      "environment": "fault",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-11 synthetic v0 to v1 upgrade retains fixture and owner policies",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:26:55.691Z",
+      "durationMs": 10848,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-18 privileged setup constraint diagnostic: FK CHECK NOT NULL and relation uniqueness rollback",
+      "environment": "fault",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-18 privileged setup constraint diagnostic: FK CHECK NOT NULL and relation uniqueness rollback",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:27:06.540Z",
+      "durationMs": 1855,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-12 two actual migrator processes serialize or safely refuse with one DDL/ledger entry",
+      "environment": "fault",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-12 two actual migrator processes serialize or safely refuse with one DDL/ledger entry",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:27:08.395Z",
+      "durationMs": 7383,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-11/12 multi-pending failure rolls back DDL/ledger; unapplied repair accepts legitimate SERIAL gaps",
+      "environment": "fault",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-11/12 multi-pending failure rolls back DDL/ledger; unapplied repair accepts legitimate SERIAL gaps",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:27:15.778Z",
+      "durationMs": 16785,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-10/12 applied-file tampering refused before SQL and without catalog changes",
+      "environment": "fault",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-10/12 applied-file tampering refused before SQL and without catalog changes",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:27:32.564Z",
+      "durationMs": 5714,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-10 applied ledger hash tampering refuses before further SQL",
+      "environment": "fault",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-10 applied ledger hash tampering refuses before further SQL",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:27:38.278Z",
+      "durationMs": 9752,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-10 trailing ledger-row deletion refused before DDL and not silently reapplied",
+      "environment": "fault",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-10 trailing ledger-row deletion refused before DDL and not silently reapplied",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:27:48.030Z",
+      "durationMs": 7411,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-13/20/RLS-10 lack of GRANT denies independently; restored GRANT still enforces RLS",
+      "environment": "fault",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-13/20/RLS-10 lack of GRANT denies independently; restored GRANT still enforces RLS",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:27:55.790Z",
+      "durationMs": 3841,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-13/RLS-10 missing policy yields deny-by-default for existing owner rows",
+      "environment": "fault",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-13/RLS-10 missing policy yields deny-by-default for existing owner rows",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:27:59.631Z",
+      "durationMs": 1880,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "FQA-21/RLS-10 deliberately disabled RLS makes unchanged isolation assertion FAIL both ways",
+      "environment": "fault",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "FQA-21/RLS-10 deliberately disabled RLS makes unchanged isolation assertion FAIL both ways",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:28:01.511Z",
+      "durationMs": 1858,
+      "observed": "All assertions completed; no skipped assertion"
+    },
+    {
+      "name": "Cleanup fault: only exact owned project containers volumes network and directory removed",
+      "environment": "fault",
+      "initial": "Owned disposable local target; synthetic fixture only; positive-owner assertions in test source",
+      "expected": "Cleanup fault: only exact owned project containers volumes network and directory removed",
+      "status": "PASS",
+      "startedAt": "2026-10-29T15:28:03.369Z",
+      "durationMs": 1369,
+      "observed": "All assertions completed; no skipped assertion"
+    }
+  ],
+  "coverage": {
+    "fqa": [
+      {
+        "id": "FQA-10",
+        "status": "PASS",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-qa.md FQA-10 contract",
+        "observed": [
+          {
+            "case": "FQA-10 baseline actual local identity network bindings versions and empty ledger preflight",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-10 replica actual local identity network bindings versions and empty ledger preflight",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-10 fault actual local identity network bindings versions and empty ledger preflight",
+            "status": "PASS",
+            "target": "fault"
+          },
+          {
+            "case": "FQA-10 live owned fault manifest project tamper refuses before first DDL",
+            "status": "PASS",
+            "target": "fault"
+          },
+          {
+            "case": "FQA-10 live owned fault manifest port tamper refuses before first DDL",
+            "status": "PASS",
+            "target": "fault"
+          },
+          {
+            "case": "FQA-10 live owned fault manifest config-hash tamper refuses before first DDL",
+            "status": "PASS",
+            "target": "fault"
+          },
+          {
+            "case": "FQA-10 live owned fault manifest image-id tamper refuses before first DDL",
+            "status": "PASS",
+            "target": "fault"
+          },
+          {
+            "case": "FQA-10/12 applied-file tampering refused before SQL and without catalog changes",
+            "status": "PASS",
+            "target": "fault"
+          },
+          {
+            "case": "FQA-10 applied ledger hash tampering refuses before further SQL",
+            "status": "PASS",
+            "target": "fault"
+          },
+          {
+            "case": "FQA-10 trailing ledger-row deletion refused before DDL and not silently reapplied",
+            "status": "PASS",
+            "target": "fault"
+          }
+        ],
+        "reason": null,
+        "evidence": "2026-10-29T15-24-44-221Z-45896f52.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "FQA-11",
+        "status": "PASS",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-qa.md FQA-11 contract",
+        "observed": [
+          {
+            "case": "FQA-11 baseline fresh apply canonical Drizzle history and exact no-op rerun",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-11 second independent fresh project has identical actual schema ACL policies constraints functions ledger",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-11 synthetic v0 to v1 upgrade retains fixture and owner policies",
+            "status": "PASS",
+            "target": "fault"
+          },
+          {
+            "case": "FQA-11/12 multi-pending failure rolls back DDL/ledger; unapplied repair accepts legitimate SERIAL gaps",
+            "status": "PASS",
+            "target": "fault"
+          }
+        ],
+        "reason": null,
+        "evidence": "2026-10-29T15-24-44-221Z-45896f52.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "FQA-12",
+        "status": "PASS",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-qa.md FQA-12 contract",
+        "observed": [
+          {
+            "case": "FQA-12 two actual migrator processes serialize or safely refuse with one DDL/ledger entry",
+            "status": "PASS",
+            "target": "fault"
+          },
+          {
+            "case": "FQA-11/12 multi-pending failure rolls back DDL/ledger; unapplied repair accepts legitimate SERIAL gaps",
+            "status": "PASS",
+            "target": "fault"
+          },
+          {
+            "case": "FQA-10/12 applied-file tampering refused before SQL and without catalog changes",
+            "status": "PASS",
+            "target": "fault"
+          }
+        ],
+        "reason": null,
+        "evidence": "2026-10-29T15-24-44-221Z-45896f52.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "FQA-13",
+        "status": "PASS",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-qa.md FQA-13 contract",
+        "observed": [
+          {
+            "case": "FQA-13/20/RLS-12 signup remains closed with real A/B login and empty default/explicit public OpenAPI",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-13/19/20/RLS-12 actual catalog RLS policies grants invokers constraints and roles",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-13/RLS-01 anon, absent and invalid JWT deny every table CRUD and RPC",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-13/20/RLS-12 signup remains closed with real A/B login and empty default/explicit public OpenAPI",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-13/19/20/RLS-12 actual catalog RLS policies grants invokers constraints and roles",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-13/RLS-01 anon, absent and invalid JWT deny every table CRUD and RPC",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-13/20/RLS-10 lack of GRANT denies independently; restored GRANT still enforces RLS",
+            "status": "PASS",
+            "target": "fault"
+          },
+          {
+            "case": "FQA-13/RLS-10 missing policy yields deny-by-default for existing owner rows",
+            "status": "PASS",
+            "target": "fault"
+          }
+        ],
+        "reason": null,
+        "evidence": "2026-10-29T15-24-44-221Z-45896f52.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "FQA-14",
+        "status": "PASS",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-qa.md FQA-14 contract",
+        "observed": [
+          {
+            "case": "FQA-14/RLS-02 A against B list/ID/count and embedded relations",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-14/RLS-02 B against A list/ID/count and embedded relations",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-14/RLS-02 A against B list/ID/count and embedded relations",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-14/RLS-02 B against A list/ID/count and embedded relations",
+            "status": "PASS",
+            "target": "replica"
+          }
+        ],
+        "reason": null,
+        "evidence": "2026-10-29T15-24-44-221Z-45896f52.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "FQA-15",
+        "status": "PASS",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-qa.md FQA-15 contract",
+        "observed": [
+          {
+            "case": "FQA-15/RLS-03 A against B probe_item own INSERT and spoof/NULL owner",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-15/RLS-03 A against B probe_label own INSERT and spoof/NULL owner",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-15/RLS-03 A against B probe_link own INSERT and spoof/NULL owner",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-15/RLS-09 A against B Auth user metadata spoof with freshly issued JWT",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-15/RLS-03 B against A probe_item own INSERT and spoof/NULL owner",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-15/RLS-03 B against A probe_label own INSERT and spoof/NULL owner",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-15/RLS-03 B against A probe_link own INSERT and spoof/NULL owner",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-15/RLS-09 B against A Auth user metadata spoof with freshly issued JWT",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-15/RLS-03 A against B probe_item own INSERT and spoof/NULL owner",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-15/RLS-03 A against B probe_label own INSERT and spoof/NULL owner",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-15/RLS-03 A against B probe_link own INSERT and spoof/NULL owner",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-15/RLS-09 A against B Auth user metadata spoof with freshly issued JWT",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-15/RLS-03 B against A probe_item own INSERT and spoof/NULL owner",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-15/RLS-03 B against A probe_label own INSERT and spoof/NULL owner",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-15/RLS-03 B against A probe_link own INSERT and spoof/NULL owner",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-15/RLS-09 B against A Auth user metadata spoof with freshly issued JWT",
+            "status": "PASS",
+            "target": "replica"
+          }
+        ],
+        "reason": null,
+        "evidence": "2026-10-29T15-24-44-221Z-45896f52.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "FQA-16",
+        "status": "PASS",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-qa.md FQA-16 contract",
+        "observed": [
+          {
+            "case": "FQA-16/RLS-04 A against B probe_item UPDATE owner transfer, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-16/RLS-04 A against B probe_label UPDATE owner transfer, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-16/RLS-04 A against B probe_link UPDATE owner transfer, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-16/RLS-04 B against A probe_item UPDATE owner transfer, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-16/RLS-04 B against A probe_label UPDATE owner transfer, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-16/RLS-04 B against A probe_link UPDATE owner transfer, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-16/RLS-04 A against B probe_item UPDATE owner transfer, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-16/RLS-04 A against B probe_label UPDATE owner transfer, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-16/RLS-04 A against B probe_link UPDATE owner transfer, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-16/RLS-04 B against A probe_item UPDATE owner transfer, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-16/RLS-04 B against A probe_label UPDATE owner transfer, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-16/RLS-04 B against A probe_link UPDATE owner transfer, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "replica"
+          }
+        ],
+        "reason": null,
+        "evidence": "2026-10-29T15-24-44-221Z-45896f52.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "FQA-17",
+        "status": "PASS",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-qa.md FQA-17 contract",
+        "observed": [
+          {
+            "case": "FQA-17/RLS-05 A against B probe_item DELETE own/cross, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-17/RLS-05 A against B probe_label DELETE own/cross, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-17/RLS-05 A against B probe_link DELETE own/cross, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-17/RLS-05 B against A probe_item DELETE own/cross, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-17/RLS-05 B against A probe_label DELETE own/cross, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-17/RLS-05 B against A probe_link DELETE own/cross, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-17/RLS-05 A against B probe_item DELETE own/cross, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-17/RLS-05 A against B probe_label DELETE own/cross, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-17/RLS-05 A against B probe_link DELETE own/cross, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-17/RLS-05 B against A probe_item DELETE own/cross, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-17/RLS-05 B against A probe_label DELETE own/cross, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-17/RLS-05 B against A probe_link DELETE own/cross, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "replica"
+          }
+        ],
+        "reason": null,
+        "evidence": "2026-10-29T15-24-44-221Z-45896f52.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "FQA-18",
+        "status": "PASS",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-qa.md FQA-18 contract",
+        "observed": [
+          {
+            "case": "FQA-18/RLS-06 A against B both link endpoints/FK and relation reassignment",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-18/RLS-06 B against A both link endpoints/FK and relation reassignment",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-18/RLS-06 A against B both link endpoints/FK and relation reassignment",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-18/RLS-06 B against A both link endpoints/FK and relation reassignment",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-18 privileged setup constraint diagnostic: FK CHECK NOT NULL and relation uniqueness rollback",
+            "status": "PASS",
+            "target": "fault"
+          }
+        ],
+        "reason": null,
+        "evidence": "2026-10-29T15-24-44-221Z-45896f52.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "FQA-19",
+        "status": "PASS",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-qa.md FQA-19 contract",
+        "observed": [
+          {
+            "case": "FQA-13/19/20/RLS-12 actual catalog RLS policies grants invokers constraints and roles",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-19/RLS-07/08 A against B invoker view and minimal RPC",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-19/RLS-07/08 B against A invoker view and minimal RPC",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-13/19/20/RLS-12 actual catalog RLS policies grants invokers constraints and roles",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-19/RLS-07/08 A against B invoker view and minimal RPC",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-19/RLS-07/08 B against A invoker view and minimal RPC",
+            "status": "PASS",
+            "target": "replica"
+          }
+        ],
+        "reason": null,
+        "evidence": "2026-10-29T15-24-44-221Z-45896f52.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "FQA-20",
+        "status": "PASS",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-qa.md FQA-20 contract",
+        "observed": [
+          {
+            "case": "FQA-13/20/RLS-12 signup remains closed with real A/B login and empty default/explicit public OpenAPI",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-13/19/20/RLS-12 actual catalog RLS policies grants invokers constraints and roles",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-20/RLS-12 non-exposed schemas GraphQL and disabled Realtime surface",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-13/20/RLS-12 signup remains closed with real A/B login and empty default/explicit public OpenAPI",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-13/19/20/RLS-12 actual catalog RLS policies grants invokers constraints and roles",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-20/RLS-12 non-exposed schemas GraphQL and disabled Realtime surface",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-13/20/RLS-10 lack of GRANT denies independently; restored GRANT still enforces RLS",
+            "status": "PASS",
+            "target": "fault"
+          }
+        ],
+        "reason": null,
+        "evidence": "2026-10-29T15-24-44-221Z-45896f52.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "FQA-21",
+        "status": "PASS",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-qa.md FQA-21 contract",
+        "observed": [
+          {
+            "case": "FQA-21/RLS-10 deliberately disabled RLS makes unchanged isolation assertion FAIL both ways",
+            "status": "PASS",
+            "target": "fault"
+          }
+        ],
+        "reason": null,
+        "evidence": "2026-10-29T15-24-44-221Z-45896f52.json",
+        "command": "pnpm test:integration:f2"
+      }
+    ],
+    "rls": [
+      {
+        "id": "RLS-01",
+        "status": "PASS",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-pocs.md RLS-01 contract",
+        "observed": [
+          {
+            "case": "FQA-13/RLS-01 anon, absent and invalid JWT deny every table CRUD and RPC",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-13/RLS-01 anon, absent and invalid JWT deny every table CRUD and RPC",
+            "status": "PASS",
+            "target": "replica"
+          }
+        ],
+        "reason": null,
+        "evidence": "2026-10-29T15-24-44-221Z-45896f52.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "RLS-02",
+        "status": "PASS",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-pocs.md RLS-02 contract",
+        "observed": [
+          {
+            "case": "FQA-14/RLS-02 A against B list/ID/count and embedded relations",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-14/RLS-02 B against A list/ID/count and embedded relations",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-14/RLS-02 A against B list/ID/count and embedded relations",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-14/RLS-02 B against A list/ID/count and embedded relations",
+            "status": "PASS",
+            "target": "replica"
+          }
+        ],
+        "reason": null,
+        "evidence": "2026-10-29T15-24-44-221Z-45896f52.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "RLS-03",
+        "status": "PASS",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-pocs.md RLS-03 contract",
+        "observed": [
+          {
+            "case": "FQA-15/RLS-03 A against B probe_item own INSERT and spoof/NULL owner",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-15/RLS-03 A against B probe_label own INSERT and spoof/NULL owner",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-15/RLS-03 A against B probe_link own INSERT and spoof/NULL owner",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-15/RLS-03 B against A probe_item own INSERT and spoof/NULL owner",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-15/RLS-03 B against A probe_label own INSERT and spoof/NULL owner",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-15/RLS-03 B against A probe_link own INSERT and spoof/NULL owner",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-15/RLS-03 A against B probe_item own INSERT and spoof/NULL owner",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-15/RLS-03 A against B probe_label own INSERT and spoof/NULL owner",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-15/RLS-03 A against B probe_link own INSERT and spoof/NULL owner",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-15/RLS-03 B against A probe_item own INSERT and spoof/NULL owner",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-15/RLS-03 B against A probe_label own INSERT and spoof/NULL owner",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-15/RLS-03 B against A probe_link own INSERT and spoof/NULL owner",
+            "status": "PASS",
+            "target": "replica"
+          }
+        ],
+        "reason": null,
+        "evidence": "2026-10-29T15-24-44-221Z-45896f52.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "RLS-04",
+        "status": "PASS",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-pocs.md RLS-04 contract",
+        "observed": [
+          {
+            "case": "FQA-16/RLS-04 A against B probe_item UPDATE owner transfer, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-16/RLS-04 A against B probe_label UPDATE owner transfer, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-16/RLS-04 A against B probe_link UPDATE owner transfer, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-16/RLS-04 B against A probe_item UPDATE owner transfer, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-16/RLS-04 B against A probe_label UPDATE owner transfer, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-16/RLS-04 B against A probe_link UPDATE owner transfer, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-16/RLS-04 A against B probe_item UPDATE owner transfer, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-16/RLS-04 A against B probe_label UPDATE owner transfer, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-16/RLS-04 A against B probe_link UPDATE owner transfer, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-16/RLS-04 B against A probe_item UPDATE owner transfer, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-16/RLS-04 B against A probe_label UPDATE owner transfer, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-16/RLS-04 B against A probe_link UPDATE owner transfer, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "replica"
+          }
+        ],
+        "reason": null,
+        "evidence": "2026-10-29T15-24-44-221Z-45896f52.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "RLS-05",
+        "status": "PASS",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-pocs.md RLS-05 contract",
+        "observed": [
+          {
+            "case": "FQA-17/RLS-05 A against B probe_item DELETE own/cross, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-17/RLS-05 A against B probe_label DELETE own/cross, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-17/RLS-05 A against B probe_link DELETE own/cross, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-17/RLS-05 B against A probe_item DELETE own/cross, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-17/RLS-05 B against A probe_label DELETE own/cross, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-17/RLS-05 B against A probe_link DELETE own/cross, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-17/RLS-05 A against B probe_item DELETE own/cross, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-17/RLS-05 A against B probe_label DELETE own/cross, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-17/RLS-05 A against B probe_link DELETE own/cross, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-17/RLS-05 B against A probe_item DELETE own/cross, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-17/RLS-05 B against A probe_label DELETE own/cross, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-17/RLS-05 B against A probe_link DELETE own/cross, unfiltered guard and broad mass isolation",
+            "status": "PASS",
+            "target": "replica"
+          }
+        ],
+        "reason": null,
+        "evidence": "2026-10-29T15-24-44-221Z-45896f52.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "RLS-06",
+        "status": "PASS",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-pocs.md RLS-06 contract",
+        "observed": [
+          {
+            "case": "FQA-18/RLS-06 A against B both link endpoints/FK and relation reassignment",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-18/RLS-06 B against A both link endpoints/FK and relation reassignment",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-18/RLS-06 A against B both link endpoints/FK and relation reassignment",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-18/RLS-06 B against A both link endpoints/FK and relation reassignment",
+            "status": "PASS",
+            "target": "replica"
+          }
+        ],
+        "reason": null,
+        "evidence": "2026-10-29T15-24-44-221Z-45896f52.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "RLS-07",
+        "status": "PASS",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-pocs.md RLS-07 contract",
+        "observed": [
+          {
+            "case": "FQA-19/RLS-07/08 A against B invoker view and minimal RPC",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-19/RLS-07/08 B against A invoker view and minimal RPC",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-19/RLS-07/08 A against B invoker view and minimal RPC",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-19/RLS-07/08 B against A invoker view and minimal RPC",
+            "status": "PASS",
+            "target": "replica"
+          }
+        ],
+        "reason": null,
+        "evidence": "2026-10-29T15-24-44-221Z-45896f52.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "RLS-08",
+        "status": "PASS",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-pocs.md RLS-08 contract",
+        "observed": [
+          {
+            "case": "FQA-19/RLS-07/08 A against B invoker view and minimal RPC",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-19/RLS-07/08 B against A invoker view and minimal RPC",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-19/RLS-07/08 A against B invoker view and minimal RPC",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-19/RLS-07/08 B against A invoker view and minimal RPC",
+            "status": "PASS",
+            "target": "replica"
+          }
+        ],
+        "reason": null,
+        "evidence": "2026-10-29T15-24-44-221Z-45896f52.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "RLS-09",
+        "status": "PASS",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-pocs.md RLS-09 contract",
+        "observed": [
+          {
+            "case": "FQA-15/RLS-09 A against B Auth user metadata spoof with freshly issued JWT",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-15/RLS-09 B against A Auth user metadata spoof with freshly issued JWT",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-15/RLS-09 A against B Auth user metadata spoof with freshly issued JWT",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-15/RLS-09 B against A Auth user metadata spoof with freshly issued JWT",
+            "status": "PASS",
+            "target": "replica"
+          }
+        ],
+        "reason": null,
+        "evidence": "2026-10-29T15-24-44-221Z-45896f52.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "RLS-10",
+        "status": "PASS",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-pocs.md RLS-10 contract",
+        "observed": [
+          {
+            "case": "FQA-13/20/RLS-10 lack of GRANT denies independently; restored GRANT still enforces RLS",
+            "status": "PASS",
+            "target": "fault"
+          },
+          {
+            "case": "FQA-13/RLS-10 missing policy yields deny-by-default for existing owner rows",
+            "status": "PASS",
+            "target": "fault"
+          },
+          {
+            "case": "FQA-21/RLS-10 deliberately disabled RLS makes unchanged isolation assertion FAIL both ways",
+            "status": "PASS",
+            "target": "fault"
+          }
+        ],
+        "reason": null,
+        "evidence": "2026-10-29T15-24-44-221Z-45896f52.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "RLS-11",
+        "status": "PASS",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-pocs.md RLS-11 contract",
+        "observed": [
+          {
+            "case": "RLS-11 concurrent interleaved A/B HTTP requests retain isolated identity",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "RLS-11 concurrent interleaved A/B HTTP requests retain isolated identity",
+            "status": "PASS",
+            "target": "replica"
+          }
+        ],
+        "reason": null,
+        "evidence": "2026-10-29T15-24-44-221Z-45896f52.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "RLS-12",
+        "status": "PASS",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-pocs.md RLS-12 contract",
+        "observed": [
+          {
+            "case": "FQA-13/20/RLS-12 signup remains closed with real A/B login and empty default/explicit public OpenAPI",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-13/19/20/RLS-12 actual catalog RLS policies grants invokers constraints and roles",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-20/RLS-12 non-exposed schemas GraphQL and disabled Realtime surface",
+            "status": "PASS",
+            "target": "baseline"
+          },
+          {
+            "case": "FQA-13/20/RLS-12 signup remains closed with real A/B login and empty default/explicit public OpenAPI",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-13/19/20/RLS-12 actual catalog RLS policies grants invokers constraints and roles",
+            "status": "PASS",
+            "target": "replica"
+          },
+          {
+            "case": "FQA-20/RLS-12 non-exposed schemas GraphQL and disabled Realtime surface",
+            "status": "PASS",
+            "target": "replica"
+          }
+        ],
+        "reason": null,
+        "evidence": "2026-10-29T15-24-44-221Z-45896f52.json",
+        "command": "pnpm test:integration:f2"
+      }
+    ]
+  },
+  "versions": [
+    {
+      "id": "baseline",
+      "projectId": "jobs-crm-f2-baseline-997af8705b04",
+      "ports": {
+        "api": 56421,
+        "db": 56422
+      },
+      "postgres": "17.11",
+      "publicSurface": {
+        "relations": 0,
+        "functions": 0,
+        "anon_create": false,
+        "authenticated_create": false
+      },
+      "dataApiRoleSettings": [],
+      "runtimeVersions": {
+        "postgrest": "PostgREST 16.5",
+        "auth": "v2.197.0"
+      },
+      "images": [
+        {
+          "service": "auth",
+          "image": "public.ecr.aws/supabase/gotrue:v2.197.0",
+          "imageId": "sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b"
+        },
+        {
+          "service": "db",
+          "image": "public.ecr.aws/supabase/postgres:17.11.0.006",
+          "imageId": "sha256:c141fd17ac6a76c4323e90b3aee8ff1a23d2e89e547c2b963cfadc309c079cc2"
+        },
+        {
+          "service": "kong",
+          "image": "public.ecr.aws/supabase/kong:2.8.1",
+          "imageId": "sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d"
+        },
+        {
+          "service": "rest",
+          "image": "public.ecr.aws/supabase/postgrest:v16.5",
+          "imageId": "sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc"
+        }
+      ],
+      "extensions": [
+        {
+          "name": "address_standardizer",
+          "default_version": "3.3.7",
+          "installed_version": null
+        },
+        {
+          "name": "address_standardizer_data_us",
+          "default_version": "3.3.7",
+          "installed_version": null
+        },
+        {
+          "name": "amcheck",
+          "default_version": "1.4",
+          "installed_version": null
+        },
+        {
+          "name": "autoinc",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "bloom",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "btree_gin",
+          "default_version": "1.3",
+          "installed_version": null
+        },
+        {
+          "name": "btree_gist",
+          "default_version": "1.7",
+          "installed_version": null
+        },
+        {
+          "name": "citext",
+          "default_version": "1.6",
+          "installed_version": null
+        },
+        {
+          "name": "cube",
+          "default_version": "1.5",
+          "installed_version": null
+        },
+        {
+          "name": "dblink",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "dict_int",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "dict_xsyn",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "earthdistance",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "file_fdw",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "fuzzystrmatch",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "hstore",
+          "default_version": "1.8",
+          "installed_version": null
+        },
+        {
+          "name": "http",
+          "default_version": "1.6",
+          "installed_version": null
+        },
+        {
+          "name": "hypopg",
+          "default_version": "1.4.1",
+          "installed_version": null
+        },
+        {
+          "name": "index_advisor",
+          "default_version": "0.2.0",
+          "installed_version": null
+        },
+        {
+          "name": "insert_username",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "intagg",
+          "default_version": "1.1",
+          "installed_version": null
+        },
+        {
+          "name": "intarray",
+          "default_version": "1.5",
+          "installed_version": null
+        },
+        {
+          "name": "isn",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "lo",
+          "default_version": "1.1",
+          "installed_version": null
+        },
+        {
+          "name": "ltree",
+          "default_version": "1.3",
+          "installed_version": null
+        },
+        {
+          "name": "moddatetime",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "pageinspect",
+          "default_version": "1.12",
+          "installed_version": null
+        },
+        {
+          "name": "pg_buffercache",
+          "default_version": "1.5",
+          "installed_version": null
+        },
+        {
+          "name": "pg_cron",
+          "default_version": "1.6.4",
+          "installed_version": null
+        },
+        {
+          "name": "pg_freespacemap",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "pg_graphql",
+          "default_version": "1.6.2",
+          "installed_version": null
+        },
+        {
+          "name": "pg_hashids",
+          "default_version": "1.3.0-cd0e1b31d52b394a0df64079406a14a4f7387cd6",
+          "installed_version": null
+        },
+        {
+          "name": "pg_jsonschema",
+          "default_version": "0.3.3",
+          "installed_version": null
+        },
+        {
+          "name": "pg_net",
+          "default_version": "0.20.4",
+          "installed_version": null
+        },
+        {
+          "name": "pg_partman",
+          "default_version": "5.3.1",
+          "installed_version": null
+        },
+        {
+          "name": "pg_prewarm",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "pg_repack",
+          "default_version": "1.5.2",
+          "installed_version": null
+        },
+        {
+          "name": "pg_stat_monitor",
+          "default_version": "2.1",
+          "installed_version": null
+        },
+        {
+          "name": "pg_stat_statements",
+          "default_version": "1.11",
+          "installed_version": "1.11"
+        },
+        {
+          "name": "pg_surgery",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "pg_tle",
+          "default_version": "1.4.0",
+          "installed_version": null
+        },
+        {
+          "name": "pg_trgm",
+          "default_version": "1.6",
+          "installed_version": null
+        },
+        {
+          "name": "pg_visibility",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "pg_walinspect",
+          "default_version": "1.1",
+          "installed_version": null
+        },
+        {
+          "name": "pgaudit",
+          "default_version": "17.1",
+          "installed_version": null
+        },
+        {
+          "name": "pgcrypto",
+          "default_version": "1.3",
+          "installed_version": "1.3"
+        },
+        {
+          "name": "pgjwt",
+          "default_version": "0.2.0",
+          "installed_version": null
+        },
+        {
+          "name": "pgmq",
+          "default_version": "1.5.1",
+          "installed_version": null
+        },
+        {
+          "name": "pgroonga",
+          "default_version": "3.2.5",
+          "installed_version": null
+        },
+        {
+          "name": "pgroonga_database",
+          "default_version": "3.2.5",
+          "installed_version": null
+        },
+        {
+          "name": "pgrouting",
+          "default_version": "3.4.1",
+          "installed_version": null
+        },
+        {
+          "name": "pgrowlocks",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "pgsodium",
+          "default_version": "3.1.8",
+          "installed_version": null
+        },
+        {
+          "name": "pgstattuple",
+          "default_version": "1.5",
+          "installed_version": null
+        },
+        {
+          "name": "pgtap",
+          "default_version": "1.3.3",
+          "installed_version": null
+        },
+        {
+          "name": "plpgsql",
+          "default_version": "1.0",
+          "installed_version": "1.0"
+        },
+        {
+          "name": "plpgsql_check",
+          "default_version": "2.8",
+          "installed_version": null
+        },
+        {
+          "name": "postgis",
+          "default_version": "3.3.7",
+          "installed_version": null
+        },
+        {
+          "name": "postgis_raster",
+          "default_version": "3.3.7",
+          "installed_version": null
+        },
+        {
+          "name": "postgis_sfcgal",
+          "default_version": "3.3.7",
+          "installed_version": null
+        },
+        {
+          "name": "postgis_tiger_geocoder",
+          "default_version": "3.3.7",
+          "installed_version": null
+        },
+        {
+          "name": "postgis_topology",
+          "default_version": "3.3.7",
+          "installed_version": null
+        },
+        {
+          "name": "postgres_fdw",
+          "default_version": "1.1",
+          "installed_version": null
+        },
+        {
+          "name": "refint",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "rum",
+          "default_version": "1.3",
+          "installed_version": null
+        },
+        {
+          "name": "seg",
+          "default_version": "1.4",
+          "installed_version": null
+        },
+        {
+          "name": "sslinfo",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "supabase_vault",
+          "default_version": "0.3.1",
+          "installed_version": "0.3.1"
+        },
+        {
+          "name": "tablefunc",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "tcn",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "tsm_system_rows",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "tsm_system_time",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "unaccent",
+          "default_version": "1.1",
+          "installed_version": null
+        },
+        {
+          "name": "uuid-ossp",
+          "default_version": "1.1",
+          "installed_version": "1.1"
+        },
+        {
+          "name": "vector",
+          "default_version": "0.8.2",
+          "installed_version": null
+        },
+        {
+          "name": "wal2json",
+          "default_version": "2.6",
+          "installed_version": null
+        },
+        {
+          "name": "wrappers",
+          "default_version": "0.6.3",
+          "installed_version": null
+        },
+        {
+          "name": "xml2",
+          "default_version": "1.1",
+          "installed_version": null
+        }
+      ],
+      "dataApi": [
+        "PGRST_DB_SCHEMAS=public",
+        "PGRST_DB_EXTRA_SEARCH_PATH=extensions"
+      ],
+      "engine": {
+        "dockerVersion": "29.9.2",
+        "cpus": 8,
+        "memory": 8319770624,
+        "context": "desktop-linux"
+      }
+    },
+    {
+      "id": "replica",
+      "projectId": "jobs-crm-f2-replica-104bb389715f",
+      "ports": {
+        "api": 56421,
+        "db": 56422
+      },
+      "postgres": "17.11",
+      "publicSurface": {
+        "relations": 0,
+        "functions": 0,
+        "anon_create": false,
+        "authenticated_create": false
+      },
+      "dataApiRoleSettings": [],
+      "runtimeVersions": {
+        "postgrest": "PostgREST 16.5",
+        "auth": "v2.197.0"
+      },
+      "images": [
+        {
+          "service": "auth",
+          "image": "public.ecr.aws/supabase/gotrue:v2.197.0",
+          "imageId": "sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b"
+        },
+        {
+          "service": "db",
+          "image": "public.ecr.aws/supabase/postgres:17.11.0.006",
+          "imageId": "sha256:c141fd17ac6a76c4323e90b3aee8ff1a23d2e89e547c2b963cfadc309c079cc2"
+        },
+        {
+          "service": "kong",
+          "image": "public.ecr.aws/supabase/kong:2.8.1",
+          "imageId": "sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d"
+        },
+        {
+          "service": "rest",
+          "image": "public.ecr.aws/supabase/postgrest:v16.5",
+          "imageId": "sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc"
+        }
+      ],
+      "extensions": [
+        {
+          "name": "address_standardizer",
+          "default_version": "3.3.7",
+          "installed_version": null
+        },
+        {
+          "name": "address_standardizer_data_us",
+          "default_version": "3.3.7",
+          "installed_version": null
+        },
+        {
+          "name": "amcheck",
+          "default_version": "1.4",
+          "installed_version": null
+        },
+        {
+          "name": "autoinc",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "bloom",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "btree_gin",
+          "default_version": "1.3",
+          "installed_version": null
+        },
+        {
+          "name": "btree_gist",
+          "default_version": "1.7",
+          "installed_version": null
+        },
+        {
+          "name": "citext",
+          "default_version": "1.6",
+          "installed_version": null
+        },
+        {
+          "name": "cube",
+          "default_version": "1.5",
+          "installed_version": null
+        },
+        {
+          "name": "dblink",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "dict_int",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "dict_xsyn",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "earthdistance",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "file_fdw",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "fuzzystrmatch",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "hstore",
+          "default_version": "1.8",
+          "installed_version": null
+        },
+        {
+          "name": "http",
+          "default_version": "1.6",
+          "installed_version": null
+        },
+        {
+          "name": "hypopg",
+          "default_version": "1.4.1",
+          "installed_version": null
+        },
+        {
+          "name": "index_advisor",
+          "default_version": "0.2.0",
+          "installed_version": null
+        },
+        {
+          "name": "insert_username",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "intagg",
+          "default_version": "1.1",
+          "installed_version": null
+        },
+        {
+          "name": "intarray",
+          "default_version": "1.5",
+          "installed_version": null
+        },
+        {
+          "name": "isn",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "lo",
+          "default_version": "1.1",
+          "installed_version": null
+        },
+        {
+          "name": "ltree",
+          "default_version": "1.3",
+          "installed_version": null
+        },
+        {
+          "name": "moddatetime",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "pageinspect",
+          "default_version": "1.12",
+          "installed_version": null
+        },
+        {
+          "name": "pg_buffercache",
+          "default_version": "1.5",
+          "installed_version": null
+        },
+        {
+          "name": "pg_cron",
+          "default_version": "1.6.4",
+          "installed_version": null
+        },
+        {
+          "name": "pg_freespacemap",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "pg_graphql",
+          "default_version": "1.6.2",
+          "installed_version": null
+        },
+        {
+          "name": "pg_hashids",
+          "default_version": "1.3.0-cd0e1b31d52b394a0df64079406a14a4f7387cd6",
+          "installed_version": null
+        },
+        {
+          "name": "pg_jsonschema",
+          "default_version": "0.3.3",
+          "installed_version": null
+        },
+        {
+          "name": "pg_net",
+          "default_version": "0.20.4",
+          "installed_version": null
+        },
+        {
+          "name": "pg_partman",
+          "default_version": "5.3.1",
+          "installed_version": null
+        },
+        {
+          "name": "pg_prewarm",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "pg_repack",
+          "default_version": "1.5.2",
+          "installed_version": null
+        },
+        {
+          "name": "pg_stat_monitor",
+          "default_version": "2.1",
+          "installed_version": null
+        },
+        {
+          "name": "pg_stat_statements",
+          "default_version": "1.11",
+          "installed_version": "1.11"
+        },
+        {
+          "name": "pg_surgery",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "pg_tle",
+          "default_version": "1.4.0",
+          "installed_version": null
+        },
+        {
+          "name": "pg_trgm",
+          "default_version": "1.6",
+          "installed_version": null
+        },
+        {
+          "name": "pg_visibility",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "pg_walinspect",
+          "default_version": "1.1",
+          "installed_version": null
+        },
+        {
+          "name": "pgaudit",
+          "default_version": "17.1",
+          "installed_version": null
+        },
+        {
+          "name": "pgcrypto",
+          "default_version": "1.3",
+          "installed_version": "1.3"
+        },
+        {
+          "name": "pgjwt",
+          "default_version": "0.2.0",
+          "installed_version": null
+        },
+        {
+          "name": "pgmq",
+          "default_version": "1.5.1",
+          "installed_version": null
+        },
+        {
+          "name": "pgroonga",
+          "default_version": "3.2.5",
+          "installed_version": null
+        },
+        {
+          "name": "pgroonga_database",
+          "default_version": "3.2.5",
+          "installed_version": null
+        },
+        {
+          "name": "pgrouting",
+          "default_version": "3.4.1",
+          "installed_version": null
+        },
+        {
+          "name": "pgrowlocks",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "pgsodium",
+          "default_version": "3.1.8",
+          "installed_version": null
+        },
+        {
+          "name": "pgstattuple",
+          "default_version": "1.5",
+          "installed_version": null
+        },
+        {
+          "name": "pgtap",
+          "default_version": "1.3.3",
+          "installed_version": null
+        },
+        {
+          "name": "plpgsql",
+          "default_version": "1.0",
+          "installed_version": "1.0"
+        },
+        {
+          "name": "plpgsql_check",
+          "default_version": "2.8",
+          "installed_version": null
+        },
+        {
+          "name": "postgis",
+          "default_version": "3.3.7",
+          "installed_version": null
+        },
+        {
+          "name": "postgis_raster",
+          "default_version": "3.3.7",
+          "installed_version": null
+        },
+        {
+          "name": "postgis_sfcgal",
+          "default_version": "3.3.7",
+          "installed_version": null
+        },
+        {
+          "name": "postgis_tiger_geocoder",
+          "default_version": "3.3.7",
+          "installed_version": null
+        },
+        {
+          "name": "postgis_topology",
+          "default_version": "3.3.7",
+          "installed_version": null
+        },
+        {
+          "name": "postgres_fdw",
+          "default_version": "1.1",
+          "installed_version": null
+        },
+        {
+          "name": "refint",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "rum",
+          "default_version": "1.3",
+          "installed_version": null
+        },
+        {
+          "name": "seg",
+          "default_version": "1.4",
+          "installed_version": null
+        },
+        {
+          "name": "sslinfo",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "supabase_vault",
+          "default_version": "0.3.1",
+          "installed_version": "0.3.1"
+        },
+        {
+          "name": "tablefunc",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "tcn",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "tsm_system_rows",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "tsm_system_time",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "unaccent",
+          "default_version": "1.1",
+          "installed_version": null
+        },
+        {
+          "name": "uuid-ossp",
+          "default_version": "1.1",
+          "installed_version": "1.1"
+        },
+        {
+          "name": "vector",
+          "default_version": "0.8.2",
+          "installed_version": null
+        },
+        {
+          "name": "wal2json",
+          "default_version": "2.6",
+          "installed_version": null
+        },
+        {
+          "name": "wrappers",
+          "default_version": "0.6.3",
+          "installed_version": null
+        },
+        {
+          "name": "xml2",
+          "default_version": "1.1",
+          "installed_version": null
+        }
+      ],
+      "dataApi": [
+        "PGRST_DB_SCHEMAS=public",
+        "PGRST_DB_EXTRA_SEARCH_PATH=extensions"
+      ],
+      "engine": {
+        "dockerVersion": "29.9.2",
+        "cpus": 8,
+        "memory": 8319770624,
+        "context": "desktop-linux"
+      }
+    },
+    {
+      "id": "fault",
+      "projectId": "jobs-crm-f2-fault-ada29b8a6802",
+      "ports": {
+        "api": 56421,
+        "db": 56422
+      },
+      "postgres": "17.11",
+      "publicSurface": {
+        "relations": 0,
+        "functions": 0,
+        "anon_create": false,
+        "authenticated_create": false
+      },
+      "dataApiRoleSettings": [],
+      "runtimeVersions": {
+        "postgrest": "PostgREST 16.5",
+        "auth": "v2.197.0"
+      },
+      "images": [
+        {
+          "service": "auth",
+          "image": "public.ecr.aws/supabase/gotrue:v2.197.0",
+          "imageId": "sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b"
+        },
+        {
+          "service": "db",
+          "image": "public.ecr.aws/supabase/postgres:17.11.0.006",
+          "imageId": "sha256:c141fd17ac6a76c4323e90b3aee8ff1a23d2e89e547c2b963cfadc309c079cc2"
+        },
+        {
+          "service": "kong",
+          "image": "public.ecr.aws/supabase/kong:2.8.1",
+          "imageId": "sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d"
+        },
+        {
+          "service": "rest",
+          "image": "public.ecr.aws/supabase/postgrest:v16.5",
+          "imageId": "sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc"
+        }
+      ],
+      "extensions": [
+        {
+          "name": "address_standardizer",
+          "default_version": "3.3.7",
+          "installed_version": null
+        },
+        {
+          "name": "address_standardizer_data_us",
+          "default_version": "3.3.7",
+          "installed_version": null
+        },
+        {
+          "name": "amcheck",
+          "default_version": "1.4",
+          "installed_version": null
+        },
+        {
+          "name": "autoinc",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "bloom",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "btree_gin",
+          "default_version": "1.3",
+          "installed_version": null
+        },
+        {
+          "name": "btree_gist",
+          "default_version": "1.7",
+          "installed_version": null
+        },
+        {
+          "name": "citext",
+          "default_version": "1.6",
+          "installed_version": null
+        },
+        {
+          "name": "cube",
+          "default_version": "1.5",
+          "installed_version": null
+        },
+        {
+          "name": "dblink",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "dict_int",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "dict_xsyn",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "earthdistance",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "file_fdw",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "fuzzystrmatch",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "hstore",
+          "default_version": "1.8",
+          "installed_version": null
+        },
+        {
+          "name": "http",
+          "default_version": "1.6",
+          "installed_version": null
+        },
+        {
+          "name": "hypopg",
+          "default_version": "1.4.1",
+          "installed_version": null
+        },
+        {
+          "name": "index_advisor",
+          "default_version": "0.2.0",
+          "installed_version": null
+        },
+        {
+          "name": "insert_username",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "intagg",
+          "default_version": "1.1",
+          "installed_version": null
+        },
+        {
+          "name": "intarray",
+          "default_version": "1.5",
+          "installed_version": null
+        },
+        {
+          "name": "isn",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "lo",
+          "default_version": "1.1",
+          "installed_version": null
+        },
+        {
+          "name": "ltree",
+          "default_version": "1.3",
+          "installed_version": null
+        },
+        {
+          "name": "moddatetime",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "pageinspect",
+          "default_version": "1.12",
+          "installed_version": null
+        },
+        {
+          "name": "pg_buffercache",
+          "default_version": "1.5",
+          "installed_version": null
+        },
+        {
+          "name": "pg_cron",
+          "default_version": "1.6.4",
+          "installed_version": null
+        },
+        {
+          "name": "pg_freespacemap",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "pg_graphql",
+          "default_version": "1.6.2",
+          "installed_version": null
+        },
+        {
+          "name": "pg_hashids",
+          "default_version": "1.3.0-cd0e1b31d52b394a0df64079406a14a4f7387cd6",
+          "installed_version": null
+        },
+        {
+          "name": "pg_jsonschema",
+          "default_version": "0.3.3",
+          "installed_version": null
+        },
+        {
+          "name": "pg_net",
+          "default_version": "0.20.4",
+          "installed_version": null
+        },
+        {
+          "name": "pg_partman",
+          "default_version": "5.3.1",
+          "installed_version": null
+        },
+        {
+          "name": "pg_prewarm",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "pg_repack",
+          "default_version": "1.5.2",
+          "installed_version": null
+        },
+        {
+          "name": "pg_stat_monitor",
+          "default_version": "2.1",
+          "installed_version": null
+        },
+        {
+          "name": "pg_stat_statements",
+          "default_version": "1.11",
+          "installed_version": "1.11"
+        },
+        {
+          "name": "pg_surgery",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "pg_tle",
+          "default_version": "1.4.0",
+          "installed_version": null
+        },
+        {
+          "name": "pg_trgm",
+          "default_version": "1.6",
+          "installed_version": null
+        },
+        {
+          "name": "pg_visibility",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "pg_walinspect",
+          "default_version": "1.1",
+          "installed_version": null
+        },
+        {
+          "name": "pgaudit",
+          "default_version": "17.1",
+          "installed_version": null
+        },
+        {
+          "name": "pgcrypto",
+          "default_version": "1.3",
+          "installed_version": "1.3"
+        },
+        {
+          "name": "pgjwt",
+          "default_version": "0.2.0",
+          "installed_version": null
+        },
+        {
+          "name": "pgmq",
+          "default_version": "1.5.1",
+          "installed_version": null
+        },
+        {
+          "name": "pgroonga",
+          "default_version": "3.2.5",
+          "installed_version": null
+        },
+        {
+          "name": "pgroonga_database",
+          "default_version": "3.2.5",
+          "installed_version": null
+        },
+        {
+          "name": "pgrouting",
+          "default_version": "3.4.1",
+          "installed_version": null
+        },
+        {
+          "name": "pgrowlocks",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "pgsodium",
+          "default_version": "3.1.8",
+          "installed_version": null
+        },
+        {
+          "name": "pgstattuple",
+          "default_version": "1.5",
+          "installed_version": null
+        },
+        {
+          "name": "pgtap",
+          "default_version": "1.3.3",
+          "installed_version": null
+        },
+        {
+          "name": "plpgsql",
+          "default_version": "1.0",
+          "installed_version": "1.0"
+        },
+        {
+          "name": "plpgsql_check",
+          "default_version": "2.8",
+          "installed_version": null
+        },
+        {
+          "name": "postgis",
+          "default_version": "3.3.7",
+          "installed_version": null
+        },
+        {
+          "name": "postgis_raster",
+          "default_version": "3.3.7",
+          "installed_version": null
+        },
+        {
+          "name": "postgis_sfcgal",
+          "default_version": "3.3.7",
+          "installed_version": null
+        },
+        {
+          "name": "postgis_tiger_geocoder",
+          "default_version": "3.3.7",
+          "installed_version": null
+        },
+        {
+          "name": "postgis_topology",
+          "default_version": "3.3.7",
+          "installed_version": null
+        },
+        {
+          "name": "postgres_fdw",
+          "default_version": "1.1",
+          "installed_version": null
+        },
+        {
+          "name": "refint",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "rum",
+          "default_version": "1.3",
+          "installed_version": null
+        },
+        {
+          "name": "seg",
+          "default_version": "1.4",
+          "installed_version": null
+        },
+        {
+          "name": "sslinfo",
+          "default_version": "1.2",
+          "installed_version": null
+        },
+        {
+          "name": "supabase_vault",
+          "default_version": "0.3.1",
+          "installed_version": "0.3.1"
+        },
+        {
+          "name": "tablefunc",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "tcn",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "tsm_system_rows",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "tsm_system_time",
+          "default_version": "1.0",
+          "installed_version": null
+        },
+        {
+          "name": "unaccent",
+          "default_version": "1.1",
+          "installed_version": null
+        },
+        {
+          "name": "uuid-ossp",
+          "default_version": "1.1",
+          "installed_version": "1.1"
+        },
+        {
+          "name": "vector",
+          "default_version": "0.8.2",
+          "installed_version": null
+        },
+        {
+          "name": "wal2json",
+          "default_version": "2.6",
+          "installed_version": null
+        },
+        {
+          "name": "wrappers",
+          "default_version": "0.6.3",
+          "installed_version": null
+        },
+        {
+          "name": "xml2",
+          "default_version": "1.1",
+          "installed_version": null
+        }
+      ],
+      "dataApi": [
+        "PGRST_DB_SCHEMAS=public",
+        "PGRST_DB_EXTRA_SEARCH_PATH=extensions"
+      ],
+      "engine": {
+        "dockerVersion": "29.9.2",
+        "cpus": 8,
+        "memory": 8319770624,
+        "context": "desktop-linux"
+      }
+    }
+  ],
+  "sources": {
+    "tests/integration/migrations/checks.ts": "3104480c9751b25afceb6ad201953a930f775543328bcf3d3bfcf9651488d798",
+    "tests/integration/rls/catalog.ts": "28c5482efc465a511cd55321ccd32813a622512b96933ef900b5fa66d725cd1b",
+    "tests/integration/rls/data-api.ts": "603d0504e08bae07b87104b49b73f5c52954229ebb5ea1ac57b5b74cc15feb6f",
+    "tests/integration/rls/f2.test.ts": "0aeb7e71e328780dc8089a3052fd87b8ddd0045a30a3ddd003fc6f208eab88a7",
+    "tests/integration/rls/matrix.ts": "eaceefe7e7c249e976b2e8eeb8e7f89f8521af7a88b7cd855de5d1ce71c5bacf",
+    "experiments/foundation/rls/README.md": "b22a56dbcd4da4db5f8728771aa6695c6dfe62c26162ce56cc61d8e8eafac270",
+    "experiments/foundation/rls/migrations/0000_synthetic_core_v0.sql": "a7e1558de733f65feecf8a9994146f46cec8acfeb75a11c389d5cf467de7ca4e",
+    "experiments/foundation/rls/migrations/0001_synthetic_security_v0.sql": "d36a7d7c266d5ecc0a11e180ae6d69fb5d620886c8c4b79a057b2f49881f87a8",
+    "experiments/foundation/rls/migrations/0002_synthetic_revision_v1.sql": "0376fbe76bf974d6ea6d75d9c12db9dd06d452efe233117db87e4ca96fc2414b",
+    "experiments/foundation/rls/migrations/0003_synthetic_invokers_v1.sql": "dc56d9e86f51a0030ad3e8c63b5faca2fb9b3dd08dadfd96fee01e6f4ca5ad58",
+    "experiments/foundation/rls/migrations/0004_synthetic_api_exposure_v1.sql": "606770bb9a7ea5d38e3cfeb56553f8ba94a301d4005a5610a4e00c0505a71dfc",
+    "experiments/foundation/rls/migrations/meta/0000_snapshot.json": "dffb4f9e0afdd625e4eff78de4cf9543547a7ead484e092a88fe293b362bd276",
+    "experiments/foundation/rls/migrations/meta/0001_snapshot.json": "11a36108469243ee2bba980ecf86d33fdaf8e523041de99b7bf0dd25e2423f34",
+    "experiments/foundation/rls/migrations/meta/0002_snapshot.json": "d055ab1063c2234ddf581655cacc2ed9aa23406c192db455c56af51263bd8f92",
+    "experiments/foundation/rls/migrations/meta/0003_snapshot.json": "449316511a527f02ff30f8ce3430e5485eae05edd52bb6fe7ff063bc491b4dbe",
+    "experiments/foundation/rls/migrations/meta/0004_snapshot.json": "0cbcf48c058e7cc365eb31ca0383f7e65abafffd7c2b0d38a584821ebe588bb7",
+    "experiments/foundation/rls/migrations/meta/_journal.json": "683bf0fc54f14a4c29684dc864e554ec024402ba1f228776737f1518e0b4fcb8",
+    "experiments/foundation/rls/schema.ts": "f10f1448621133a697b3cf91f17167d5b134d6656ba8dfbfd698649765181b1f",
+    "scripts/db/cleanup-targets.test.ts": "20905e442ba4f3388b92ccb05f548321a48c662a907e9c5a23c0d37bdcd176a1",
+    "scripts/db/cleanup-targets.ts": "535a2890144a31d4fec2076407d2a48152a6cba5f529aef356e22801deeb814a",
+    "scripts/db/cleanup.ts": "7e98aafe0877b6e1b02535f44b7e6602d9b45f370e46bd84e8f018f6a7781fc0",
+    "scripts/db/cli.ts": "0a31491b6a029c767a21bcdd5bd10868be64b22820184e01e56f5f53aae34d63",
+    "scripts/db/docker-cli-contract.test.ts": "238fa944f4fa474e8d03f56d7878980925b721dec7e7c78887eeee4345696b86",
+    "scripts/db/docker-guard.test.ts": "3d14640e96d4870bb672b9bb822b4139b4fa0bca4c37698e045ed75f245c6725",
+    "scripts/db/docker-guard.ts": "039677f22c4105ea6b7abe7a666364bc2b3ba6cec5cbcf847a8167c59857482e",
+    "scripts/db/f2.ts": "4d289663584ff22fe4a4641f4121ac6780c43cd44877544145f5e4471c1e1f5a",
+    "scripts/db/preflight-validation.test.ts": "27123c0149c8a73461a4be5e7a689b6f4b975f269541b0cf4df3b5bb59cb25f8",
+    "scripts/db/preflight-validation.ts": "06ccba5a9c9ce8c9c35b8f239e52f3230f5c54345a8ab2ee12ee94addbba4267",
+    "scripts/db/service-versions.ts": "e357ae8eaa39a3169099fabec265a250500b2f2b93b7b5e262f6ba6f6a7bb3ef"
+  },
+  "manifests": {
+    "baseline": {
+      "relations": [
+        {
+          "relname": "probe_item",
+          "relkind": "r",
+          "relrowsecurity": true,
+          "relforcerowsecurity": false,
+          "reloptions": null,
+          "owner": "postgres"
+        },
+        {
+          "relname": "probe_item_pk",
+          "relkind": "i",
+          "relrowsecurity": false,
+          "relforcerowsecurity": false,
+          "reloptions": null,
+          "owner": "postgres"
+        },
+        {
+          "relname": "probe_item_view",
+          "relkind": "v",
+          "relrowsecurity": false,
+          "relforcerowsecurity": false,
+          "reloptions": [
+            "security_invoker=true"
+          ],
+          "owner": "postgres"
+        },
+        {
+          "relname": "probe_label",
+          "relkind": "r",
+          "relrowsecurity": true,
+          "relforcerowsecurity": false,
+          "reloptions": null,
+          "owner": "postgres"
+        },
+        {
+          "relname": "probe_label_pk",
+          "relkind": "i",
+          "relrowsecurity": false,
+          "relforcerowsecurity": false,
+          "reloptions": null,
+          "owner": "postgres"
+        },
+        {
+          "relname": "probe_link",
+          "relkind": "r",
+          "relrowsecurity": true,
+          "relforcerowsecurity": false,
+          "reloptions": null,
+          "owner": "postgres"
+        },
+        {
+          "relname": "probe_link_endpoints_unique",
+          "relkind": "i",
+          "relrowsecurity": false,
+          "relforcerowsecurity": false,
+          "reloptions": null,
+          "owner": "postgres"
+        },
+        {
+          "relname": "probe_link_label_idx",
+          "relkind": "i",
+          "relrowsecurity": false,
+          "relforcerowsecurity": false,
+          "reloptions": null,
+          "owner": "postgres"
+        },
+        {
+          "relname": "probe_link_pk",
+          "relkind": "i",
+          "relrowsecurity": false,
+          "relforcerowsecurity": false,
+          "reloptions": null,
+          "owner": "postgres"
+        }
+      ],
+      "columns": [
+        {
+          "table_name": "probe_item",
+          "column_name": "owner_id",
+          "ordinal_position": 1,
+          "data_type": "uuid",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "table_name": "probe_item",
+          "column_name": "id",
+          "ordinal_position": 2,
+          "data_type": "uuid",
+          "is_nullable": "NO",
+          "column_default": "gen_random_uuid()"
+        },
+        {
+          "table_name": "probe_item",
+          "column_name": "marker",
+          "ordinal_position": 3,
+          "data_type": "text",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "table_name": "probe_item",
+          "column_name": "revision",
+          "ordinal_position": 4,
+          "data_type": "integer",
+          "is_nullable": "NO",
+          "column_default": "0"
+        },
+        {
+          "table_name": "probe_item_view",
+          "column_name": "owner_id",
+          "ordinal_position": 1,
+          "data_type": "uuid",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "table_name": "probe_item_view",
+          "column_name": "id",
+          "ordinal_position": 2,
+          "data_type": "uuid",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "table_name": "probe_item_view",
+          "column_name": "marker",
+          "ordinal_position": 3,
+          "data_type": "text",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "table_name": "probe_item_view",
+          "column_name": "revision",
+          "ordinal_position": 4,
+          "data_type": "integer",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "table_name": "probe_label",
+          "column_name": "owner_id",
+          "ordinal_position": 1,
+          "data_type": "uuid",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "table_name": "probe_label",
+          "column_name": "id",
+          "ordinal_position": 2,
+          "data_type": "uuid",
+          "is_nullable": "NO",
+          "column_default": "gen_random_uuid()"
+        },
+        {
+          "table_name": "probe_label",
+          "column_name": "marker",
+          "ordinal_position": 3,
+          "data_type": "text",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "table_name": "probe_link",
+          "column_name": "owner_id",
+          "ordinal_position": 1,
+          "data_type": "uuid",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "table_name": "probe_link",
+          "column_name": "id",
+          "ordinal_position": 2,
+          "data_type": "uuid",
+          "is_nullable": "NO",
+          "column_default": "gen_random_uuid()"
+        },
+        {
+          "table_name": "probe_link",
+          "column_name": "marker",
+          "ordinal_position": 3,
+          "data_type": "text",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "table_name": "probe_link",
+          "column_name": "item_id",
+          "ordinal_position": 4,
+          "data_type": "uuid",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "table_name": "probe_link",
+          "column_name": "label_id",
+          "ordinal_position": 5,
+          "data_type": "uuid",
+          "is_nullable": "NO",
+          "column_default": null
+        }
+      ],
+      "constraints": [
+        {
+          "conname": "probe_item_marker_nonempty",
+          "relname": "probe_item",
+          "definition": "CHECK ((length(marker) > 0))"
+        },
+        {
+          "conname": "probe_item_pk",
+          "relname": "probe_item",
+          "definition": "PRIMARY KEY (owner_id, id)"
+        },
+        {
+          "conname": "probe_item_revision_nonnegative",
+          "relname": "probe_item",
+          "definition": "CHECK ((revision >= 0))"
+        },
+        {
+          "conname": "probe_label_marker_nonempty",
+          "relname": "probe_label",
+          "definition": "CHECK ((length(marker) > 0))"
+        },
+        {
+          "conname": "probe_label_pk",
+          "relname": "probe_label",
+          "definition": "PRIMARY KEY (owner_id, id)"
+        },
+        {
+          "conname": "probe_link_endpoints_unique",
+          "relname": "probe_link",
+          "definition": "UNIQUE (owner_id, item_id, label_id)"
+        },
+        {
+          "conname": "probe_link_item_fk",
+          "relname": "probe_link",
+          "definition": "FOREIGN KEY (owner_id, item_id) REFERENCES foundation_poc.probe_item(owner_id, id) ON DELETE CASCADE"
+        },
+        {
+          "conname": "probe_link_label_fk",
+          "relname": "probe_link",
+          "definition": "FOREIGN KEY (owner_id, label_id) REFERENCES foundation_poc.probe_label(owner_id, id) ON DELETE CASCADE"
+        },
+        {
+          "conname": "probe_link_marker_nonempty",
+          "relname": "probe_link",
+          "definition": "CHECK ((length(marker) > 0))"
+        },
+        {
+          "conname": "probe_link_pk",
+          "relname": "probe_link",
+          "definition": "PRIMARY KEY (owner_id, id)"
+        }
+      ],
+      "policies": [
+        {
+          "tablename": "probe_item",
+          "policyname": "probe_item_delete_owner",
+          "permissive": "PERMISSIVE",
+          "roles": [
+            "authenticated"
+          ],
+          "cmd": "DELETE",
+          "qual": "(( SELECT auth.uid() AS uid) = owner_id)",
+          "with_check": null
+        },
+        {
+          "tablename": "probe_item",
+          "policyname": "probe_item_insert_owner",
+          "permissive": "PERMISSIVE",
+          "roles": [
+            "authenticated"
+          ],
+          "cmd": "INSERT",
+          "qual": null,
+          "with_check": "(( SELECT auth.uid() AS uid) = owner_id)"
+        },
+        {
+          "tablename": "probe_item",
+          "policyname": "probe_item_select_owner",
+          "permissive": "PERMISSIVE",
+          "roles": [
+            "authenticated"
+          ],
+          "cmd": "SELECT",
+          "qual": "(( SELECT auth.uid() AS uid) = owner_id)",
+          "with_check": null
+        },
+        {
+          "tablename": "probe_item",
+          "policyname": "probe_item_update_owner",
+          "permissive": "PERMISSIVE",
+          "roles": [
+            "authenticated"
+          ],
+          "cmd": "UPDATE",
+          "qual": "(( SELECT auth.uid() AS uid) = owner_id)",
+          "with_check": "(( SELECT auth.uid() AS uid) = owner_id)"
+        },
+        {
+          "tablename": "probe_label",
+          "policyname": "probe_label_delete_owner",
+          "permissive": "PERMISSIVE",
+          "roles": [
+            "authenticated"
+          ],
+          "cmd": "DELETE",
+          "qual": "(( SELECT auth.uid() AS uid) = owner_id)",
+          "with_check": null
+        },
+        {
+          "tablename": "probe_label",
+          "policyname": "probe_label_insert_owner",
+          "permissive": "PERMISSIVE",
+          "roles": [
+            "authenticated"
+          ],
+          "cmd": "INSERT",
+          "qual": null,
+          "with_check": "(( SELECT auth.uid() AS uid) = owner_id)"
+        },
+        {
+          "tablename": "probe_label",
+          "policyname": "probe_label_select_owner",
+          "permissive": "PERMISSIVE",
+          "roles": [
+            "authenticated"
+          ],
+          "cmd": "SELECT",
+          "qual": "(( SELECT auth.uid() AS uid) = owner_id)",
+          "with_check": null
+        },
+        {
+          "tablename": "probe_label",
+          "policyname": "probe_label_update_owner",
+          "permissive": "PERMISSIVE",
+          "roles": [
+            "authenticated"
+          ],
+          "cmd": "UPDATE",
+          "qual": "(( SELECT auth.uid() AS uid) = owner_id)",
+          "with_check": "(( SELECT auth.uid() AS uid) = owner_id)"
+        },
+        {
+          "tablename": "probe_link",
+          "policyname": "probe_link_delete_owner",
+          "permissive": "PERMISSIVE",
+          "roles": [
+            "authenticated"
+          ],
+          "cmd": "DELETE",
+          "qual": "(( SELECT auth.uid() AS uid) = owner_id)",
+          "with_check": null
+        },
+        {
+          "tablename": "probe_link",
+          "policyname": "probe_link_insert_owner",
+          "permissive": "PERMISSIVE",
+          "roles": [
+            "authenticated"
+          ],
+          "cmd": "INSERT",
+          "qual": null,
+          "with_check": "((( SELECT auth.uid() AS uid) = owner_id) AND (EXISTS ( SELECT 1\n   FROM foundation_poc.probe_item item\n  WHERE ((item.owner_id = probe_link.owner_id) AND (item.id = probe_link.item_id)))) AND (EXISTS ( SELECT 1\n   FROM foundation_poc.probe_label label\n  WHERE ((label.owner_id = probe_link.owner_id) AND (label.id = probe_link.label_id)))))"
+        },
+        {
+          "tablename": "probe_link",
+          "policyname": "probe_link_select_owner",
+          "permissive": "PERMISSIVE",
+          "roles": [
+            "authenticated"
+          ],
+          "cmd": "SELECT",
+          "qual": "(( SELECT auth.uid() AS uid) = owner_id)",
+          "with_check": null
+        },
+        {
+          "tablename": "probe_link",
+          "policyname": "probe_link_update_owner",
+          "permissive": "PERMISSIVE",
+          "roles": [
+            "authenticated"
+          ],
+          "cmd": "UPDATE",
+          "qual": "(( SELECT auth.uid() AS uid) = owner_id)",
+          "with_check": "((( SELECT auth.uid() AS uid) = owner_id) AND (EXISTS ( SELECT 1\n   FROM foundation_poc.probe_item item\n  WHERE ((item.owner_id = probe_link.owner_id) AND (item.id = probe_link.item_id)))) AND (EXISTS ( SELECT 1\n   FROM foundation_poc.probe_label label\n  WHERE ((label.owner_id = probe_link.owner_id) AND (label.id = probe_link.label_id)))))"
+        }
+      ],
+      "grants": [
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_item",
+          "privilege_type": "DELETE",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_item",
+          "privilege_type": "INSERT",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_item",
+          "privilege_type": "SELECT",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_item",
+          "privilege_type": "UPDATE",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_item_view",
+          "privilege_type": "SELECT",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_label",
+          "privilege_type": "DELETE",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_label",
+          "privilege_type": "INSERT",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_label",
+          "privilege_type": "SELECT",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_label",
+          "privilege_type": "UPDATE",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_link",
+          "privilege_type": "DELETE",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_link",
+          "privilege_type": "INSERT",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_link",
+          "privilege_type": "SELECT",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_link",
+          "privilege_type": "UPDATE",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item",
+          "privilege_type": "DELETE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item",
+          "privilege_type": "INSERT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item",
+          "privilege_type": "REFERENCES",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item",
+          "privilege_type": "SELECT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item",
+          "privilege_type": "TRIGGER",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item",
+          "privilege_type": "TRUNCATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item",
+          "privilege_type": "UPDATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item_view",
+          "privilege_type": "DELETE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item_view",
+          "privilege_type": "INSERT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item_view",
+          "privilege_type": "REFERENCES",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item_view",
+          "privilege_type": "SELECT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item_view",
+          "privilege_type": "TRIGGER",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item_view",
+          "privilege_type": "TRUNCATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item_view",
+          "privilege_type": "UPDATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_label",
+          "privilege_type": "DELETE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_label",
+          "privilege_type": "INSERT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_label",
+          "privilege_type": "REFERENCES",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_label",
+          "privilege_type": "SELECT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_label",
+          "privilege_type": "TRIGGER",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_label",
+          "privilege_type": "TRUNCATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_label",
+          "privilege_type": "UPDATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_link",
+          "privilege_type": "DELETE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_link",
+          "privilege_type": "INSERT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_link",
+          "privilege_type": "REFERENCES",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_link",
+          "privilege_type": "SELECT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_link",
+          "privilege_type": "TRIGGER",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_link",
+          "privilege_type": "TRUNCATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_link",
+          "privilege_type": "UPDATE",
+          "is_grantable": "YES"
+        }
+      ],
+      "functions": [
+        {
+          "proname": "probe_set_marker",
+          "args": "p_item_id uuid, p_marker text",
+          "prosecdef": false,
+          "proacl": [
+            "postgres=X/postgres",
+            "authenticated=X/postgres"
+          ],
+          "definition": "CREATE OR REPLACE FUNCTION foundation_poc.probe_set_marker(p_item_id uuid, p_marker text)\n RETURNS SETOF foundation_poc.probe_item\n LANGUAGE sql\n SET search_path TO ''\nAS $function$\n  UPDATE foundation_poc.probe_item\n  SET marker = p_marker, revision = revision + 1\n  WHERE id = p_item_id\n  RETURNING *;\n$function$\n"
+        }
+      ],
+      "schemas": [
+        {
+          "nspname": "foundation_migrations",
+          "nspacl": null
+        },
+        {
+          "nspname": "foundation_poc",
+          "nspacl": [
+            "postgres=UC/postgres",
+            "authenticated=U/postgres"
+          ]
+        }
+      ],
+      "defaults": [],
+      "publications": [],
+      "roleSettings": [
+        {
+          "role": "authenticator",
+          "database": "postgres",
+          "setting": "pgrst.db_schemas=public,foundation_poc"
+        }
+      ],
+      "ledger": [
+        {
+          "id": 1,
+          "hash": "a7e1558de733f65feecf8a9994146f46cec8acfeb75a11c389d5cf467de7ca4e",
+          "created_at": "1793281969240"
+        },
+        {
+          "id": 2,
+          "hash": "d36a7d7c266d5ecc0a11e180ae6d69fb5d620886c8c4b79a057b2f49881f87a8",
+          "created_at": "1793281970086"
+        },
+        {
+          "id": 3,
+          "hash": "0376fbe76bf974d6ea6d75d9c12db9dd06d452efe233117db87e4ca96fc2414b",
+          "created_at": "1793281996269"
+        },
+        {
+          "id": 4,
+          "hash": "dc56d9e86f51a0030ad3e8c63b5faca2fb9b3dd08dadfd96fee01e6f4ca5ad58",
+          "created_at": "1793281996962"
+        },
+        {
+          "id": 5,
+          "hash": "606770bb9a7ea5d38e3cfeb56553f8ba94a301d4005a5610a4e00c0505a71dfc",
+          "created_at": "1793285651910"
+        }
+      ]
+    },
+    "replica": {
+      "relations": [
+        {
+          "relname": "probe_item",
+          "relkind": "r",
+          "relrowsecurity": true,
+          "relforcerowsecurity": false,
+          "reloptions": null,
+          "owner": "postgres"
+        },
+        {
+          "relname": "probe_item_pk",
+          "relkind": "i",
+          "relrowsecurity": false,
+          "relforcerowsecurity": false,
+          "reloptions": null,
+          "owner": "postgres"
+        },
+        {
+          "relname": "probe_item_view",
+          "relkind": "v",
+          "relrowsecurity": false,
+          "relforcerowsecurity": false,
+          "reloptions": [
+            "security_invoker=true"
+          ],
+          "owner": "postgres"
+        },
+        {
+          "relname": "probe_label",
+          "relkind": "r",
+          "relrowsecurity": true,
+          "relforcerowsecurity": false,
+          "reloptions": null,
+          "owner": "postgres"
+        },
+        {
+          "relname": "probe_label_pk",
+          "relkind": "i",
+          "relrowsecurity": false,
+          "relforcerowsecurity": false,
+          "reloptions": null,
+          "owner": "postgres"
+        },
+        {
+          "relname": "probe_link",
+          "relkind": "r",
+          "relrowsecurity": true,
+          "relforcerowsecurity": false,
+          "reloptions": null,
+          "owner": "postgres"
+        },
+        {
+          "relname": "probe_link_endpoints_unique",
+          "relkind": "i",
+          "relrowsecurity": false,
+          "relforcerowsecurity": false,
+          "reloptions": null,
+          "owner": "postgres"
+        },
+        {
+          "relname": "probe_link_label_idx",
+          "relkind": "i",
+          "relrowsecurity": false,
+          "relforcerowsecurity": false,
+          "reloptions": null,
+          "owner": "postgres"
+        },
+        {
+          "relname": "probe_link_pk",
+          "relkind": "i",
+          "relrowsecurity": false,
+          "relforcerowsecurity": false,
+          "reloptions": null,
+          "owner": "postgres"
+        }
+      ],
+      "columns": [
+        {
+          "table_name": "probe_item",
+          "column_name": "owner_id",
+          "ordinal_position": 1,
+          "data_type": "uuid",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "table_name": "probe_item",
+          "column_name": "id",
+          "ordinal_position": 2,
+          "data_type": "uuid",
+          "is_nullable": "NO",
+          "column_default": "gen_random_uuid()"
+        },
+        {
+          "table_name": "probe_item",
+          "column_name": "marker",
+          "ordinal_position": 3,
+          "data_type": "text",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "table_name": "probe_item",
+          "column_name": "revision",
+          "ordinal_position": 4,
+          "data_type": "integer",
+          "is_nullable": "NO",
+          "column_default": "0"
+        },
+        {
+          "table_name": "probe_item_view",
+          "column_name": "owner_id",
+          "ordinal_position": 1,
+          "data_type": "uuid",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "table_name": "probe_item_view",
+          "column_name": "id",
+          "ordinal_position": 2,
+          "data_type": "uuid",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "table_name": "probe_item_view",
+          "column_name": "marker",
+          "ordinal_position": 3,
+          "data_type": "text",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "table_name": "probe_item_view",
+          "column_name": "revision",
+          "ordinal_position": 4,
+          "data_type": "integer",
+          "is_nullable": "YES",
+          "column_default": null
+        },
+        {
+          "table_name": "probe_label",
+          "column_name": "owner_id",
+          "ordinal_position": 1,
+          "data_type": "uuid",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "table_name": "probe_label",
+          "column_name": "id",
+          "ordinal_position": 2,
+          "data_type": "uuid",
+          "is_nullable": "NO",
+          "column_default": "gen_random_uuid()"
+        },
+        {
+          "table_name": "probe_label",
+          "column_name": "marker",
+          "ordinal_position": 3,
+          "data_type": "text",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "table_name": "probe_link",
+          "column_name": "owner_id",
+          "ordinal_position": 1,
+          "data_type": "uuid",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "table_name": "probe_link",
+          "column_name": "id",
+          "ordinal_position": 2,
+          "data_type": "uuid",
+          "is_nullable": "NO",
+          "column_default": "gen_random_uuid()"
+        },
+        {
+          "table_name": "probe_link",
+          "column_name": "marker",
+          "ordinal_position": 3,
+          "data_type": "text",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "table_name": "probe_link",
+          "column_name": "item_id",
+          "ordinal_position": 4,
+          "data_type": "uuid",
+          "is_nullable": "NO",
+          "column_default": null
+        },
+        {
+          "table_name": "probe_link",
+          "column_name": "label_id",
+          "ordinal_position": 5,
+          "data_type": "uuid",
+          "is_nullable": "NO",
+          "column_default": null
+        }
+      ],
+      "constraints": [
+        {
+          "conname": "probe_item_marker_nonempty",
+          "relname": "probe_item",
+          "definition": "CHECK ((length(marker) > 0))"
+        },
+        {
+          "conname": "probe_item_pk",
+          "relname": "probe_item",
+          "definition": "PRIMARY KEY (owner_id, id)"
+        },
+        {
+          "conname": "probe_item_revision_nonnegative",
+          "relname": "probe_item",
+          "definition": "CHECK ((revision >= 0))"
+        },
+        {
+          "conname": "probe_label_marker_nonempty",
+          "relname": "probe_label",
+          "definition": "CHECK ((length(marker) > 0))"
+        },
+        {
+          "conname": "probe_label_pk",
+          "relname": "probe_label",
+          "definition": "PRIMARY KEY (owner_id, id)"
+        },
+        {
+          "conname": "probe_link_endpoints_unique",
+          "relname": "probe_link",
+          "definition": "UNIQUE (owner_id, item_id, label_id)"
+        },
+        {
+          "conname": "probe_link_item_fk",
+          "relname": "probe_link",
+          "definition": "FOREIGN KEY (owner_id, item_id) REFERENCES foundation_poc.probe_item(owner_id, id) ON DELETE CASCADE"
+        },
+        {
+          "conname": "probe_link_label_fk",
+          "relname": "probe_link",
+          "definition": "FOREIGN KEY (owner_id, label_id) REFERENCES foundation_poc.probe_label(owner_id, id) ON DELETE CASCADE"
+        },
+        {
+          "conname": "probe_link_marker_nonempty",
+          "relname": "probe_link",
+          "definition": "CHECK ((length(marker) > 0))"
+        },
+        {
+          "conname": "probe_link_pk",
+          "relname": "probe_link",
+          "definition": "PRIMARY KEY (owner_id, id)"
+        }
+      ],
+      "policies": [
+        {
+          "tablename": "probe_item",
+          "policyname": "probe_item_delete_owner",
+          "permissive": "PERMISSIVE",
+          "roles": [
+            "authenticated"
+          ],
+          "cmd": "DELETE",
+          "qual": "(( SELECT auth.uid() AS uid) = owner_id)",
+          "with_check": null
+        },
+        {
+          "tablename": "probe_item",
+          "policyname": "probe_item_insert_owner",
+          "permissive": "PERMISSIVE",
+          "roles": [
+            "authenticated"
+          ],
+          "cmd": "INSERT",
+          "qual": null,
+          "with_check": "(( SELECT auth.uid() AS uid) = owner_id)"
+        },
+        {
+          "tablename": "probe_item",
+          "policyname": "probe_item_select_owner",
+          "permissive": "PERMISSIVE",
+          "roles": [
+            "authenticated"
+          ],
+          "cmd": "SELECT",
+          "qual": "(( SELECT auth.uid() AS uid) = owner_id)",
+          "with_check": null
+        },
+        {
+          "tablename": "probe_item",
+          "policyname": "probe_item_update_owner",
+          "permissive": "PERMISSIVE",
+          "roles": [
+            "authenticated"
+          ],
+          "cmd": "UPDATE",
+          "qual": "(( SELECT auth.uid() AS uid) = owner_id)",
+          "with_check": "(( SELECT auth.uid() AS uid) = owner_id)"
+        },
+        {
+          "tablename": "probe_label",
+          "policyname": "probe_label_delete_owner",
+          "permissive": "PERMISSIVE",
+          "roles": [
+            "authenticated"
+          ],
+          "cmd": "DELETE",
+          "qual": "(( SELECT auth.uid() AS uid) = owner_id)",
+          "with_check": null
+        },
+        {
+          "tablename": "probe_label",
+          "policyname": "probe_label_insert_owner",
+          "permissive": "PERMISSIVE",
+          "roles": [
+            "authenticated"
+          ],
+          "cmd": "INSERT",
+          "qual": null,
+          "with_check": "(( SELECT auth.uid() AS uid) = owner_id)"
+        },
+        {
+          "tablename": "probe_label",
+          "policyname": "probe_label_select_owner",
+          "permissive": "PERMISSIVE",
+          "roles": [
+            "authenticated"
+          ],
+          "cmd": "SELECT",
+          "qual": "(( SELECT auth.uid() AS uid) = owner_id)",
+          "with_check": null
+        },
+        {
+          "tablename": "probe_label",
+          "policyname": "probe_label_update_owner",
+          "permissive": "PERMISSIVE",
+          "roles": [
+            "authenticated"
+          ],
+          "cmd": "UPDATE",
+          "qual": "(( SELECT auth.uid() AS uid) = owner_id)",
+          "with_check": "(( SELECT auth.uid() AS uid) = owner_id)"
+        },
+        {
+          "tablename": "probe_link",
+          "policyname": "probe_link_delete_owner",
+          "permissive": "PERMISSIVE",
+          "roles": [
+            "authenticated"
+          ],
+          "cmd": "DELETE",
+          "qual": "(( SELECT auth.uid() AS uid) = owner_id)",
+          "with_check": null
+        },
+        {
+          "tablename": "probe_link",
+          "policyname": "probe_link_insert_owner",
+          "permissive": "PERMISSIVE",
+          "roles": [
+            "authenticated"
+          ],
+          "cmd": "INSERT",
+          "qual": null,
+          "with_check": "((( SELECT auth.uid() AS uid) = owner_id) AND (EXISTS ( SELECT 1\n   FROM foundation_poc.probe_item item\n  WHERE ((item.owner_id = probe_link.owner_id) AND (item.id = probe_link.item_id)))) AND (EXISTS ( SELECT 1\n   FROM foundation_poc.probe_label label\n  WHERE ((label.owner_id = probe_link.owner_id) AND (label.id = probe_link.label_id)))))"
+        },
+        {
+          "tablename": "probe_link",
+          "policyname": "probe_link_select_owner",
+          "permissive": "PERMISSIVE",
+          "roles": [
+            "authenticated"
+          ],
+          "cmd": "SELECT",
+          "qual": "(( SELECT auth.uid() AS uid) = owner_id)",
+          "with_check": null
+        },
+        {
+          "tablename": "probe_link",
+          "policyname": "probe_link_update_owner",
+          "permissive": "PERMISSIVE",
+          "roles": [
+            "authenticated"
+          ],
+          "cmd": "UPDATE",
+          "qual": "(( SELECT auth.uid() AS uid) = owner_id)",
+          "with_check": "((( SELECT auth.uid() AS uid) = owner_id) AND (EXISTS ( SELECT 1\n   FROM foundation_poc.probe_item item\n  WHERE ((item.owner_id = probe_link.owner_id) AND (item.id = probe_link.item_id)))) AND (EXISTS ( SELECT 1\n   FROM foundation_poc.probe_label label\n  WHERE ((label.owner_id = probe_link.owner_id) AND (label.id = probe_link.label_id)))))"
+        }
+      ],
+      "grants": [
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_item",
+          "privilege_type": "DELETE",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_item",
+          "privilege_type": "INSERT",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_item",
+          "privilege_type": "SELECT",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_item",
+          "privilege_type": "UPDATE",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_item_view",
+          "privilege_type": "SELECT",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_label",
+          "privilege_type": "DELETE",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_label",
+          "privilege_type": "INSERT",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_label",
+          "privilege_type": "SELECT",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_label",
+          "privilege_type": "UPDATE",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_link",
+          "privilege_type": "DELETE",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_link",
+          "privilege_type": "INSERT",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_link",
+          "privilege_type": "SELECT",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "authenticated",
+          "table_name": "probe_link",
+          "privilege_type": "UPDATE",
+          "is_grantable": "NO"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item",
+          "privilege_type": "DELETE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item",
+          "privilege_type": "INSERT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item",
+          "privilege_type": "REFERENCES",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item",
+          "privilege_type": "SELECT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item",
+          "privilege_type": "TRIGGER",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item",
+          "privilege_type": "TRUNCATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item",
+          "privilege_type": "UPDATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item_view",
+          "privilege_type": "DELETE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item_view",
+          "privilege_type": "INSERT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item_view",
+          "privilege_type": "REFERENCES",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item_view",
+          "privilege_type": "SELECT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item_view",
+          "privilege_type": "TRIGGER",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item_view",
+          "privilege_type": "TRUNCATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_item_view",
+          "privilege_type": "UPDATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_label",
+          "privilege_type": "DELETE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_label",
+          "privilege_type": "INSERT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_label",
+          "privilege_type": "REFERENCES",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_label",
+          "privilege_type": "SELECT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_label",
+          "privilege_type": "TRIGGER",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_label",
+          "privilege_type": "TRUNCATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_label",
+          "privilege_type": "UPDATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_link",
+          "privilege_type": "DELETE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_link",
+          "privilege_type": "INSERT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_link",
+          "privilege_type": "REFERENCES",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_link",
+          "privilege_type": "SELECT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_link",
+          "privilege_type": "TRIGGER",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_link",
+          "privilege_type": "TRUNCATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "table_name": "probe_link",
+          "privilege_type": "UPDATE",
+          "is_grantable": "YES"
+        }
+      ],
+      "functions": [
+        {
+          "proname": "probe_set_marker",
+          "args": "p_item_id uuid, p_marker text",
+          "prosecdef": false,
+          "proacl": [
+            "postgres=X/postgres",
+            "authenticated=X/postgres"
+          ],
+          "definition": "CREATE OR REPLACE FUNCTION foundation_poc.probe_set_marker(p_item_id uuid, p_marker text)\n RETURNS SETOF foundation_poc.probe_item\n LANGUAGE sql\n SET search_path TO ''\nAS $function$\n  UPDATE foundation_poc.probe_item\n  SET marker = p_marker, revision = revision + 1\n  WHERE id = p_item_id\n  RETURNING *;\n$function$\n"
+        }
+      ],
+      "schemas": [
+        {
+          "nspname": "foundation_migrations",
+          "nspacl": null
+        },
+        {
+          "nspname": "foundation_poc",
+          "nspacl": [
+            "postgres=UC/postgres",
+            "authenticated=U/postgres"
+          ]
+        }
+      ],
+      "defaults": [],
+      "publications": [],
+      "roleSettings": [
+        {
+          "role": "authenticator",
+          "database": "postgres",
+          "setting": "pgrst.db_schemas=public,foundation_poc"
+        }
+      ],
+      "ledger": [
+        {
+          "id": 1,
+          "hash": "a7e1558de733f65feecf8a9994146f46cec8acfeb75a11c389d5cf467de7ca4e",
+          "created_at": "1793281969240"
+        },
+        {
+          "id": 2,
+          "hash": "d36a7d7c266d5ecc0a11e180ae6d69fb5d620886c8c4b79a057b2f49881f87a8",
+          "created_at": "1793281970086"
+        },
+        {
+          "id": 3,
+          "hash": "0376fbe76bf974d6ea6d75d9c12db9dd06d452efe233117db87e4ca96fc2414b",
+          "created_at": "1793281996269"
+        },
+        {
+          "id": 4,
+          "hash": "dc56d9e86f51a0030ad3e8c63b5faca2fb9b3dd08dadfd96fee01e6f4ca5ad58",
+          "created_at": "1793281996962"
+        },
+        {
+          "id": 5,
+          "hash": "606770bb9a7ea5d38e3cfeb56553f8ba94a301d4005a5610a4e00c0505a71dfc",
+          "created_at": "1793285651910"
+        }
+      ]
+    }
+  },
+  "deferred": [
+    {
+      "scope": "BFF/session end-to-end",
+      "status": "NOT RUN",
+      "reason": "F3"
+    },
+    {
+      "scope": "atomic RPC and idempotency registry",
+      "status": "NOT RUN",
+      "reason": "F4"
+    }
+  ]
+}

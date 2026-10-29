@@ -76,6 +76,8 @@ PoC jest zakończony technicznie tylko po wykonaniu AUTH-01–13 na dokładnie w
 
 ## 5. DB/RLS-P0 — środowisko, migracje i izolacja
 
+**Wykonanie F2 autoryzowane 2026-10-29:** syntetyczny kontrakt i bezpośrednia kolumna Data API macierzy są implementowane w osobnym PoC. [Raport F2](foundation-f2.md) zawiera aktualne wyniki i ograniczenia; poniższe oznaczenia PLANNED opisują historyczny plan. BFF pozostaje NOT RUN do F3, pełne atomic RPC do F4.
+
 ### Przygotowanie do osobnej autoryzacji
 
 Minimalny syntetyczny kontrakt: dwa rodzaje obiektów `probe_item`, `probe_label` (id, owner UUID, sztuczna wartość), relacja m:n `probe_link` oraz oddzielny registry dla RPC. Nazwy/kolumny są **PROPOSED, wyłącznie testowe**. Relacja musi wymuszać tego samego ownera po obu stronach (np. owner-qualified klucze/FK plus RLS); zwykły FK po id nie jest autoryzacją. Nie zawiera stanowiska, statusu ani dat rekrutacji.

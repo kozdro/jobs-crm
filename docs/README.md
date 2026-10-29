@@ -17,6 +17,7 @@
 | Jaką architekturę zatwierdzono? | [Technical Discovery — mapa](technical/README.md), [rejestr 40 decyzji](technical/discovery-decisions.md), [architektura](technical/architecture.md), [ADR](decisions/adr/README.md), [bramki](technical/gates-and-impacts.md) |
 | Jak pracuje agent? | [AGENTS.md](../AGENTS.md), [szablon zadania](templates/agent-task.md) |
 | Jak uruchamiać Codex i Claude Code? | [Agentic harness v1](harness/README.md) |
+| Jak uruchamiać lokalne techniczne fundamenty? | [F1 — aplikacja bez usług](technical/foundation-f1.md), [F2 — syntetyczne Supabase/Drizzle/RLS](technical/foundation-f2.md) |
 | Jak aktualizować dokumenty? | [Standard dokumentacji](documentation-standard.md) |
 
 ## Gdzie wprowadzać zmiany

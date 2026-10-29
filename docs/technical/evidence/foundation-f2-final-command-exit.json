@@ -1,0 +1,28 @@
+{
+  "observedAt": "2026-10-29T15:55:04.783185+00:00",
+  "command": "pnpm test:integration:f2",
+  "environment": {
+    "node": "24.22.2",
+    "pnpm": "12.16.1",
+    "os": "macOS arm64"
+  },
+  "commandExitCode": 0,
+  "nativeExit": "natural",
+  "signalsSent": false,
+  "forceExitFlag": false,
+  "nativeCounts": {
+    "tests": 85,
+    "pass": 85,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "durationMs": 198404.965375,
+  "assertionReport": ".foundation-f2/evidence/2026-10-29T15-51-10-842Z-f6292351.json",
+  "assertionReportSha256": "e11a29cfdbd39ddacac32a1a048139e6818971a91c599960846daf65364d9787",
+  "sourceManifestSha256": "b712c1a35970960fa4ef7f45858217f6d6f9732b5ad74a0d37de7df27da67dee",
+  "coveredSourcesCurrentMatch": true,
+  "coveredSourceCount": 29,
+  "cleanup": "All three owned target cleanups PASS; post-check no F2 containers/networks/volumes, state only evidence",
+  "tap": "/tmp/jobs-crm-f2-qa-r11.tap"
+}
