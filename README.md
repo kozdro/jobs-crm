@@ -1,6 +1,6 @@
 # Jobs CRM
 
-> **Status projektu:** F1 zmergowane; PR-F2 — lokalny syntetyczny PoC migracji i RLS.
+> **Status projektu:** F1/F2 zmergowane; dokumentacyjny Supabase-native rebaseline; F3 nie rozpoczęte.
 > **Stan na:** 2026-10-29. **Język dokumentacji:** polski.
 > Techniczny scaffold i lokalny syntetyczny PoC; funkcje biznesowe i infrastruktura produkcyjna pozostają kolejnymi etapami.
 
@@ -31,4 +31,4 @@ Kolejność pierwszeństwa i zasady rozwiązywania konfliktów opisuje [standard
 - `PROPOSED`: sugestie do zatwierdzenia, **nie** obowiązujące zachowanie.
 - `DEFERRED`: świadomie poza pierwszym wydaniem lub na późniejszym etapie.
 
-Technical Discovery 1.1–1.40 zakończono, a etap prototypu pominięto decyzją właściciela. [Architektura i decyzje techniczne](docs/technical/README.md), [ADR](docs/decisions/adr/README.md), [plan implementacji](docs/technical/implementation-plan.md). **Nie stanowi to zezwolenia na implementowanie niewyjaśnionych wymagań**. Szczegóły: [bramki decyzyjne](docs/decisions/open-questions.md) i [raport audytu](docs/quality/documentation-audit.md).
+Technical Discovery 1.1–1.40 zakończono (historia zachowana; [rebaseline Auth/SSR 2026-10-29 — ADR-0012](docs/decisions/adr/0012-supabase-native-auth-sessions-rls.md)), a etap prototypu pominięto decyzją właściciela. [Architektura i decyzje techniczne](docs/technical/README.md), [ADR](docs/decisions/adr/README.md), [plan implementacji](docs/technical/implementation-plan.md). **Nie stanowi to zezwolenia na implementowanie niewyjaśnionych wymagań**. Szczegóły: [bramki decyzyjne](docs/decisions/open-questions.md) i [raport audytu](docs/quality/documentation-audit.md).

@@ -1,6 +1,6 @@
 # Smart Import, CSV/XLSX, kolejki i idempotencja
 
-**APPROVED:** TD 1.22–1.30, 1.34, 1.40. **PROPOSED:** protokoły wykonania i szczegóły retry; nie zamykają OPEN-010/011/022/023/035 bez akceptacji kontraktu.
+**APPROVED:** TD 1.22–1.30, 1.34, 1.40. **Aktualizacja 2026-10-29:** [ADR-0012](../decisions/adr/0012-supabase-native-auth-sessions-rls.md) zatwierdza PostgreSQL-native transactions + minimalne Supabase RPC. ADR-0005 pozostaje ACCEPTED. **PROPOSED:** szczegóły protokołu, rejestru i retry; nie zamykają OPEN-010/011/022/023/035.
 
 ## URL / Smart Import
 
@@ -20,11 +20,17 @@
 1. Parser strumieniowo lub w pamięci dla **zatwierdzonych limitów**, wyłącznie na serwerze; bez zachowywania trwałych kopii wierszy. Wielkości i formaty OPEN-007/023.
 2. Mapowanie i preview; użytkownik jawnie zaznacza zaakceptowane wiersze, pomija błędne i rozwiązuje potencjalne duplikaty. Nie wnioskuj historycznych dat i statusów.
 3. Jeśli zatwierdzenie następuje w osobnym żądaniu, BFF musi mieć możliwość **ponownej weryfikacji dokładnie zaakceptowanego payloadu**, np. podpisany krótkożyjący snapshot lub ponowne dostarczenie pliku; brak trwałego stagingu jest świadomym ograniczeniem. Nie przyjmuj niezaufanego klientowego „wyniku walidacji”.
-4. Przed commit rewaliduj stan bieżących spraw i uprawnienia, przetwarzaj atomowo **wszystkie zaakceptowane** wiersze w **jednej transakcji PostgreSQL**. W Data API oznacza to jedno zatwierdzone RPC/DB function, a nie N zapytań HTTP; funkcja i jej grants muszą przejść RLS security review.
-5. W tej samej transakcji zapisz `import_operation(user_id, idempotency_key, fingerprint, outcome, counters)` z unikalnością per-user. Retry tej samej akcji zwraca zapisany wynik zamiast ponownego tworzenia rekordów. Ten sam hash pliku przy innej akceptacji/mapowaniu = ostrzeżenie i świadoma decyzja, nie bezwarunkowy zakaz.
+4. Przed commit rewaliduj stan bieżących spraw i uprawnienia, przetwarzaj atomowo **wszystkie zaakceptowane** wiersze w **jednej transakcji PostgreSQL**. W Data API oznacza to niewielką funkcję PostgreSQL i jedno `supabase.rpc()`, preferowane `SECURITY INVOKER`, minimalne EXECUTE grants oraz RLS tabel. Jeden request PostgREST jest transakcją; błąd DB powoduje rollback. N niezależnych insertów HTTP nie realizuje wspólnej transakcji. Funkcja i grants wymagają niezależnego review/testów.
+5. W tej samej transakcji zapisz `import_operation(user_id, idempotency_key, fingerprint, outcome, counters)` z unikalnością per-user. Retry tej samej akcji zwraca zapisany wynik zamiast ponownego tworzenia rekordów; ten sam owner/key z innym payloadem oznacza jawny konflikt. Klient nie może podmienić/usunąć rejestru, by obchodzić ochronę; konkretne grants/RLS/API rejestru wymagają projektu i testów slice’a. Ten sam hash pliku przy innej akceptacji/mapowaniu = ostrzeżenie i świadoma decyzja, nie bezwarunkowy zakaz.
 6. Po commicie zwróć raport zaakceptowanych/odrzuconych wierszy; przy rollback nic nie zostało zaimportowane. Nie uruchamiaj zaległych sugestii z historycznych importów.
 
 **Granica transakcji:** operacje Storage i poczta nie są objęte pojedynczym SQL commit; jeśli kiedykolwiek dodamy takie efekty, stosuj wzorzec outbox/kompensacje (PROPOSED). Limity przetwarzania muszą być realistyczne dla jednej transakcji.
+
+## Minimalny plan RPC i kolejność
+
+Rekomendacja **PROPOSED**: implementacja i dowód native RPC w docelowym CSV/XLSX slice po zatwierdzeniu kontraktu domenowego, zamiast dużego samodzielnego PR-F4 blokującego ręczny RecruitmentCase/Quick Capture. Mały izolowany test techniczny tylko jeśli ujawni się konkretna nierozwiązana luka; zakres i zgoda osobnego zadania. Zwykły import nie wymaga worker/queue, trwałego stagingu, transaction coordinatora, workflow engine ani exactly-once execution. F5 dopiero przed pierwszą funkcją background. Szczegóły: [Foundation Plan](foundation-plan.md).
+
+Minimalne przyszłe testy: jeden atomic multi-record write, rollback przy błędzie, RLS i ograniczone EXECUTE, retry po utracie odpowiedzi, brak duplikatów, konflikt key/zmieniony payload i podstawowa współbieżność. **PLANNED / NOT RUN**; F2 syntetyczny RPC nie zastępuje docelowego dowodu importu.
 
 ## Testy krytyczne
 

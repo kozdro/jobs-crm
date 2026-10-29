@@ -13,7 +13,7 @@ Każdy przepływ opisuje: wejście → decyzję użytkownika → stan po zapisie
 - Sidebar z siedmioma modułami; zwinięcie zostaje przy przejściu do innego modułu. Topbar: wyszukiwarka + menu Dodaj.
 - Pierwsze wejście bez rekordów: rzeczywisty pusty Dashboard i dostęp do Quick Capture; nie fabrykuj przykładów.
 - Brak uprawnień: nie renderuj treści, nazw spraw, metadanych dokumentów ani poprzednio oglądanej historii.
-- Mechanizm logowania i sesja OPEN-013/041/042 — w prototypie wyłącznie symulowane wejście.
+- Mechanizm: Supabase Auth/SSR według DEC-051 i [ADR-0012](../decisions/adr/0012-supabase-native-auth-sessions-rls.md); szczegóły polityki OPEN-013/041/042. Historyczny kontrakt prototypu przewidywał symulowane wejście; nie dowodzi działania Auth.
 
 ## F02: Quick Capture, zapis bez aplikowania (UC-001/029; UX-006)
 
@@ -104,7 +104,7 @@ Każdy przepływ opisuje: wejście → decyzję użytkownika → stan po zapisie
 - Częściowy import wymaga **osobnego jawnego potwierdzenia**; pominięte wiersze z powodami.
 - Nieznane statusy/etapy/wyniki nie są po cichu domapowywane. Nie dopisuj dat i historii, nie twórz zaległych sugestii.
 - Przed przypadkowym powtórzeniem wsadu pokaż ostrzeżenie i wymagaj decyzji; mechanizm identyfikacji OPEN-035.
-- Po awarii nie wykazuj rekordów jako zapisanych bez pewności. Nie obiecuj atomiczności ani rollbacku (OPEN-010).
+- Po awarii nie wykazuj rekordów jako zapisanych bez pewności. Zatwierdzony kontrakt ADR-0005 wymaga jednej atomowej transakcji zaakceptowanego zbioru i rollbacku przy błędzie; utrata odpowiedzi wymaga ustalenia wyniku przez retry tej samej operacji. Szczegóły komunikatów/undo pozostają OPEN-010/035.
 - Rozbieżność między podglądem a danymi istniejącymi w chwili zatwierdzenia → wstrzymanie i wyraźna ponowna decyzja, bez cichego nadpisania.
 
 ## F12: Global Search i powrót do kontekstu (UC-020; UX-015)
@@ -118,7 +118,7 @@ Każdy przepływ opisuje: wejście → decyzję użytkownika → stan po zapisie
 ## F13: Ustawienia etapów i zarządzanie kontem (UX-016–019)
 
 - Etapy: globalna personalizacja i indywidualne dostosowanie z zachowaniem historii; bez przyjętej listy domyślnej ani propagacji do istniejących spraw (OPEN-003/027/034).
-- Konto: jedyny zatwierdzony rezultat to prywatny Dashboard po logowaniu i prywatność danych. Rejestracja, profil, sesja, reset, eksport i usuwanie są PROPOSED, nie do implementacji bez odpowiednich OPEN-013/032/041–046.
+- Konto: prywatny Dashboard i prywatność pozostają zatwierdzone. DEC-051/[ADR-0012](../decisions/adr/0012-supabase-native-auth-sessions-rls.md) określają Supabase self-signup, login, reset e-mail oraz logout local/global/others; JWT może pozostać ważny do expiry. Pełne FR-AD-003–009 zachowują PROPOSED dla pozostałych szczegółów, profilu i polityk OPEN-013/032/041–046. Nie dodawać rejestru urządzeń ani obietnicy dowolnego target-by-session-id.
 
 ## Macierz stanów interakcji
 

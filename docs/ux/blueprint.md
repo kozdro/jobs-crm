@@ -31,7 +31,7 @@ Zasady UX:
 - **Desktop:** lewy sidebar + górny Topbar (UX 1.1 A). Sidebar jest jedną listą siedmiu modułów w kolejności: Dashboard, Rekrutacje, Zadania, Kalendarz, Dokumenty, Firmy, Kontakty (1.2 A). Początkowo rozwinięty, ręcznie zwijany do ikon z dostępnymi nazwami; stan zachowany podczas nawigacji między modułami (1.3 B).
 - **Topbar:** stale widoczne pole „Szukaj w Jobs CRM…” i przycisk „Dodaj” (1.4 A). „Dodaj” otwiera **menu trzech wejść**: Dodaj ręcznie, Dodaj z URL, Importuj CSV/XLSX (1.7 B), a nie bezpośrednio formularz.
 - **Global Search:** szybka nakładka z wynikami pogrupowanymi według typu, przejściem do rekordu i akcją „Wszystkie wyniki”; pełna strona dla obszernego zestawu (1.5 C). Wyszukiwanie obejmuje zakres FR-GS-001–008, ale nie zawartość plików ani prywatnej korespondencji.
-- **Landing:** Dashboard po zalogowaniu; bez obowiązkowego onboardingu (DEC-018). Konto, sesja i wylogowanie pozostają zależne od OPEN-013/041–046; nie dodawać niezatwierdzonej samoobsługi.
+- **Landing:** Dashboard po zalogowaniu; bez obowiązkowego onboardingu (DEC-018). Kierunek Supabase-native Auth/self-signup/reset i logout local/global/others określają późniejsze DEC-051/[ADR-0012](../decisions/adr/0012-supabase-native-auth-sessions-rls.md); szczegóły polityk nadal OPEN-013/041–046.
 - Nawigacja przeglądarki, przyciski „Wstecz”, przekierowania z wyników oraz powrót z detalu muszą zachowywać realnie istniejący kontekst, nie fabrykować historii przejść.
 - Responsywne zachowania: [sekcja 9](#9-responsive-i-accessibility) i [screen blueprints](screen-blueprints.md).
 
@@ -117,6 +117,6 @@ E2E z wariantami błędów, dostępnością i zachowaniem przy anulowaniu: [flow
 
 **Ustalono na potrzeby prototypu:** strukturę, lokalizację elementów, nawigację, zachowania interakcyjne, priorytety treści, puste stany i wzorce błędów. Wybory użytkownika 1.1–1.32 są bezpośrednie; dalsze rekomendacje zostały wybrane pod delegacją i są wyraźnie oznaczone w rejestrze.
 
-**Nie zatwierdzono przez ten Blueprint:** pól i walidacji, słownika wyników zamknięcia, dokładnego grafu statusów, retencji, usuwania, modelu sesji, importowego rollbacku, kryteriów duplikatu, algorytmu wyszukiwarki, progów sugestii, nazw domyślnych etapów, finalnego design systemu ani stacku. Zob. [bramki](blueprint-decisions.md#bramki-przed-prototypem-implementacyjnym).
+**Nie zatwierdzono przez ten Blueprint (granica historycznego dokumentu; późniejsze TD/ADR-0005 i DEC-051/ADR-0012 określają atomowość oraz kierunek Auth):** pól i walidacji, słownika wyników zamknięcia, dokładnego grafu statusów, retencji, usuwania, modelu sesji, importowego rollbacku, kryteriów duplikatu, algorytmu wyszukiwarki, progów sugestii, nazw domyślnych etapów, finalnego design systemu ani stacku. Zob. [bramki](blueprint-decisions.md#bramki-przed-prototypem-implementacyjnym).
 
-**Następny etap:** interaktywny prototyp UX na danych fikcyjnych, najpierw: (1) Rekrutacje Kanban/lista → drawer → pełna strona; (2) Quick Capture z URL i ręcznym fallbackiem; (3) Dashboard → działania; (4) kluczowe wyjątki DnD, duplikatu i zamknięcia. Prototyp nie jest dowodem zatwierdzenia semantyki pozostającej OPEN.
+**Historyczny proponowany następny etap (pominięty późniejszą decyzją PO podczas TD):** interaktywny prototyp UX na danych fikcyjnych, najpierw: (1) Rekrutacje Kanban/lista → drawer → pełna strona; (2) Quick Capture z URL i ręcznym fallbackiem; (3) Dashboard → działania; (4) kluczowe wyjątki DnD, duplikatu i zamknięcia. Prototyp nie jest dowodem zatwierdzenia semantyki pozostającej OPEN.

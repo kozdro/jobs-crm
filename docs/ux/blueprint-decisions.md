@@ -88,3 +88,7 @@ Samo **prototypowanie wariantowe na danych fikcyjnych** jest możliwe teraz. Nie
 - [ ] Finalne reguły pól, stanów, usuwania, dostępności i techniczne ADR — poza tym etapem.
 
 **Aktualizacja 2026-10-28:** właściciel projektu świadomie pominął interaktywny prototyp. Technical Discovery 1.1–1.40 ukończono; [architektura](../technical/README.md) i [ADR](../decisions/adr/README.md) są punktem wejścia do planu SDD/AIDD. Testy interakcji należy wykonać podczas implementacji. Niezamknięte domenowe OPEN nie zostały zatwierdzone przez sam wybór technologii.
+
+## Aneks po Technical Discovery — 2026-10-29
+
+Historia wyborów UX powyżej pozostaje bez zmian. Późniejsze [DEC-051](../decisions/product-decisions.md) i [ADR-0012](../decisions/adr/0012-supabase-native-auth-sessions-rls.md) określają Supabase-native Auth/SSR, self-signup, reset e-mail i natywne scopes logout, bez rejestru urządzeń i natychmiastowej revocation JWT. ADR-0005 ustala atomowy zapis zaakceptowanego wsadu importu oraz ochronę retry; pozostałe szczegóły OPEN-010/035 nadal otwarte. Symulowane makiety i planowane TC nie stanowią wykonania tych mechanizmów ani zgody na nowe pola/polityki.

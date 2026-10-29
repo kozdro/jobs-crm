@@ -1,6 +1,6 @@
 # Persystencja i dane — kontrakt logiczny
 
-**APPROVED:** SQL / PostgreSQL, shared schema, owner isolation, stan + historia biznesowa + audyt, Drizzle dla definicji/migracji, użytkowe zapytania przez Supabase Data API/RLS. **PROPOSED:** poniższe nazwy tabel/indeksów — nie są migracją.
+**APPROVED:** SQL / PostgreSQL, shared schema, owner isolation, stan + historia biznesowa + audyt, Drizzle dla definicji/migracji, użytkowe zapytania przez Supabase Data API/RLS. **PROPOSED:** poniższe nazwy tabel/indeksów — nie są migracją. Aktualny kontrakt Auth/dostępu: [ADR-0012](../decisions/adr/0012-supabase-native-auth-sessions-rls.md), bez własnego magazynu sesji/brokera.
 
 ## Szkic logiczny
 
@@ -19,7 +19,7 @@ Każdy prywatny agregat posiada lub dziedziczy niepodrabialną relację do wła�
 ## Transakcje i niezmienniki
 
 - Atomiczność aktualnego stanu, faktów historii i rekordu zakończenia dla jednej komendy — **PROPOSED** układ tabel i funkcji; semantyka OPEN-001/004/018/020/029/034.
-- Dla importu użytkownika jedna atomowa transakcja SQL przy zatwierdzeniu wybranych wierszy. Jeśli data API nie oferuje pojedynczego commitu z wielu mutacji, opracuj `SECURITY INVOKER` RPC uruchamiane jako uwierzytelniony user z RLS; funkcje `SECURITY DEFINER` tylko po odrębnym security review. Wynik `committed` i zapis operacji idempotencji w tej samej transakcji.
+- Dla importu użytkownika jedna atomowa transakcja SQL przy zatwierdzeniu wybranych wierszy. Przez Data API realizuje ją niewielka funkcja PostgreSQL wywołana jednym `supabase.rpc()`: preferowane `SECURITY INVOKER`, minimalne EXECUTE grants i RLS. Pojedynczy request PostgREST działa w transakcji; błąd DB powoduje rollback. Seria osobnych requestów nie jest wspólną transakcją. `SECURITY DEFINER` wymaga uzasadnienia i odrębnego security review. Wynik `committed` i minimalny user-scoped rejestr idempotencji/fingerprint zapisują się razem z efektem; rejestr musi być chroniony przed podmianą/usunięciem przez klienta. Bez uniwersalnego silnika transakcji lub frameworka idempotencji. Dowód wymagany przed importem, nie przed niezależnym ręcznym CRUD.
 - Nie fabrykuj wpisów historii na podstawie korekty statusu, samego URL ani samego dokumentu.
 - Zmiana treści dokumentu = nowa wersja; usunięcie pliku może pozostawić minimalną historyczną informację o wysyłce zgodnie z zatwierdzoną polityką i obowiązkami prywatności.
 

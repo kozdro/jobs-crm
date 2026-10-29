@@ -140,17 +140,27 @@
 
 | Wymaganie | Podstawa `DEC/BR/NFR` | AC | Scenariusze / TC | Bramka | Status FR i pokrycie |
 |---|---|---|---|---|---|
-| FR-AD-001 | DEC-018 BR-030 | AC-AD-001 | UC-033/TC-033 | OPEN-013 | APPROVED (limited) · PLANNED / NOT EXECUTED |
+| FR-AD-001 | DEC-018/DEC-051 BR-030 ADR-0012 | AC-AD-001 | UC-033/TC-033 | OPEN-013 | APPROVED (limited) · PLANNED / NOT EXECUTED |
 | FR-AD-002 | BR-030 NFR-001 | AC-AD-002 | UC-034/TC-034 UC-036/TC-036* | OPEN-006/OPEN-013/OPEN-032 | APPROVED (invariant) · PLANNED / NOT EXECUTED |
-| FR-AD-003 | — | AC-AD-003 | UC-035/TC-035* | OPEN-041/OPEN-013 | PROPOSED · CONDITIONAL / NOT EXECUTED |
-| FR-AD-004 | — | AC-AD-004 | UC-035/TC-035* | OPEN-042/OPEN-013 | PROPOSED · CONDITIONAL / NOT EXECUTED |
-| FR-AD-005 | NFR-001 | AC-AD-005 | UC-035/TC-035* | OPEN-013/OPEN-042 | PROPOSED · CONDITIONAL / NOT EXECUTED |
-| FR-AD-006 | — | AC-AD-006 | UC-035/TC-035* | OPEN-043/OPEN-013 | PROPOSED · CONDITIONAL / NOT EXECUTED |
+| FR-AD-003 | DEC-051 ADR-0012 | AC-AD-003 | UC-035/TC-035* | OPEN-041/OPEN-013 | PROPOSED — pełny kontrakt; podzakres APPROVED DEC-051 · CONDITIONAL / NOT EXECUTED |
+| FR-AD-004 | DEC-051 ADR-0012 | AC-AD-004 | UC-035/TC-035* | OPEN-042/OPEN-013 | PROPOSED — pełny kontrakt; podzakres APPROVED DEC-051 · CONDITIONAL / NOT EXECUTED |
+| FR-AD-005 | DEC-051 ADR-0012 NFR-001 | AC-AD-005 | UC-035/TC-035* | OPEN-013/OPEN-042 | PROPOSED — pełny kontrakt; podzakres APPROVED DEC-051 · CONDITIONAL / NOT EXECUTED |
+| FR-AD-006 | DEC-051 ADR-0012 | AC-AD-006 | UC-035/TC-035* | OPEN-043/OPEN-013 | PROPOSED — pełny kontrakt; podzakres APPROVED DEC-051 · CONDITIONAL / NOT EXECUTED |
 | FR-AD-007 | — | AC-AD-007 | UC-035/TC-035* | OPEN-044/OPEN-002 | PROPOSED · CONDITIONAL / NOT EXECUTED |
 | FR-AD-008 | NFR-007 | AC-AD-008 | UC-036/TC-036* | OPEN-032/OPEN-045 | PROPOSED · CONDITIONAL / NOT EXECUTED |
 | FR-AD-009 | NFR-007 | AC-AD-009 | UC-036/TC-036* | OPEN-005/OPEN-006/OPEN-032/OPEN-046 | PROPOSED · CONDITIONAL / NOT EXECUTED |
 
 \* Scenariusz warunkowy dla funkcji `PROPOSED` — zapis w macierzy nie oznacza ich zatwierdzenia.
+
+## Mapa rebaseline 2026-10-29 — dowody techniczne a produktowe
+
+| Wymagania | Decyzja / bramka | Plan techniczny | Stan |
+|---|---|---|---|
+| FR/AC-AD-003–006, NFR-004 | DEC-051 / ADR-0012, SEC-01 | AUTH-01–12/14 i FQA-22–34/57 v2 w [Foundation QA](../technical/foundation-qa.md) | F3 PLANNED / NOT RUN; wycofane broker-only AUTH-13/FQA-55 SUPERSEDED / NOT APPLICABLE, bez PASS |
+| FR/AC-AD-002, BR-030, NFR-001 | SEC-02, ADR-0012 | [Wykonane syntetyczne F2](../technical/foundation-f2.md); ponowienie właściwych RLS przy F3 | Historia F2 bez zmian; produktowe UC/TC-034 nadal NOT EXECUTED |
+| FR-IM-005–014, AC-IM-008/011/014, NFR-008 | ADR-0005 nadal ACCEPTED, IM-01 | Minimalne RPC/FQA-35–42 v2 w docelowym import slice | F4 przesunięte / PLANNED / NOT RUN; bez zależności ręcznego CRUD od importer-specific RPC |
+
+Stabilne ID FR/AC/UC/TC pozostają. Aktualizacja kontraktów Auth i technicznej atomowości wynika z decyzji PO/ADR; nie przypisuje nowych wyników wcześniej wykonanym testom ani nie promuje całych FR PROPOSED.
 
 ## Raport pokrycia (na etapie dokumentacji)
 

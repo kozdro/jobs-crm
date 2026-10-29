@@ -103,18 +103,18 @@
 | **AC-IM-007** | Mając wiersz potencjalnie odpowiadający istniejącej sprawie, użytkownik widzi sygnał ryzyka duplikatu przed zapisem; samo wykrycie nie scala danych. | FR-IM-007 |
 | **AC-IM-008** | Mając błędne i poprawne wiersze, bez akceptacji częściowego importu nie wolno zapisać cichej podgrupy rekordów. | FR-IM-008 |
 | **AC-IM-008-01** | Brak zgody na partial import nie pozwala cicho zapisać wybranych wierszy. | FR-IM-008 |
-| **AC-IM-008-02** | Wiersze odrzucone w zaakceptowanym częściowym imporcie nie są raportowane jako zapisane; semantyka transakcji OPEN-010. | FR-IM-008 |
+| **AC-IM-008-02** | Wiersze odrzucone w zaakceptowanym częściowym imporcie nie są zapisane ani raportowane jako zapisane. Cały zaakceptowany zbiór podlega jednej atomowej transakcji RPC (ADR-0005); błąd oznacza rollback, nie cichą podgrupę. Szczegóły raportowania OPEN-010. | FR-IM-008 |
 | **AC-IM-009** | Gdy użytkownik jawnie pomija błędne wiersze i zatwierdza częściowy import, do zapisu kwalifikowane są tylko zaakceptowane rekordy. | FR-IM-009 |
 | **AC-IM-010** | Gdy import pomija wiersze, raport zawiera ich identyfikację oraz powód pominięcia, a nie tylko liczbę odrzuceń. | FR-IM-010 |
 | **AC-IM-010-01** | Raport wyjaśnia powód pominięcia każdego wiersza; forma po awarii OPEN-010. | FR-IM-010 |
 | **AC-IM-011** | Gdy użytkownik przypadkowo uruchamia ponowny import tego samego wsadu, system wykrywa ryzyko powtórzenia i nie duplikuje cicho zaakceptowanych spraw. | FR-IM-011 |
-| **AC-IM-011-01** | Ponowiony wsad nie może cicho zdublować danych; identyfikacja i retry OPEN-035/010. | FR-IM-011 |
-| **AC-IM-011-02** | Awaria w trakcie importu nie upoważnia do raportowania wszystkich wierszy jako zakończonych; faktyczny zakres i strategia retry/rollback OPEN-010/035. | FR-IM-011 |
+| **AC-IM-011-01** | Retry tego samego owner/key/payload odtwarza wynik bez dodatkowych zapisów; ten sam klucz z innym payloadem daje jawny konflikt. Minimalny registry/fingerprint według ADR-0005; identyfikacja ponownego pliku i celowe ponowienie OPEN-035. | FR-IM-011 |
+| **AC-IM-011-02** | Utrata odpowiedzi po commit nie uprawnia do ponownego tworzenia rekordów ani raportowania niepotwierdzonego sukcesu; retry ustala wynik tej samej operacji. Błąd transakcji nie pozostawia częściowych zapisów. Szczegóły komunikatów OPEN-010/035. | FR-IM-011 |
 | **AC-IM-012** | Mając wiersz bez daty wysłania CV, system nie dopisuje bieżącej daty jako historycznej daty aplikowania i nie generuje faktu wysyłki z samego braku danych. | FR-IM-012 |
 | **AC-IM-012-01** | Brak daty nie generuje bieżącej fikcyjnej daty wysłania ani zdarzeń. | FR-IM-012 |
 | **AC-IM-013** | Gdy użytkownik importuje starą zamkniętą lub nierozliczoną historycznie sprawę, samo przyjęcie danych nie generuje zaległej sugestii follow-upu. | FR-IM-013 |
 | **AC-IM-014** | Gdy rekord importu wygląda na duplikat, system nie modyfikuje istniejącej sprawy ani nie scala jej bez odrębnej decyzji użytkownika. | FR-IM-014 |
-| **AC-IM-014-01** | Aktualizacja istniejącej sprawy po konflikcie wymaga jawnej decyzji; współbieżność OPEN-010/024. | FR-IM-014 |
+| **AC-IM-014-01** | Aktualizacja istniejącej sprawy po konflikcie wymaga jawnej decyzji i należy do zatwierdzonego atomowego wsadu; współbieżność OPEN-010/024. | FR-IM-014 |
 | **AC-IM-014-02** | Zmiana danych sprawy między podglądem a zatwierdzeniem nie prowadzi do cichego nadpisania; rozwiązanie konfliktu OPEN-010/024. | FR-IM-014 |
 
 ## HE — History & Events
@@ -210,16 +210,16 @@
 
 ## AD — Account & Data Management
 
-**Granica:** `AC-AD-001/002` weryfikują niezmienniki `APPROVED` (bez wyboru mechanizmu). `AC-AD-003`–`009` są wyłącznie warunkowymi kryteriami dla `FR PROPOSED`; nie mogą zostać uznane za wdrożeniowe testy MVP przed zgodą PO i zamknięciem odpowiednich `OPEN`.
+**Granica:** `AC-AD-001/002` zachowują niezmienniki APPROVED. Pełne `AC-AD-003–006` pozostają warunkowe wobec otwartych szczegółów FR PROPOSED, lecz zatwierdzony podzakres Auth określają DEC-051 i [ADR-0012](../decisions/adr/0012-supabase-native-auth-sessions-rls.md). Nie wymagają ponownej decyzji o dostawcy, rejestracji/resetu ani brokera. Pozostałe AC-AD-007–009 zachowują swoje bramki; nie oznaczamy runtime testów jako wykonanych.
 
 | ID | Status FR / Given–When–Then (na poziomie niezmiennika) | FR |
 |---|---|---|
-| **AC-AD-001** | APPROVED: Mając użytkownika po pomyślnym logowaniu, gdy wchodzi do produktu, otrzymuje swój Dashboard bez obowiązkowego onboardingu; metoda uwierzytelnienia jest `OPEN-013`. | FR-AD-001 |
-| **AC-AD-002** | APPROVED: Mając konta A i B oraz prywatne dane A, gdy B próbuje je odczytać przez widok, wyszukiwanie lub pobranie pliku, nie uzyskuje danych A; A zachowuje dostęp do swoich uprawnionych rekordów. Konkretny model dostępu `OPEN-013`. | FR-AD-002 |
-| **AC-AD-003** | PROPOSED: Jeśli PO dopuści samorejestrację, gdy nowa osoba przejdzie zatwierdzony proces, może otrzymać własne konto bez odziedziczenia danych innych kont; pola i aktywacja `OPEN-041`. | FR-AD-003 |
-| **AC-AD-004** | PROPOSED: Jeśli wylogowanie zostanie zatwierdzone, po jego wykonaniu dotychczasowy dostęp do prywatnego workspace'u wymaga ponownej autoryzacji zgodnie z `OPEN-042`. | FR-AD-004 |
-| **AC-AD-005** | PROPOSED: Jeśli zostanie zatwierdzona polityka sesji, dostęp w czasie trwania i po zakończeniu sesji respektuje tę politykę; czasy i mechanizm `OPEN-013/042`. | FR-AD-005 |
-| **AC-AD-006** | PROPOSED: Jeśli zatwierdzono odzyskiwanie, uprawniony użytkownik może odzyskać dostęp bez uzyskania dostępu do cudzego konta; procedura i komunikaty `OPEN-043`. | FR-AD-006 |
+| **AC-AD-001** | APPROVED: Mając użytkownika po pomyślnym logowaniu, gdy wchodzi do produktu, otrzymuje swój Dashboard bez obowiązkowego onboardingu; metoda: Supabase Auth według ADR-0012, szczegóły polityki `OPEN-013`. | FR-AD-001 |
+| **AC-AD-002** | APPROVED: Mając konta A i B oraz prywatne dane A, gdy B próbuje je odczytać przez widok, wyszukiwanie lub pobranie pliku, nie uzyskuje danych A; A zachowuje dostęp do swoich uprawnionych rekordów. Data API z JWT użytkownika i RLS według ADR-0012; szczegóły ochrony i weryfikacja `OPEN-013`. | FR-AD-002 |
+| **AC-AD-003** | PROPOSED — pełny kontrakt: po przejściu zatwierdzonego procesu samoobsługowej rejestracji Supabase nowy użytkownik otrzymuje własne konto bez danych innych kont. Dostępność rejestracji zatwierdzona DEC-051; pola i aktywacja `OPEN-041`. | FR-AD-003 |
+| **AC-AD-004** | PROPOSED — pełny kontrakt: `local` usuwa standardową bieżącą sesję klienta, `global` kończy wszystkie sesje, `others` pozostałe z zachowaniem bieżącej, zgodnie z natywnym kontraktem Supabase. Test rozdziela stan klienta, możliwość refresh i nadal ważny access JWT; nie wymaga natychmiastowej odmowy starego JWT przez każdą powierzchnię Data API. Sesje poza wskazanym scope i konto B nie są nieuprawnienie zmieniane. | FR-AD-004 |
+| **AC-AD-005** | PROPOSED — pełny kontrakt: poprawna sesja może być odświeżana przez SDK; błędna/wygasła sesja nie ujawnia danych, a zakończona sesja nie jest po cichu odtwarzana przez standardowy klient. Testy współbieżności, wielu urządzeń i cache A/B sprawdzają kontrakt SDK. Osobny pomiar dokumentuje możliwość użycia zachowanego JWT do wygaśnięcia; nie jest to FAIL za brak anulowanego wymagania natychmiastowej revocation. TTL i ochrona operacji wrażliwych `OPEN-013/042`. | FR-AD-005 |
+| **AC-AD-006** | PROPOSED — pełny kontrakt: uprawniony użytkownik odzyskuje dostęp przez wspierany reset e-mail Supabase bez przejęcia cudzego konta. Zły/wygasły/replayed link i niebezpieczny redirect są odmawiane; komunikaty, wariant cross-device i wpływ na stare sesje zgodnie z `OPEN-043/042`. | FR-AD-006 |
 | **AC-AD-007** | PROPOSED: Jeśli zatwierdzono edycję profilu, właściciel może zmienić dozwolone pola swojego profilu, ale nie cudzego; lista pól `OPEN-044`. | FR-AD-007 |
 | **AC-AD-008** | PROPOSED: Jeśli zatwierdzono eksport, tylko uprawniony właściciel może uruchomić i odebrać eksport w ustalonym zakresie; zakres/format `OPEN-032/045`. | FR-AD-008 |
 | **AC-AD-009** | PROPOSED: Jeśli zatwierdzono usuwanie konta, żądanie wymaga weryfikacji uprawnienia i respektuje zatwierdzoną politykę danych/powiązań; skutki i retencja `OPEN-005/006/032/046`. | FR-AD-009 |
