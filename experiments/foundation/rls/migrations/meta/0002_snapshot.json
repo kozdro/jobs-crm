@@ -1,0 +1,219 @@
+{
+  "id": "eea36ed3-4584-4aee-ae49-49264b8c3449",
+  "prevId": "f3e20455-4c18-4b16-94dd-a7bdfb308f3e",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "foundation_poc.probe_item": {
+      "name": "probe_item",
+      "schema": "foundation_poc",
+      "columns": {
+        "owner_id": {
+          "name": "owner_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "marker": {
+          "name": "marker",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "revision": {
+          "name": "revision",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "probe_item_pk": {
+          "name": "probe_item_pk",
+          "columns": ["owner_id", "id"]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "probe_item_marker_nonempty": {
+          "name": "probe_item_marker_nonempty",
+          "value": "length(\"foundation_poc\".\"probe_item\".\"marker\") > 0"
+        },
+        "probe_item_revision_nonnegative": {
+          "name": "probe_item_revision_nonnegative",
+          "value": "\"foundation_poc\".\"probe_item\".\"revision\" >= 0"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "foundation_poc.probe_label": {
+      "name": "probe_label",
+      "schema": "foundation_poc",
+      "columns": {
+        "owner_id": {
+          "name": "owner_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "marker": {
+          "name": "marker",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "probe_label_pk": {
+          "name": "probe_label_pk",
+          "columns": ["owner_id", "id"]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "probe_label_marker_nonempty": {
+          "name": "probe_label_marker_nonempty",
+          "value": "length(\"foundation_poc\".\"probe_label\".\"marker\") > 0"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "foundation_poc.probe_link": {
+      "name": "probe_link",
+      "schema": "foundation_poc",
+      "columns": {
+        "owner_id": {
+          "name": "owner_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "marker": {
+          "name": "marker",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "item_id": {
+          "name": "item_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label_id": {
+          "name": "label_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "probe_link_label_idx": {
+          "name": "probe_link_label_idx",
+          "columns": [
+            {
+              "expression": "owner_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "label_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "probe_link_item_fk": {
+          "name": "probe_link_item_fk",
+          "tableFrom": "probe_link",
+          "tableTo": "probe_item",
+          "schemaTo": "foundation_poc",
+          "columnsFrom": ["owner_id", "item_id"],
+          "columnsTo": ["owner_id", "id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "probe_link_label_fk": {
+          "name": "probe_link_label_fk",
+          "tableFrom": "probe_link",
+          "tableTo": "probe_label",
+          "schemaTo": "foundation_poc",
+          "columnsFrom": ["owner_id", "label_id"],
+          "columnsTo": ["owner_id", "id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "probe_link_pk": {
+          "name": "probe_link_pk",
+          "columns": ["owner_id", "id"]
+        }
+      },
+      "uniqueConstraints": {
+        "probe_link_endpoints_unique": {
+          "name": "probe_link_endpoints_unique",
+          "nullsNotDistinct": false,
+          "columns": ["owner_id", "item_id", "label_id"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "probe_link_marker_nonempty": {
+          "name": "probe_link_marker_nonempty",
+          "value": "length(\"foundation_poc\".\"probe_link\".\"marker\") > 0"
+        }
+      },
+      "isRLSEnabled": true
+    }
+  },
+  "enums": {},
+  "schemas": {
+    "foundation_poc": "foundation_poc"
+  },
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

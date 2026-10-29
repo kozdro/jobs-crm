@@ -1,0 +1,29 @@
+{
+  "observedAt": "2026-10-29T16:37:33.139081+00:00",
+  "command": "pnpm test:integration:f2",
+  "environment": {
+    "node": "24.22.2",
+    "pnpm": "12.16.1",
+    "os": "macOS arm64"
+  },
+  "commandExitCode": 0,
+  "nativeExit": "natural",
+  "signalsSent": false,
+  "forceExitFlag": false,
+  "nativeCounts": {
+    "tests": 85,
+    "pass": 85,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "durationMs": 198683.68575,
+  "assertionReport": ".foundation-f2/evidence/2026-10-29T16-33-31-658Z-7cb80be0.json",
+  "assertionReportSha256": "f90d747be5453ce2a700f64541d6fcaebc4e2c5ef18aee9af3766c01a66809f2",
+  "sourceManifestSha256": "12377b60f0edbcfd77e925242edf4270513e210ea4a4ac6ad84ea86c9c051bba",
+  "coveredSourcesCurrentMatch": true,
+  "coveredSourceCount": 29,
+  "cleanup": "All three owned target cleanups PASS; post-check no F2 containers/networks/volumes, state only evidence",
+  "tap": "/tmp/jobs-crm-f2-qa-r13.tap",
+  "limitation": "Local warm-cache stack PASS does not replace new hosted Linux cold-pull CI validation"
+}

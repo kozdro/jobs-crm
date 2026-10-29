@@ -30,3 +30,8 @@ next-env.d.ts
 coverage/
 playwright-report/
 test-results/
+
+# Disposable synthetic F2 target manifests/config; status credentials stay in memory.
+.foundation-f2/
+supabase/.temp/
+supabase/.branches/

@@ -1,6 +1,6 @@
 # Technical Discovery — architektura Jobs CRM
 
-**Stan dokumentacji:** BASELINED (2026-10-28). **Etap:** zakończone Technical Discovery, przygotowanie do implementacji SDD/AIDD. **Status implementacji:** PR-F1 w realizacji na podstawie odrębnego zlecenia PO 2026-10-29 — [scaffold, uruchamianie i dowody](foundation-f1.md). Późniejsze PoC pozostają NOT RUN.
+**Stan dokumentacji:** BASELINED (2026-10-28). **Etap:** implementacja technicznych fundamentów SDD/AIDD. F1 zmergowane; odrębnie autoryzowane F2 — [lokalny PoC, instrukcje i bieżące dowody](foundation-f2.md). [Scaffold F1](foundation-f1.md) działa bez DB. F3–F6 pozostają NOT RUN.
 
 ## Źródło decyzji i hierarchia
 
@@ -18,7 +18,8 @@ Właściciel produktu zatwierdził w rozmowie wybory **Technical Discovery 1.1�
 | [security-and-privacy.md](security-and-privacy.md) | Auth/BFF, prywatność, threat model, kontrola dostępu, usuwanie |
 | [imports-and-jobs.md](imports-and-jobs.md) | Smart Import, CSV/XLSX, atomowość, idempotencja, worker |
 | [operations-and-quality.md](operations-and-quality.md) | Hosting, kopie zapasowe, RPO/RTO, obserwowalność, testy, CI/CD |
-| [foundation-plan.md](foundation-plan.md) | Plan Foundation: małe PR, aktualność wersji, PoC Auth/RLS/RPC, OPEN, QA, operacje i następne zadanie; F1 autoryzowany oddzielnie; pozostałe etapy PROPOSED |
+| [foundation-plan.md](foundation-plan.md) | Plan Foundation: małe PR, wersje, PoC, OPEN i QA; F1/F2 autoryzowane oddzielnie; F3–F6 PROPOSED |
+| [foundation-f2.md](foundation-f2.md) | Syntetyczne Supabase Local/Drizzle/RLS A/B; wyniki migracji, bezpieczeństwa i granice F2 |
 | [implementation-plan.md](implementation-plan.md) | Sekwencja developmentu, pionowe slice'y, bramki i DoD |
 | [gates-and-impacts.md](gates-and-impacts.md) | Pozostałe OPEN, konflikty, PoC i wpływ na istniejące FR/AC |
 
@@ -34,4 +35,4 @@ Właściciel produktu zatwierdził w rozmowie wybory **Technical Discovery 1.1�
 
 Cztery statusy; sprawa różna od oferty i organizacji; korekta nie udaje aplikacji; dokument powiązany nie oznacza wysłania; żadnego automatycznego kończenia, kontaktowania ani scalania; żadnego AI Career Agenta, wyszukiwania semantycznego ani masowego importu URL.
 
-**Brak merge do main:** ten PR udokumentowuje wybory i nie uruchamia usług ani nie tworzy sekretów, projektów Supabase czy kodu produkcyjnego.
+F1/F2 mają odrębne autoryzacje i dowody wykonania w raportach. F2 uruchamia wyłącznie lokalne, syntetyczne targety; produkt, Supabase Cloud i deployment wymagają kolejnych zleceń. Publikacja PR nie oznacza zgody na merge.

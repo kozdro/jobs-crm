@@ -1,0 +1,118 @@
+{
+  "base": "d0c645f48e323cae722720d4262cba2d558e6fd0",
+  "wrapper": "harness/scripts/review.py unchanged",
+  "reviewersAreAuthors": false,
+  "records": [
+    {
+      "round": "R1-backend",
+      "candidateCommit": "a20abffaf7e5ac7a073e4cf702b436cd00a5909d",
+      "candidateTree": "70a6e362e42be677c5b0c680c0b1952ac14e4637",
+      "parentSession": "01a1883b-cc39-7ae3-a91a-ca26a8ad0986",
+      "nativeChildSession": "01a1883c-4791-7da2-9746-fbf557b1fae2",
+      "roleMode": "native generic child + canonical role",
+      "verdict": "PASS",
+      "blockingFindings": [],
+      "findings": [],
+      "wrapperControl": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "7408b3cdd952a409b2abe6e99e86d9bf7da324f9e3dad543014326ac84bf6b60",
+        "candidateAfter": "7408b3cdd952a409b2abe6e99e86d9bf7da324f9e3dad543014326ac84bf6b60"
+      },
+      "runtimeExecutedByReviewer": false,
+      "nativeProof": {
+        "method": "Codex app-server thread/read",
+        "parent": "01a1883b-cc39-7ae3-a91a-ca26a8ad0986",
+        "child": "01a1883c-4791-7da2-9746-fbf557b1fae2",
+        "depth": 1,
+        "agentRole": null,
+        "agentPath": "/root/backend_reviewer"
+      }
+    },
+    {
+      "round": "R1-security",
+      "candidateCommit": "a20abffaf7e5ac7a073e4cf702b436cd00a5909d",
+      "candidateTree": "70a6e362e42be677c5b0c680c0b1952ac14e4637",
+      "parentSession": "05f900c5-67cd-444c-b988-1257fb351b55",
+      "nativeChildSession": null,
+      "roleMode": "Claude restricted canonical role Read/Grep/Glob",
+      "verdict": "PASS",
+      "blockingFindings": [],
+      "findings": [
+        "P3-1",
+        "P3-2",
+        "P3-3",
+        "P3-4"
+      ],
+      "wrapperControl": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "7408b3cdd952a409b2abe6e99e86d9bf7da324f9e3dad543014326ac84bf6b60",
+        "candidateAfter": "7408b3cdd952a409b2abe6e99e86d9bf7da324f9e3dad543014326ac84bf6b60"
+      },
+      "runtimeExecutedByReviewer": false
+    },
+    {
+      "round": "R2-backend",
+      "candidateCommit": "afe1cb056e1a2ed00e8729d51d44891fbaeec3ec",
+      "candidateTree": "b65521fd58438a88944c48eb8714c9d31ef320fb",
+      "parentSession": "01a18848-cee0-7e33-b52d-c04200c803b8",
+      "nativeChildSession": "01a18849-364e-7b73-bf83-0307ab43c886",
+      "roleMode": "native generic child + canonical role",
+      "verdict": "PASS",
+      "blockingFindings": [],
+      "findings": [],
+      "wrapperControl": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "3050706aa84f7f1ba5d1b08fb42aeae1320901c3c3a5f6bb1e2ecd28923b69a2",
+        "candidateAfter": "3050706aa84f7f1ba5d1b08fb42aeae1320901c3c3a5f6bb1e2ecd28923b69a2"
+      },
+      "runtimeExecutedByReviewer": false,
+      "nativeProof": {
+        "method": "Codex app-server thread/read",
+        "parent": "01a18848-cee0-7e33-b52d-c04200c803b8",
+        "child": "01a18849-364e-7b73-bf83-0307ab43c886",
+        "depth": 1,
+        "agentRole": null,
+        "agentPath": "/root/backend_reviewer"
+      }
+    },
+    {
+      "round": "R2-security",
+      "candidateCommit": "afe1cb056e1a2ed00e8729d51d44891fbaeec3ec",
+      "candidateTree": "b65521fd58438a88944c48eb8714c9d31ef320fb",
+      "parentSession": "9e622f6a-1bc1-48fb-89b3-4ec974dca08e",
+      "nativeChildSession": null,
+      "roleMode": "Claude restricted canonical role Read/Grep/Glob",
+      "verdict": "PASS",
+      "blockingFindings": [],
+      "findings": [
+        "P3-N1"
+      ],
+      "wrapperControl": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "3050706aa84f7f1ba5d1b08fb42aeae1320901c3c3a5f6bb1e2ecd28923b69a2",
+        "candidateAfter": "3050706aa84f7f1ba5d1b08fb42aeae1320901c3c3a5f6bb1e2ecd28923b69a2"
+      },
+      "runtimeExecutedByReviewer": false
+    }
+  ],
+  "dispositions": {
+    "P3-1": "fixed canonical exec keys + transport regression",
+    "P3-2": "fixed sensitive reads; documented trusted CLI HostConfig boundary",
+    "P3-3": "fixed try-all cleanup and redacted aggregate regression",
+    "P3-4": "fixed PATCH error oracle regression all orientations",
+    "P3-N1": "fixed reject all non-ASCII object keys + Unicode negative regression; final source rerun and focused review follow"
+  },
+  "limits": [
+    "Reviewer runtime tests NOT RUN; actual QA reports are separate",
+    "Claude restrictions prevent independent Git/hash computation; orchestrator and Codex backend verify those",
+    "Hosted final-head CI requires publication and is reported in PR"
+  ]
+}

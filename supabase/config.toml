@@ -1,0 +1,71 @@
+# Synthetic Foundation F2 only. Start through scripts/db/cli.ts, never bare CLI:
+# the wrapper creates a project-specific bridge with loopback-only host publishing.
+project_id = "jobs-crm-foundation-f2-template"
+
+[api]
+enabled = true
+port = 56421
+# Empty public is the bootstrap health schema; preflight rejects any public object or user CREATE.
+# Drizzle 0004 activates foundation_poc only after every own object/policy/grant exists.
+schemas = ["public"]
+extra_search_path = ["extensions"]
+max_rows = 1000
+auto_expose_new_tables = false
+
+[db]
+port = 56422
+shadow_port = 56420
+major_version = 17
+health_timeout = "3m"
+
+[db.pooler]
+enabled = false
+
+[db.migrations]
+enabled = false
+schema_paths = []
+
+[db.seed]
+enabled = false
+sql_paths = []
+
+[realtime]
+enabled = false
+
+[studio]
+enabled = false
+port = 56423
+
+[local_smtp]
+enabled = false
+port = 56424
+
+[storage]
+enabled = false
+
+[storage.s3_protocol]
+enabled = false
+
+[storage.vector]
+enabled = false
+
+[auth]
+enabled = true
+site_url = "http://127.0.0.1:56421"
+additional_redirect_urls = []
+enable_signup = false
+enable_anonymous_sign_ins = false
+jwt_expiry = 3600
+minimum_password_length = 12
+
+[auth.email]
+# CLI 2.122 maps this to the email provider switch. Global auth.enable_signup=false
+# still rejects public signup; only admin-created synthetic accounts can sign in.
+enable_signup = true
+enable_confirmations = false
+
+[analytics]
+enabled = false
+
+[edge_runtime]
+enabled = false

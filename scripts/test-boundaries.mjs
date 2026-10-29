@@ -14,7 +14,13 @@ import { expectFailure, run, snapshot } from "./test-fixture.mjs";
 const sourceFixture = mkdtempSync(join(tmpdir(), "jobs-crm-copy-sensitivity-"));
 let copiedFixture;
 try {
-  for (const directory of ["secrets", "private", "src", "node_modules"]) {
+  for (const directory of [
+    "secrets",
+    "private",
+    ".foundation-f2",
+    "src",
+    "node_modules",
+  ]) {
     mkdirSync(join(sourceFixture, directory));
   }
   writeFileSync(
@@ -26,9 +32,18 @@ try {
     "synthetic fixture",
   );
   writeFileSync(join(sourceFixture, ".env.local"), "SYNTHETIC=fixture");
+  writeFileSync(
+    join(sourceFixture, ".foundation-f2/omitted.txt"),
+    "synthetic local target state",
+  );
   writeFileSync(join(sourceFixture, "src/included.ts"), "export {};\n");
   copiedFixture = snapshot(sourceFixture);
-  for (const excluded of ["secrets", "private", ".env.local"]) {
+  for (const excluded of [
+    "secrets",
+    "private",
+    ".env.local",
+    ".foundation-f2",
+  ]) {
     assert.ok(
       !existsSync(join(copiedFixture.directory, excluded)),
       `${excluded} must be omitted`,
@@ -38,7 +53,9 @@ try {
     existsSync(join(copiedFixture.directory, "src/included.ts")),
     "snapshot must retain ordinary source files",
   );
-  console.log("PASS FQA-06 snapshot excludes private, secrets and env files.");
+  console.log(
+    "PASS FQA-06 snapshot excludes private, secrets, env and local F2 state.",
+  );
 } finally {
   copiedFixture?.cleanup();
   rmSync(sourceFixture, { recursive: true, force: true });

@@ -1,0 +1,46 @@
+{
+  "status": "FAIL",
+  "scope": "first local startup network binding; before PoC migration",
+  "projectId": "jobs-crm-f2-primary-ed5d96af91f0",
+  "targetCreatedAt": "2026-10-29T13:54:30.872Z",
+  "networkId": "network-jobs-crm-f2-primary-ed5d96af91f0",
+  "configHash": "fea672ef400040ec3b60f066be5a976632be5369f3eb00c66d4ec852b53588b4",
+  "source": "Root captured docker inspect NetworkSettings.Ports, verified project ownership labels, then stopped exact DB and Kong containers. Platform stopped remaining Auth/PostgREST.",
+  "containers": [
+    {
+      "name": "supabase_kong_jobs-crm-f2-primary-ed5d96af91f0",
+      "id": "e52969edfc0ab60cbe147acb994f38ba2ca6711bba0e6382fc3b2afa560fb004",
+      "ports": {
+        "8000/tcp": [
+          {
+            "HostIp": "0.0.0.0",
+            "HostPort": "56421"
+          },
+          {
+            "HostIp": "::",
+            "HostPort": "56421"
+          }
+        ]
+      }
+    },
+    {
+      "name": "supabase_db_jobs-crm-f2-primary-ed5d96af91f0",
+      "id": "e3ad2296a646ba645d43ee02ff3cb74ff8e011e3d04754429c28c43dd29296ec",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "0.0.0.0",
+            "HostPort": "56422"
+          },
+          {
+            "HostIp": "::",
+            "HostPort": "56422"
+          }
+        ]
+      }
+    }
+  ],
+  "pocMigrationExecutions": 0,
+  "response": "Stopped only verified owned containers; preserved failure manifest; no retry until explicit pre-create binding guard and independent review.",
+  "limitations": "No assertion about external reachability or exposure duration; post-stop inspect snapshot is not evidence of initial bindings."
+}

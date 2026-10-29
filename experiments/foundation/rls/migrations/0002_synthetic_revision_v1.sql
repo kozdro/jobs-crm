@@ -1,0 +1,2 @@
+ALTER TABLE "foundation_poc"."probe_item" ADD COLUMN "revision" integer DEFAULT 0 NOT NULL;--> statement-breakpoint
+ALTER TABLE "foundation_poc"."probe_item" ADD CONSTRAINT "probe_item_revision_nonnegative" CHECK ("foundation_poc"."probe_item"."revision" >= 0);

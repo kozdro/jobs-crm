@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1793281969240,
+      "tag": "0000_synthetic_core_v0",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793281970086,
+      "tag": "0001_synthetic_security_v0",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793281996269,
+      "tag": "0002_synthetic_revision_v1",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793281996962,
+      "tag": "0003_synthetic_invokers_v1",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793285651910,
+      "tag": "0004_synthetic_api_exposure_v1",
+      "breakpoints": true
+    }
+  ]
+}

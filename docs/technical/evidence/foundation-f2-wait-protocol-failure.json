@@ -1,0 +1,329 @@
+{
+  "runId": "2026-10-29T14-27-04-626Z-98b79b58",
+  "baseSha": "d0c645f48e323cae722720d4262cba2d558e6fd0",
+  "generatedAt": "2026-10-29T14:33:35.243Z",
+  "command": "pnpm test:integration:f2",
+  "node": "v24.22.2",
+  "model": "inherited NOT EXPOSED",
+  "role": "native generic subagent + canonical qa-engineer",
+  "status": "FAIL",
+  "suiteComplete": false,
+  "tests": 0,
+  "passed": 0,
+  "failed": 0,
+  "skipped": 0,
+  "outcomes": [],
+  "coverage": {
+    "fqa": [
+      {
+        "id": "FQA-10",
+        "status": "NOT RUN",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-qa.md FQA-10 contract",
+        "observed": [],
+        "reason": "Required setup or earlier dependent case did not complete; no assertion execution for this ID",
+        "evidence": "2026-10-29T14-27-04-626Z-98b79b58.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "FQA-11",
+        "status": "NOT RUN",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-qa.md FQA-11 contract",
+        "observed": [],
+        "reason": "Required setup or earlier dependent case did not complete; no assertion execution for this ID",
+        "evidence": "2026-10-29T14-27-04-626Z-98b79b58.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "FQA-12",
+        "status": "NOT RUN",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-qa.md FQA-12 contract",
+        "observed": [],
+        "reason": "Required setup or earlier dependent case did not complete; no assertion execution for this ID",
+        "evidence": "2026-10-29T14-27-04-626Z-98b79b58.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "FQA-13",
+        "status": "NOT RUN",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-qa.md FQA-13 contract",
+        "observed": [],
+        "reason": "Required setup or earlier dependent case did not complete; no assertion execution for this ID",
+        "evidence": "2026-10-29T14-27-04-626Z-98b79b58.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "FQA-14",
+        "status": "NOT RUN",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-qa.md FQA-14 contract",
+        "observed": [],
+        "reason": "Required setup or earlier dependent case did not complete; no assertion execution for this ID",
+        "evidence": "2026-10-29T14-27-04-626Z-98b79b58.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "FQA-15",
+        "status": "NOT RUN",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-qa.md FQA-15 contract",
+        "observed": [],
+        "reason": "Required setup or earlier dependent case did not complete; no assertion execution for this ID",
+        "evidence": "2026-10-29T14-27-04-626Z-98b79b58.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "FQA-16",
+        "status": "NOT RUN",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-qa.md FQA-16 contract",
+        "observed": [],
+        "reason": "Required setup or earlier dependent case did not complete; no assertion execution for this ID",
+        "evidence": "2026-10-29T14-27-04-626Z-98b79b58.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "FQA-17",
+        "status": "NOT RUN",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-qa.md FQA-17 contract",
+        "observed": [],
+        "reason": "Required setup or earlier dependent case did not complete; no assertion execution for this ID",
+        "evidence": "2026-10-29T14-27-04-626Z-98b79b58.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "FQA-18",
+        "status": "NOT RUN",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-qa.md FQA-18 contract",
+        "observed": [],
+        "reason": "Required setup or earlier dependent case did not complete; no assertion execution for this ID",
+        "evidence": "2026-10-29T14-27-04-626Z-98b79b58.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "FQA-19",
+        "status": "NOT RUN",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-qa.md FQA-19 contract",
+        "observed": [],
+        "reason": "Required setup or earlier dependent case did not complete; no assertion execution for this ID",
+        "evidence": "2026-10-29T14-27-04-626Z-98b79b58.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "FQA-20",
+        "status": "NOT RUN",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-qa.md FQA-20 contract",
+        "observed": [],
+        "reason": "Required setup or earlier dependent case did not complete; no assertion execution for this ID",
+        "evidence": "2026-10-29T14-27-04-626Z-98b79b58.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "FQA-21",
+        "status": "NOT RUN",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-qa.md FQA-21 contract",
+        "observed": [],
+        "reason": "Required setup or earlier dependent case did not complete; no assertion execution for this ID",
+        "evidence": "2026-10-29T14-27-04-626Z-98b79b58.json",
+        "command": "pnpm test:integration:f2"
+      }
+    ],
+    "rls": [
+      {
+        "id": "RLS-01",
+        "status": "NOT RUN",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-pocs.md RLS-01 contract",
+        "observed": [],
+        "reason": "Required setup or earlier dependent case did not complete; no assertion execution for this ID",
+        "evidence": "2026-10-29T14-27-04-626Z-98b79b58.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "RLS-02",
+        "status": "NOT RUN",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-pocs.md RLS-02 contract",
+        "observed": [],
+        "reason": "Required setup or earlier dependent case did not complete; no assertion execution for this ID",
+        "evidence": "2026-10-29T14-27-04-626Z-98b79b58.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "RLS-03",
+        "status": "NOT RUN",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-pocs.md RLS-03 contract",
+        "observed": [],
+        "reason": "Required setup or earlier dependent case did not complete; no assertion execution for this ID",
+        "evidence": "2026-10-29T14-27-04-626Z-98b79b58.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "RLS-04",
+        "status": "NOT RUN",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-pocs.md RLS-04 contract",
+        "observed": [],
+        "reason": "Required setup or earlier dependent case did not complete; no assertion execution for this ID",
+        "evidence": "2026-10-29T14-27-04-626Z-98b79b58.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "RLS-05",
+        "status": "NOT RUN",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-pocs.md RLS-05 contract",
+        "observed": [],
+        "reason": "Required setup or earlier dependent case did not complete; no assertion execution for this ID",
+        "evidence": "2026-10-29T14-27-04-626Z-98b79b58.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "RLS-06",
+        "status": "NOT RUN",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-pocs.md RLS-06 contract",
+        "observed": [],
+        "reason": "Required setup or earlier dependent case did not complete; no assertion execution for this ID",
+        "evidence": "2026-10-29T14-27-04-626Z-98b79b58.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "RLS-07",
+        "status": "NOT RUN",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-pocs.md RLS-07 contract",
+        "observed": [],
+        "reason": "Required setup or earlier dependent case did not complete; no assertion execution for this ID",
+        "evidence": "2026-10-29T14-27-04-626Z-98b79b58.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "RLS-08",
+        "status": "NOT RUN",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-pocs.md RLS-08 contract",
+        "observed": [],
+        "reason": "Required setup or earlier dependent case did not complete; no assertion execution for this ID",
+        "evidence": "2026-10-29T14-27-04-626Z-98b79b58.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "RLS-09",
+        "status": "NOT RUN",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-pocs.md RLS-09 contract",
+        "observed": [],
+        "reason": "Required setup or earlier dependent case did not complete; no assertion execution for this ID",
+        "evidence": "2026-10-29T14-27-04-626Z-98b79b58.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "RLS-10",
+        "status": "NOT RUN",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-pocs.md RLS-10 contract",
+        "observed": [],
+        "reason": "Required setup or earlier dependent case did not complete; no assertion execution for this ID",
+        "evidence": "2026-10-29T14-27-04-626Z-98b79b58.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "RLS-11",
+        "status": "NOT RUN",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-pocs.md RLS-11 contract",
+        "observed": [],
+        "reason": "Required setup or earlier dependent case did not complete; no assertion execution for this ID",
+        "evidence": "2026-10-29T14-27-04-626Z-98b79b58.json",
+        "command": "pnpm test:integration:f2"
+      },
+      {
+        "id": "RLS-12",
+        "status": "NOT RUN",
+        "environment": "Supabase Local owned disposable baseline/replica/fault",
+        "initial": "Fresh guarded local targets and synthetic fixture A/B; see executable cases",
+        "expected": "foundation-pocs.md RLS-12 contract",
+        "observed": [],
+        "reason": "Required setup or earlier dependent case did not complete; no assertion execution for this ID",
+        "evidence": "2026-10-29T14-27-04-626Z-98b79b58.json",
+        "command": "pnpm test:integration:f2"
+      }
+    ]
+  },
+  "versions": [],
+  "sources": {
+    "tests/integration/migrations/checks.ts": "1dffdce71213aeefe63a86fda640e7f9ebf0aa58ea5c3eadc61d6f578c229064",
+    "tests/integration/rls/catalog.ts": "79d1a52611035fd933aeebeb98434446b7e31905807ae5cbc730ab2c9505f1b4",
+    "tests/integration/rls/data-api.ts": "c45809185b41799bae929e7020dd900b19f0f2b2a83f6d465a66f129c9d4af1b",
+    "tests/integration/rls/f2.test.ts": "e213ab1cf5e8255e64bdfdf8ca17805dd777f021387e62a15f09c6eaa96ff116",
+    "tests/integration/rls/matrix.ts": "393589b81c2890b08edb425f80a046d57a1c66a8ab68b33af760d44442d667f2",
+    "experiments/foundation/rls/README.md": "8cbc8c6fe1d8faec08422501eec7538744466d3cb1e7a7ae2ef643c1f3cec0ba",
+    "experiments/foundation/rls/migrations/0000_synthetic_core_v0.sql": "a7e1558de733f65feecf8a9994146f46cec8acfeb75a11c389d5cf467de7ca4e",
+    "experiments/foundation/rls/migrations/0001_synthetic_security_v0.sql": "d36a7d7c266d5ecc0a11e180ae6d69fb5d620886c8c4b79a057b2f49881f87a8",
+    "experiments/foundation/rls/migrations/0002_synthetic_revision_v1.sql": "0376fbe76bf974d6ea6d75d9c12db9dd06d452efe233117db87e4ca96fc2414b",
+    "experiments/foundation/rls/migrations/0003_synthetic_invokers_v1.sql": "dc56d9e86f51a0030ad3e8c63b5faca2fb9b3dd08dadfd96fee01e6f4ca5ad58",
+    "experiments/foundation/rls/migrations/meta/0000_snapshot.json": "dffb4f9e0afdd625e4eff78de4cf9543547a7ead484e092a88fe293b362bd276",
+    "experiments/foundation/rls/migrations/meta/0001_snapshot.json": "11a36108469243ee2bba980ecf86d33fdaf8e523041de99b7bf0dd25e2423f34",
+    "experiments/foundation/rls/migrations/meta/0002_snapshot.json": "d055ab1063c2234ddf581655cacc2ed9aa23406c192db455c56af51263bd8f92",
+    "experiments/foundation/rls/migrations/meta/0003_snapshot.json": "449316511a527f02ff30f8ce3430e5485eae05edd52bb6fe7ff063bc491b4dbe",
+    "experiments/foundation/rls/migrations/meta/_journal.json": "813e5feff76d57d5cb5aa9843fe5b19f2ce97d4f91b5f4964bde5d256b083173",
+    "experiments/foundation/rls/schema.ts": "f10f1448621133a697b3cf91f17167d5b134d6656ba8dfbfd698649765181b1f",
+    "scripts/db/cleanup-targets.test.ts": "b3b987e4329fcbb8211764dd86d402510a9c625bfaea67d4d738d2e83f30f25a",
+    "scripts/db/cleanup-targets.ts": "29e702cd2732001fbf97eb779750a36da2fabe102774cf92d9fe2e76e74fd815",
+    "scripts/db/cleanup.ts": "08a8b4e96bacbc766bcda8158267614bb6f1bc3dd288f0f0371f7f0ea7c34894",
+    "scripts/db/cli.ts": "0a31491b6a029c767a21bcdd5bd10868be64b22820184e01e56f5f53aae34d63",
+    "scripts/db/docker-cli-contract.test.ts": "238fa944f4fa474e8d03f56d7878980925b721dec7e7c78887eeee4345696b86",
+    "scripts/db/docker-guard.test.ts": "c0e702e929a975d75d084a2361cd5955e10d864eccf1b733c94bef4f028cc485",
+    "scripts/db/docker-guard.ts": "3d03bfd23abaf90c0bab3861d2833d3f00da6987ffa40946a928ecfeda783e4d",
+    "scripts/db/f2.ts": "2745a4aab459666618953962fb01787735dc10c1a578ccfee55de1e79445b3c4",
+    "scripts/db/preflight-validation.test.ts": "a62dd46b5c2b90716f1764679d980467fba37e774be32f76d7ee904f0706ba94",
+    "scripts/db/preflight-validation.ts": "2a37c032f0477ebfa0db754e0b69a2eb10fd9e7a0fd1fe19b7cfd2b9c60acdec",
+    "scripts/db/service-versions.ts": "e357ae8eaa39a3169099fabec265a250500b2f2b93b7b5e262f6ba6f6a7bb3ef"
+  },
+  "manifests": {},
+  "deferred": [
+    {
+      "scope": "BFF/session end-to-end",
+      "status": "NOT RUN",
+      "reason": "F3"
+    },
+    {
+      "scope": "atomic RPC and idempotency registry",
+      "status": "NOT RUN",
+      "reason": "F4"
+    }
+  ]
+}

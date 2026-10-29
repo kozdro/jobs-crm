@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "incremental": false,
+    "types": ["node"],
+    "plugins": []
+  },
+  "include": [
+    "scripts/db/**/*.ts",
+    "experiments/foundation/rls/**/*.ts",
+    "tests/integration/**/*.ts",
+    "drizzle.f2.config.ts"
+  ],
+  "exclude": ["node_modules", "tests/fixtures"]
+}

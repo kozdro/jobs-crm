@@ -1,5 +1,7 @@
 # Foundation — środowiska, migracje i operacje
 
+**Aktualizacja F2, 2026-10-29:** lokalny syntetyczny stack i migrator mają osobną autoryzację wykonania. Aktualna konfiguracja, bezpieczne komendy, wersje i rzeczywiste wyniki są w [raporcie F2](foundation-f2.md). Historyczny status planowania poniżej nie stanowi bieżącego wyniku F2; cloud/worker/DR pozostają poza tym zleceniem.
+
 **Stan:** DRAFT / PROPOSED plan wykonania, 2026-10-28. **Wykonanie:** wszystkie poniższe testy aplikacji i infrastruktury `PLANNED / NOT RUN`. Dokument nie autoryzuje instalacji, migracji, provisioning ani usług płatnych. Główny zakres i kolejność: [Foundation Plan](foundation-plan.md).
 
 Podstawa: TD1.17–1.21, 1.24, 1.28–1.30, 1.33–1.36, 1.38; [ADR-0007/0009/0010](../decisions/adr/README.md), [operacje](operations-and-quality.md), [dane](data-and-persistence.md), [bramki](gates-and-impacts.md). Zatwierdzone są dev lokalny + prod, Render Web Service + osobny Background Worker, Supabase PostgreSQL/Auth/private Storage i pgmq Basic; staging później. Szczegóły konfiguracji, koszty i wyniki walidacji nie są zatwierdzonymi faktami.
