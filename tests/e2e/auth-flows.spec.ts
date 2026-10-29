@@ -4,7 +4,7 @@ import {
   mailLink,
   syntheticCredentials,
   sdk,
-  verificationCode,
+  verificationRedirect,
   type Account,
   type AuthTarget,
 } from "../integration/auth/fixtures.ts";
@@ -370,8 +370,7 @@ test("AUTH-14 FQA-57 self-service browser signup confirms in same PKCE context a
     (await context.request.get(`${target.appOrigin}/auth/user`)).status(),
   ).toBe(401);
   const link = await mailLink(target, credentials.email, "signup");
-  const code = await verificationCode(link, target);
-  const callback = `${target.appOrigin}/auth/callback?code=${encodeURIComponent(code)}`;
+  const { callback } = await verificationRedirect(link, target, "/account");
   const foreign = await browser.newContext({ ignoreHTTPSErrors: true });
   try {
     const wrongContext = await foreign.request.get(callback, {
@@ -784,11 +783,11 @@ test("AUTH-02/06 FQA-25/28 attacker PKCE and implicit fragments cannot replace a
       .getByRole("button", { name: "Utwórz konto", exact: true })
       .click();
     await expect(attackerPage.getByRole("status")).toBeVisible();
-    const code = await verificationCode(
+    const { callback } = await verificationRedirect(
       await mailLink(target, credentials.email, "signup"),
       target,
+      "/account",
     );
-    const callback = `${target.appOrigin}/auth/callback?code=${encodeURIComponent(code)}`;
     await safeAuthNavigation(victimPage, callback);
     await expect(victimPage).toHaveURL(/\/login\?error=callback$/);
     await identity(victim, target.appOrigin, owner);

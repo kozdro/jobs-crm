@@ -112,10 +112,12 @@ export async function mailLink(
   }
   throw new Error("Expected synthetic verification message did not arrive");
 }
-export async function verificationCode(
+/** Verify the provider's actual redirect, not a reconstructed callback URL. */
+export async function verificationRedirect(
   link: string,
   target: AuthTarget,
-): Promise<string> {
+  expectedNext: "/account" | "/reset-password" | null,
+): Promise<{ code: string; callback: string }> {
   const response = await fetch(link, {
     redirect: "manual",
     signal: AbortSignal.timeout(15000),
@@ -128,11 +130,30 @@ export async function verificationCode(
   const location = response.headers.get("location");
   assert.ok(location, "Verification callback missing");
   const url = new URL(location);
-  assert.ok(url.origin === target.appOrigin, "Auth callback origin mismatch");
-  const code = url.searchParams.get("code");
-  assert.ok(
-    code && !url.hash,
-    "PKCE callback must contain code, never access token",
+  assert.equal(url.origin, target.appOrigin, "Auth callback origin mismatch");
+  assert.equal(url.pathname, "/auth/callback", "Wrong Auth callback path");
+  assert.equal(url.username, "", "Callback must not contain credentials");
+  assert.equal(url.password, "", "Callback must not contain credentials");
+  assert.equal(url.hash, "", "Callback must not contain fragment tokens");
+  assert.deepEqual(
+    url.searchParams.getAll("next"),
+    expectedNext === null ? [] : [expectedNext],
+    "Provider did not preserve the requested callback destination",
   );
-  return code;
+  assert.deepEqual(
+    [...url.searchParams.keys()].sort(),
+    expectedNext === null ? ["code"] : ["code", "next"],
+    "Unexpected or repeated callback query parameters",
+  );
+  const code = url.searchParams.get("code");
+  assert.ok(code, "PKCE callback must contain a code");
+  return { code, callback: url.href };
+}
+
+export async function verificationCode(
+  link: string,
+  target: AuthTarget,
+  expectedNext: "/account" | "/reset-password" | null = null,
+): Promise<string> {
+  return (await verificationRedirect(link, target, expectedNext)).code;
 }

@@ -407,7 +407,7 @@ export async function runAuthSdkCases(
         "recovery request",
       );
       const link = await mailLink(target, user.email, "recovery");
-      const code = await verificationCode(link, target);
+      const code = await verificationCode(link, target, "/reset-password");
       const wrongContext = sdk(target);
       // A distinct PKCE verifier must not be accepted for this recovery code.
       success(

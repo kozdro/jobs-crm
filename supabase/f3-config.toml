@@ -52,7 +52,12 @@ enabled = false
 [auth]
 enabled = true
 site_url = "https://127.0.0.1:3143"
-additional_redirect_urls = ["https://127.0.0.1:3143/auth/callback", "https://127.0.0.1:3143/auth/callback?next=/reset-password", "https://127.0.0.1:3144/auth/callback"]
+additional_redirect_urls = [
+  "https://127.0.0.1:3143/auth/callback",
+  "https://127.0.0.1:3143/auth/callback?next=/account",
+  "https://127.0.0.1:3143/auth/callback?next=/reset-password",
+  "https://127.0.0.1:3144/auth/callback",
+]
 enable_signup = true
 enable_anonymous_sign_ins = false
 jwt_expiry = 60
