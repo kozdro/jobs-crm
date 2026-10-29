@@ -79,7 +79,28 @@ test("TAP and Playwright counts plus whitelisted observation values are retained
   output.push(
     'ℹ tests 12\nℹ pass 12\nℹ fail 0\n  7 passed (1m)\nF3_SIGNUP_OBSERVATION {"confirmationsFixture":true,"newEmail":{"userReturned":true,"sessionReturned":false,"identityCount":1,"errorCode":null},"existingEmail":{"userReturned":true,"sessionReturned":false,"identityCount":0,"errorCode":null},"productionAntiEnumerationPolicy":"OPEN-041/013"}',
   );
+  const replay = {
+    scope: "others",
+    currentRefreshSessionRevoked: false,
+    sampledSession: "other",
+    sampleRefreshSessionRevoked: true,
+    issuedAt: 1000,
+    exp: 1060,
+    scopeAppliedAt: 1001,
+    lastValidAt: 1059,
+    firstDeniedAt: 1061,
+    observedValidAfterLogoutSeconds: 58,
+    firstDeniedAfterExpSeconds: 1,
+  };
+  output.push("\nF3_JWT_REPLAY " + JSON.stringify(replay));
   const summary = output.verify();
+  assert.deepEqual(summary.observations[1].values, replay);
+  const unrevoked = capture();
+  unrevoked.push(
+    "F3_JWT_REPLAY " +
+      JSON.stringify({ ...replay, sampleRefreshSessionRevoked: false }),
+  );
+  assert.throws(() => unrevoked.verify(), /safe field validation/);
   assert.equal(summary.counts.tests, 12);
   assert.equal(summary.counts.passed, 7);
   assert.equal(summary.counts.failed, 0);
@@ -111,11 +132,32 @@ test("zero or partial reporter evidence cannot give successful Auth measurement 
     "F3_SIGNUP_OBSERVATION",
     "F3_RECOVERY_SESSION_OBSERVATION",
     "F3_PASSWORD_POLICY_OBSERVATION",
-  ].map((kind) => ({ kind, values: { scope: "local" } }));
+  ].map((kind) => ({
+    kind,
+    values: {
+      scope: "local",
+      sampledSession: "current",
+      sampleRefreshSessionRevoked: true,
+    },
+  }));
   assert.throws(() => requireAuthObservations(summary, "sdk"), /three-scope/);
   summary.observations.push(
-    { kind: "F3_JWT_REPLAY", values: { scope: "global" } },
-    { kind: "F3_JWT_REPLAY", values: { scope: "others" } },
+    {
+      kind: "F3_JWT_REPLAY",
+      values: {
+        scope: "global",
+        sampledSession: "current",
+        sampleRefreshSessionRevoked: true,
+      },
+    },
+    {
+      kind: "F3_JWT_REPLAY",
+      values: {
+        scope: "others",
+        sampledSession: "other",
+        sampleRefreshSessionRevoked: true,
+      },
+    },
   );
   assert.doesNotThrow(() => requireAuthObservations(summary, "sdk"));
   assert.throws(

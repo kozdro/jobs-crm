@@ -47,6 +47,8 @@ const observationSchemas = {
   F3_JWT_REPLAY: z.strictObject({
     scope: z.enum(["local", "global", "others"]),
     currentRefreshSessionRevoked: z.boolean(),
+    sampledSession: z.enum(["current", "other"]),
+    sampleRefreshSessionRevoked: z.literal(true),
     issuedAt: n,
     exp: n,
     scopeAppliedAt: n,

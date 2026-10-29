@@ -39,6 +39,7 @@ export async function runAuthSdkCases(
     ownId: string;
     foreignId: string;
     scope: string;
+    sampledSession: "current" | "other";
     scopeAppliedAtMs: number;
     issuedAt: number;
     lastValidAtMs: number;
@@ -253,9 +254,11 @@ export async function runAuthSdkCases(
         const refreshedB = await unrelated.client.auth.refreshSession();
         success(refreshedB.error, "B unaffected refresh");
         assert.ok(refreshedB.data.user?.id === b.id);
+        // others preserves current: replay the copied JWT of a session whose refresh was actually revoked.
+        const sampled = scope === "others" ? other : current;
         const access = await request(
           target,
-          current.session.access_token,
+          sampled.session.access_token,
           rest("probe_item", `id=eq.${fa.probe_item.id}`),
         );
         assert.equal(
@@ -267,7 +270,7 @@ export async function runAuthSdkCases(
           rows(
             await request(
               target,
-              current.session.access_token,
+              sampled.session.access_token,
               rest("probe_item", `id=eq.${fb.probe_item.id}`),
             ),
           ).length,
@@ -276,7 +279,7 @@ export async function runAuthSdkCases(
         );
         const claims = JSON.parse(
           Buffer.from(
-            current.session.access_token.split(".")[1],
+            sampled.session.access_token.split(".")[1],
             "base64url",
           ).toString(),
         ) as { iat: number };
@@ -285,7 +288,8 @@ export async function runAuthSdkCases(
           "Replay sample must have actual issued-at claim",
         );
         replay.push({
-          session: current.session,
+          session: sampled.session,
+          sampledSession: scope === "others" ? "other" : "current",
           scopeAppliedAtMs,
           issuedAt: claims.iat,
           lastValidAtMs: Date.now(),
@@ -572,6 +576,8 @@ export async function runAuthSdkCases(
             JSON.stringify({
               scope: entry.scope,
               currentRefreshSessionRevoked: entry.scope !== "others",
+              sampledSession: entry.sampledSession,
+              sampleRefreshSessionRevoked: true,
               issuedAt: entry.issuedAt,
               exp: entry.session.expires_at,
               scopeAppliedAt: entry.scopeAppliedAtMs / 1000,
