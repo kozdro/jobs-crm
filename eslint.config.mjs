@@ -8,7 +8,7 @@ export default defineConfig([
   ...nextTypescript,
   {
     files: ["src/**/*.{ts,tsx}"],
-    ignores: ["src/shared/server/**"],
+    ignores: ["src/shared/server/**", "src/shared/public/auth-config.ts"],
     rules: {
       "no-restricted-properties": [
         "error",

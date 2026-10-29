@@ -10,6 +10,8 @@ interface Scope {
   projectId: string;
   networkId: string;
   workdir: string;
+  publishedPorts?: Readonly<Record<string, string>>;
+  networkLabel?: string;
 }
 class GuardRefusal extends Error {}
 const nonEmpty = (value: unknown) =>
@@ -107,12 +109,16 @@ export function guardCreate(
     { HostIp?: string; HostPort?: string }[]
   >;
   for (const [port, values] of Object.entries(bindings)) {
-    if (!["5432/tcp", "8000/tcp"].includes(port))
+    const allowedPorts = scope.publishedPorts ?? {
+      "5432/tcp": "56422",
+      "8000/tcp": "56421",
+    };
+    if (!Object.hasOwn(allowedPorts, port))
       throw new GuardRefusal("Unexpected published service refused");
     for (const value of values) {
       if (value.HostIp && value.HostIp !== "127.0.0.1")
         throw new GuardRefusal("Explicit non-loopback bind refused");
-      if (value.HostPort !== (port === "5432/tcp" ? "56422" : "56421"))
+      if (value.HostPort !== allowedPorts[port])
         throw new GuardRefusal("Unexpected published port refused");
       value.HostIp = "127.0.0.1";
     }
@@ -354,7 +360,8 @@ export async function createDockerGuard(originalSocket: string, scope: Scope) {
         const network = JSON.parse(existing.body.toString());
         if (
           network.Name !== scope.networkId ||
-          network.Labels?.["jobs-crm.foundation-f2"] !== scope.projectId ||
+          network.Labels?.[scope.networkLabel ?? "jobs-crm.foundation-f2"] !==
+            scope.projectId ||
           network.Options?.["com.docker.network.bridge.host_binding_ipv4"] !==
             "127.0.0.1"
         )

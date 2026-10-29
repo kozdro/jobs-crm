@@ -1,0 +1,80 @@
+# Synthetic Foundation F3 only. Start through scripts/auth/runner.ts, never bare CLI:
+# the wrapper creates a project-specific bridge with loopback-only host publishing.
+project_id = "jobs-crm-foundation-f3-template"
+
+[api]
+enabled = true
+port = 56521
+# Empty public is the bootstrap health schema; preflight rejects any public object or user CREATE.
+# Drizzle 0004 activates foundation_poc only after every own object/policy/grant exists.
+schemas = ["public"]
+extra_search_path = ["extensions"]
+max_rows = 1000
+auto_expose_new_tables = false
+
+[db]
+port = 56522
+shadow_port = 56520
+major_version = 17
+health_timeout = "3m"
+
+[db.pooler]
+enabled = false
+
+[db.migrations]
+enabled = false
+schema_paths = []
+
+[db.seed]
+enabled = false
+sql_paths = []
+
+[realtime]
+enabled = false
+
+[studio]
+enabled = false
+port = 56523
+
+[local_smtp]
+enabled = true
+port = 56524
+
+[storage]
+enabled = false
+
+[storage.s3_protocol]
+enabled = false
+
+[storage.vector]
+enabled = false
+
+[auth]
+enabled = true
+site_url = "https://127.0.0.1:3143"
+additional_redirect_urls = ["https://127.0.0.1:3143/auth/callback", "https://127.0.0.1:3143/auth/callback?next=/reset-password", "https://127.0.0.1:3144/auth/callback"]
+enable_signup = true
+enable_anonymous_sign_ins = false
+jwt_expiry = 60
+minimum_password_length = 12
+
+[auth.email]
+# Local-only test values. These are not production activation, TTL or reauth policy.
+enable_signup = true
+enable_confirmations = true
+
+secure_password_change = true
+max_frequency = "1s"
+otp_expiry = 60
+
+[auth.rate_limit]
+email_sent = 1000
+sign_in_sign_ups = 1000
+token_refresh = 1000
+token_verifications = 1000
+
+[analytics]
+enabled = false
+
+[edge_runtime]
+enabled = false

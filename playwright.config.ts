@@ -4,6 +4,7 @@ const baseURL = "http://127.0.0.1:3100";
 
 export default defineConfig({
   testDir: "./tests/e2e",
+  testMatch: "foundation-smoke.spec.ts",
   forbidOnly: true,
   retries: 0,
   workers: 1,

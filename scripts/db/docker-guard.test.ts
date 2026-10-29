@@ -650,3 +650,29 @@ test(
     }
   },
 );
+
+test("F3 opt-in port profile permits only its exact loopback mail/API/DB ports", () => {
+  const f3 = {
+    ...scope,
+    publishedPorts: {
+      "8025/tcp": "56524",
+      "8000/tcp": "56521",
+      "5432/tcp": "56522",
+    },
+  };
+  const p = {
+    ...payload(),
+    HostConfig: {
+      ...payload().HostConfig,
+      PortBindings: {
+        "8025/tcp": [{ HostIp: "", HostPort: "56524" }],
+      },
+    },
+  };
+  assert.equal(guardCreate(p, name, f3), p);
+  assert.equal(p.HostConfig.PortBindings["8025/tcp"][0].HostIp, "127.0.0.1");
+  assert.throws(() => guardCreate(payload(), name, f3));
+  assert.throws(() => guardCreate(p, name, scope));
+  p.HostConfig.PortBindings["8025/tcp"][0].HostPort = "56525";
+  assert.throws(() => guardCreate(p, name, f3));
+});

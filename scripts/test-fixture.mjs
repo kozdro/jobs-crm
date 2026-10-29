@@ -15,6 +15,7 @@ export function snapshot(sourceRoot = root) {
     ".next",
     ".harness-runs",
     ".foundation-f2",
+    ".foundation-f3",
     "test-results",
     "playwright-report",
     "secrets",

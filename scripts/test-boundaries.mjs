@@ -18,6 +18,7 @@ try {
     "secrets",
     "private",
     ".foundation-f2",
+    ".foundation-f3",
     "src",
     "node_modules",
   ]) {
@@ -36,6 +37,10 @@ try {
     join(sourceFixture, ".foundation-f2/omitted.txt"),
     "synthetic local target state",
   );
+  writeFileSync(
+    join(sourceFixture, ".foundation-f3/omitted.txt"),
+    "synthetic local auth state",
+  );
   writeFileSync(join(sourceFixture, "src/included.ts"), "export {};\n");
   copiedFixture = snapshot(sourceFixture);
   for (const excluded of [
@@ -43,6 +48,7 @@ try {
     "private",
     ".env.local",
     ".foundation-f2",
+    ".foundation-f3",
   ]) {
     assert.ok(
       !existsSync(join(copiedFixture.directory, excluded)),

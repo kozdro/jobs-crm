@@ -10,6 +10,7 @@
   },
   "include": [
     "scripts/db/**/*.ts",
+    "scripts/auth/**/*.ts",
     "experiments/foundation/rls/**/*.ts",
     "tests/integration/**/*.ts",
     "drizzle.f2.config.ts"
