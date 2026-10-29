@@ -1,0 +1,75 @@
+{
+  "headSha": "411309bed8cdb7bc54695b97d53ea9c16599e996",
+  "runId": 40907885342,
+  "url": "https://github.com/kozdro/jobs-crm/actions/runs/40907885342",
+  "status": "FAIL",
+  "environment": {
+    "os": "Ubuntu 24.04.5 linux/amd64",
+    "dockerClient": "28.0.4",
+    "dockerServer": "28.0.4",
+    "dockerApi": "1.48",
+    "node": "24.22.2",
+    "pnpm": "12.16.1"
+  },
+  "checkoutShaVerifiedFromLog": true,
+  "f2ExecutedChildCases": 0,
+  "f2Failure": "Guard refused POST /images/create: Unexpected image pull refused; cold image cache on hosted Linux",
+  "jobs": [
+    {
+      "id": 123567542251,
+      "name": "typecheck",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 123567542325,
+      "name": "F2 local migrations and RLS",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 123567542458,
+      "name": "Harness checks",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 123567542508,
+      "name": "lint",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 123567542670,
+      "name": "test:unit",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 123567542755,
+      "name": "format:check",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 123567543335,
+      "name": "test:boundaries",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 123567948172,
+      "name": "Production build and smoke",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 123568802082,
+      "name": "Foundation required",
+      "status": "completed",
+      "conclusion": "failure"
+    }
+  ],
+  "cleanup": "F2 always cleanup succeeded; no cloud/prod secrets or hosted Supabase",
+  "response": "No blind rerun; investigate exact pinned CLI registry reference, add cold-pull contract, rerun reviewed successor SHA"
+}

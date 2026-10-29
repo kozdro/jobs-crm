@@ -264,7 +264,7 @@ export async function createDockerGuard(originalSocket: string, scope: Scope) {
     }
     if (method === "POST" && route === "/images/create") {
       if (
-        !/^(public\.ecr\.aws\/supabase\/|ghcr\.io\/supabase\/|supabase\/)/.test(
+        !/^(public\.ecr\.aws\/supabase\/|ghcr\.io\/supabase\/|docker\.io\/supabase\/|supabase\/)/.test(
           u.searchParams.get("fromImage") ?? "",
         )
       )

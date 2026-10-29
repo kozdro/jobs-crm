@@ -111,29 +111,32 @@ test("actual Docker CLI serialization for all four pinned services and Auth-only
         ),
       );
     }
-    await assert.rejects(
-      exec(
-        "docker",
-        [
-          "run",
-          "--rm",
-          ...common,
-          "public.ecr.aws/supabase/gotrue:v2.197.0",
-          "gotrue",
-          "migrate",
-        ],
-        {
+    for (const image of [
+      "public.ecr.aws/supabase/gotrue:v2.197.0",
+      "ghcr.io/supabase/gotrue:v2.197.0",
+      "supabase/gotrue:v2.197.0",
+    ]) {
+      await assert.rejects(
+        exec("docker", ["run", "--rm", ...common, image, "gotrue", "migrate"], {
           env: {
             ...process.env,
             DOCKER_HOST: `unix://${socket}`,
             DOCKER_CONTEXT: undefined,
           },
           timeout: 10000,
-        },
-      ),
-    );
+        }),
+      );
+    }
     assert.deepEqual(failures, []);
-    assert.equal(observations.length, 5);
+    assert.equal(observations.length, 7);
+    assert.deepEqual(
+      observations.slice(4).map((o) => o.body.Image),
+      [
+        "public.ecr.aws/supabase/gotrue:v2.197.0",
+        "ghcr.io/supabase/gotrue:v2.197.0",
+        "supabase/gotrue:v2.197.0",
+      ],
+    );
     assert.match(
       observations[4].name,
       new RegExp(`^supabase_auth_migrate_[a-f0-9]{12}_${scope.projectId}$`),
@@ -298,6 +301,113 @@ test(
     } finally {
       attach?.destroy();
       for (const waiter of waiters) waiter.destroy();
+      await guard.close();
+      server.closeAllConnections();
+      await new Promise<void>((ok) => server.close(() => ok()));
+      await rm(dir, { recursive: true, force: true });
+    }
+  },
+);
+
+// A cold cache follows docker pull; Docker normalizes the official Hub shorthand before the API call.
+test(
+  "actual Docker cold-pull serialization permits only official Supabase registry aliases",
+  { timeout: 15000 },
+  async () => {
+    const { createDockerGuard } = await import("./docker-guard.ts");
+    const dir = await mkdtemp(join(tmpdir(), "jobs-f2-cold-pull-"));
+    const original = join(dir, "docker.sock");
+    const { mkdir, writeFile } = await import("node:fs/promises");
+    const config = join(dir, "client-config");
+    await mkdir(config);
+    await writeFile(join(config, "config.json"), "{}", { mode: 0o600 });
+    const pulls: { image: string; tag: string | null }[] = [];
+    const server = http.createServer((req, res) => {
+      const u = new URL(req.url ?? "/", "http://mock");
+      const route = u.pathname.replace(/^\/v[0-9.]+/, "");
+      if (route === "/_ping") {
+        res.setHeader("Api-Version", "1.48");
+        res.end("OK");
+        return;
+      }
+      if (route === "/version") {
+        res.end(JSON.stringify({ ApiVersion: "1.48", MinAPIVersion: "1.24" }));
+        return;
+      }
+      if (req.method === "POST" && route === "/images/create") {
+        pulls.push({
+          image: u.searchParams.get("fromImage") ?? "",
+          tag: u.searchParams.get("tag"),
+        });
+        res.writeHead(200, { "content-type": "application/json" });
+        res.end('{"status":"Download complete"}\n');
+        return;
+      }
+      res.writeHead(404);
+      res.end('{"message":"No other mock action is allowed"}');
+    });
+    await new Promise<void>((ok) => server.listen(original, ok));
+    const guard = await createDockerGuard(original, scope);
+    const pull = (image: string, host: string) =>
+      exec("docker", ["pull", image], {
+        env: {
+          ...process.env,
+          DOCKER_CONFIG: config,
+          DOCKER_HOST: host,
+          DOCKER_CONTEXT: undefined,
+        },
+        timeout: 3000,
+        killSignal: "SIGKILL",
+      });
+    const services = [
+      ["postgres", "17.11.0.006"],
+      ["gotrue", "v2.197.0"],
+      ["postgrest", "v16.5"],
+      ["kong", "2.8.1"],
+    ];
+    try {
+      // Observe the real CLI's normalization directly against the mock; no image cache is touched.
+      for (const [service, tag] of services) {
+        await pull(`supabase/${service}:${tag}`, `unix://${original}`);
+        assert.deepEqual(pulls.at(-1), {
+          image: `docker.io/supabase/${service}`,
+          tag,
+        });
+      }
+      for (const registry of [
+        "public.ecr.aws/supabase",
+        "ghcr.io/supabase",
+        "supabase",
+        "docker.io/supabase",
+      ])
+        for (const [service, tag] of services) {
+          const before = pulls.length;
+          await pull(`${registry}/${service}:${tag}`, guard.dockerHost);
+          assert.equal(pulls.length, before + 1);
+          assert.equal(
+            pulls.at(-1)?.image,
+            `${registry === "supabase" ? "docker.io/supabase" : registry}/${service}`,
+          );
+          assert.equal(pulls.at(-1)?.tag, tag);
+        }
+      const accepted = pulls.length;
+      for (const image of [
+        "docker.io/library/postgres:17",
+        "docker.io/other/postgres:17",
+        "docker.io.evil.example/supabase/postgres:17",
+        "evil.example/docker.io/supabase/postgres:17",
+        "public.ecr.aws.evil.example/supabase/postgres:17",
+        "public.ecr.aws/other/postgres:17",
+        "ghcr.io/other/postgres:17",
+        "supabase-evil/postgres:17",
+      ])
+        await assert.rejects(pull(image, guard.dockerHost));
+      assert.equal(
+        pulls.length,
+        accepted,
+        "untrusted namespaces and lookalike registries never reach the mock daemon",
+      );
+    } finally {
       await guard.close();
       server.closeAllConnections();
       await new Promise<void>((ok) => server.close(() => ok()));
