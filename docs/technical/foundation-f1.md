@@ -17,7 +17,7 @@ PR #4 (Harness) i #5 (Foundation Plan) scalone do main i zweryfikowane przed sta
 Model/reasoning: dziedziczone z runtime, dokładne ustawienia NOT EXPOSED. Główna sesja `/root` jest orchestrator/autorem dokumentacji; delegacja bez dalszego poziomu.
 
 | Rola / sesja | Wyłączna własność zapisu / DoD |
-|---|---|
+| --- | --- |
 | platform-engineer `/root/platform_engineer` | manifest, lockfile, runtime/manager, pnpm policy, env example, ignores, GitHub Actions; preflight, frozen install i jawne kroki CI |
 | frontend-engineer `/root/frontend_engineer` | `src/`, frontend configs, komponenty i `tests/unit/env.test.ts`; strict TypeScript, Tailwind/shadcn/Base UI/Lucide, parser env, granica serwera i health |
 | qa-engineer `/root/qa_engineer` | Vitest/Playwright config, `tests/e2e`, `scripts/test-*.mjs`; plan przed implementacją, rzeczywiste smoke i izolowane testy negatywne |
@@ -29,7 +29,7 @@ Kroki: preflight wersji → manifest/scaffold → unit i testy negatywne → pro
 ## Przypięte wersje
 
 | Element | Wersja |
-|---|---|
+| --- | --- |
 | Node.js / pnpm | 24.22.2 / 12.16.1 |
 | Next.js / eslint-config-next | 16.4.3 / 16.4.3 |
 | React / React DOM | 19.3.1 / 19.3.1 |
@@ -106,7 +106,7 @@ Zainstalowano tylko Card (z CardHeader/CardContent) i Badge. Card jest komponent
 Środowisko lokalne: macOS arm64, Node24.22.2, pnpm12.16.1, Playwright1.64.1, przypięty Chromium1248 (156.0.8078.4). Wyłącznie loopback i dane syntetyczne, bez usług. Weryfikacja dotyczy źródeł kandydata F1, a dokładny commit i CI identyfikuje PR.
 
 | FQA / kontrola | Komenda / obserwacja | Wynik |
-|---|---|---|
+| --- | --- | --- |
 | FQA-01 | Fresh disposable install `pnpm install --frozen-lockfile`; 542 pakiety, strict peers/engines; lock SHA256 `aa19849a3aeee84ddee05a19f58e8420773fb5133773f77727762b364e3f38fd` bez zmiany | PASS, exit0 |
 | FQA-02 | `pnpm typecheck`: `next typegen && tsc --noEmit`, fresh typy; izolowana próba null→string ma wykryć wyłączenie strictNullChecks | PASS, exit0; strict-null fixture odrzucony |
 | FQA-03 | `pnpm lint`, `pnpm format:check`, niezależne negatywne fixtures ESLint/Prettier przez `pnpm test:boundaries` | PASS, exit0; naruszenia dają oczekiwane niezerowe wyniki |
@@ -127,7 +127,7 @@ Pierwsza próba testów harnessu w roboczym checkout została przerwana: test se
 Niezależne review kandydata `59fd949f63416deeed27151266892ebcc42e084b` względem bazy `a00f865e4ffe2faf7cfc5f6bcd3825b43f706d44`, przez niezmieniony `python3 harness/scripts/review.py` w oddzielnych czystych checkoutach bez node_modules. Reviewerzy nie są autorami; nie uruchamiali testów i nie modyfikowali plików. Ocena statyczna nie jest powtórzeniem runtime testów.
 
 | Review | Sesja / narzędzia | Wynik i integralność |
-|---|---|---|
+| --- | --- | --- |
 | frontend | Codex read-only parent `01a187b3-9446-7052-943d-a1945c91a1a5`, generic child + canonical frontend-reviewer; model/reasoning NOT EXPOSED | PASS, zero P0–P3; exit0, changedFiles=[]; fingerprint przed/po `b5d9b6db14199d8656f85c41db5e09fbdd5b039d4418befd8e047b16ea87544e` |
 | backend/config | Codex read-only parent `01a187b3-9446-7553-af3d-922eca2bcd09`, generic child + canonical backend-reviewer; dokładny model/reasoning NOT EXPOSED | PASS, zero P0–P3; exit0, changedFiles=[]; fingerprint przed/po `8589cd4b6cdcbacd9a6e29c76a62d75d5bc85c7205f729b37a10c61bc300c066` |
 | security R1 | Claude restricted, Read/Grep/Glob, bez MCP; sesja `52238edc-426c-41b5-86ca-6f64d80f0824`, Opus5.5/reasoning NOT EXPOSED | PASS bez P0/P1/P2, pięć P3 opisanych poniżej; exit0, changedFiles=[]; fingerprint przed/po `f2d7e976b8a96911b8cb2e3ca23dbbf6b5b724bdfedd2720cd284693c06a3c19` |
