@@ -1,6 +1,16 @@
 /** Only the operation identifier is persisted; private draft content stays in memory. */
 export const intentStorageKey = "jobs-crm.manual-case.pending";
 export type PendingIntent = { ownerId: string; requestId: string };
+/** A previous save-next choice only survives the same uncertain command or its warning. */
+export function resolveSaveNext(
+  choice: "save" | "save-next" | "confirm-duplicate",
+  frozenRetry: boolean,
+  previous: boolean,
+) {
+  if (choice === "confirm-duplicate" || (choice === "save" && frozenRetry))
+    return previous;
+  return choice === "save-next";
+}
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export function parsePendingIntent(
   value: string | null,

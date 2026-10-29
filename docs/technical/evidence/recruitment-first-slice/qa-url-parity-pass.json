@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "target": "url-parity-a",
+  "migrations": 6,
+  "http": 24,
+  "vectors": 31,
+  "longUrl": ">10000 characters",
+  "rawRpc": "reject noncanonical or store exact URL.href",
+  "canonicalRpc": "accepted; same owner/key replays exact ID",
+  "duplicate": "new key and different title with same canonical URL warns own match",
+  "canonicalDirectInsert": "accepted same representation",
+  "negativeControl": "Historical 0000 accepts raw dot path; unchanged canonical oracle rejects it",
+  "restoration": "exact helper definition/ACL/INVOKER restored, known invalid row removed, constraint convalidated=true and zero noncanonical persisted rows, ledger reverified",
+  "output": {
+    "bytes": 2918,
+    "sha256": "46c64beea27c35429de1bb9228a15cb704759980c791d52d7f415a3ebdc9f4d8"
+  }
+}

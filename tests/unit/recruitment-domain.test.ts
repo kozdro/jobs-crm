@@ -107,6 +107,72 @@ describe("DEC-052 minimal case input", () => {
     ).toMatchObject({ success: true });
   });
   it.each([
+    ["https://example.invalid/a/../b", "https://example.invalid/b"],
+    ["https://example.invalid/a/%2e%2E/b", "https://example.invalid/b"],
+    ["https://example.invalid/a/.%2e/b", "https://example.invalid/b"],
+    ["https://example.invalid/%2E/b", "https://example.invalid/b"],
+    [
+      "https://example.invalid/a/%252e%252e/b",
+      "https://example.invalid/a/%252e%252e/b",
+    ],
+    ["https://[2001:0DB8:0:0:0:0:0:1]/", "https://[2001:db8::1]/"],
+    ["https://[0:0:0:0:0:ffff:192.0.2.128]/", "https://[::ffff:c000:280]/"],
+    ["https://[0:0:0:0:0:0:0:0]/", "https://[::]/"],
+    ["https://[1:0:0:2:0:0:3:4]/", "https://[1::2:0:0:3:4]/"],
+    ["https://[1:2:3:4:5:6:0:0]/", "https://[1:2:3:4:5:6::]/"],
+    ["https://@example.invalid/", "https://example.invalid/"],
+    ["https://:@example.invalid/", "https://example.invalid/"],
+    ["https://user:@example.invalid/", "https://user@example.invalid/"],
+    ["https://:pass@example.invalid/", "https://:pass@example.invalid/"],
+    [
+      "https://user:pass:word@example.invalid/",
+      "https://user:pass%3Aword@example.invalid/",
+    ],
+    [
+      "https://us@er:pa@ss@example.invalid/",
+      "https://us%40er:pa%40ss@example.invalid/",
+    ],
+    [
+      "https://u;s=e:p;s=e@example.invalid/",
+      "https://u%3Bs%3De:p%3Bs%3De@example.invalid/",
+    ],
+    [
+      'https://example.invalid/"<>`{}|^[]',
+      "https://example.invalid/%22%3C%3E%60%7B%7D|%5E[]",
+    ],
+    [
+      'https://example.invalid/?"<>`{}|^[]#"<>`{}|^[]',
+      "https://example.invalid/?%22%3C%3E`{}|^[]#%22%3C%3E%60{}|^[]",
+    ],
+    [
+      "https://example.invalid/?a=1'2#x'y",
+      "https://example.invalid/?a=1%272#x'y",
+    ],
+    [
+      "https://example.invalid/a?posting=../%2e&posting=42#../%2e?keep=1",
+      "https://example.invalid/a?posting=../%2e&posting=42#../%2e?keep=1",
+    ],
+    [
+      "https://example.invalid/%zz?bad=%xx#%zz",
+      "https://example.invalid/%zz?bad=%xx#%zz",
+    ],
+    ['https://A"B`{C}.INVALID:443/', 'https://a"b`{c}.invalid/'],
+    ["https://127.000.000.001/", "https://127.0.0.1/"],
+    ["https://0x7f000001/", "https://127.0.0.1/"],
+    ["https://żółć.invalid/oferta", "https://xn--kda4b0koi.invalid/oferta"],
+  ])(
+    "serializes URL components into a stable replay payload: %s",
+    (sourceUrl, canonical) => {
+      const result = create({ sourceUrl });
+      expect(result).toMatchObject({
+        success: true,
+        data: { sourceUrl: canonical },
+      });
+      // Serializing an already stored href must not change the payload on retry.
+      expect(create({ sourceUrl: canonical })).toEqual(result);
+    },
+  );
+  it.each([
     "javascript:alert(1)",
     "data:text/html,x",
     "file:///tmp/x",

@@ -29,6 +29,20 @@
       "when": 1793314326881,
       "tag": "0003_recruitment_intent_before_warning",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793315027706,
+      "tag": "0004_recruitment_url_canonical_boundary",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793315173755,
+      "tag": "0005_recruitment_url_constraint_revalidation",
+      "breakpoints": true
     }
   ]
 }

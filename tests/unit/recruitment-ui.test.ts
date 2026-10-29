@@ -1,8 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { parsePendingIntent } from "@/components/recruitment/intent";
+import {
+  parsePendingIntent,
+  resolveSaveNext,
+} from "@/components/recruitment/intent";
 import { CaseContent } from "@/components/recruitment/case-content";
+import { SavedCaseNotice } from "@/components/recruitment/saved-case-notice";
 import type { RecruitmentCase } from "@/modules/recruitment/domain/recruitment-case";
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
@@ -40,6 +44,31 @@ describe("Manual capture recovery identifier privacy boundary", () => {
     ]) {
       expect(parsePendingIntent(value, owner)).toBeNull();
     }
+  });
+});
+
+describe("Manual capture save disposition", () => {
+  it("keeps save-next across its duplicate confirmation and uncertain retry", () => {
+    const original = resolveSaveNext("save-next", false, false);
+    expect(resolveSaveNext("confirm-duplicate", false, original)).toBe(true);
+    expect(resolveSaveNext("save", true, original)).toBe(true);
+  });
+  it("ordinary save after returning from a warning and editing closes the wizard", () => {
+    const priorSaveNext = resolveSaveNext("save-next", false, false);
+    const editedSave = resolveSaveNext("save", false, priorSaveNext);
+    expect(editedSave).toBe(false);
+    expect(resolveSaveNext("confirm-duplicate", false, editedSave)).toBe(false);
+  });
+  it("provides an announced success and real case action for the active modal", () => {
+    const html = renderToStaticMarkup(
+      createElement(SavedCaseNotice, { item, onDismiss: vi.fn() }),
+    );
+    expect(html).toContain('role="status"');
+    expect(html).toContain('aria-live="polite"');
+    expect(html).toContain("Sprawa została zapisana.");
+    expect(html).toContain(`href="/recruitments/${item.id}"`);
+    expect(html).toContain("Otwórz sprawę");
+    expect(html).not.toContain("inert");
   });
 });
 

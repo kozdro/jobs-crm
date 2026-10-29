@@ -4,6 +4,10 @@ import { randomUUID } from "node:crypto";
 import test from "node:test";
 import postgres from "postgres";
 import { deterministicDirectInsertRace } from "./direct-insert-race.ts";
+import {
+  verifyOldUrlHelperSensitivity,
+  verifyUrlRepresentationParity,
+} from "./url-parity.ts";
 import { readRecruitmentTarget } from "../../../scripts/recruitment/target.ts";
 import {
   createAccounts,
@@ -644,6 +648,20 @@ test(
     );
 
     await check(
+      "Pinned WHATWG/BFF URL parity survives raw RPC, canonical retry, duplicate matching and direct INSERT across URL components",
+      async () => {
+        await verifyUrlRepresentationParity(target, a);
+      },
+    );
+
+    await check(
+      "Disposable URL-helper sensitivity: unchanged canonical oracle detects historical dot-segment persistence bug",
+      async () => {
+        await verifyOldUrlHelperSensitivity(target, a);
+      },
+    );
+
+    await check(
       "Catalog: one product table, RLS, minimal grants, INVOKER, no PUBLIC EXECUTE or cascade owner delete",
       async () => {
         const sql = db();
@@ -722,6 +740,20 @@ test(
           );
           assert.ok(
             fks.every((row) => !/ON DELETE CASCADE/.test(row.definition)),
+          );
+          const [urlConstraint] =
+            await sql`select convalidated from pg_constraint where conrelid='public.recruitment_case'::regclass and conname='recruitment_case_url_valid'`;
+          assert.equal(
+            urlConstraint?.convalidated,
+            true,
+            "URL constraint must be fully validated after helper changes",
+          );
+          const [noncanonical] =
+            await sql`select count(*)::int count from public.recruitment_case where source_url is not null and source_url is distinct from public.recruitment_source_url(source_url)`;
+          assert.equal(
+            noncanonical.count,
+            0,
+            "No unexpected stored URL may disagree with the current canonical boundary",
           );
           const indexes =
             await sql`select indexdef from pg_indexes where schemaname='public' and tablename='recruitment_case'`;

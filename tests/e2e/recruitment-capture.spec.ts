@@ -38,6 +38,14 @@ async function openCapture(page: Page): Promise<Locator> {
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
   await expect(dialog.getByText("Sytuacja", { exact: true })).toBeVisible();
+  const progress = dialog.getByRole("list", {
+    name: "Postęp dodawania sprawy",
+    exact: true,
+  });
+  await expect(progress.getByRole("listitem")).toHaveCount(4);
+  await expect(progress.locator('[aria-current="step"]')).toContainText(
+    "Sytuacja",
+  );
   return dialog;
 }
 async function dataStep(
@@ -174,6 +182,13 @@ test("QC data validation keeps input and no record before valid four-step submis
   await dialog.getByLabel("Nazwa sprawy", { exact: true }).fill("   ");
   await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
   await expect(dialog.getByRole("alert")).toBeVisible();
+  expect(
+    (
+      await dialog
+        .getByLabel("Nazwa sprawy", { exact: true })
+        .getAttribute("aria-describedby")
+    )?.split(" "),
+  ).toEqual(expect.arrayContaining(["case-title-hint", "case-title-error"]));
   const title = "🚀".repeat(160);
   await dialog.getByLabel("Nazwa sprawy", { exact: true }).fill(`${title}ą`);
   await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
@@ -582,4 +597,181 @@ test("Own list limits pages to25 and orders tied technical timestamps by stable 
   expect(await caseLinks.allTextContents()).toEqual(
     expected.slice(0, 25).map((row) => row.title),
   );
+});
+
+test("Unknown save never reached backend: reload preserves intent and explicit abandonment warns without claiming rollback", async ({
+  page,
+}) => {
+  await login(page, a);
+  await page.goto(`${target.appOrigin}/recruitments`);
+  const title = `Unconfirmed old ${randomUUID()}`;
+  const sent: { requestId: string }[] = [];
+  let lose = true;
+  await page.route("**/recruitments/commands", async (route) => {
+    sent.push(route.request().postDataJSON() as { requestId: string });
+    if (lose) {
+      lose = false;
+      await route.abort("failed");
+    } else await route.continue();
+  });
+  let dialog = await prepare(page, title);
+  await dialog.getByRole("button", { name: "Zapisz", exact: true }).click();
+  await expect(dialog.getByRole("alert")).toBeVisible();
+  expect((await persisted(a, title)).length).toBe(0);
+  page.once("dialog", (event) => event.accept());
+  await page.reload();
+  await expect(page.getByRole("main").getByRole("alert")).toContainText(
+    "Nie potwierdzono wyniku poprzedniego zapisu",
+  );
+  dialog = await openCapture(page);
+  await dialog.getByRole("button", { name: "Zamknij", exact: true }).click();
+  const confirmation = page.getByRole("alertdialog", {
+    name: "Porzucić niepotwierdzony zapis?",
+    exact: true,
+  });
+  await expect(confirmation).toBeVisible();
+  await expect(confirmation).toContainText(
+    "Sprawa mogła już zostać utworzona.",
+  );
+  await expect(confirmation).toContainText("nie cofa ani nie usuwa zapisu.");
+  await confirmation
+    .getByRole("button", { name: "Wróć do zapisu", exact: true })
+    .click();
+  await expect(dialog).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(confirmation).toBeVisible();
+  await confirmation
+    .getByRole("button", { name: "Porzuć ten zapis", exact: true })
+    .click();
+  await expect(dialog).not.toBeVisible();
+  const newTitle = `Conscious new ${randomUUID()}`;
+  dialog = await prepare(page, newTitle);
+  await dialog.getByRole("button", { name: "Zapisz", exact: true }).click();
+  await expect(dialog).not.toBeVisible();
+  expect(sent.length).toBe(2);
+  expect(sent[1].requestId).not.toBe(sent[0].requestId);
+  expect((await persisted(a, title)).length).toBe(0);
+  expect((await persisted(a, newTitle)).length).toBe(1);
+});
+
+test("Command401/403 removes private portal and returns to login while retaining owner-bound recovery identifier", async ({
+  browser,
+}) => {
+  for (const status of [401, 403]) {
+    const context = await browser.newContext({ ignoreHTTPSErrors: true });
+    try {
+      const page = await context.newPage();
+      await login(page, a);
+      await page.goto(`${target.appOrigin}/recruitments`);
+      const title = `Auth denial ${status} ${randomUUID()}`;
+      let sentKey = "";
+      await page.route("**/recruitments/commands", async (route) => {
+        sentKey = (route.request().postDataJSON() as { requestId: string })
+          .requestId;
+        await route.fulfill({
+          status,
+          contentType: "application/json",
+          body: JSON.stringify({ error: "Nie można potwierdzić sesji." }),
+        });
+      });
+      const dialog = await prepare(page, title);
+      await dialog.getByRole("button", { name: "Zapisz", exact: true }).click();
+      await expect(page).toHaveURL(/\/login(?:\?|$)/);
+      await expect(page.getByRole("dialog")).not.toBeVisible();
+      await expect(page.getByText(title, { exact: true })).not.toBeVisible();
+      const pending = (await page.evaluate(() =>
+        JSON.parse(
+          sessionStorage.getItem("jobs-crm.manual-case.pending") ?? "null",
+        ),
+      )) as { ownerId: string; requestId: string };
+      expect(pending.ownerId).toBe(a.id);
+      expect(pending.requestId).toBe(sentKey);
+      expect(Object.keys(pending).sort()).toEqual(["ownerId", "requestId"]);
+      expect((await persisted(a, title)).length).toBe(0);
+    } finally {
+      await context.close();
+    }
+  }
+});
+
+test("Mobile save-next announces success and offers opening the persisted case inside the still-open dialog", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await login(page, a);
+  await page.goto(`${target.appOrigin}/recruitments`);
+  const title = `Mobile next ${randomUUID()}`;
+  const dialog = await prepare(page, title);
+  await dialog
+    .getByRole("button", { name: "Zapisz i dodaj kolejną", exact: true })
+    .click();
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("status")).toContainText(
+    "Sprawa została zapisana.",
+  );
+  const open = dialog.getByRole("link", { name: "Otwórz sprawę", exact: true });
+  await expect(open).toBeVisible();
+  await expectNoOverflow(page);
+  const rows = await persisted(a, title);
+  expect(rows.length).toBe(1);
+  await open.click();
+  await expect(page).toHaveURL(
+    `${target.appOrigin}/recruitments/${rows[0].id}`,
+  );
+  await expect(
+    page.getByRole("heading", { name: title, exact: true }),
+  ).toBeVisible();
+});
+
+test("Back from duplicate save-next then edit and ordinary save closes the wizard without reusing old continuation", async ({
+  page,
+}) => {
+  await login(page, a);
+  await page.goto(`${target.appOrigin}/recruitments`);
+  const original = `Old continuation ${randomUUID()}`;
+  await complete(page, original);
+  const dialog = await prepare(page, original);
+  await dialog
+    .getByRole("button", { name: "Zapisz i dodaj kolejną", exact: true })
+    .click();
+  await expect(
+    dialog.getByRole("button", { name: "Utwórz nową sprawę", exact: true }),
+  ).toBeVisible();
+  await dialog.getByRole("button", { name: "Wstecz", exact: true }).click();
+  await dialog.getByRole("button", { name: "Wstecz", exact: true }).click();
+  const edited = `Edited ordinary ${randomUUID()}`;
+  await dialog.getByLabel("Nazwa sprawy", { exact: true }).fill(edited);
+  await summaryStep(dialog);
+  await dialog.getByRole("button", { name: "Zapisz", exact: true }).click();
+  await expect(dialog).not.toBeVisible();
+  expect((await persisted(a, original)).length).toBe(1);
+  expect((await persisted(a, edited)).length).toBe(1);
+});
+
+test("Escape in nested discard confirmation cancels only confirmation and restores draft focus", async ({
+  page,
+}) => {
+  await login(page, a);
+  await page.goto(`${target.appOrigin}/recruitments`);
+  const title = `Nested Escape ${randomUUID()}`;
+  const dialog = await openCapture(page);
+  await dataStep(dialog, title);
+  await page.keyboard.press("Escape");
+  const confirmation = page.getByRole("alertdialog", {
+    name: "Odrzucić zmiany?",
+    exact: true,
+  });
+  await expect(confirmation).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(confirmation).not.toBeVisible();
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByLabel("Nazwa sprawy", { exact: true })).toHaveValue(
+    title,
+  );
+  expect(
+    await dialog.evaluate((element) =>
+      element.contains(document.activeElement),
+    ),
+  ).toBe(true);
+  expect((await persisted(a, title)).length).toBe(0);
 });
