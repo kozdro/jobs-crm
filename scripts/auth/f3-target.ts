@@ -10,6 +10,8 @@ import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { createDockerGuard } from "../db/docker-guard.ts";
+import { planAuthCleanup } from "./cleanup-plan.ts";
+import type { CleanupInventory } from "./cleanup-plan.ts";
 import {
   assertEndpoints,
   assertPostgres,
@@ -365,25 +367,91 @@ export async function migrateAuthTarget(id: string) {
   }
 }
 export async function stopAuthTarget(id: string) {
+  // Manifest/config validation remains mandatory even after an interrupted start.
   const m = await manifestFor(id);
-  await inspectOwned(m);
-  await cli(m.workdir, ["stop", "--no-backup"], 120_000);
-  const remaining = (
+  await localEngine();
+  const containerListing = (
+    await docker("ps", "-a", "--no-trunc", "--format", "{{.ID}} {{.Names}}")
+  )
+    .trim()
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => line.split(" "));
+  const labelled = (
     await docker(
       "ps",
       "-aq",
+      "--no-trunc",
       "--filter",
       `label=com.supabase.cli.project=${m.projectId}`,
     )
-  ).trim();
-  if (remaining) throw new Error("F3 containers remain after stop");
-  const volumes = (await docker("volume", "ls", "--format", "{{.Name}}"))
+  )
     .trim()
     .split(/\s+/)
-    .filter((v) => v.endsWith(`_${m.projectId}`));
-  if (volumes.length) await docker("volume", "rm", ...volumes);
-  await docker("network", "rm", m.networkId);
-  await rm(m.workdir, { recursive: true });
+    .filter(Boolean);
+  const ids = [
+    ...new Set([
+      ...labelled,
+      ...containerListing
+        .filter(([, name]) => name?.endsWith(`_${m.projectId}`))
+        .map(([id]) => id),
+    ]),
+  ];
+  const containers: CleanupInventory["containers"] = ids.length
+    ? JSON.parse(await docker("inspect", ...ids))
+    : [];
+  const volumeNames = (await docker("volume", "ls", "--format", "{{.Name}}"))
+    .trim()
+    .split(/\s+/)
+    .filter((name) => name.endsWith(`_${m.projectId}`));
+  const labelledVolumes = (
+    await docker(
+      "volume",
+      "ls",
+      "--filter",
+      `label=com.supabase.cli.project=${m.projectId}`,
+      "--format",
+      "{{.Name}}",
+    )
+  )
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  const names = [...new Set([...volumeNames, ...labelledVolumes])];
+  const volumes: CleanupInventory["volumes"] = names.length
+    ? JSON.parse(await docker("volume", "inspect", ...names))
+    : [];
+  const networks = (await docker("network", "ls", "--format", "{{.Name}}"))
+    .trim()
+    .split(/\s+/);
+  const network: CleanupInventory["network"] = networks.includes(m.networkId)
+    ? JSON.parse(await docker("network", "inspect", m.networkId))[0]
+    : undefined;
+  // Validate the entire partial inventory before the first mutation; no healthy services required.
+  const plan = planAuthCleanup(m, { containers, volumes, network });
+  const receipt = {
+    projectId: m.projectId,
+    configHash: m.configHash,
+    at: new Date().toISOString(),
+    ...plan,
+  };
+  await writeFile(
+    join(m.workdir, "cleanup-started.json"),
+    JSON.stringify(receipt, null, 2),
+    { mode: 0o600 },
+  );
+  if (plan.containerIds.length)
+    await docker("rm", "--force", ...plan.containerIds);
+  if (plan.volumeNames.length)
+    await docker("volume", "rm", ...plan.volumeNames);
+  if (plan.networkIds.length) await docker("network", "rm", ...plan.networkIds);
+  await rm(join(m.workdir, "tls"), { recursive: true, force: true });
+  await writeFile(
+    join(m.workdir, "cleanup-complete.json"),
+    JSON.stringify(receipt, null, 2),
+    { mode: 0o600 },
+  );
+  // Retain manifest/config and failed-start evidence. Repeated cleanup is safe; ID stays consumed.
 }
 
 /** Safe runtime evidence: no keys, cookies, DB URLs or token material. */

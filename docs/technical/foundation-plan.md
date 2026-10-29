@@ -8,6 +8,8 @@
 
 **Rebaseline 2026-10-29:** decyzja PO wariant A Supabase-native — [ADR-0012](../decisions/adr/0012-supabase-native-auth-sessions-rls.md), zastępujący ADR-0003. Niniejsza aktualizacja autoryzuje wyłącznie dokumentację i PR. Karty F3–F6 są planem do osobnej autoryzacji wykonania. Historia poprzedniego planu pozostaje w [bazie przed rebaseline](https://github.com/kozdro/jobs-crm/blob/5f5c8c8df3a51a337295566565eca398f4bca3ae/docs/technical/foundation-plan.md).
 
+**Wykonanie PR-F3, 2026-10-29:** osobne zadanie PO „Jobs CRM — PR-F3 Supabase-native Auth Integration” autoryzuje lokalną implementację, przypięte zależności, testy, niezależny review i PR bez merge/cloud/produkcji. Aktualne wyniki i pozostałe OPEN: [raport F3](foundation-f3.md). Starsze adnotacje NOT RUN poniżej opisują stan rebaseline; nie są nadpisaniem historycznych wyników F1/F2. F4–F6 nie uzyskują autoryzacji.
+
 ## 1. Executive summary
 
 Foundation korzysta z wykonanych F1/F2 i przechodzi do integracji Supabase Auth/SSR w docelowym App Router. Browser i server client SDK obsługują sesję; BFF istnieje tam, gdzie wnosi logikę lub granicę zaufania. Data API wykonuje zwykły CRUD z JWT i RLS. Nie powstaje własny broker, magazyn handles, kryptografia sesji ani framework transakcyjny.

@@ -20,7 +20,7 @@ Kolejność: preflight → adaptery i lokalny fixture → UI i testy → regresj
 
 `normalizeAppOrigin` przyjmuje wyłącznie absolutny origin HTTPS; HTTP dozwolone tylko dla dokładnych loopback hostów `localhost`, `127.0.0.1`, `[::1]`, także w lokalnym production build F1. Odrzuca credentials, whitespace/control chars, backslash, wildcard, nie-ASCII zapis, ścieżki (także normalizowane dot segments), query i fragment. Opcjonalny końcowy `/`, wielkość liter hosta i domyślny port są normalizowane przez `URL.origin`. Pojedynczy jawny origin, bez wildcard/subdomain allowlisty, bez zaufania do Host/X-Forwarded-Host. Włączony Auth wymaga zgodności kanonicznego APP_ORIGIN i publicznego NEXT_PUBLIC_APP_ORIGIN. Produkcyjny zewnętrzny origin wymaga HTTPS; zgoda na lokalny HTTP nie autoryzuje publicznego deploymentu.
 
-Publiczna konfiguracja to jawna allowlista build-time NEXT_PUBLIC_AUTH_ENABLED, NEXT_PUBLIC_APP_ORIGIN, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, NEXT_PUBLIC_GOOGLE_AUTH_ENABLED i NEXT_PUBLIC_AUTH_LOCAL_TEST. Key to publishable lub legacy anon, nigdy service-role. Syntetyczny admin key występuje wyłącznie w pamięci fixture QA. Flaga local test ogranicza nierozstrzygnięte signup/recovery do loopback; nie ustanawia polityki produkcyjnej.
+Publiczna konfiguracja to jawna allowlista build-time NEXT_PUBLIC_AUTH_ENABLED, NEXT_PUBLIC_APP_ORIGIN, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, NEXT_PUBLIC_GOOGLE_AUTH_ENABLED i NEXT_PUBLIC_AUTH_LOCAL_TEST. Key to publishable lub legacy anon, nigdy service-role. Syntetyczny admin key występuje wyłącznie w pamięci fixture QA. Flaga local test ogranicza widoczność i dostępność formularzy aplikacji do jawnego loopback fixture; nie jest kontrolą bezpośredniego Auth API ani polityką produkcyjną. Dostawca może przyjmować signup/recovery niezależnie od UI. Przed jakimkolwiek wdrożeniem trzeba uzgodnić OPEN-041/043/013 i zweryfikować konfigurację enable_signup, potwierdzeń, recovery i ochrony poświadczeń w samym Supabase. Samo ukrycie formularza lub odmowa endpointu aplikacji nie zamyka tej bramki.
 
 ## Otwarte decyzje
 
@@ -28,7 +28,11 @@ OPEN-013: dopuszczenie publiczne, ustawienia ochrony operacji i ewentualna docel
 
 ## Weryfikacja i dowody
 
-PENDING — do uzupełnienia rzeczywistymi komendami, targetami, wynikami i dokładnym kandydatem. Live Google NOT RUN: brak autoryzowanych credentials. Nie wykonywać merge ani F4.
+Bieżący kandydat review R1: `e8ac1dee9a1bb812571f96c4f8f1fee39f5321d3`. Regresja F2 `pnpm test:integration:f2`: **PASS 85/85**, exit 0, 249.8 s; faktyczne Data API A/B/anon, listy/ID/relacje, spoofing metadata/owner, zapis i RLS sensitivity. F1 boundary suite i canary: PASS; harness sync/check i 20 unittest na snapshotcie źródeł: PASS. Szczegółowy finalny manifest dowodów poniżej zostanie uzupełniony po poprawkach i ponowieniu.
+
+Pierwszy pełny runner F3 na target `preflight-a` / projekt `jobs-crm-f3-preflight-a-4b10498e643b`: build PASS, SDK/Auth/Data API **12/12 PASS**, exit 0, 94.6 s. Playwright **3 PASS / 3 FAIL**, exit 1: błędne założenie testu historii po `location.replace` oraz rzeczywiste odrzucenie callback signup/recovery przez porównanie publicznego origin z wewnętrznym adresem listenera Next. Zachowano target i dowód niepowodzenia. Naprawa callback porównuje rzeczywisty Host jako ograniczenie do skonfigurowanego hosta, sprawdza supplied Origin, ignoruje forwarded headers; wszystkie Location nadal wyłącznie z konfiguracji. Deployment/proxy ma zachować publiczny kanoniczny Host. Regresję backend odtworzono jako red, po naprawie 14/14 unit PASS. Finalny rerun wymagany.
+
+Live Google NOT RUN: brak autoryzowanych credentials; mock/negatywny PKCE nie daje live PASS. AUTH-13/FQA-55 N/A. Nie wykonywać merge ani F4.
 
 ## Preflight zależności i dokumentacji
 
@@ -41,3 +45,13 @@ Przejrzano [changelog Supabase](https://supabase.com/changelog) (markdown index 
 ## Ocena XSS i CSP
 
 F3 nie dodaje skryptów stron trzecich, HTML od dostawcy ani `dangerouslySetInnerHTML`; niezaufane wartości renderuje React, komunikaty błędów są stałe. SDK wymaga dostępu JavaScript do własnej sesji; nie jest to niezamierzone ujawnienie. Dowody XSS obejmują payloady wejściowe i redakcję sesji. Pełna nonce-based CSP wymaga osobnego dopracowania zgodności App Router/streaming/OAuth i polityki środowiska (OPEN-013); nie deklarujemy jej wdrożenia ani odporności na dowolne wykonanie skryptu. Ochrona cache, no-referrer i nosniff pozostaje obowiązkowa niezależnie od tej oceny.
+
+## Granica komendy zmiany hasła
+
+Niezależny frontend review R1 wykrył możliwość zmiany bieżącego konta w drugiej karcie pomiędzy weryfikacją a browser SDK updateUser. Poprawka wykorzystuje selektywny POST `/auth/password`: jeden request-scoped server client, obowiązkowy kanoniczny Origin/Host, JSON i oczekiwana tożsamość z początkowego renderu, porównana z getUser przed updateUser. Browser formularz unieważnia się po zmianie tożsamości/logout. To granica konkretnej wrażliwej komendy, bez brokera ani proxy całego Supabase; nie zastępuje ochrony bezpośredniego Auth API. Dostępność nadal wyłącznie local fixture ze wspieranym `secure_password_change`; docelowa reautoryzacja, świeżość i skutki recovery pozostają OPEN-043/042.
+
+## Uruchamianie lokalne
+
+Wymagane Node24.22.2, pnpm12.16.1 i lokalny Linux Docker przez Unix socket. `pnpm install --frozen-lockfile`, następnie `pnpm exec playwright install chromium`. `pnpm test:auth:f3` tworzy osobny syntetyczny target, sprawdza tożsamość/obrazy/porty, stosuje niezmienione migracje fixture F2, buduje docelowe src/app i uruchamia dwa procesy Next za lokalnym proxy HTTPS3143/3144, prawdziwy Auth/Data API i browser suite. Żadne dane produktu nie są tworzone. Po sukcesie świeży target jest sprzątany; po błędzie zachowany do inspekcji. Powtórne świadome użycie zweryfikowanego fixture: `F3_TARGET_ID=<id> pnpm test:auth:f3`; nie wykonuje ponownych migracji. Jawne sprzątanie: `node scripts/auth/cleanup.ts <id>`, z kontrolą własności przed mutacją. Nie używać bare CLI ani kierować skryptów na cloud.
+
+Lokalne certyfikaty testowe są generowane w ignorowanym katalogu fixture, nie trafiają do Git. Browser test akceptuje ten certyfikat; to nie dowód zaufanego publicznego TLS ani zgodności Google live. Supabase API fixture jest loopback HTTP56521, mail sink HTTP56524, DB56522; test cookie Secure jest wykonywany po stronie aplikacji HTTPS. 3143/3144 współdzielą host/cookies (same-site), są dwoma procesami testu SSR; negatywne foreign Origin testuje się oddzielnie. Ustawienia signup, potwierdzenie e-mail, JWT60s/OTP60s, minimalne hasło12 i secure_password_change są wyłącznie parametrami fixture.

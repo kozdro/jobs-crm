@@ -1,6 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
+function callbackRequest(
+  url: string,
+  init?: ConstructorParameters<typeof NextRequest>[1],
+) {
+  const headers = new Headers(init?.headers);
+  if (!headers.has("host")) headers.set("host", new URL(url).host);
+  return new NextRequest(url, { ...init, headers });
+}
+
 const mocks = vi.hoisted(() => ({
   getAuthConfig: vi.fn(),
   getRouteClient: vi.fn(),
@@ -27,9 +36,26 @@ beforeEach(() => {
 });
 
 describe("AUTH-02/06 callback boundary", () => {
+  it("accepts canonical public Host behind an internal reverse-proxy URL", async () => {
+    const response = await GET(
+      callbackRequest(
+        "http://127.0.0.1:3133/auth/callback?code=opaque&next=/account",
+        {
+          headers: {
+            host: "app.example.test",
+            "x-forwarded-host": "attacker.example",
+          },
+        },
+      ),
+    );
+    expect(mocks.exchange).toHaveBeenCalledWith("opaque");
+    expect(response.headers.get("location")).toBe(
+      "https://app.example.test/account",
+    );
+  });
   it("uses only the configured origin and strips the exchanged code", async () => {
     const response = await GET(
-      new NextRequest(
+      callbackRequest(
         "https://app.example.test/auth/callback?code=opaque&next=/account",
       ),
     );
@@ -52,19 +78,45 @@ describe("AUTH-02/06 callback boundary", () => {
     ];
     for (const suffix of cases) {
       const response = await GET(
-        new NextRequest(`https://app.example.test/auth/callback${suffix}`),
+        callbackRequest(`https://app.example.test/auth/callback${suffix}`),
       );
       expect(response.headers.get("location")).toBe(
         "https://app.example.test/login?error=callback",
       );
     }
     await GET(
-      new NextRequest("https://spoofed.example/auth/callback?code=opaque"),
+      callbackRequest("https://spoofed.example/auth/callback?code=opaque"),
     );
     await GET(
-      new NextRequest("https://app.example.test/auth/callback?code=opaque", {
+      callbackRequest("https://app.example.test/auth/callback?code=opaque", {
         headers: { origin: "https://evil.example" },
       }),
+    );
+    expect(mocks.exchange).not.toHaveBeenCalled();
+  });
+
+  it("rejects hostile, missing or malformed Host even when forwarded headers claim the canonical origin", async () => {
+    for (const host of [
+      "evil.example",
+      "app.example.test:444",
+      "app.example.test@evil.example",
+      "app.example.test,evil.example",
+    ]) {
+      const response = await GET(
+        callbackRequest("http://127.0.0.1:3133/auth/callback?code=opaque", {
+          headers: {
+            host,
+            "x-forwarded-host": "app.example.test",
+            "x-forwarded-proto": "https",
+          },
+        }),
+      );
+      expect(response.headers.get("location")).toBe(
+        "https://app.example.test/login?error=callback",
+      );
+    }
+    await GET(
+      new NextRequest("https://app.example.test/auth/callback?code=opaque"),
     );
     expect(mocks.exchange).not.toHaveBeenCalled();
   });
@@ -72,7 +124,7 @@ describe("AUTH-02/06 callback boundary", () => {
   it("keeps provider failures generic and preserves SDK cookies on successful redirect", async () => {
     mocks.exchange.mockRejectedValueOnce(new Error("secret-provider-payload"));
     const failure = await GET(
-      new NextRequest("https://app.example.test/auth/callback?code=opaque"),
+      callbackRequest("https://app.example.test/auth/callback?code=opaque"),
     );
     expect(failure.headers.get("location")).toBe(
       "https://app.example.test/login?error=callback",
@@ -84,7 +136,7 @@ describe("AUTH-02/06 callback boundary", () => {
     });
     mocks.exchange.mockResolvedValue({ error: null });
     const success = await GET(
-      new NextRequest(
+      callbackRequest(
         "https://app.example.test/auth/callback?code=opaque&next=/reset-password",
       ),
     );
@@ -101,7 +153,7 @@ describe("AUTH-02/06 callback boundary", () => {
       localFixture: false,
     });
     const recovery = await GET(
-      new NextRequest(
+      callbackRequest(
         "https://app.example.test/auth/callback?code=opaque&next=/reset-password",
       ),
     );
@@ -111,7 +163,7 @@ describe("AUTH-02/06 callback boundary", () => {
     expect(mocks.exchange).not.toHaveBeenCalled();
     mocks.getAuthConfig.mockReturnValue({ enabled: false });
     const disabled = await GET(
-      new NextRequest("https://app.example.test/auth/callback?code=opaque"),
+      callbackRequest("https://app.example.test/auth/callback?code=opaque"),
     );
     expect(disabled.status).toBe(503);
     expect(disabled.headers.get("location")).toBeNull();

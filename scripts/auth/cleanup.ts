@@ -17,5 +17,5 @@ const targets = requested.length
       .map((entry) => entry.name);
 for (const id of targets) {
   await stopAuthTarget(id);
-  console.log(`Removed owned F3 target ${id}`);
+  console.log(`Removed owned resources for F3 target ${id}`);
 }

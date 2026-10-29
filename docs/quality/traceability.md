@@ -171,3 +171,5 @@ Stabilne ID FR/AC/UC/TC pozostają. Aktualizacja kontraktów Auth i technicznej 
 
 **Nie** interpretuj obecności `TC-*` jako zielonego testu. Zagadnienia `P0 OPEN` i wrażliwe funkcje muszą zostać rozstrzygnięte przed implementacją i odbiorem.
 
+
+**Wykonanie technicznego podzakresu F3 (2026-10-29):** [raport F3](../technical/foundation-f3.md) mapuje AUTH/FQA v2 na lokalne dowody SDK/SSR i syntetyczne RLS A/B. Nie jest to wykonanie pełnych UC/TC-034/035 ani całych FR/AC-AD-002–006 dla nieistniejących modułów danych, dokumentów i otwartych polityk. Statusy APPROVED/PROPOSED/OPEN i historyczne wyniki pozostają bez zmian.

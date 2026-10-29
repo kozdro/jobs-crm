@@ -39,6 +39,21 @@ describe("Auth UI policy and output boundary", () => {
       renderToStaticMarkup(createElement(AuthForm, { mode: "login" })),
     ).toContain("<form");
   });
+  it("requires the server-verified intended identity before enabling recovery submission", () => {
+    const withoutIdentity = renderToStaticMarkup(
+      createElement(AuthForm, { mode: "reset" }),
+    );
+    expect(withoutIdentity).toMatch(/<button[^>]* disabled=""/);
+    expect(withoutIdentity).toMatch(/<input[^>]* disabled=""/);
+    const withIdentity = renderToStaticMarkup(
+      createElement(AuthForm, {
+        mode: "reset",
+        expectedUserId: "intended-owner-a",
+      }),
+    );
+    expect(withIdentity).not.toMatch(/<button[^>]* disabled=""/);
+    expect(withIdentity).not.toContain("intended-owner-a");
+  });
   it("does not expose a Google action without configured provider", () => {
     const html = renderToStaticMarkup(
       createElement(AuthForm, { mode: "login" }),

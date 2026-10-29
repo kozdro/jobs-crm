@@ -31,8 +31,12 @@ export async function GET(request: NextRequest) {
   const code = callbackCode(params.get("code"));
   const destination = callbackDestination(params.get("next"));
   const suppliedOrigin = request.headers.get("origin");
+  // Next.js can reconstruct nextUrl with its internal listener address behind a
+  // reverse proxy. Host is a constraint, never redirect authority; the deployment
+  // must preserve the canonical public Host. Forwarded headers are not trusted.
+  const suppliedHost = request.headers.get("host");
   if (
-    request.nextUrl.origin !== origin ||
+    suppliedHost?.toLowerCase() !== new URL(origin).host ||
     (suppliedOrigin !== null && suppliedOrigin !== origin) ||
     params.getAll("code").length !== 1 ||
     params.getAll("next").length > 1 ||

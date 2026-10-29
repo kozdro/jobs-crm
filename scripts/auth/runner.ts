@@ -1,12 +1,17 @@
+import type { OutputSummary } from "./output-safety.ts";
 /** Build and test the actual app against an owned disposable local Auth stack. */
 import { spawn, execFile } from "node:child_process";
 import type { ChildProcess } from "node:child_process";
 import { promisify } from "node:util";
 import { createServer as createHttpsServer } from "node:https";
 import { request as httpRequest } from "node:http";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile, readdir } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { randomUUID } from "node:crypto";
+import {
+  captureAuthOutput,
+  assertPrivateValuesAbsent,
+} from "./output-safety.ts";
 import {
   startAuthTarget,
   readAuthTarget,
@@ -30,19 +35,58 @@ const evidence = {
   node: process.version,
   status: "FAIL",
   stages: [] as string[],
+  outputChecks: [] as (OutputSummary & { stage: string })[],
+  scannedBrowserFiles: 0,
 };
 const children: ChildProcess[] = [];
+const childClosed: Promise<void>[] = [];
 const proxies: ReturnType<typeof createHttpsServer>[] = [];
 let succeeded = false;
-async function run(args: string[], env: NodeJS.ProcessEnv) {
-  await new Promise<void>((ok, no) => {
-    const p = spawn(node, args, { cwd: root, env, stdio: "inherit" });
-    p.once("error", () => no(new Error("F3 test process failed to start")));
-    p.once("exit", (code) =>
-      code === 0 ? ok() : no(new Error(`F3 stage exited ${code}`)),
-    );
-  });
+const serverCanary = `synthetic-f3-server-${randomUUID()}`;
+const privateValues = [target.serviceRoleKey, serverCanary];
+const serverOutputs: ReturnType<typeof captureAuthOutput>[] = [];
+function captured() {
+  return captureAuthOutput({ publicKey: target.anonKey, privateValues });
 }
+async function run(args: string[], env: NodeJS.ProcessEnv, stage: string) {
+  const output = captured();
+  let code: number | null = null;
+  await new Promise<void>((ok, no) => {
+    const p = spawn(node, args, {
+      cwd: root,
+      env,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    p.stdout?.on("data", (chunk) => output.push(chunk));
+    p.stderr?.on("data", (chunk) => output.push(chunk));
+    p.once("error", () => no(new Error("F3 test process failed to start")));
+    p.once("close", (exit) => {
+      code = exit;
+      ok();
+    });
+  });
+  const summary = output.verify();
+  evidence.outputChecks.push({ stage, ...summary });
+  console.log(`F3 ${stage}: ${JSON.stringify({ exit: code, ...summary })}`);
+  if (code !== 0)
+    throw new Error(`F3 stage ${stage} exited ${code} (raw output withheld)`);
+}
+async function scanBrowserAssets(directory: string): Promise<number> {
+  let count = 0;
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const file = join(directory, entry.name);
+    if (entry.isDirectory()) count += await scanBrowserAssets(file);
+    else {
+      assertPrivateValuesAbsent(
+        (await readFile(file)).toString(),
+        privateValues,
+      );
+      count++;
+    }
+  }
+  return count;
+}
+
 try {
   if (!reuse) await migrateAuthTarget(id);
   await writeFile(
@@ -78,15 +122,24 @@ try {
     NEXT_PUBLIC_APP_ORIGIN: target.appOrigin,
     NEXT_PUBLIC_AUTH_ENABLED: "true",
     NEXT_PUBLIC_AUTH_LOCAL_TEST: "true",
-    NEXT_PUBLIC_AUTH_LOCAL_FIXTURE: "true",
     NEXT_PUBLIC_SUPABASE_URL: target.apiUrl,
     NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: target.anonKey,
     NEXT_PUBLIC_GOOGLE_AUTH_ENABLED: "false",
     F3_TARGET_ID: id,
     NODE_EXTRA_CA_CERTS: certPath,
     NEXT_TELEMETRY_DISABLED: "1",
+    FOUNDATION_F3_TEST_SECRET: serverCanary,
   };
-  await run(["node_modules/next/dist/bin/next", "build"], env);
+  await run(
+    ["node_modules/next/dist/bin/next", "build"],
+    env,
+    "production-build",
+  );
+  evidence.scannedBrowserFiles = await scanBrowserAssets(
+    join(root, ".next/static"),
+  );
+  if (!evidence.scannedBrowserFiles)
+    throw new Error("F3 browser artifact scan found no files");
   evidence.stages.push("production-build");
   for (const [upstreamPort, publicPort] of [
     [3133, 3143],
@@ -102,7 +155,14 @@ try {
         "--port",
         String(upstreamPort),
       ],
-      { cwd: root, env, stdio: "ignore" },
+      { cwd: root, env, stdio: ["ignore", "pipe", "pipe"] },
+    );
+    const output = captured();
+    child.stdout?.on("data", (chunk) => output.push(chunk));
+    child.stderr?.on("data", (chunk) => output.push(chunk));
+    serverOutputs.push(output);
+    childClosed.push(
+      new Promise<void>((ok) => child.once("close", () => ok())),
     );
     children.push(child);
     child.once("error", () => {});
@@ -154,7 +214,11 @@ try {
     });
     proxies.push(proxy);
   }
-  await run(["--test", "scripts/auth/integration.ts"], env);
+  await run(
+    ["--test", "scripts/auth/integration.ts"],
+    env,
+    "auth-sdk-integration",
+  );
   evidence.stages.push("real-auth-sdk-data-api");
   await run(
     [
@@ -163,6 +227,7 @@ try {
       "--config=playwright.auth.config.ts",
     ],
     env,
+    "auth-HTTPS-browser",
   );
   evidence.stages.push("production-HTTPS-browser");
   evidence.status = "PASS";
@@ -172,12 +237,22 @@ try {
     proxy.closeAllConnections();
     await new Promise<void>((ok) => proxy.close(() => ok()));
   }
-  for (const child of children) {
-    child.kill("SIGTERM");
-    await new Promise<void>((ok) => {
-      if (child.exitCode !== null) ok();
-      else child.once("exit", () => ok());
+  for (const child of children) child.kill("SIGTERM");
+  await Promise.all(childClosed);
+  let outputError: unknown;
+  try {
+    serverOutputs.forEach((output, index) => {
+      const summary = output.verify();
+      evidence.outputChecks.push({
+        stage: `app-process-${index + 1}`,
+        ...summary,
+      });
     });
+    evidence.stages.push("build-server-logs-and-browser-artifacts-redacted");
+  } catch (error) {
+    outputError = error;
+    succeeded = false;
+    evidence.status = "FAIL";
   }
   await writeFile(
     join(root, ".foundation-f3", `evidence-${id}.json`),
@@ -186,4 +261,5 @@ try {
   );
   if (succeeded && !reuse) await stopAuthTarget(id);
   else console.log(`F3 target retained for explicit inspection/cleanup: ${id}`);
+  if (outputError) throw outputError;
 }

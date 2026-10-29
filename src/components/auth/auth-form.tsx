@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { LoaderCircle } from "lucide-react";
 import { Button } from "@base-ui/react/button";
@@ -28,9 +28,11 @@ const inputClass =
 export function AuthForm({
   mode,
   callbackError = false,
+  expectedUserId,
 }: {
   mode: Mode;
   callbackError?: boolean;
+  expectedUserId?: string;
 }) {
   const config = getPublicAuthConfig();
   const [pending, setPending] = useState(false);
@@ -47,6 +49,39 @@ export function AuthForm({
       : null,
   );
   const feedbackRef = useRef<HTMLParagraphElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const recoveryInvalidRef = useRef(false);
+  const [recoveryInvalid, setRecoveryInvalid] = useState(false);
+  const resetBlocked = mode === "reset" && (!expectedUserId || recoveryInvalid);
+  useEffect(() => {
+    if (
+      mode !== "reset" ||
+      !expectedUserId ||
+      !config.enabled ||
+      !config.localFixture
+    )
+      return;
+    const { data } = getBrowserClient().auth.onAuthStateChange(
+      (event, session) => {
+        if (
+          event === "SIGNED_OUT" ||
+          !session ||
+          session.user.id !== expectedUserId
+        ) {
+          // No awaited SDK call inside the callback: its auth lock is still held.
+          recoveryInvalidRef.current = true;
+          formRef.current?.reset();
+          setRecoveryInvalid(true);
+          setFeedback({
+            message:
+              "Sesja odzyskiwania zmieniła się lub wygasła. Poproś o nowy link.",
+            error: true,
+          });
+        }
+      },
+    );
+    return () => data.subscription.unsubscribe();
+  }, [mode, expectedUserId, config.enabled, config.localFixture]);
   const localOnly = mode !== "login";
   const unavailable = !config.enabled || (localOnly && !config.localFixture);
   function report(message: string, error = false) {
@@ -55,7 +90,8 @@ export function AuthForm({
   }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (pending || unavailable) return;
+    if (pending || unavailable || resetBlocked || recoveryInvalidRef.current)
+      return;
     const formElement = event.currentTarget;
     const form = new FormData(formElement);
     const fields = { email: form.get("email"), password: form.get("password") };
@@ -105,20 +141,33 @@ export function AuthForm({
           );
       } else if (mode === "forgot") {
         // Do not distinguish missing accounts from existing accounts in recovery UI.
-        await client.auth.resetPasswordForEmail(email, {
+        const { error } = await client.auth.resetPasswordForEmail(email, {
           redirectTo: `${config.origin}/auth/callback?next=/reset-password`,
         });
-        report(
-          "Jeśli konto istnieje, otrzymasz wiadomość z linkiem do zmiany hasła. Otwórz go w tej przeglądarce.",
-        );
-      } else {
-        const { data, error: identityError } = await client.auth.getUser();
-        if (identityError || !data.user) {
-          report("Sesja odzyskiwania wygasła. Poproś o nowy link.", true);
-          return;
-        }
-        const { error } = await client.auth.updateUser({ password });
         if (error)
+          report("Nie udało się wysłać linku. Spróbuj ponownie później.", true);
+        else
+          report(
+            "Jeśli konto istnieje, otrzymasz wiadomość z linkiem do zmiany hasła. Otwórz go w tej przeglądarce.",
+          );
+      } else {
+        const response = await fetch("/auth/password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          cache: "no-store",
+          body: JSON.stringify({ password, expectedUserId }),
+        });
+        if (recoveryInvalidRef.current) return;
+        if (response.status === 401 || response.status === 409) {
+          recoveryInvalidRef.current = true;
+          formElement.reset();
+          setRecoveryInvalid(true);
+          report(
+            "Sesja odzyskiwania zmieniła się lub wygasła. Poproś o nowy link.",
+            true,
+          );
+        } else if (!response.ok)
           report(
             "Nie udało się zmienić hasła. Poproś o nowy link i spróbuj ponownie.",
             true,
@@ -168,7 +217,12 @@ export function AuthForm({
             : "Logowanie nie jest skonfigurowane w tym środowisku."}
         </p>
       ) : (
-        <form onSubmit={submit} className="space-y-4" aria-busy={pending}>
+        <form
+          ref={formRef}
+          onSubmit={submit}
+          className="space-y-4"
+          aria-busy={pending}
+        >
           {mode !== "reset" && (
             <div className="space-y-2">
               <label htmlFor="email" className="block text-sm font-medium">
@@ -180,7 +234,7 @@ export function AuthForm({
                 type="email"
                 autoComplete="email"
                 required
-                disabled={pending}
+                disabled={pending || resetBlocked}
                 className={inputClass}
               />
             </div>
@@ -198,12 +252,16 @@ export function AuthForm({
                   mode === "login" ? "current-password" : "new-password"
                 }
                 required
-                disabled={pending}
+                disabled={pending || resetBlocked}
                 className={inputClass}
               />
             </div>
           )}
-          <Button type="submit" disabled={pending} className={buttonClass}>
+          <Button
+            type="submit"
+            disabled={pending || resetBlocked}
+            className={buttonClass}
+          >
             {pending && (
               <LoaderCircle
                 aria-hidden="true"
@@ -221,7 +279,7 @@ export function AuthForm({
             <Button
               type="button"
               onClick={google}
-              disabled={pending}
+              disabled={pending || resetBlocked}
               className={buttonClass}
             >
               Kontynuuj z Google

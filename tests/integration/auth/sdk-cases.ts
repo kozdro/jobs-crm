@@ -39,6 +39,10 @@ export async function runAuthSdkCases(
     ownId: string;
     foreignId: string;
     scope: string;
+    scopeAppliedAtMs: number;
+    issuedAt: number;
+    lastValidAtMs: number;
+    firstDeniedAtMs?: number;
   }[] = [];
   await cases.test(
     "AUTH-01/04 FQA-22/26 SDK password login and verified current user reject wrong credentials/tampered JWT",
@@ -220,6 +224,7 @@ export async function runAuthSdkCases(
         );
         const result = await current.client.auth.signOut({ scope });
         success(result.error, `signOut ${scope}`);
+        const scopeAppliedAtMs = Date.now();
         const local = await current.client.auth.getSession();
         success(local.error, "post-signout local client state");
         assert.ok(
@@ -269,8 +274,21 @@ export async function runAuthSdkCases(
           0,
           "Replay JWT never grants foreign owner data",
         );
+        const claims = JSON.parse(
+          Buffer.from(
+            current.session.access_token.split(".")[1],
+            "base64url",
+          ).toString(),
+        ) as { iat: number };
+        assert.ok(
+          Number.isFinite(claims.iat),
+          "Replay sample must have actual issued-at claim",
+        );
         replay.push({
           session: current.session,
+          scopeAppliedAtMs,
+          issuedAt: claims.iat,
+          lastValidAtMs: Date.now(),
           ownId: fa.probe_item.id,
           foreignId: fb.probe_item.id,
           scope,
@@ -327,6 +345,25 @@ export async function runAuthSdkCases(
       );
       // Observe provider anti-enumeration instead of claiming the SDK always hides existing users.
       const duplicate = await sdk(target).auth.signUp(credentials);
+      console.info(
+        "F3_SIGNUP_OBSERVATION " +
+          JSON.stringify({
+            confirmationsFixture: true,
+            newEmail: {
+              userReturned: Boolean(signup.data.user),
+              sessionReturned: Boolean(signup.data.session),
+              identityCount: signup.data.user?.identities?.length ?? null,
+              errorCode: signup.error?.code ?? null,
+            },
+            existingEmail: {
+              userReturned: Boolean(duplicate.data.user),
+              sessionReturned: Boolean(duplicate.data.session),
+              identityCount: duplicate.data.user?.identities?.length ?? null,
+              errorCode: duplicate.error?.code ?? null,
+            },
+            productionAntiEnumerationPolicy: "OPEN-041/013",
+          }),
+      );
       if (duplicate.error)
         assert.ok(
           typeof duplicate.error.code === "string",
@@ -351,6 +388,11 @@ export async function runAuthSdkCases(
     "AUTH-10/02 FQA-32/25 real mail recovery PKCE missing/wrong context replay and changed password",
     async () => {
       const user = await account(target);
+      const otherSessions = [
+        await login(target, user),
+        await login(target, user),
+      ];
+      const unrelatedSession = await login(target, b);
       const client = sdk(target);
       success(
         (
@@ -388,6 +430,43 @@ export async function runAuthSdkCases(
         (await client.auth.updateUser({ password })).error,
         "recovery password update",
       );
+      const effects: {
+        account: string;
+        refreshAccepted: boolean;
+        errorCode: string | null;
+      }[] = [];
+      for (const [index, session] of otherSessions.entries()) {
+        const refreshed = await sdk(target).auth.refreshSession({
+          refresh_token: session.session.refresh_token,
+        });
+        if (!refreshed.error)
+          assert.ok(
+            refreshed.data.user?.id === user.id,
+            "Recovery effect cannot change other-session owner",
+          );
+        else
+          assert.ok(
+            !refreshed.data.session,
+            "Rejected recovery-affected refresh cannot issue session",
+          );
+        effects.push({
+          account: `other-A-${index + 1}`,
+          refreshAccepted: !refreshed.error,
+          errorCode: refreshed.error?.code ?? null,
+        });
+      }
+      const unaffected = await unrelatedSession.client.auth.refreshSession();
+      success(unaffected.error, "B unaffected after A password recovery");
+      assert.ok(unaffected.data.user?.id === b.id);
+      console.info(
+        "F3_RECOVERY_SESSION_OBSERVATION " +
+          JSON.stringify({
+            currentRecoveryPasswordUpdated: true,
+            otherSessions: effects,
+            unrelatedBRefreshAccepted: true,
+            productionSessionConsequencesPolicy: "OPEN-043/042",
+          }),
+      );
       const old = await sdk(target).auth.signInWithPassword({
         email: user.email,
         password: user.password,
@@ -411,6 +490,33 @@ export async function runAuthSdkCases(
       assert.ok(
         location && !new URL(location).searchParams.has("code"),
         "Consumed recovery link cannot issue a fresh code",
+      );
+    },
+  );
+  await cases.test(
+    "AUTH-10 FQA-32 fresh ordinary session password change measures native secure-password-change boundary",
+    async () => {
+      const user = await account(target);
+      const signed = await login(target, user);
+      const password = `Fresh-session-update-${randomUUID()}!`;
+      const changed = await signed.client.auth.updateUser({ password });
+      const accepted = !changed.error;
+      if (accepted) {
+        assert.ok(
+          changed.data.user?.id === user.id,
+          "Ordinary credential update owner changed",
+        );
+        await login(target, { ...user, password });
+      } else await login(target, user);
+      console.info(
+        "F3_PASSWORD_POLICY_OBSERVATION " +
+          JSON.stringify({
+            securePasswordChangeFixture: true,
+            freshOrdinarySessionUpdateAccepted: accepted,
+            errorCode: changed.error?.code ?? null,
+            stale24HourSession: "NOT RUN - no auth schema timestamp tampering",
+            productionFreshnessAndReauthPolicy: "OPEN-013/043",
+          }),
       );
     },
   );
@@ -439,13 +545,17 @@ export async function runAuthSdkCases(
             entry.session.access_token,
             rest("probe_item", `id=eq.${entry.ownId}`),
           );
-          if (result.status === 401) pending.delete(entry);
-          else
+          if (result.status === 401) {
+            entry.firstDeniedAtMs = Date.now();
+            pending.delete(entry);
+          } else {
             assert.equal(
               result.status,
               200,
               "JWT replay must be either native validity or expiry rejection",
             );
+            entry.lastValidAtMs = Date.now();
+          }
         }
         if (pending.size)
           await new Promise((resolve) => setTimeout(resolve, 500));
@@ -456,6 +566,24 @@ export async function runAuthSdkCases(
         "All copied access tokens must be rejected after expiry",
       );
       for (const entry of replay) {
+        // Safe evidence only: epochs/durations/scope. Never output JWTs, refresh tokens, cookies or IDs.
+        console.info(
+          "F3_JWT_REPLAY " +
+            JSON.stringify({
+              scope: entry.scope,
+              currentRefreshSessionRevoked: entry.scope !== "others",
+              issuedAt: entry.issuedAt,
+              exp: entry.session.expires_at,
+              scopeAppliedAt: entry.scopeAppliedAtMs / 1000,
+              lastValidAt: entry.lastValidAtMs / 1000,
+              firstDeniedAt: (entry.firstDeniedAtMs ?? 0) / 1000,
+              observedValidAfterLogoutSeconds:
+                (entry.lastValidAtMs - entry.scopeAppliedAtMs) / 1000,
+              firstDeniedAfterExpSeconds:
+                (entry.firstDeniedAtMs ?? 0) / 1000 -
+                (entry.session.expires_at ?? 0),
+            }),
+        );
         assert.equal(
           (
             await request(

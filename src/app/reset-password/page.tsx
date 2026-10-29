@@ -6,11 +6,13 @@ import { getAuthConfig } from "@/shared/server/env";
 export const dynamic = "force-dynamic";
 export default async function ResetPasswordPage() {
   const config = getAuthConfig();
-  if (config.enabled && config.localFixture && !(await getTrustedUser()))
+  const user =
+    config.enabled && config.localFixture ? await getTrustedUser() : null;
+  if (config.enabled && config.localFixture && !user)
     redirect("/forgot-password");
   return (
     <AuthShell title="Ustaw nowe hasło">
-      <AuthForm mode="reset" />
+      <AuthForm mode="reset" expectedUserId={user?.id} />
     </AuthShell>
   );
 }

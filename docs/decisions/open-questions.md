@@ -83,3 +83,5 @@ Wybory technologiczne i część polityk określono w [rejestrze 1.1–1.40](../
 ## Rejestrowanie rozstrzygnięcia
 
 Po decyzji PO: odnotuj datę/źródło, zaktualizuj odpowiedni `DEC/BR/FR/AC/UC`, zmień status `OPEN` na `RESOLVED` z linkiem do nowej decyzji w historii rejestru (nie kasuj pytania), przeprowadź analizę wpływu. **Status `RESOLVED` jest stanem operacyjnym pytania, nie zastępuje statusu decyzji `APPROVED`.**
+
+**Dowody lokalnego F3, bez zamykania OPEN:** [raport wykonania](../technical/foundation-f3.md) rozdziela konfigurację syntetycznego dostawcy od docelowych polityk. Flaga UI local fixture nie blokuje bezpośredniego Supabase Auth API; OPEN-013/041/043 przed wdrożeniem wymagają także właściwych ustawień u dostawcy. Sesje/TTL, skutki recovery i sensitive reauth pozostają OPEN-042/043.
