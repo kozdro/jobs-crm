@@ -5,6 +5,7 @@ import test from "node:test";
 import postgres from "postgres";
 import { deterministicDirectInsertRace } from "./direct-insert-race.ts";
 import {
+  verifyInvalidHostnameRejection,
   verifyOldUrlHelperSensitivity,
   verifyUrlRepresentationParity,
 } from "./url-parity.ts";
@@ -651,6 +652,13 @@ test(
       "Pinned WHATWG/BFF URL parity survives raw RPC, canonical retry, duplicate matching and direct INSERT across URL components",
       async () => {
         await verifyUrlRepresentationParity(target, a);
+      },
+    );
+
+    await check(
+      "Actual native-URL rejected hostname vectors fail BFF, RPC and direct Data API without partial writes",
+      async () => {
+        await verifyInvalidHostnameRejection(target, a);
       },
     );
 

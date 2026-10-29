@@ -159,6 +159,8 @@ describe("DEC-052 minimal case input", () => {
     ['https://A"B`{C}.INVALID:443/', 'https://a"b`{c}.invalid/'],
     ["https://127.000.000.001/", "https://127.0.0.1/"],
     ["https://0x7f000001/", "https://127.0.0.1/"],
+    ["http://0x/", "http://0.0.0.0/"],
+    ["http://0x./", "http://0.0.0.0/"],
     ["https://żółć.invalid/oferta", "https://xn--kda4b0koi.invalid/oferta"],
   ])(
     "serializes URL components into a stable replay payload: %s",
@@ -187,6 +189,8 @@ describe("DEC-052 minimal case input", () => {
     "https://example.invalid:65536/",
     "https://bad host/",
     "https://foo:port/",
+    "http://a.0x/",
+    "http://a.0x./",
   ])("rejects unsafe or malformed URL %s", (sourceUrl) => {
     expect(create({ sourceUrl })).toMatchObject({
       success: false,

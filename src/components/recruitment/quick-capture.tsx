@@ -21,6 +21,7 @@ import {
   resolveSaveNext,
 } from "./intent";
 import { SavedCaseNotice } from "./saved-case-notice";
+import { recoveryRequiresLogin } from "./recovery-session";
 
 const buttonClass =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60";
@@ -31,6 +32,11 @@ const steps = ["Sytuacja", "Dane", "Działanie", "Podsumowanie"];
 type DuplicateResult = Extract<CreateCaseResult, { kind: "duplicates" }>;
 
 export function QuickCapture({ userId }: { userId: string }) {
+  // A changed verified owner gets a new draft lifetime, including every portal.
+  return <CaptureSession key={userId} userId={userId} />;
+}
+
+function CaptureSession({ userId }: { userId: string }) {
   const router = useRouter();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
@@ -134,7 +140,7 @@ export function QuickCapture({ userId }: { userId: string }) {
       const client = getBrowserClient();
       const current = await client.auth.getUser();
       if (!currentLifetime()) return;
-      if (current.error && ![401, 403].includes(current.error.status ?? 0)) {
+      if (current.error && !recoveryRequiresLogin(current.error)) {
         throw new Error("Session verification unavailable");
       }
       if (current.error || current.data.user?.id !== userId) {
@@ -208,6 +214,7 @@ export function QuickCapture({ userId }: { userId: string }) {
     return () => {
       active = false;
       liveRef.current = false;
+      lifetimeRef.current += 1;
       data.subscription.unsubscribe();
       window.removeEventListener("pagehide", hidePrivateDraft);
       window.removeEventListener("pageshow", pageShow);
@@ -425,9 +432,10 @@ export function QuickCapture({ userId }: { userId: string }) {
           )}
         </div>
       )}
-      {toast && !open && (
-        <SavedCaseNotice item={toast} onDismiss={() => setToast(null)} />
-      )}
+      <SavedCaseNotice
+        item={open ? null : toast}
+        onDismiss={() => setToast(null)}
+      />
       <Dialog.Root
         open={open}
         disablePointerDismissal
@@ -462,14 +470,12 @@ export function QuickCapture({ userId }: { userId: string }) {
             <Dialog.Description className="mt-2 text-sm leading-6 text-muted-foreground">
               Zapisz kontekst sprawy. Wystarczy nazwa.
             </Dialog.Description>
-            {toast && (
-              <div className="mt-4">
-                <SavedCaseNotice
-                  item={toast}
-                  onDismiss={() => setToast(null)}
-                />
-              </div>
-            )}
+            <div className={toast ? "mt-4" : undefined}>
+              <SavedCaseNotice
+                item={open ? toast : null}
+                onDismiss={() => setToast(null)}
+              />
+            </div>
             <ol
               className="mt-6 flex items-center gap-2"
               aria-label="Postęp dodawania sprawy"
@@ -490,6 +496,9 @@ export function QuickCapture({ userId }: { userId: string }) {
             <h3
               ref={headingRef}
               tabIndex={-1}
+              aria-describedby={
+                open && toast ? "capture-success-message" : undefined
+              }
               className="mt-6 text-lg font-medium outline-none"
             >
               {steps[step]}
@@ -849,6 +858,26 @@ export function QuickCapture({ userId }: { userId: string }) {
                   {uncertain && (
                     <Link
                       href="/recruitments"
+                      onClick={(event) => {
+                        if (
+                          event.button !== 0 ||
+                          event.metaKey ||
+                          event.ctrlKey ||
+                          event.shiftKey ||
+                          event.altKey
+                        )
+                          return;
+                        event.preventDefault();
+                        setDiscard(false);
+                        setOpen(false);
+                        // Viewing the list is not abandoning or rolling back this intent.
+                        if (
+                          window.location.pathname === "/recruitments" &&
+                          !window.location.search
+                        )
+                          router.refresh();
+                        else router.push("/recruitments");
+                      }}
                       className="inline-flex min-h-11 items-center text-sm underline underline-offset-4"
                     >
                       Otwórz listę spraw

@@ -43,6 +43,13 @@
       "when": 1793315173755,
       "tag": "0005_recruitment_url_constraint_revalidation",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793316047247,
+      "tag": "0006_recruitment_numeric_host_parity",
+      "breakpoints": true
     }
   ]
 }

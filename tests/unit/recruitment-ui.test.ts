@@ -7,6 +7,12 @@ import {
 } from "@/components/recruitment/intent";
 import { CaseContent } from "@/components/recruitment/case-content";
 import { SavedCaseNotice } from "@/components/recruitment/saved-case-notice";
+import { recoveryRequiresLogin } from "@/components/recruitment/recovery-session";
+import {
+  AuthApiError,
+  AuthRetryableFetchError,
+  AuthSessionMissingError,
+} from "@supabase/supabase-js";
 import type { RecruitmentCase } from "@/modules/recruitment/domain/recruitment-case";
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
@@ -30,6 +36,27 @@ describe("Manual capture recovery identifier privacy boundary", () => {
       requestId,
     });
     expect(parsePendingIntent(stored, "different-owner")).toBeNull();
+  });
+  it("requires login for actual SDK session-missing400 and authorization denials, while retaining retry for outages", () => {
+    const missing = new AuthSessionMissingError();
+    expect(missing.status).toBe(400);
+    expect(recoveryRequiresLogin(missing)).toBe(true);
+    expect(
+      recoveryRequiresLogin(new AuthApiError("Unauthorized", 401, "bad_jwt")),
+    ).toBe(true);
+    expect(
+      recoveryRequiresLogin(new AuthApiError("Forbidden", 403, "forbidden")),
+    ).toBe(true);
+    expect(
+      recoveryRequiresLogin(
+        new AuthRetryableFetchError("Network unavailable", 503),
+      ),
+    ).toBe(false);
+    expect(
+      recoveryRequiresLogin(
+        new AuthApiError("Provider unavailable", 500, "unexpected_failure"),
+      ),
+    ).toBe(false);
   });
   it("rejects malformed identifiers and unexpected private draft material", () => {
     for (const value of [
@@ -59,12 +86,21 @@ describe("Manual capture save disposition", () => {
     expect(editedSave).toBe(false);
     expect(resolveSaveNext("confirm-duplicate", false, editedSave)).toBe(false);
   });
-  it("provides an announced success and real case action for the active modal", () => {
+  it("keeps an empty live status mounted before adding the success and real case action", () => {
+    const empty = renderToStaticMarkup(
+      createElement(SavedCaseNotice, { item: null, onDismiss: vi.fn() }),
+    );
+    expect(empty).toContain('role="status"');
+    expect(empty).toContain('aria-live="polite"');
+    expect(empty).toContain('aria-atomic="true"');
+    expect(empty).not.toContain("Sprawa została zapisana.");
+    expect(empty).not.toContain("Otwórz sprawę");
     const html = renderToStaticMarkup(
       createElement(SavedCaseNotice, { item, onDismiss: vi.fn() }),
     );
     expect(html).toContain('role="status"');
     expect(html).toContain('aria-live="polite"');
+    expect(html).toContain('id="capture-success-message"');
     expect(html).toContain("Sprawa została zapisana.");
     expect(html).toContain(`href="/recruitments/${item.id}"`);
     expect(html).toContain("Otwórz sprawę");

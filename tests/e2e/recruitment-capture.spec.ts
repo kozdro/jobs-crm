@@ -1,11 +1,20 @@
 /** Product browser tests require an independently guarded local product target. */
 import { randomUUID } from "node:crypto";
+import { appendFile, mkdir } from "node:fs/promises";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import {
   readRecruitmentTarget,
   type RecruitmentTarget,
 } from "../../scripts/recruitment/target.ts";
 import { account, sdk, type Account } from "../integration/auth/fixtures.ts";
+
+type RecoveryPortalObservation = {
+  connected: boolean;
+  hidden: boolean;
+  visible: boolean;
+  visiblePortals: number;
+  pending: { ownerId: string; requestId: string } | null;
+};
 
 let target: RecruitmentTarget;
 let a: Account;
@@ -702,12 +711,25 @@ test("Mobile save-next announces success and offers opening the persisted case i
   await page.goto(`${target.appOrigin}/recruitments`);
   const title = `Mobile next ${randomUUID()}`;
   const dialog = await prepare(page, title);
+  const announcement = dialog.getByRole("status");
+  await expect(announcement).toHaveText("");
+  await expect(announcement).toHaveAttribute("aria-live", "polite");
+  await expect(announcement).toHaveAttribute("aria-atomic", "true");
   await dialog
     .getByRole("button", { name: "Zapisz i dodaj kolejną", exact: true })
     .click();
   await expect(dialog).toBeVisible();
   await expect(dialog.getByRole("status")).toContainText(
     "Sprawa została zapisana.",
+  );
+  const nextHeading = dialog.getByRole("heading", {
+    name: "Sytuacja",
+    exact: true,
+  });
+  await expect(nextHeading).toBeFocused();
+  await expect(nextHeading).toHaveAttribute(
+    "aria-describedby",
+    "capture-success-message",
   );
   const open = dialog.getByRole("link", { name: "Otwórz sprawę", exact: true });
   await expect(open).toBeVisible();
@@ -774,4 +796,251 @@ test("Escape in nested discard confirmation cancels only confirmation and restor
     ),
   ).toBe(true);
   expect((await persisted(a, title)).length).toBe(0);
+});
+
+test("Page-level unknown-intent controls permit re-entry and the same-list link closes both dialogs while preserving recovery identity", async ({
+  page,
+}) => {
+  await login(page, a);
+  await page.goto(`${target.appOrigin}/recruitments`);
+  const title = `Same-list recovery ${randomUUID()}`;
+  let sentKey = "";
+  await page.route("**/recruitments/commands", async (route) => {
+    sentKey = (route.request().postDataJSON() as { requestId: string })
+      .requestId;
+    await route.abort("failed");
+  });
+  let dialog = await prepare(page, title);
+  await dialog.getByRole("button", { name: "Zapisz", exact: true }).click();
+  await expect(dialog.getByRole("alert")).toBeVisible();
+  page.once("dialog", (event) => event.accept());
+  await page.reload();
+  await expect(page.getByRole("main").getByRole("alert")).toContainText(
+    "Nie potwierdzono wyniku poprzedniego zapisu",
+  );
+  await page
+    .getByRole("main")
+    .getByRole("button", { name: "Porzuć ten zapis", exact: true })
+    .click();
+  dialog = page.getByRole("dialog", { name: "Dodaj ręcznie", exact: true });
+  const confirmation = page.getByRole("alertdialog", {
+    name: "Porzucić niepotwierdzony zapis?",
+    exact: true,
+  });
+  await expect(confirmation).toBeVisible();
+  expect(
+    await confirmation.evaluate((element) =>
+      element.contains(document.activeElement),
+    ),
+  ).toBe(true);
+  await confirmation
+    .getByRole("button", { name: "Wróć do zapisu", exact: true })
+    .click();
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole("button", { name: "Zamknij", exact: true }).click();
+  await expect(confirmation).toBeVisible();
+  await confirmation
+    .getByRole("link", { name: "Otwórz listę spraw", exact: true })
+    .click();
+  await expect(page).toHaveURL(`${target.appOrigin}/recruitments`);
+  await expect(page.getByRole("dialog")).not.toBeVisible();
+  await expect(page.getByRole("alertdialog")).not.toBeVisible();
+  const pending = (await page.evaluate(() =>
+    JSON.parse(
+      sessionStorage.getItem("jobs-crm.manual-case.pending") ?? "null",
+    ),
+  )) as { ownerId: string; requestId: string };
+  expect(pending).toEqual({ ownerId: a.id, requestId: sentKey });
+  dialog = await openCapture(page);
+  await dialog.getByRole("button", { name: "Zamknij", exact: true }).click();
+  await expect(confirmation).toBeVisible();
+  await confirmation
+    .getByRole("button", { name: "Porzuć ten zapis", exact: true })
+    .click();
+  await expect(dialog).not.toBeVisible();
+  expect((await persisted(a, title)).length).toBe(0);
+});
+
+test("Recovery SDK401/403 hides an open private portal before login navigation completes and retains the pending owner key", async ({
+  browser,
+}) => {
+  for (const status of [401, 403]) {
+    const context = await browser.newContext({ ignoreHTTPSErrors: true });
+    let releaseLogin: (() => void) | undefined;
+    let recoveryClick: Promise<void> | undefined;
+    const phase = async (name: string) => {
+      if (process.env.RECRUITMENT_QA_DEBUG_PHASES !== "true") return;
+      await mkdir(".harness-runs", { recursive: true, mode: 0o700 });
+      await appendFile(
+        ".harness-runs/recruitment-recovery-navigation-phases.jsonl",
+        JSON.stringify({ status, phase: name }) + "\n",
+        { mode: 0o600 },
+      );
+    };
+    try {
+      await phase("setup-start");
+      const page = await context.newPage();
+      await login(page, a);
+      await page.goto(`${target.appOrigin}/recruitments`);
+      const title = `Recovery auth fault ${status} ${randomUUID()}`;
+      let sentKey = "";
+      await page.route("**/recruitments/commands", async (route) => {
+        sentKey = (route.request().postDataJSON() as { requestId: string })
+          .requestId;
+        await route.abort("failed");
+      });
+      const dialog = await prepare(page, title);
+      await dialog.getByRole("button", { name: "Zapisz", exact: true }).click();
+      await expect(dialog.getByRole("alert")).toBeVisible();
+      await expect(dialog).toBeVisible();
+      // Bind to this document before navigation starts. Locator operations can
+      // wait for the deliberately held login document, hiding the observation.
+      const oldPortal = await dialog.elementHandle();
+      expect(oldPortal).not.toBeNull();
+      const before = await oldPortal!.evaluate((node) => ({
+        connected: node.isConnected,
+        hidden: Boolean((node as HTMLElement).hidden),
+        hasLayout: node.getClientRects().length > 0,
+      }));
+      expect(before).toEqual({
+        connected: true,
+        hidden: false,
+        hasLayout: true,
+      });
+      let resolveHidden!: (value: RecoveryPortalObservation) => void;
+      const hiddenObservation = new Promise<RecoveryPortalObservation>(
+        (resolve) => {
+          resolveHidden = resolve;
+        },
+      );
+      const bindingName = "__qaRecoveryPortalHidden";
+      await phase("binding-install-before");
+      await page.exposeBinding(
+        bindingName,
+        (source, value: RecoveryPortalObservation) => {
+          if (source.frame === page.mainFrame()) resolveHidden(value);
+        },
+      );
+      await phase("binding-install-after-observer-install-before");
+      await oldPortal!.evaluate((node, binding) => {
+        const visible = (element: Element) => {
+          const style = getComputedStyle(element);
+          return (
+            element.isConnected &&
+            element.getClientRects().length > 0 &&
+            style.display !== "none" &&
+            style.visibility !== "hidden"
+          );
+        };
+        // Passive observation only: real application mutations trigger this;
+        // no synthetic events, session overrides or DOM changes are injected.
+        const observer = new MutationObserver(() => {
+          if (visible(node)) return;
+          observer.disconnect();
+          const observation: RecoveryPortalObservation = {
+            connected: node.isConnected,
+            hidden: Boolean((node as HTMLElement).hidden),
+            visible: visible(node),
+            visiblePortals: [
+              ...node.ownerDocument.querySelectorAll(
+                '[role="dialog"],[role="alertdialog"]',
+              ),
+            ].filter(visible).length,
+            pending: JSON.parse(
+              sessionStorage.getItem("jobs-crm.manual-case.pending") ?? "null",
+            ),
+          };
+          const report = (
+            globalThis as unknown as Record<
+              string,
+              (value: RecoveryPortalObservation) => Promise<void>
+            >
+          )[binding];
+          void report(observation).catch(() => {});
+        });
+        observer.observe(node.ownerDocument, {
+          subtree: true,
+          childList: true,
+          attributes: true,
+          attributeFilter: ["hidden", "style", "class"],
+        });
+      }, bindingName);
+      await oldPortal!.dispose();
+      await phase("observer-install-after");
+      let authRequests = 0;
+      await page.route(`${target.apiUrl}/auth/v1/user`, async (route) => {
+        authRequests++;
+        await route.fulfill({
+          status,
+          contentType: "application/json",
+          body: JSON.stringify({
+            code: "bad_jwt",
+            message: "Synthetic recovery authorization fault",
+          }),
+        });
+      });
+      const gate = new Promise<void>((resolve) => {
+        releaseLogin = resolve;
+      });
+      let loginRequested = false;
+      await page.route(`${target.appOrigin}/login`, async (route) => {
+        loginRequested = true;
+        await gate;
+        await route.continue();
+      });
+      // click() may await its initiated navigation. Keep it in flight while
+      // observing the old document, then settle it after releasing the response.
+      recoveryClick = dialog
+        .getByRole("button", { name: "Sprawdź wynik zapisu", exact: true })
+        .click();
+      void recoveryClick.catch(() => {});
+      await phase("click-started-auth-poll-before");
+      await expect.poll(() => authRequests).toBeGreaterThan(0);
+      await phase("auth-poll-after-nav-poll-before");
+      await expect.poll(() => loginRequested).toBe(true);
+      await phase("nav-poll-after-node-observation-wait-before");
+      // The login document is deliberately held: this checks the previous
+      // document's portal protection, rather than disappearance after navigation.
+      let observationTimer: ReturnType<typeof setTimeout> | undefined;
+      let observed: RecoveryPortalObservation;
+      try {
+        observed = await Promise.race([
+          hiddenObservation,
+          new Promise<never>((_, reject) => {
+            observationTimer = setTimeout(
+              () =>
+                reject(
+                  new Error(
+                    "Real portal-hide observation missing while login document is held",
+                  ),
+                ),
+              5000,
+            );
+          }),
+        ]);
+      } finally {
+        clearTimeout(observationTimer);
+      }
+      await phase("node-observation-wait-after-assert-before");
+      expect(observed.hidden || !observed.connected).toBe(true);
+      expect(observed.visible).toBe(false);
+      expect(observed.visiblePortals).toBe(0);
+      expect(observed.pending).toEqual({ ownerId: a.id, requestId: sentKey });
+      await phase("assert-after-release-gate");
+      releaseLogin?.();
+      await phase("click-await-before");
+      await recoveryClick;
+      await phase("click-await-after-login-assert-before");
+      await expect(page).toHaveURL(/\/login(?:\?|$)/);
+      await phase("login-assert-after-persisted-before");
+      expect((await persisted(a, title)).length).toBe(0);
+      await phase("persisted-after");
+    } finally {
+      await phase("finally-before");
+      releaseLogin?.();
+      await context.close();
+      if (recoveryClick) await Promise.allSettled([recoveryClick]);
+      await phase("finally-after");
+    }
+  }
 });

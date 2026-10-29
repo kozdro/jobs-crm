@@ -1,0 +1,103 @@
+{
+  "status": "OBSERVED - claimed rejection not reproduced",
+  "node": {
+    "execPath": "/private/tmp/jobs-crm-f1-toolchain/node-v24.22.2-darwin-arm64/bin/node",
+    "version": "v24.22.2",
+    "icu": "78.3",
+    "ada": "4.0.0",
+    "nodeOptionsPresent": false,
+    "globalIsNodeURL": true,
+    "rows": [
+      {
+        "host": "xn--a.invalid",
+        "outcome": "accept",
+        "href": "https://xn--a.invalid/",
+        "domainToASCII": "xn--a.invalid",
+        "domainToUnicode": "xn--a.invalid"
+      },
+      {
+        "host": "xn--.invalid",
+        "outcome": "accept",
+        "href": "https://xn--.invalid/",
+        "domainToASCII": "xn--.invalid",
+        "domainToUnicode": "xn--.invalid"
+      },
+      {
+        "host": "xn--0.invalid",
+        "outcome": "accept",
+        "href": "https://xn--0.invalid/",
+        "domainToASCII": "xn--0.invalid",
+        "domainToUnicode": "xn--0.invalid"
+      },
+      {
+        "host": "xn--abc-.invalid",
+        "outcome": "accept",
+        "href": "https://xn--abc-.invalid/",
+        "domainToASCII": "xn--abc-.invalid",
+        "domainToUnicode": "xn--abc-.invalid"
+      },
+      {
+        "host": "xn--9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999.invalid",
+        "outcome": "accept",
+        "href": "https://xn--9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999.invalid/",
+        "domainToASCII": "xn--9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999.invalid",
+        "domainToUnicode": "xn--9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999.invalid"
+      },
+      {
+        "host": "xn--bcher-kva.invalid",
+        "outcome": "accept",
+        "href": "https://xn--bcher-kva.invalid/",
+        "domainToASCII": "xn--bcher-kva.invalid",
+        "domainToUnicode": "bücher.invalid"
+      },
+      {
+        "host": "xn--fiqs8s.invalid",
+        "outcome": "accept",
+        "href": "https://xn--fiqs8s.invalid/",
+        "domainToASCII": "xn--fiqs8s.invalid",
+        "domainToUnicode": "中国.invalid"
+      }
+    ]
+  },
+  "chromium": {
+    "version": "156.0.8078.4",
+    "rows": [
+      {
+        "host": "xn--a.invalid",
+        "outcome": "accept",
+        "href": "https://xn--a.invalid/"
+      },
+      {
+        "host": "xn--.invalid",
+        "outcome": "accept",
+        "href": "https://xn--.invalid/"
+      },
+      {
+        "host": "xn--0.invalid",
+        "outcome": "accept",
+        "href": "https://xn--0.invalid/"
+      },
+      {
+        "host": "xn--abc-.invalid",
+        "outcome": "accept",
+        "href": "https://xn--abc-.invalid/"
+      },
+      {
+        "host": "xn--9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999.invalid",
+        "outcome": "accept",
+        "href": "https://xn--9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999.invalid/"
+      },
+      {
+        "host": "xn--bcher-kva.invalid",
+        "outcome": "accept",
+        "href": "https://xn--bcher-kva.invalid/"
+      },
+      {
+        "host": "xn--fiqs8s.invalid",
+        "outcome": "accept",
+        "href": "https://xn--fiqs8s.invalid/"
+      }
+    ]
+  },
+  "noSourceRequests": true
+}

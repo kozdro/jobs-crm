@@ -96,7 +96,93 @@ const vectors = [
   "https://[0:0:0:0:0:0:0:0]/offer",
   "https://example.invalid/offer?posting=a/../b&path=%2e%2e#../%2e",
   `https://example.invalid/jobs?posting=${"x".repeat(10_000)}#keep`,
+  "http://0x/offer",
+  "http://0x./offer",
+  "http://0X/offer",
+  "http://0xg/offer",
+  "http://a.0xg/offer",
+  // These ACE labels are accepted by both pinned Node/Ada and Chromium.
+  // Their parity is observed runtime behavior, not a claim of RFC IDNA validity.
+  "https://xn--a.invalid/offer",
+  "https://xn--.invalid/offer",
+  "https://xn--0.invalid/offer",
+  "https://xn--abc-.invalid/offer",
+  `https://xn--${"9".repeat(100)}.invalid/offer`,
+  "https://żółć.invalid/offer",
+  "https://bücher.invalid/offer",
+  "https://例子.invalid/offer",
+  "https://العربية.invalid/offer",
+  "https://παράδειγμα.invalid/offer",
+  "https://한국.invalid/offer",
+  "https://россия.invalid/offer",
+  "https://XN--BCHER-KVA.invalid/offer",
 ];
+
+export async function verifyInvalidHostnameRejection(
+  target: RecruitmentTarget,
+  owner: User,
+) {
+  const invalid = [
+    "http://a.0x/offer",
+    "http://a.0x./offer",
+    "https://xn--a%00.invalid/",
+    "https://xn--a%2f.invalid/",
+    "https://xn--a%5c.invalid/",
+    "https://xn--a%23.invalid/",
+    "https://xn--a%3f.invalid/",
+    "https://xn--a%40.invalid/",
+    "https://xn--a%3a.invalid/",
+    "https://xn--a%ff.invalid/",
+    "https://xn--a%.invalid/",
+    "https://xn--a%zz.invalid/",
+  ];
+  for (const raw of invalid) {
+    assert.throws(
+      () => new URL(raw),
+      { name: "TypeError" },
+      "Negative hostname vectors must actually be rejected by the pinned native URL oracle",
+    );
+    const key = randomUUID();
+    const title = `Invalid-host-${randomUUID()}`;
+    assert.equal(
+      parseCreateCaseInput({ requestId: key, title, sourceUrl: raw }).success,
+      false,
+    );
+    const rpcReply = await call(target, owner, key, title, raw);
+    assert.ok(
+      rpcReply.status >= 400 && rpcReply.status < 500,
+      "Invalid hostname must be refused by RPC",
+    );
+    const direct = await request(
+      target,
+      owner.token,
+      table,
+      "POST",
+      { request_id: key, title, source_url: raw },
+      {},
+      "public",
+    );
+    assert.ok(
+      direct.status >= 400 && direct.status < 500,
+      "Invalid hostname must be refused by direct Data API",
+    );
+    const absent = await request(
+      target,
+      owner.token,
+      `${table}?select=id&request_id=eq.${key}`,
+      "GET",
+      undefined,
+      {},
+      "public",
+    );
+    assert.equal(absent.status, 200);
+    assert.deepEqual(
+      absent.body,
+      [],
+      "Invalid hostname must leave no partial case",
+    );
+  }
+}
 
 /** Every vector is sent through real HTTP with the user JWT; no source is fetched. */
 export async function verifyUrlRepresentationParity(

@@ -6,9 +6,9 @@
 
 ## Implementacja i odpowiedzialność
 
-Root/orchestrator: kontrakt/raport/Git, prywatne ścieżki proxy i minimalne wejście Dashboard według DEC-018. Spec-analyst: DEC-052/OPEN/traceability i przegląd modelu przed migracjami (MODEL READY). Backend: domain/application/Data API, business command i sześć migracji Drizzle. Frontend/UX: minimalny shell, Quick Capture i list/detail. Platforma: osobny guarded lokalny profil, ledger i obowiązkowy job CI. QA od planowania: real HTTP JWT A/B/anon i Playwright. Sesje autorów: root, spec_first_slice, backend_first_slice, frontend_first_slice, platform_first_slice, qa_first_slice. Model/reasoning dziedziczone, dokładne wartości autorów NOT EXPOSED. Reviewerzy są odrębnymi read-only sesjami, ich wyniki poniżej nie są zastępowane samooceną autora.
+Root/orchestrator: kontrakt/raport/Git, prywatne ścieżki proxy i minimalne wejście Dashboard według DEC-018. Spec-analyst: DEC-052/OPEN/traceability i przegląd modelu przed migracjami (MODEL READY). Backend: domain/application/Data API, business command i siedem migracji Drizzle. Frontend/UX: minimalny shell, Quick Capture i list/detail. Platforma: osobny guarded lokalny profil, ledger i obowiązkowy job CI. QA od planowania: real HTTP JWT A/B/anon i Playwright. Sesje autorów: root, spec_first_slice, backend_first_slice, frontend_first_slice, platform_first_slice, qa_first_slice. Model/reasoning dziedziczone, dokładne wartości autorów NOT EXPOSED. Reviewerzy są odrębnymi read-only sesjami, ich wyniki poniżej nie są zastępowane samooceną autora.
 
-Jedna `public.recruitment_case`, source_url opcjonalne; sześć migracji `0000_recruitment_validation`, `0001_recruitment_case`, `0002_recruitment_access_and_create`, `0003_recruitment_intent_before_warning`, `0004_recruitment_url_canonical_boundary`, `0005_recruitment_url_constraint_revalidation`. Drizzle jest jedyną historią produktu, ledger `recruitment_migrations`; pięć F2 migration oraz profile/raporty F1/F2/F3 niezmienione. RLS owner SELECT/INSERT, INSERT column grants chronią owner/status/ID/datę, brak UPDATE/DELETE, FK NO ACTION do auth.users. RPC INVOKER i explicit EXECUTE, owner-key UNIQUE oraz atomic replay/409, bez fikcyjnej historii.
+Jedna `public.recruitment_case`, source_url opcjonalne; siedem migracji `0000_recruitment_validation`, `0001_recruitment_case`, `0002_recruitment_access_and_create`, `0003_recruitment_intent_before_warning`, `0004_recruitment_url_canonical_boundary`, `0005_recruitment_url_constraint_revalidation`, `0006_recruitment_numeric_host_parity`. Drizzle jest jedyną historią produktu, ledger `recruitment_migrations`; pięć F2 migration oraz profile/raporty F1/F2/F3 niezmienione. RLS owner SELECT/INSERT, INSERT column grants chronią owner/status/ID/datę, brak UPDATE/DELETE, FK NO ACTION do auth.users. RPC INVOKER i explicit EXECUTE, owner-key UNIQUE oraz atomic replay/409, bez fikcyjnej historii.
 
 Strony `/dashboard`, `/recruitments`, `/recruitments/[id]`; POST `/recruitments/commands` wnosi walidację, tożsamość/CSRF i logikę domenową. Prywatne odpowiedzi no-store, per-request user JWT, bez service-role w produkcie. Primary password login przechodzi na minimalny Dashboard zgodnie z DEC-018; F3 login helper weryfikuje ten ekran, a następnie zachowuje wcześniejsze asercje konta/bezpieczeństwa. PKCE callback/recovery bez zmiany kontraktu.
 
@@ -19,7 +19,7 @@ Node24.22.2/pnpm12.16.1, macOS arm64 i lokalny Linux Docker. Bez nowych zależno
 | Kontrola | Komenda / zakres | Wynik |
 | --- | --- | --- |
 | Frozen install | pnpm install --frozen-lockfile --offline | PASS |
-| Unit aplikacji | pnpm test:unit | PASS 143/143 Vitest |
+| Unit aplikacji | pnpm test:unit | PASS 148/148 Vitest |
 | Unit narzędzi | ta sama komenda | PASS 59/59 node:test |
 | Typy | pnpm typecheck | PASS |
 | Lint | pnpm lint | PASS |
@@ -27,8 +27,8 @@ Node24.22.2/pnpm12.16.1, macOS arm64 i lokalny Linux Docker. Bez nowych zależno
 | Harness | sync.py --check, check.py | PASS |
 | Harness regresje | python3 -m unittest discover -s harness/scripts -p 'test_*.py' -v, isolated source snapshot | PASS 20/20, 6.674s; nie są to testy aplikacji |
 | F2 | pnpm test:integration:f2 / własne profile5642x | PASS85/85 TAP, 207.255s; wszystkie owned targets usunięte guardem |
-| Produkt build/HTTP | RECRUITMENT_TARGET_ID=url-parity-a pnpm test:recruitment R5 | PASS build i24/24HTTP |
-| Produkt browser | ten sam R5, desktop/mobile375px, HTTPS3153 | PASS17/17, zero skips/failures |
+| Produkt build/HTTP | RECRUITMENT_TARGET_ID=ace-parity-a pnpm test:recruitment R9 | PASS build i25/25HTTP |
+| Produkt browser | ten sam R9, desktop/mobile375px, HTTPS3153 | PASS19/19, zero skips/failures |
 | F1 boundaries/canary | pnpm test:boundaries; pnpm test:canary | PASS7kontroli +3kontrole |
 | F1 build/browser | pnpm build; pnpm test:e2e:foundation | PASS build i3/3browser |
 | F3 pełna regresja Auth/HTTPS | pnpm test:auth:f3 | PASS build, SDK13/13 i browser10/10, artifact/log scans oraz owned cleanup |
@@ -55,7 +55,7 @@ Statyczny backend review kandydata `f1dbf9692b0245358dcbc471670be68f20e01c72` po
 
 Pierwsze wrappery review przerwano: jednoczesny F3 zmieniał ignorowane artefakty runtime, które wrapper także fingerprintuje. Nie są to końcowe PASS review. Aby zapewnić niezmienność całego ocenianego drzewa, końcowe niezależne sesje odbędą się przez niezmieniony wrapper w osobnym źródłowym worktree dokładnego commitu, bez buildów/runtime w tym worktree. Static finding zachowano i naprawiamy; przerwane sesje nie zastępują pełnego review.
 
-Historyczny R2 (trzy migracje) ma [osobny wynik](evidence/recruitment-first-slice/product-r2-pass.json) i [własny manifest](evidence/recruitment-first-slice/source-manifest-r2.json). Historyczny R3 ma [własny manifest](evidence/recruitment-first-slice/source-manifest-r3.json). Końcowy manifest obejmuje sześć migracji, URL parity i korekty UX; nie przypisujemy go wstecz do R2/R3.
+Historyczny R2 (trzy migracje) ma [osobny wynik](evidence/recruitment-first-slice/product-r2-pass.json) i [własny manifest](evidence/recruitment-first-slice/source-manifest-r2.json). Historyczny R3 ma [własny manifest](evidence/recruitment-first-slice/source-manifest-r3.json). [Historyczny R5 manifest](evidence/recruitment-first-slice/source-manifest-r5.json) odpowiada sześciu migracjom; końcowy manifest obejmuje siedem migracji, numeric-host parity i korekty UX; nie przypisujemy go wstecz do R2/R3.
 
 ## Drugi pełny review — wyniki i zależne korekty
 
@@ -63,13 +63,23 @@ Historyczny R2 (trzy migracje) ma [osobny wynik](evidence/recruitment-first-slic
 
 ## Potwierdzone zachowanie produktu
 
-[Pełny R5](evidence/recruitment-first-slice/product-r5-pass.json), [manifest źródeł](evidence/recruitment-first-slice/source-manifest.json), [runtime](evidence/recruitment-first-slice/runtime-preflight.json). Realne HTTP potwierdziło własny create/read A/B, deny anon, brak cross-owner list/ID/count/duplicates, owner/status/id/time spoof denial, minimalne grants i INVOKER, native DB constraints, same-key replay/409/concurrency oraz direct-INSERT race. Negative sensitivity na disposable targetcie wykryła wyłączenie RLS w obu kierunkach, po czym RLS przywrócono i ponownie potwierdzono izolację.
+[Pełny R9](evidence/recruitment-first-slice/product-r9-pass.json), [manifest źródeł](evidence/recruitment-first-slice/source-manifest.json), [runtime](evidence/recruitment-first-slice/runtime-preflight.json). Realne HTTP potwierdziło własny create/read A/B, deny anon, brak cross-owner list/ID/count/duplicates, owner/status/id/time spoof denial, minimalne grants i INVOKER, native DB constraints, same-key replay/409/concurrency oraz direct-INSERT race. Negative sensitivity na disposable targetcie wykryła wyłączenie RLS w obu kierunkach, po czym RLS przywrócono i ponownie potwierdzono izolację.
 
-Playwright17/17: login F3→Dashboard, cztery kroki/no premature writes, Unicode/walidacja, duplicate cancel/continue i save-next, toast/open/stay, dirty Escape/X/backdrop/focus, failed-response retry+doubleclick, owner list/detail/404 i logout/cache, mobile375px/overflow/semantics, recovery po refresh przy utracie udanej odpowiedzi, pending payload/key freeze i paginacja25/27 ze stabilnym UUID przy wspólnym created_at. Testy źródłowego URL nie wykonały fetch; UI renderuje wyłącznie tekst i świadome safe links.
+Playwright19/19: login F3→Dashboard, cztery kroki/no premature writes, Unicode/walidacja, duplicate cancel/continue i save-next, toast/open/stay, dirty Escape/X/backdrop/focus, failed-response retry+doubleclick, owner list/detail/404 i logout/cache, mobile375px/overflow/semantics, recovery po refresh przy utracie udanej odpowiedzi, pending payload/key freeze i paginacja25/27 ze stabilnym UUID przy wspólnym created_at. Testy źródłowego URL nie wykonały fetch; UI renderuje wyłącznie tekst i świadome safe links.
 
 Dodatkowe nowe E2E: unknown request nigdy nie dotarł do DB→reload→świadome porzucenie bez deklaracji rollbacku,401/403→login/ukrycie portalu, widoczny i dostępny status save-next w mobile Popup, ordinary Save po dupwarn+edit zamyka kreator, Escape w nested AlertDialog zachowuje szkic. R4 miał16PASS/1FAIL z powodu niejednoznacznego selektora alertu obejmującego Next route announcer; zakres selektora poprawiono na main, bez zmiany wymaganego komunikatu. [R4 FAIL](evidence/recruitment-first-slice/product-r4-failed-browser.json) i R5PASS pozostają osobne.
 
 Regeneracja lokalnych typów ujawniła zduplikowane wygenerowane pliki .next/types/routes.d 2.ts. Zachowano cały ignorowany output w .harness-runs, wygenerowano typy od nowa i typecheckPASS; nie zmieniano źródeł/tsconfig w celu pominięcia błędu.
+
+## R3 i końcowe doprecyzowania
+
+[Statyczny R3](evidence/recruitment-first-slice/reviews-r3.json): frontend zamknął wszystkie R2findings, z nowymi3P3; security PASS z P3 bare0x. Backend zgłosił P2 ACE, ale [pinned Node24.22.2 i Chromium156](evidence/recruitment-first-slice/ace-runtime-counterevidence.json) zgodnie przyjmują xn--a i inne przywołane ACE. Przesłanka rozjazdu parserów nie odtworzyła się; nie dodano nowej polityki IDNA. Niezależne końcowe rozstrzygnięcie review pozostaje bramką. Rzeczywisty bare0x rozjazd naprawia0006 i rewalidacja CHECK, bez zmian0000–0005. QA ma49dodatnich wektorów URL i12faktycznie odrzucanych hostów, pełne HTTP25/25PASS.
+
+Frontend P3: link listy zamyka oba modale, zachowując owner-scoped pendingkey; komunikaty live są trwale zamontowane, a nagłówek opisany sukcesem; CaptureSession ma key=owner i generationcleanup, aby spóźniona odpowiedź starego ownera nie odtworzyła szkicu; oficjalny AuthSessionMissingError400 jest klasyfikowany jako re-login. Natywne czytniki ekranowe (NVDA/JAWS/VoiceOver) i fizyczne urządzenia pozostają NOT RUN — testy sprawdzają semantykę/fokus i Chromiumviewport.
+
+Dwie nowe E2E sprawdzają page-level porzucenie/re-entry i link listy oraz ukrycie portalu przy SDK401/403 przed zakończeniem loginu. Ostatni test wymagał pasywnego MutationObserver/binding: locator i evaluate blokowały się przy celowo wstrzymanej nawigacji (R6/R7/R8:18PASS/1FAIL). [Focused proof](evidence/recruitment-first-slice/focused-recovery-sdk-pass.json) 1/1PASS obejmuje obastatusy, z bramką zwolnioną dopiero po obserwacji DOM/prywatności/klucza. [Pełny R9](evidence/recruitment-first-slice/product-r9-pass.json) potwierdził build, HTTP25/25 i UI19/19. Focused result i wcześniejsze R6/R7/R8FAIL nie zastępują tego pełnego przebiegu.
+
+[Końcowy HTTP](evidence/recruitment-first-slice/qa-ace-numeric-parity-pass.json) obejmuje49dodatnich wektorów i12rzeczywiście odrzucanych hostów. Siedem migracji i zwalidowany CHECK potwierdzono w realnym katalogu. UI19/19 obejmuje pasywną obserwację starego dokumentu: MutationObserver/binding wysyła stan DOM do Node przed zakończeniem nawigacji; wstrzymanie loginu jest zwalniane dopiero po asercjach ukrycia portalu i owner-key. Nie generuje się sztucznych events ani nie osłabia timeoutu.
 
 ## Cleanup i izolacja
 
