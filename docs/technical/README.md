@@ -1,6 +1,6 @@
 # Technical Discovery — architektura Jobs CRM
 
-**Stan dokumentacji:** BASELINED (2026-10-28). **Etap:** zakończone Technical Discovery, przygotowanie do implementacji SDD/AIDD. **Status implementacji:** NOT STARTED. Żadne testy aplikacji ani PoC nie zostały wykonane.
+**Stan dokumentacji:** BASELINED (2026-10-28). **Etap:** zakończone Technical Discovery, przygotowanie do implementacji SDD/AIDD. **Status implementacji:** PR-F1 w realizacji na podstawie odrębnego zlecenia PO 2026-10-29 — [scaffold, uruchamianie i dowody](foundation-f1.md). Późniejsze PoC pozostają NOT RUN.
 
 ## Źródło decyzji i hierarchia
 
@@ -18,7 +18,7 @@ Właściciel produktu zatwierdził w rozmowie wybory **Technical Discovery 1.1�
 | [security-and-privacy.md](security-and-privacy.md) | Auth/BFF, prywatność, threat model, kontrola dostępu, usuwanie |
 | [imports-and-jobs.md](imports-and-jobs.md) | Smart Import, CSV/XLSX, atomowość, idempotencja, worker |
 | [operations-and-quality.md](operations-and-quality.md) | Hosting, kopie zapasowe, RPO/RTO, obserwowalność, testy, CI/CD |
-| [foundation-plan.md](foundation-plan.md) | Plan Foundation: małe PR, aktualność wersji, PoC Auth/RLS/RPC, OPEN, QA, operacje i następne zadanie; PROPOSED, bez inicjalizacji |
+| [foundation-plan.md](foundation-plan.md) | Plan Foundation: małe PR, aktualność wersji, PoC Auth/RLS/RPC, OPEN, QA, operacje i następne zadanie; F1 autoryzowany oddzielnie; pozostałe etapy PROPOSED |
 | [implementation-plan.md](implementation-plan.md) | Sekwencja developmentu, pionowe slice'y, bramki i DoD |
 | [gates-and-impacts.md](gates-and-impacts.md) | Pozostałe OPEN, konflikty, PoC i wpływ na istniejące FR/AC |
 

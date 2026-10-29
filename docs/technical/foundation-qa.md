@@ -1,6 +1,8 @@
 # Foundation — macierz QA i protokół dowodów
 
-**Stan:** DRAFT / PROPOSED, 2026-10-28. **Status każdego testu aplikacji, PoC i infrastruktury w tym dokumencie: `PLANNED / NOT RUN`.** W tym zadaniu powstaje plan testów; nie aplikacja, test fixtures w bazie ani środowisko. Brak implementacji jest powodem niewykonania, a nie pozytywnym wynikiem. Lokalne ID `FQA-*` identyfikują przypadki tego planu, nie zastępują istniejących AC/TC.
+**Aktualizacja F1, 2026-10-29:** FQA-01–09 implementowane w autoryzowanym PR-F1. Aktualne wyniki, komendy i kandydat: [raport F1](foundation-f1.md). FQA-10–56 pozostają PLANNED / NOT RUN. Poniższy historyczny status planowania nie jest bieżącym wynikiem F1.
+
+**Status macierzy:** kontrakty FQA-01–09 mają implementację i wyniki w raporcie F1; pozostałe przypadki są planem. Lokalne ID FQA nie zastępują istniejących AC/TC. NOT RUN nie jest wynikiem pozytywnym.
 
 Podstawa: [Foundation Plan](foundation-plan.md), [PoC Auth/RLS/RPC](foundation-pocs.md), [platforma i DR](foundation-platform.md), [OPEN i biznesowy slice](foundation-gates.md), [scaffold](foundation-frontend.md), [strategia QA](../quality/test-strategy.md), [AC](../quality/acceptance-criteria.md), [traceability](../quality/traceability.md), [ADR-0001/0003/0005/0007/0009/0010](../decisions/adr/README.md). QA przygotowuje i później implementuje integracyjne, security i E2E testy; inżynierowie piszą unit testy własnego kodu. Autor niniejszego planu QA: natywny generic subagent + kanoniczna rola qa-engineer; model/reasoning `NOT EXPOSED`. Niezależny QA review planu musi wykonać inna sesja.
 
@@ -14,7 +16,7 @@ Podstawa: [Foundation Plan](foundation-plan.md), [PoC Auth/RLS/RPC](foundation-p
 
 ## F1 — scaffold i minimalne CI
 
-Wszystkie wiersze: **PLANNED / NOT RUN**. Odpowiedzialny inżynier pisze unit/config testy; QA implementuje smoke i testy granic, platform przygotowuje czysty CI.
+Aktualne wyniki FQA-01–09: [raport F1](foundation-f1.md). Odpowiedzialny inżynier pisze unit/config testy; QA implementuje smoke i testy granic, platform przygotowuje czysty CI.
 
 | ID / testowany kontrakt | Poziom | Środowisko | Oczekiwanie / kryterium PASS | Odpowiedzialny agent | Etap |
 |---|---|---|---|---|---|
@@ -25,7 +27,7 @@ Wszystkie wiersze: **PLANNED / NOT RUN**. Odpowiedzialny inżynier pisze unit/co
 | FQA-05 Env: poprawne/brakujące/niepoprawne | Unit | L0 | Scaffold działa bez DB/Auth; wymagany dla aktywnego trybu env walidowany; błędy nazwane bez wartości; brak niejawnego targetu produkcji | frontend-engineer | F1 |
 | FQA-06 Redakcja i publiczny bundle | Unit + build inspection | L0 | Syntetyczny sekret-canary w server env nie występuje w browser assets, HTML/RSC, logach ani raporcie błędu; publiczne zmienne tylko jawnie dozwolone | frontend-engineer + QA | F1; ponownie F3/F5 |
 | FQA-07 Production build/start | Integracja procesu | L0 | Fresh build oraz start działają na skonfigurowanym porcie bez usług; brak zależności od lokalnego cache/dist lub env autora | platform-engineer + QA | F1 |
-| FQA-08 Techniczny smoke | Playwright E2E | L0 + production start | HTTP200 strony i side-effect-free `/health/ready`, obecny semantyczny główny obszar/tytuł; brak client errors i sekretnych danych. Smoke nie dowodzi biznesowych AC | QA | F1 |
+| FQA-08 Techniczny smoke | Playwright E2E | L0 + production start | HTTP200 strony i side-effect-free `/health/ready`, obecny semantyczny główny obszar/tytuł, `lang=pl`, rzeczywiste computed styles Tailwind v4, używany komponent shadcn/Base UI i ikona Lucide, brak overflow na mobile; brak client errors i sekretnych danych. Smoke nie dowodzi biznesowych AC | QA | F1 |
 | FQA-09 Required CI nie pomija błędów | CI regression | Izolowany testowy PR L0 | Celowo czerwony typecheck/test oraz skipped zależny job nie dają zielonego końcowego gate; exact head SHA i wymagane joby identyfikowalne; fork nie dostaje sekretów | platform-engineer + QA | F1 przed przyjęciem pipeline |
 
 ## F2 — migracje i RLS A/B

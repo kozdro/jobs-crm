@@ -1,6 +1,8 @@
 # Foundation Plan — SDD/AIDD
 
-**Stan redakcyjny:** DRAFT, 2026-10-28. **Status planu wykonania:** PROPOSED do odrębnej autoryzacji PO. Niniejsze zadanie autoryzuje analizę, dokumentację, review oraz commit/push/PR; nie inicjalizację aplikacji, instalację pakietów, migracje, Supabase CLI ani provisioning. **Wszystkie opisane niżej testy aplikacji/PoC: PLANNED / NOT RUN.**
+**Aktualizacja PR-F1, 2026-10-29:** PO w zadaniu „Jobs CRM — PR-F1 Application Scaffold & CI” autoryzował inicjalizację, lokalne zależności, implementację, testy, niezależny review, commit/push/PR bez merge i provisioningu. Rozszerzenie obejmuje Tailwind CSS v4, shadcn/ui z Base UI i Lucide React — [ADR-0011](../decisions/adr/0011-frontend-foundation.md). Wyniki F1 i instrukcje: [raport F1](foundation-f1.md). Pozostałe etapy i testy zachowują statusy poniżej.
+
+**Baseline planu powstał 2026-10-28 jako PROPOSED. F1 ma obecnie osobną autoryzację; F2–F6 i ich testy pozostają PROPOSED / PLANNED / NOT RUN.** Zgoda F1 nie obejmuje usług, migracji ani provisioningu.
 
 ## 1. Executive summary
 
@@ -78,22 +80,22 @@ Rekomendacje są PROPOSED. Sprawdzenie publikacji oraz deklarowanych engines/pee
 | Vitest / Playwright | **5.0.5 / 1.64.1**, PR-F1 i kolejne | [Vitest](https://registry.npmjs.org/vitest/5.0.5) akceptuje Node24; [Playwright](https://registry.npmjs.org/@playwright/test/1.64.1) Node ≥20. Pin runnera i odpowiadających mu przeglądarek. |
 | Supabase SDK / SSR | **2.118.0 / 0.12.7**, dopiero PR-F3 | [SDK](https://registry.npmjs.org/@supabase/supabase-js/2.118.0) Node ≥22; [SSR](https://registry.npmjs.org/@supabase/ssr/0.12.7) peer SDK `^2.114.0`. SSR jest opcjonalnym adapterem PoC, nie dowodem HttpOnly ani planem browser clienta. |
 | Drizzle ORM / Kit / Supabase CLI | **0.45.4 / 0.31.11 / 2.122.0**, PR-F2 | [platforma](foundation-platform.md) podaje źródła i preflight DB/extension versions. Wersję lokalnego PostgreSQL i obrazów zapisuje rzeczywisty preflight; nie zgadywać z numeru CLI. |
-| Pozostałe zależności | Według scaffold/platform, tylko potrzebne danemu PR | Typy Node muszą odpowiadać Node24, nie globalnemu latest26. Driver migracji i walidator wymagają przypięcia oraz uzasadnienia; bez UI kit, tRPC, frameworka DI, telemetry SDK lub parserów importu w scaffold. |
+| Pozostałe zależności | Według scaffold/platform, tylko potrzebne danemu PR | Typy Node muszą odpowiadać Node24, nie globalnemu latest26. Driver migracji i walidator wymagają przypięcia oraz uzasadnienia; bez tRPC, frameworka DI, telemetry SDK lub parserów importu w scaffold. Wyjątek zatwierdzony 2026-10-29: Tailwind v4, shadcn/ui + Base UI oraz Lucide React według ADR-0011. |
 
 Weryfikacja dokumentacji: Context7 `resolve-library-id` → `query-docs` dla Next.js oraz źródła oficjalne i metadane publikacji; indeks Context7 wskazywał także starsze wersje niż bieżący registry. O wyborze pinu decyduje jawne wydanie stabilne i macierz kompatybilności, nie numer przykładu z canary. Dokładny lockfile powstanie dopiero w autoryzowanym PR implementacyjnym. Aktualizacje zależności: osobny review, changelog/security advisories, typecheck/lint/build/test; zakaz automatycznych major upgrades i ignorowania peer errors.
 
 ## 5. Kolejność małych PR
 
-Identyfikatory PR-F* są lokalnymi nazwami planu, nie nowymi FR/AC ani numerami GitHub. Każdy PR wymaga osobnej autoryzacji wskazanego zakresu. Wszystkie testy poniżej **PLANNED / NOT RUN**. Wspólny DoD: konkretna baza/kandydat, implementacja tylko przydzielonego zakresu, dowody QA, niezależny review, brak P0/P1, aktualna dokumentacja i zero sekretów. Review security jest dodatkowe tam, gdzie wskazano; nie nadaje zgody na cloud ani produkt.
+Identyfikatory PR-F* są lokalnymi nazwami planu, nie nowymi FR/AC ani numerami GitHub. Każdy PR wymaga osobnej autoryzacji wskazanego zakresu. Kontrakty testów poniżej są planem; bieżące wyniki F1 wskazuje raport, F2–F6 pozostają **PLANNED / NOT RUN**. Wspólny DoD: konkretna baza/kandydat, implementacja tylko przydzielonego zakresu, dowody QA, niezależny review, brak P0/P1, aktualna dokumentacja i zero sekretów. Review security jest dodatkowe tam, gdzie wskazano; nie nadaje zgody na cloud ani produkt.
 
 ### PR-F1 — minimalny scaffold i CI bez usług
 
-- **Cel/zakres:** uruchamialny App Router + React/strict TS, ESLint flat config, Prettier, runtime env z trybem bez usług, jedna techniczna strona i health response bez informacji o zależnościach. Unit test konfiguracji, Playwright smoke; bez logowania i UI spraw.
-- **Decyzje/zależności:** osobna zgoda PO na tę kartę oraz kandydatów wersji/małe zależności wykonawcze; ADR-0001/0010 obowiązują. Brak zależności od OPEN-002 lub publicznej rejestracji. Preflight wersji przed install.
-- **Role/pliki:** platform-engineer: manifest, lock, Node/pnpm pin, `.github/workflows/app-ci.yml`; frontend-engineer: `src/app/{layout,page}.tsx`, health Route Handler, `tsconfig.json`, `next.config.ts`, lint/format, `src/shared/{server,validation}`; QA: `tests/`, config Vitest/Playwright. Ownership konkretnych plików ustalić przed zapisem. Review frontend + backend dla config.
+- **Cel/zakres:** uruchamialny App Router + React/strict TS, ESLint flat config, Prettier, runtime env z trybem bez usług, Tailwind v4 (CSS-first/PostCSS), shadcn/ui + Base UI, Lucide React, jedna neutralna techniczna strona i health response bez informacji o zależnościach. Unit test konfiguracji, Playwright smoke; bez logowania i UI spraw.
+- **Decyzje/zależności:** zgoda PO na tę kartę, kandydatów wersji/małe zależności wykonawcze udzielona 2026-10-29; ADR-0001/0010 obowiązują. Brak zależności od OPEN-002 lub publicznej rejestracji. Preflight wersji przed install.
+- **Role/pliki:** platform-engineer: manifest, lock, Node/pnpm pin, `.github/workflows/app-ci.yml`; frontend-engineer: `src/app/{layout,page}.tsx`, health Route Handler, `tsconfig.json`, `next.config.ts`, lint/format, `src/shared/{server,validation}`; QA: `tests/`, config Vitest/Playwright. Ownership konkretnych plików ustalić przed zapisem. Review frontend + backend dla config oraz security dla env, client/server i CI.
 - **Testy/DoD:** fresh checkout frozen install; strict typecheck, lint, format, production build/start; unit env success/missing/secret redaction, client/server import rejection, Playwright HTTP/DOM smoke, negatywny sekret-canary bundle scan; CI na dokładnym SHA. Szczegóły w [QA](foundation-qa.md).
 - **Ryzyka/STOP:** peer incompatibility, niejawne generator defaults zmieniające AGENTS/harness, ujawnienie env, warunek instalatora poza zakresem. STOP przy konieczności modelu domenowego, nowych polityk Auth/hosting lub zależności nieuzasadnionych kartą.
-- **Poza zakresem:** Supabase CLI/Docker, migracje/DB, Auth SDK, worker, cloud, cookies/sesje, RecruitmentCase, design system, instalatory przepisujące instrukcje repo.
+- **Poza zakresem:** Supabase CLI/Docker, migracje/DB, Auth SDK, worker, cloud, cookies/sesje, RecruitmentCase, finalny design system, instalatory przepisujące instrukcje repo.
 
 ### PR-F2 — izolowany local DB/migracje i syntetyczny RLS
 
