@@ -1,6 +1,6 @@
 # Foundation F1 — scaffold, uruchamianie i dowody
 
-**Data:** 2026-10-29. **Zakres:** PR-F1, bez merge i provisioningu. **Status dowodów lokalnych:** FQA-01–08 PASS, negatywna próba FQA-09 PASS. Finalny wynik CI exact head SHA i zamknięcie F1 raportuje Pull Request; nie należy wywodzić go z samych lokalnych wyników.
+**Data:** 2026-10-29. **Zakres:** PR-F1, bez merge i provisioningu. **Status dowodów lokalnych:** FQA-01–08 PASS, negatywna próba FQA-09 PASS. Finalny wynik CI exact head SHA i zamknięcie F1 raportuje [PR #7](https://github.com/kozdro/jobs-crm/pull/7); nie należy wywodzić go z samych lokalnych wyników.
 
 ## Podstawa, autoryzacja i wpływ
 
@@ -138,13 +138,20 @@ Sandbox Codex odmówił ubocznego zapisu systemowego cache xcrun; nie obchodzono
 
 - P3 snapshot kopiujący ignorowane `secrets/` i `private/`: FIXED — oba katalogi i `.env*` wykluczone; syntetyczny temp-source test potwierdza pominięcie poufnych plików i zachowanie zwykłych źródeł.
 - P3 zakres canary: FIXED — skan również całego `.next/server/app`, wygenerowanych HTML/RSC/segments i odpowiedzi 404. Rerun canary PASS.
-- P3 przyszły nieautoryzowany publiczny env: FIXED — lint zakazuje odczytu `process.env` w `src` poza adapterami `shared/server`, z negatywnym fixture. Odrzucane są również computed access i destrukturyzacja. Obecny kod nie ma publicznych zmiennych.
+- P3 przyszły nieautoryzowany publiczny env: FIXED — lint zakazuje bezpośredniego odczytu `process.env` w obecnych źródłach TS/TSX `src` poza adapterami `shared/server`, z negatywnym fixture. Odrzucane są również computed access i destrukturyzacja. Obecny kod nie ma publicznych zmiennych.
 - P3 APP_ORIGIN normalizacja/HTTPS: DEFERRED do kontraktu F3, zanim origin będzie użyty do Auth/redirect/CSRF. F1 sprawdza tylko poprawny techniczny HTTP(S) origin; nie używa go do decyzji bezpieczeństwa ani nie wdraża produkcji. Nie wprowadzono nowej polityki HTTPS/sesji jako domysłu.
 - P3 ochrona gałęzi: potwierdzono brak ochrony, osobny krok administratora poniżej, poza implementacją F1.
 
 Dev-only LOW deepmerge: niezależny security reviewer ocenił ryzyko jako akceptowalne dla F1 przy oficjalnym registry, przeglądzie diffu i zależności oraz ponowieniu audit po wydaniu poprawki. CLI nie jest uruchamiany w CI/release; nie uruchamiaj go w katalogu z sekretami `.env*`, bo używa dotenv. Nie dodawaj własnego registry bez review. Podatność pozostaje jawnie zgłoszona; zero podatności runtime nie oznacza czystego całego grafu.
 
-Orchestrator potwierdził `git -C /tmp/jobs-f1-review-security-reviewer rev-parse HEAD` = `59fd949f63416deeed27151266892ebcc42e084b` i czyste drzewo po review; wrapper potwierdził identyczny fingerprint. Claude restricted nie mogło samodzielnie odczytać zewnętrznych metadanych worktree i dlatego uczciwie odnotowało tę granicę. R2 otrzymuje lokalny odczytywalny diff i metadata kandydata. Poprawki P3 zweryfikowano ponownie: typecheck/lint, 7 boundary assertions, canary oraz Prettier PASS. Docelowy wynik niezależnego R2 raportuje PR wraz z sesjami i kandydatem.
+Orchestrator potwierdził `git -C /tmp/jobs-f1-review-security-reviewer rev-parse HEAD` = `59fd949f63416deeed27151266892ebcc42e084b` i czyste drzewo po review; wrapper potwierdził identyczny fingerprint. Claude restricted nie mogło samodzielnie odczytać zewnętrznych metadanych worktree i dlatego uczciwie odnotowało tę granicę. R2 otrzymuje lokalny odczytywalny diff i metadata kandydata. Poprawki P3 zweryfikowano ponownie: typecheck/lint, 7 boundary assertions, canary oraz Prettier PASS. Niezależny R2 na `d60e252ca09c6bba839ebb4b81da4c99ef833a78`: frontend PASS bez nowych findings (Codex parent `01a187ba-3e6d-7cc1-a158-50787eb10815`), backend PASS bez nowych findings (parent `01a187ba-3e6d-7e30-9158-b58d5bcf41a0`), security PASS bez P0/P1/P2 (Claude Opus5.5, sesja `fb56fdea-69a5-4ed9-8ed7-0f36e76b1103`). We wszystkich exit0, changedFiles=[], wspólny identyczny fingerprint przed/po `de5430a16c0ad44807a3d6efae85b641b336c39302163972c9c325fe0b9deb89`. P3 #1–3 uznano za rozwiązane; odroczenie #4 do F3 i #5 do administratora uznano za zasadne.
+
+Security R2 pozostawił dwa nieblokujące P3:
+
+- P3-A: guardrail ESLint jest skonfigurowany dla obecnych źródeł TS/TSX. Nie jest ogólnym sandboxem: nie obejmuje przyszłych JS/JSX/MJS/CJS ani pośrednich aliasów procesu. Obecne `src` zawiera wyłącznie TS/TSX, bez tych aliasów i publicznych env. Rozszerzenie kontroli jest **DEFERRED przed dodaniem takich plików/aliasów, najpóźniej przy F3**; aktualny F1 nie ma takiej ekspozycji. Osobna rzeczywiście wykonana próba stdin ESLint na wirtualnym `src/env-boundary-probe.ts` sprawdziła dostęp kropkowy, `process["env"]` i destrukturyzację: dokładnie trzy `no-restricted-properties`, oczekiwany exit1, bez zapisu plików. Nie mylić tej próby z jednym utrwalonym fixture kropkowym w `test:boundaries`.
+- P3-B: link do odroczonego kontraktu origin powinien trafić do planu F3 i macierzy QA. **FIXED dokumentacyjnie**: odnośniki w PR-F3 planu oraz FQA-23/28, bez ustalania polityki HTTPS lub sesji.
+
+Kolejny commit po R2 aktualizuje wyłącznie tę dokumentację i wskaźniki F3; kod, konfiguracja i testy są identyczne z ocenionym `d60e252`. Końcowe dokładne SHA, stan CI i niezależna ocena tego uzupełnienia są raportowane w PR #7.
 
 ## CI i ochrona gałęzi
 
