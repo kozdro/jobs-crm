@@ -956,6 +956,10 @@ test("AUTH-03/07 FQA-23/29 native no-store BFCache exclusion and back/logout nav
       expect(
         (await context.request.get(`${target.appOrigin}/auth/user`)).status(),
       ).toBe(401);
+      expect(
+        events.filter((event) => event.path === "/account" && event.persisted)
+          .length,
+      ).toBe(0);
       console.info(
         "F3_BFCACHE_OBSERVATION " +
           JSON.stringify({
