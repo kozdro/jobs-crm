@@ -6,9 +6,9 @@
 
 ## Implementacja i odpowiedzialność
 
-Root/orchestrator: kontrakt/raport/Git, prywatne ścieżki proxy i minimalne wejście Dashboard według DEC-018. Spec-analyst: DEC-052/OPEN/traceability i przegląd modelu przed migracjami (MODEL READY). Backend: domain/application/Data API, business command i trzy migracje Drizzle. Frontend/UX: minimalny shell, Quick Capture i list/detail. Platforma: osobny guarded lokalny profil, ledger i obowiązkowy job CI. QA od planowania: real HTTP JWT A/B/anon i Playwright. Sesje autorów: root, spec_first_slice, backend_first_slice, frontend_first_slice, platform_first_slice, qa_first_slice. Model/reasoning dziedziczone, dokładne wartości autorów NOT EXPOSED. Reviewerzy są odrębnymi read-only sesjami, ich wyniki poniżej nie są zastępowane samooceną autora.
+Root/orchestrator: kontrakt/raport/Git, prywatne ścieżki proxy i minimalne wejście Dashboard według DEC-018. Spec-analyst: DEC-052/OPEN/traceability i przegląd modelu przed migracjami (MODEL READY). Backend: domain/application/Data API, business command i cztery migracje Drizzle. Frontend/UX: minimalny shell, Quick Capture i list/detail. Platforma: osobny guarded lokalny profil, ledger i obowiązkowy job CI. QA od planowania: real HTTP JWT A/B/anon i Playwright. Sesje autorów: root, spec_first_slice, backend_first_slice, frontend_first_slice, platform_first_slice, qa_first_slice. Model/reasoning dziedziczone, dokładne wartości autorów NOT EXPOSED. Reviewerzy są odrębnymi read-only sesjami, ich wyniki poniżej nie są zastępowane samooceną autora.
 
-Jedna `public.recruitment_case`, source_url opcjonalne; trzy migracje `0000_recruitment_validation`, `0001_recruitment_case`, `0002_recruitment_access_and_create`. Drizzle jest jedyną historią produktu, ledger `recruitment_migrations`; pięć F2 migration oraz profile/raporty F1/F2/F3 niezmienione. RLS owner SELECT/INSERT, INSERT column grants chronią owner/status/ID/datę, brak UPDATE/DELETE, FK NO ACTION do auth.users. RPC INVOKER i explicit EXECUTE, owner-key UNIQUE oraz atomic replay/409, bez fikcyjnej historii.
+Jedna `public.recruitment_case`, source_url opcjonalne; cztery migracje `0000_recruitment_validation`, `0001_recruitment_case`, `0002_recruitment_access_and_create`, `0003_recruitment_intent_before_warning`. Drizzle jest jedyną historią produktu, ledger `recruitment_migrations`; pięć F2 migration oraz profile/raporty F1/F2/F3 niezmienione. RLS owner SELECT/INSERT, INSERT column grants chronią owner/status/ID/datę, brak UPDATE/DELETE, FK NO ACTION do auth.users. RPC INVOKER i explicit EXECUTE, owner-key UNIQUE oraz atomic replay/409, bez fikcyjnej historii.
 
 Strony `/dashboard`, `/recruitments`, `/recruitments/[id]`; POST `/recruitments/commands` wnosi walidację, tożsamość/CSRF i logikę domenową. Prywatne odpowiedzi no-store, per-request user JWT, bez service-role w produkcie. Primary password login przechodzi na minimalny Dashboard zgodnie z DEC-018; F3 login helper weryfikuje ten ekran, a następnie zachowuje wcześniejsze asercje konta/bezpieczeństwa. PKCE callback/recovery bez zmiany kontraktu.
 
@@ -27,11 +27,11 @@ Node24.22.2/pnpm12.16.1, macOS arm64 i lokalny Linux Docker. Bez nowych zależno
 | Harness | sync.py --check, check.py | PASS |
 | Harness regresje | python3 -m unittest discover -s harness/scripts -p 'test_*.py' -v, isolated source snapshot | PASS 20/20, 6.674s; nie są to testy aplikacji |
 | F2 | pnpm test:integration:f2 / własne profile5642x | PASS85/85 TAP, 207.255s; wszystkie owned targets usunięte guardem |
-| Produkt build/HTTP | RECRUITMENT_TARGET_ID=preflight-b pnpm test:recruitment R2 | PASS build i20/20HTTP |
-| Produkt browser | ten sam R2, desktop/mobile375px, HTTPS3153 | PASS12/12, zero skips/failures |
+| Produkt build/HTTP | RECRUITMENT_TARGET_ID=preflight-b pnpm test:recruitment R3 | PASS build i22/22HTTP |
+| Produkt browser | ten sam R3, desktop/mobile375px, HTTPS3153 | PASS12/12, zero skips/failures |
 | F1 boundaries/canary | pnpm test:boundaries; pnpm test:canary | PASS7kontroli +3kontrole |
-| F1 browser | pnpm test:e2e:foundation | NOT RUN |
-| F3 pełna regresja Auth/HTTPS | pnpm test:auth:f3 | IN PROGRESS |
+| F1 build/browser | pnpm build; pnpm test:e2e:foundation | PASS build i3/3browser |
+| F3 pełna regresja Auth/HTTPS | pnpm test:auth:f3 | PASS build, SDK13/13 i browser10/10, artifact/log scans oraz owned cleanup |
 | Niezależny backend/frontend/security review | harness/scripts/review.py, frozen candidate | NOT RUN |
 | Hosted CI final SHA | Application CI / Foundation required | NOT RUN |
 
@@ -49,12 +49,28 @@ QA integration R1: FAIL timeout (5PASS/3CANCELLED), przyczyną zagnieżdżone si
 
 Produkcja R1: buildPASS, HTTP20/20PASS, browser11PASS/1FAIL — mobilna kontrola wymagała semantycznego aria-modal na rzeczywiście modalnym dialogu Base UI. Autor dodał atrybut do obu Popup, test pozostał wymagany. R1 nie jest pełnym PASS. Pełna nowa próba R2 przeszła build, HTTP20/20 i browser12/12, z log/artifact scans. [Zachowany R1](evidence/recruitment-first-slice/r1-failed-browser-run.json), [QA R1](evidence/recruitment-first-slice/r1-failed-qa-integration.json).
 
+## Niezależny review i naprawa wyścigu
+
+Statyczny backend review kandydata `f1dbf9692b0245358dcbc471670be68f20e01c72` potwierdził P2: direct INSERT z tym samym owner/key może zatwierdzić dane między pierwszym sprawdzeniem idempotencji a zapytaniem o duplikaty. Zamiast replay lub409 RPC zwracało wtedy warning. Dodano forward migration0003: nowy odczyt klucza i pełne porównanie payloadu przed warning; migracje0000–0002 niezmienione. [Deterministyczny test z barierą i negatywną kontrolą](evidence/recruitment-first-slice/qa-r3-direct-insert-race.json) przeszedł na disposable targetcie: pełne HTTP22/22PASS. Stara funkcja0002 została wykryta przez ten sam oracle w obu harmonogramach, potem odtworzono i sprawdzono dokładne funkcję/politykę/ACL/INVOKER oraz ledger, bez pozostawienia helpera. Pełny produkcyjny R3 także PASS: cztery migracje, build, HTTP22/22 i browser12/12 oraz skany artefaktów/logów.
+
+Pierwsze wrappery review przerwano: jednoczesny F3 zmieniał ignorowane artefakty runtime, które wrapper także fingerprintuje. Nie są to końcowe PASS review. Aby zapewnić niezmienność całego ocenianego drzewa, końcowe niezależne sesje odbędą się przez niezmieniony wrapper w osobnym źródłowym worktree dokładnego commitu, bez buildów/runtime w tym worktree. Static finding zachowano i naprawiamy; przerwane sesje nie zastępują pełnego review.
+
+Historyczny R2 (trzy migracje) ma [osobny wynik](evidence/recruitment-first-slice/product-r2-pass.json) i [własny manifest](evidence/recruitment-first-slice/source-manifest-r2.json). Końcowy manifest obejmuje cztery migracje oraz deterministyczne testy; nie przypisujemy go wstecz do R2.
+
 ## Potwierdzone zachowanie produktu
 
-[Pełny R2](evidence/recruitment-first-slice/product-r2-pass.json), [manifest źródeł](evidence/recruitment-first-slice/source-manifest.json), [runtime](evidence/recruitment-first-slice/runtime-preflight.json). Realne HTTP potwierdziło własny create/read A/B, deny anon, brak cross-owner list/ID/count/duplicates, owner/status/id/time spoof denial, minimalne grants i INVOKER, native DB constraints, same-key replay/409/concurrency oraz direct-INSERT race. Negative sensitivity na disposable targetcie wykryła wyłączenie RLS w obu kierunkach, po czym RLS przywrócono i ponownie potwierdzono izolację.
+[Pełny R3](evidence/recruitment-first-slice/product-r3-pass.json), [manifest źródeł](evidence/recruitment-first-slice/source-manifest.json), [runtime](evidence/recruitment-first-slice/runtime-preflight.json). Realne HTTP potwierdziło własny create/read A/B, deny anon, brak cross-owner list/ID/count/duplicates, owner/status/id/time spoof denial, minimalne grants i INVOKER, native DB constraints, same-key replay/409/concurrency oraz direct-INSERT race. Negative sensitivity na disposable targetcie wykryła wyłączenie RLS w obu kierunkach, po czym RLS przywrócono i ponownie potwierdzono izolację.
 
 Playwright12/12: login F3→Dashboard, cztery kroki/no premature writes, Unicode/walidacja, duplicate cancel/continue i save-next, toast/open/stay, dirty Escape/X/backdrop/focus, failed-response retry+doubleclick, owner list/detail/404 i logout/cache, mobile375px/overflow/semantics, recovery po refresh przy utracie udanej odpowiedzi, pending payload/key freeze i paginacja25/27 ze stabilnym UUID przy wspólnym created_at. Testy źródłowego URL nie wykonały fetch; UI renderuje wyłącznie tekst i świadome safe links.
 
+## Cleanup i izolacja
+
+[Cleanup produktu](evidence/recruitment-first-slice/cleanup-pass.json) PASS, także powtórzenie. Tylko własne kontenery/sieci/wolumeny usunięte; manifesty i receipts pozostają lokalnym dowodem. F2 i F3 własne targety także sprzątnięte. Inwentarz pięciu zastanych kontenerów Bluvv/Medusa pozostał bez zmian. Nie wykonano resetu bazy ani provisioning/deploy/merge.
+
+## Rekomendacja kolejnego małego slice
+
+PROPOSED: świadoma edycja nazwy/opisu/URL istniejącej własnej sprawy, po osobnej autoryzacji i doprecyzowaniu zakresu audytu/korekt z OPEN-004. Nie rozpoczynamy tego etapu w bieżącym zadaniu.
+
 ## Otwarte granice
 
-Pełne UC/TC-001/029/034 i FR-LC/RW/QC/AD nie są ukończone. Brak lifecycle, edycji, historii, firmy/kontaktów, Kanbana/drawera, importu, fetch URL, workera, dokumentów i publicznego wydania. OPEN-001/004/005/018/020/029/034 i pozostałe części OPEN-002/024/025/026/028 oraz polityki OPEN-013/032/041–046 zachowują swoje bramki. Wymagane testy/review/CI poniżej muszą zostać wykonane przed uznaniem DoD za spełnione.
+Pełne UC/TC-001/029/034 i FR-LC/RW/QC/AD nie są ukończone. Brak lifecycle, edycji, historii, firmy/kontaktów, Kanbana/drawera, importu, fetch URL, workera, dokumentów i publicznego wydania. OPEN-001/004/005/018/020/029/034 i pozostałe części OPEN-002/024/025/026/028 oraz polityki OPEN-013/032/041–046 zachowują swoje bramki. Wymagane końcowe testy/review/CI muszą zostać wykonane przed uznaniem DoD za spełnione.

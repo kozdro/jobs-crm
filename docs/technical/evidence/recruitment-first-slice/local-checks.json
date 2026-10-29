@@ -49,6 +49,25 @@
       "status": "PASS",
       "tests": 20,
       "seconds": 6.674
+    },
+    {
+      "command": "pnpm build",
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm test:e2e:foundation",
+      "status": "PASS",
+      "tests": 3
+    },
+    {
+      "command": "pnpm test:auth:f3",
+      "status": "PASS",
+      "sdk": 13,
+      "browser": 10
+    },
+    {
+      "command": "pnpm format:check",
+      "status": "PASS"
     }
   ]
 }

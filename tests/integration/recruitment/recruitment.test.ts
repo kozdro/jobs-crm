@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import test from "node:test";
 import postgres from "postgres";
+import { deterministicDirectInsertRace } from "./direct-insert-race.ts";
 import { readRecruitmentTarget } from "../../../scripts/recruitment/target.ts";
 import {
   createAccounts,
@@ -625,6 +626,20 @@ test(
           results.filter((result) => result.kind === "duplicates").length,
           1,
         );
+      },
+    );
+
+    await check(
+      "Deterministic direct INSERT commits between key lookup and duplicate read; identical replay and changed-payload409",
+      async () => {
+        await deterministicDirectInsertRace(target, a, false);
+      },
+    );
+
+    await check(
+      "Disposable regression sensitivity: unchanged deterministic replay/conflict oracle rejects canonical old duplicate-warning logic",
+      async () => {
+        await deterministicDirectInsertRace(target, a, true);
       },
     );
 

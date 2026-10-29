@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "commands": [
+    "node scripts/recruitment/cleanup.ts preflight-b",
+    "node scripts/recruitment/cleanup.ts preflight-b"
+  ],
+  "first": {
+    "projectId": "jobs-crm-recruitment-dfe0d8-9eedf9ae475f",
+    "configHash": "124cbd68df73c0d109f6ecce09e305c7bf3d8e8270899e0c17de65b1e6dce073",
+    "at": "2026-10-29T22:56:09.936Z",
+    "containerIds": [],
+    "volumeNames": [],
+    "networkIds": []
+  },
+  "repeatedCleanup": "PASS, no own resources remain",
+  "unrelatedDockerNamesPreserved": [
+    "bluvv-search-perf-8e4dc193-6564-4ae7-8e04-ae3fc4ebb993",
+    "bluvv-content-qa-23a4350c-1fd8-4978-8f0e-a63651f79318",
+    "bluvv-legacy-300-89230e77-cf60-47ed-a2d4-c300c67d80f0",
+    "bluvv-local-postgres-postgres-1",
+    "rigby-medusa-postgres"
+  ]
+}
