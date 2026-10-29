@@ -95,6 +95,8 @@ Każdy FR ma co najmniej jedno testowalne AC. Macierz powiązań ze scenariuszam
 
 **Specyfikacja:** [CSV/XLSX Import](../features/csv-xlsx-import.md)
 
+**Kontrakt techniczny FR-IM-005–014:** ADR-0005 pozostaje ACCEPTED: preview/mapowanie w pamięci, bez trwałego stagingu wierszy; wszystkie jawnie zatwierdzone wiersze (także wybrany podzbiór) zapisuje jedna atomowa transakcja przez minimalne PostgreSQL RPC. Minimalny user-scoped key/registry i fingerprint chronią retry przed cichą duplikacją; wiele requestów Data API nie tworzy wspólnej transakcji. OPEN-010/035 nadal określają raporty, konflikty i celowe powtórzenie materiału. Zob. [ADR-0005](../decisions/adr/0005-atomic-inmemory-import.md) i [ADR-0012](../decisions/adr/0012-supabase-native-auth-sessions-rls.md).
+
 | ID | Wymaganie (`APPROVED`, MVP) | Powiązane `DEC/BR` | Bramka `OPEN` | Test akceptacyjny |
 |---|---|---|---|---|
 | **FR-IM-001** | Import akceptuje własne dane CSV i XLSX. | DEC-033 | OPEN-007/OPEN-023 | AC-IM-001 |
@@ -202,16 +204,16 @@ Każdy FR ma co najmniej jedno testowalne AC. Macierz powiązań ze scenariuszam
 
 ## AD — Account & Data Management
 
-**Specyfikacja:** [Account & Data Management](../features/account-and-data-management.md). `APPROVED` dotyczy jedynie rezultatu logowania i niezmiennika prywatności; pozostałe wiersze to `PROPOSED` (nie stanowią zatwierdzonego przyrostu MVP).
+**Specyfikacja:** [Account & Data Management](../features/account-and-data-management.md). `FR-AD-003–006` pozostają `PROPOSED` jako pełne kontrakty z otwartymi szczegółami. Ich zatwierdzony podzakres określają DEC-051 i [ADR-0012](../decisions/adr/0012-supabase-native-auth-sessions-rls.md) (PO 2026-10-29); nie wymagają ponownego wyboru Auth, dostępności rejestracji/resetu ani brokera. AD-007–009 zachowują dotychczasowe statusy i właściwe częściowe rozstrzygnięcia TD.
 
 | ID | Status | Wymaganie | Podstawa | Bramka `OPEN` | Kryterium |
 |---|---|---|---|---|---|
-| **FR-AD-001** | APPROVED (ograniczone) | Po zalogowaniu użytkownik ma dostęp do swojego prywatnego workspace'u z Dashboardem jako ekranem wejścia; metoda logowania nie jest określona. | DEC-018 BR-030 | OPEN-013 | AC-AD-001 |
+| **FR-AD-001** | APPROVED (ograniczone) | Po zalogowaniu przez Supabase Auth użytkownik ma dostęp do swojego prywatnego workspace'u z Dashboardem jako ekranem wejścia. | DEC-018/DEC-051 BR-030 ADR-0012 | OPEN-013 | AC-AD-001 |
 | **FR-AD-002** | APPROVED (niezmiennik) | Dane rekrutacyjne, kontakty, historia i dokumenty właściciela nie mogą zostać ujawnione innemu nieuprawnionemu użytkownikowi przez widoki, wyszukiwanie lub dostęp do plików. | BR-030 NFR-001 | OPEN-006/OPEN-013/OPEN-032 | AC-AD-002 |
-| **FR-AD-003** | PROPOSED | Użytkownik może samodzielnie zarejestrować konto. | — | OPEN-041/OPEN-013 | AC-AD-003 |
-| **FR-AD-004** | PROPOSED | Użytkownik może wylogować się i zakończyć bieżącą sesję. | — | OPEN-042/OPEN-013 | AC-AD-004 |
-| **FR-AD-005** | PROPOSED | System obsługuje bezpieczną kontynuację i zakończenie sesji zgodnie z zatwierdzonymi regułami. | NFR-001 | OPEN-013/OPEN-042 | AC-AD-005 |
-| **FR-AD-006** | PROPOSED | Użytkownik może odzyskać dostęp do swojego konta zgodnie z zatwierdzoną polityką. | — | OPEN-043/OPEN-013 | AC-AD-006 |
+| **FR-AD-003** | PROPOSED | Użytkownik może samodzielnie zarejestrować konto przez Supabase Auth. Dostępność self-signup zatwierdzona; pola, aktywacja i zabezpieczenia procesu pozostają OPEN-041/013. | DEC-051 ADR-0012 | OPEN-041/OPEN-013 | AC-AD-003 |
+| **FR-AD-004** | PROPOSED | Użytkownik może wylogować bieżącą sesję (`local`), wszystkie sesje (`global`) lub pozostałe (`others`) natywnym mechanizmem Supabase. `others` zachowuje bieżącą sesję. Bez wymagania zakończenia dowolnej wskazanej innej sesji i własnego rejestru urządzeń. | DEC-051 ADR-0012 | OPEN-042/OPEN-013 | AC-AD-004 |
+| **FR-AD-005** | PROPOSED | System kontynuuje i odświeża wielourządzeniowe sesje zgodnie ze wspieranym kontraktem Supabase SDK/SSR. Logout/revocation nie gwarantuje natychmiastowej nieważności wydanego access JWT: może pozostać ważny do wygaśnięcia. Czasy i szczegóły polityki OPEN-013/042; operacje wrażliwe wymagają właściwej dodatkowej ochrony według ich OPEN. | DEC-051 ADR-0012 NFR-001 | OPEN-013/OPEN-042 | AC-AD-005 |
+| **FR-AD-006** | PROPOSED | Użytkownik może odzyskać dostęp przez reset hasła e-mailem z użyciem wspieranych mechanizmów Supabase. Potwierdzenia, komunikaty, wariant cross-device i wpływ na inne sesje pozostają OPEN-043/013/042. | DEC-051 ADR-0012 | OPEN-043/OPEN-013 | AC-AD-006 |
 | **FR-AD-007** | PROPOSED | Użytkownik może przeglądać i modyfikować podstawowe dane własnego profilu. | — | OPEN-044/OPEN-002 | AC-AD-007 |
 | **FR-AD-008** | PROPOSED | Użytkownik może wystąpić o eksport własnych danych. | NFR-007 | OPEN-032/OPEN-045 | AC-AD-008 |
 | **FR-AD-009** | PROPOSED | Użytkownik może zainicjować usunięcie swojego konta i powiązanych danych zgodnie z zatwierdzoną polityką. | NFR-007 | OPEN-005/OPEN-006/OPEN-032/OPEN-046 | AC-AD-009 |

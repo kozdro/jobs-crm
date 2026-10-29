@@ -22,13 +22,13 @@
 | UX-014 | Kontakty | Lista/profil osoby oraz historia jej rzeczywistych powiązań. |
 | UX-015 | Global Search | Dostępne z każdego modułu; wyniki grupowane wg typu. |
 | UX-016 | Ustawienia etapów | Personalizacja globalnych etapów; szczegółowy UI `OPEN-003/OPEN-027`. |
-| UX-017 | Wejście po zalogowaniu | APPROVED tylko rezultat: otwarcie prywatnego Dashboardu; ekran i metoda logowania `OPEN-013`. |
-| UX-018 | Profil, sesja i operacje na własnych danych | PROPOSED: zarządzanie profilem, wylogowanie, eksport i usunięcie; struktura poza siedmioma głównymi modułami `OPEN-042/044/045/046`. |
-| UX-019 | Rejestracja i odzyskiwanie dostępu | PROPOSED: dostępność i kroki `OPEN-041/043`, bez przesądzania sposobu weryfikacji tożsamości. |
+| UX-017 | Wejście po zalogowaniu | APPROVED: prywatny Dashboard po Supabase Auth (DEC-051/ADR-0012); szczegóły ekranu i polityki `OPEN-013`. |
+| UX-018 | Profil, sesja i operacje na własnych danych | Natywne logout local/global/others zatwierdzone DEC-051; pełne kontrakty profilu, sesji, eksportu i delete zachowują PROPOSED/OPEN-042/044/045/046. Struktura poza siedmioma głównymi modułami pozostaje do doprecyzowania. |
+| UX-019 | Rejestracja i odzyskiwanie dostępu | Dostępność self-signup i resetu e-mail Supabase zatwierdzona DEC-051; pełne kroki, aktywacja i szczegóły weryfikacji nadal PROPOSED/OPEN-041/043. |
 
 Nazwy tras URL nie są zatwierdzone. Architektura nie zakłada konkretnego systemu nawigacji na mobile.
 
-**Uwaga o kontach:** `UX-017`–`UX-019` nie dodają ósmego modułu głównego ani nie zatwierdzają nowego menu ustawień. Tylko rezultat wejścia po logowaniu jest `APPROVED`; reszta to `PROPOSED/OPEN` ([specyfikacja konta](../features/account-and-data-management.md)).
+**Uwaga o kontach:** `UX-017`–`UX-019` nie dodają ósmego modułu głównego ani nie zatwierdzają nowego menu ustawień. Zatwierdzony podzakres Auth określa DEC-051/ADR-0012; pozostałe szczegóły i pełne kontrakty zachowują `PROPOSED/OPEN` ([specyfikacja konta](../features/account-and-data-management.md)).
 
 ## Stała nawigacja (`APPROVED`)
 

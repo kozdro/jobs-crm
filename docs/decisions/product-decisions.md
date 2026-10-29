@@ -54,7 +54,8 @@
 | DEC-048 | APPROVED | Bez formalnych badań respondentów; monetyzacja niezatwierdzona i nie jest obecnym priorytetem. |
 | DEC-049 | DEFERRED | Własne zapisywane konfiguracje filtrów, rozszerzenie przeglądarki i wiele URL-i jednocześnie poza MVP. |
 | DEC-050 | DEFERRED | Semantyczne wyszukiwanie, indeksowanie zawartości dokumentów i powiadomienia push poza początkowym wydaniem. |
+| DEC-051 | APPROVED | PO 2026-10-29, zadanie „Jobs CRM — Supabase-native Architecture Rebaseline”: wariant A — Supabase-native Auth/SSR, e-mail/hasło + Google OAuth/PKCE, samoobsługowa rejestracja, reset hasła e-mailem i sesje wielourządzeniowe. Logout `local/global/others`; bez wymogu zakończenia dowolnej wskazanej innej sesji, HttpOnly-only, własnego brokera ani natychmiastowej nieważności wydanych JWT. Data API + RLS oraz natywne transakcje PostgreSQL/minimalne RPC zachowują prywatność i ADR-0005. Szczegóły sesji, aktywacji i operacji wrażliwych pozostają OPEN. Formalny kontrakt: [ADR-0012](adr/0012-supabase-native-auth-sessions-rls.md). Zadanie autoryzuje dokumentację i PR; nie implementację Auth/RPC. |
 
 ## Granice zatwierdzenia
 
-Słownik wyników zamknięcia, nazwy etapów, walidacje, limity, polityki retencji, progi czasu, stack i design system nie mają tutaj statusu `APPROVED`. Zob. [rejestr OPEN](open-questions.md). Decyzje technologiczne wymagają odrębnych ADR dopiero wtedy, gdy zostaną podjęte.
+Słownik wyników zamknięcia, nazwy etapów, walidacje, limity, szczegółowe polityki retencji i progi czasu pozostają w [rejestrze OPEN](open-questions.md). Wybory techniczne są utrwalone w [zaakceptowanych ADR](adr/README.md); DEC-051 zapisuje późniejszą decyzję PO, bez zatwierdzania pozostałych polityk ani pełnych kontraktów Account Management.

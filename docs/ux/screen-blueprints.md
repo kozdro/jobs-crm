@@ -22,7 +22,7 @@ W poniższych scenariuszach treść i daty w prototypie mają być fikcyjne. Sfo
 | UX-014 Kontakty | Lista i profil osoby, wyłącznie rzeczywiście powiązane zdarzenia | FR-CC-003–010 |
 | UX-015 Search | Szybka nakładka + pełna strona wyników | FR-GS-001–008 |
 | UX-016 Etapy | Konfiguracja globalna i indywidualna — struktura koncepcyjna | FR-LC-009–013, OPEN-003/027 |
-| UX-017–019 Konto | Po loginie Dashboard; pozostałe ekrany wyłącznie wariantowe, jeśli zostaną zatwierdzone | FR-AD-001/002 APPROVED; FR-AD-003–009 PROPOSED |
+| UX-017–019 Konto | Po Supabase loginie Dashboard; podzakres Auth DEC-051 zatwierdzony, pozostałe szczegóły ekranów wariantowe | FR-AD-001/002 APPROVED; FR-AD-003–009 PROPOSED |
 
 ## 1. App Shell
 
@@ -141,7 +141,7 @@ Sekcje mogą być zwijane lokalnie dla czytelności, ale nie duplikują historii
 4. **Decyzje i potwierdzenie:** nowa sprawa vs świadoma aktualizacja, pominięcie wiersza, osobne jawne potwierdzenie partial import jeśli dotyczy.
 5. **Wynik:** rozróżnienie rekordów potwierdzonych jako zapisane, pominiętych z powodami i tych o **niepotwierdzonym** wyniku po awarii. Raport dostępny użytkownikowi.
 
-Nie obiecuj automatycznego rollbacku, atomiczności ani ponawiania wsadu przed OPEN-010/035. Powtórny wsad jest sygnalizowany przed decyzją; nie następuje bezrefleksyjne zdublowanie. Historyczny import nie generuje zaległych sugestii (BR-024).
+ADR-0005 wymaga atomowego zapisu całego zaakceptowanego zbioru i rollbacku błędu; retry tej samej operacji ustala wynik bez duplikacji. Nie obiecuj biznesowego undo ani nie zgaduj wyniku utraconej odpowiedzi; szczegóły nadal OPEN-010/035. Powtórny wsad jest sygnalizowany przed decyzją; nie następuje bezrefleksyjne zdublowanie. Historyczny import nie generuje zaległych sugestii (BR-024).
 
 ## 8. Zadania — UX-010
 
@@ -198,8 +198,8 @@ Nie obiecuj automatycznego rollbacku, atomiczności ani ponawiania wsadu przed O
 ## 15. Konto i własne dane — UX-017–019
 
 - **Zatwierdzone:** po legalnym wejściu do prywatnej przestrzeni Dashboard; rekordy i dokumenty prywatne.
-- **Nieprzyjęte:** otwarta rejestracja, odzyskiwanie dostępu, mechanika wylogowania/sesji, edycja profilu, eksport i usunięcie konta; odpowiadające FR-AD-003–009 pozostają PROPOSED.
-- Makiety takich funkcji są wyłącznie wariantami do przyszłego discovery, a nie częścią „gotowego MVP”. Nie wprowadzaj działania, które można pomylić ze sprawnym eksportem lub trwałym usunięciem danych przed OPEN-013/032/041–046.
+- **Późniejszy zatwierdzony podzakres (2026-10-29):** DEC-051/[ADR-0012](../decisions/adr/0012-supabase-native-auth-sessions-rls.md) określają Supabase self-signup, login, reset e-mail i logout local/global/others; access JWT może działać do expiry. Pełne FR-AD-003–009 pozostają PROPOSED dla pozostałych szczegółów i polityk. Bez własnego rejestru urządzeń i dowolnego selected-other-session logout.
+- Makiety pozostałych szczegółów tych funkcji są wariantami do doprecyzowania, a nie dowodem działania „gotowego MVP”. Nie wprowadzaj działania, które można pomylić ze sprawnym eksportem lub trwałym usunięciem danych przed OPEN-013/032/041–046.
 
 ## 16. Wspólny słownik powierzchni
 

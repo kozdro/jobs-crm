@@ -37,3 +37,7 @@ Szczegółowy projekt UX i dokumenty pod prototypowanie znajdują się w `ux/blu
 ## Technical Discovery (2026-10-28)
 
 PO zatwierdził wybory 1.1–1.40, w tym allowlistę domen dla Smart Import (1.40 B zastępuje 1.26 A w zakresie automatycznego pobierania). Nie przeprowadzano prototypu ani testów aplikacji. Szczegóły, ADR oraz blokady wdrożeniowe: [Technical Discovery](technical/README.md).
+
+## Supabase-native rebaseline (2026-10-29)
+
+Decyzja PO wariant A: [ADR-0012](decisions/adr/0012-supabase-native-auth-sessions-rls.md) zastępuje ADR-0003 i wskazany zakres TD1.7/1.8; oryginalne TD pozostają historią. F1/F2 wykonane, raporty nietknięte. [Foundation Plan](technical/foundation-plan.md) zawiera kartę następnego F3 i rekomendację F4 przy imporcie, F5 przed background oraz bieżących kontroli F6. Nowe Auth/RPC testy NOT RUN; rebaseline nie autoryzuje implementacji.

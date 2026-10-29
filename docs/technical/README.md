@@ -1,12 +1,14 @@
 # Technical Discovery — architektura Jobs CRM
 
-**Stan dokumentacji:** BASELINED (2026-10-28). **Etap:** implementacja technicznych fundamentów SDD/AIDD. F1 zmergowane; odrębnie autoryzowane F2 — [lokalny PoC, instrukcje i bieżące dowody](foundation-f2.md). [Scaffold F1](foundation-f1.md) działa bez DB. F3–F6 pozostają NOT RUN.
+**Stan dokumentacji:** BASELINED (aktualizacja 2026-10-29). **Etap:** implementacja technicznych fundamentów SDD/AIDD. F1/F2 zmergowane; wykonane F2 — [lokalny PoC, instrukcje i bieżące dowody](foundation-f2.md). [Scaffold F1](foundation-f1.md) działa bez DB. F3/Auth i import RPC pozostają NOT RUN; kolejność zmienia [Foundation Plan](foundation-plan.md).
 
 ## Źródło decyzji i hierarchia
 
 Właściciel produktu zatwierdził w rozmowie wybory **Technical Discovery 1.1–1.40**. Zbiorczy rejestr: [discovery-decisions.md](discovery-decisions.md). Przyjęte istotne decyzje są utrwalone jako ADR o statusie **ACCEPTED** w [../decisions/adr/](../decisions/adr/README.md). Konkretne mechanizmy oznaczone **PROPOSED / VALIDATION REQUIRED** pozostają hipotezami wykonawczymi, a nie gotową implementacją. Pytania domenowe i operacyjne pozostają w [OPEN](../decisions/open-questions.md).
 
 **Istotna korekta:** decyzja 1.40 B zastępuje zamiar automatycznej ekstrakcji z dowolnego URL z 1.26 A. Smart Import automatycznie pobiera tylko z **jawnej, przetestowanej listy domen**; pozostałe adresy można zachować i opisać ręcznie. Znajomość domeny nie zwalnia z ochrony SSRF. Nie podajemy niezweryfikowanej listy portali jako obsługiwanych.
+
+**Rebaseline 2026-10-29:** PO zatwierdził wariant A Supabase-native — [ADR-0012](../decisions/adr/0012-supabase-native-auth-sessions-rls.md), następca SUPERSEDED ADR-0003. Części TD1.7/1.8 o HttpOnly-only/brokerze i selected-session/immediate revocation zastąpione z zachowaniem historii; ADR-0005 nadal ACCEPTED. Nowy kontrakt browser/server SDK, Data API + RLS i minimalny native RPC nie autoryzuje kodowania.
 
 ## Dokumenty architektury
 
@@ -18,7 +20,7 @@ Właściciel produktu zatwierdził w rozmowie wybory **Technical Discovery 1.1�
 | [security-and-privacy.md](security-and-privacy.md) | Auth/BFF, prywatność, threat model, kontrola dostępu, usuwanie |
 | [imports-and-jobs.md](imports-and-jobs.md) | Smart Import, CSV/XLSX, atomowość, idempotencja, worker |
 | [operations-and-quality.md](operations-and-quality.md) | Hosting, kopie zapasowe, RPO/RTO, obserwowalność, testy, CI/CD |
-| [foundation-plan.md](foundation-plan.md) | Plan Foundation: małe PR, wersje, PoC, OPEN i QA; F1/F2 autoryzowane oddzielnie; F3–F6 PROPOSED |
+| [foundation-plan.md](foundation-plan.md) | Plan Foundation: małe PR, wersje, PoC, OPEN i QA; F1/F2 autoryzowane oddzielnie; F3 karta integracji; F4 przy imporcie, F5 przed background, F6 kontrole per slice |
 | [foundation-f2.md](foundation-f2.md) | Syntetyczne Supabase Local/Drizzle/RLS A/B; wyniki migracji, bezpieczeństwa i granice F2 |
 | [implementation-plan.md](implementation-plan.md) | Sekwencja developmentu, pionowe slice'y, bramki i DoD |
 | [gates-and-impacts.md](gates-and-impacts.md) | Pozostałe OPEN, konflikty, PoC i wpływ na istniejące FR/AC |

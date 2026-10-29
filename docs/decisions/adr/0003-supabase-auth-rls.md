@@ -1,6 +1,8 @@
 # ADR-0003 — Supabase Auth, Data API i izolacja RLS
 
-**Status:** ACCEPTED · **Data:** 2026-10-28 · **Zatwierdzający:** właściciel projektu, Technical Discovery 1.3 A / 1.4 A / 1.5 B / 1.6 B / 1.7 A / 1.8 B / 1.9 A / 1.10 A / 1.11 A / 1.33 A / 1.38 A. **Implementacja:** NOT STARTED.
+**Status:** SUPERSEDED · **Data historycznej decyzji:** 2026-10-28 · **Zatwierdzający:** właściciel projektu, Technical Discovery 1.3 A / 1.4 A / 1.5 B / 1.6 B / 1.7 A / 1.8 B / 1.9 A / 1.10 A / 1.11 A / 1.33 A / 1.38 A. **Implementacja:** NOT STARTED.
+
+**Zastąpienie 2026-10-29:** [ADR-0012 — Supabase-native Authentication, Sessions and RLS](0012-supabase-native-auth-sessions-rls.md) jest aktualnym kontraktem. Poniższa treść zachowuje historyczne uzasadnienie i wybory; nie stanowi wymogu brokera ani HttpOnly-only. Następca ponownie potwierdza Supabase Auth, shared schema, Data API/RLS i Drizzle.
 
 ## Kontekst
 

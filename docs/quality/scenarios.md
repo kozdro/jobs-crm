@@ -306,7 +306,7 @@ Scenariusze są testami zgodności specyfikacji, nie dekoracją dokumentacji. W 
 5. Świadomie zatwierdź partial import.
 6. Odbierz raport..
 
-**Oczekiwany rezultat:** Zapisywane są tylko zaakceptowane wiersze, raport wskazuje pominięcia i powody, historyczne daty nie są wymyślane, zaległe sugestie nie powstają.
+**Oczekiwany rezultat:** Cały zaakceptowany zbiór wierszy jest zapisywany atomowo przez jedno RPC; błąd daje rollback (ADR-0005). Raport wskazuje pominięcia i powody, historyczne daty nie są wymyślane, zaległe sugestie nie powstają.
 
 **Ważny test negatywny / błąd:** Bez jawnej zgody nie ma cichego zapisu tylko poprawnej części; ponowny import nie duplikuje po cichu.
 
@@ -465,11 +465,14 @@ Scenariusze są testami zgodności specyfikacji, nie dekoracją dokumentacji. W 
 
 1. Spróbuj zaimportować ten sam plik i mapowanie drugi raz.
 2. Przejrzyj informację o ryzyku.
-3. Zweryfikuj zapisane sprawy..
+3. Zweryfikuj zapisane sprawy.
+4. W wariancie technicznego retry po utracie odpowiedzi ponów ten sam owner/key/payload; następnie sprawdź konflikt tego samego klucza z innym payloadem.
 
 **Oczekiwany rezultat:** Potencjalne powtórzenie jest wykryte, a dane nie są bez ostrzeżenia tworzone ponownie.
 
 **Ważny test negatywny / błąd:** Skutki celowego ponowienia i reguła haszowania nie mogą być arbitralnie zaimplementowane przed OPEN-035.
+
+**Dodatkowa weryfikacja retry (ADR-0005):** ten sam owner/key/payload odtwarza wynik bez dodatkowych zapisów; inny payload tego samego klucza daje jawny konflikt. Celowe ponowienie pliku i jego identyfikacja nadal OPEN-035.
 
 ## UC-027 — Praca na Kanbanie i liście z drawerem
 
@@ -581,9 +584,9 @@ Scenariusze są testami zgodności specyfikacji, nie dekoracją dokumentacji. W 
 
 ## UC-033 — Wejście do prywatnego Dashboardu po logowaniu
 
-**Test:** `TC-033` · **Status:** `PLANNED / NOT EXECUTED` (rezultat `APPROVED`, mechanizm `OPEN`) · **Wymagania:** `FR-AD-001`, `FR-DB-001`, `FR-DB-008` · **Reguły:** `BR-030` · **Bramki:** `OPEN-013`.
+**Test:** `TC-033` · **Status:** `PLANNED / NOT EXECUTED` (rezultat `APPROVED`, mechanizm Supabase Auth według ADR-0012) · **Wymagania:** `FR-AD-001`, `FR-DB-001`, `FR-DB-008` · **Reguły:** `BR-030` · **Bramki:** `OPEN-013`.
 
-**Warunek początkowy:** Istnieje uprawnione konto; sposób logowania zostanie zatwierdzony osobno.
+**Warunek początkowy:** Istnieje uprawnione konto Supabase Auth; integracja według ADR-0012, szczegóły polityki OPEN-013.
 
 **Kroki:** (1) Użytkownik kończy prawidłowe logowanie. (2) Otwiera produkt. (3) Sprawdza ekran startowy.
 
@@ -603,17 +606,17 @@ Scenariusze są testami zgodności specyfikacji, nie dekoracją dokumentacji. W 
 
 **Negatywny:** Zgodność nazwy firmy, URL lub identyfikatora pliku nie uprawnia B do odczytu rekordów A.
 
-## UC-035 — Samoobsługa konta (wariant do decyzji)
+## UC-035 — Samoobsługa konta — zatwierdzony kierunek Auth, otwarte szczegóły
 
 **Test:** `TC-035` · **Status:** `PROPOSED / PLANNED CONDITIONAL / NOT EXECUTED` · **Wymagania:** `FR-AD-003`, `FR-AD-004`, `FR-AD-005`, `FR-AD-006`, `FR-AD-007` (wszystkie `PROPOSED`) · **Bramki:** `OPEN-013/041/042/043/044`.
 
-**Warunek początkowy:** PO wybrał wariant dopuszczający rejestrację, wylogowanie, sesje, odzyskiwanie i profil; bez tej decyzji scenariusz nie jest wykonywalny.
+**Warunek początkowy:** DEC-051/ADR-0012 określają Supabase self-signup, natywne logout scopes, sesje i reset e-mail. Pełny scenariusz pozostaje warunkowy przez polityki OPEN-013/041/042/043 i profil OPEN-044; nie oznacza ponownego wyboru dostawcy.
 
-**Kroki planowane:** (1) Utworzenie konta według zatwierdzonego trybu. (2) Wejście do produktu. (3) Edycja zatwierdzonego pola profilu. (4) Wylogowanie. (5) Sprawdzenie skutków zakończenia sesji. (6) Próba odzyskania dostępu zgodnie z polityką.
+**Kroki planowane:** (1) Utworzenie konta według zatwierdzonego trybu. (2) Wejście do produktu. (3) Edycja zatwierdzonego pola profilu. (4) Osobne próby logout `local/global/others` przy wielu sesjach. (5) Sprawdzenie stanu klienta, możliwości refresh i ważności zachowanego JWT do wygaśnięcia — bez wymogu natychmiastowej odmowy JWT. (6) Próba odzyskania dostępu zgodnie z polityką.
 
-**Oczekiwany rezultat warunkowy:** Operacje działają zgodnie z przyszłą decyzją, nie ujawniają danych innych kont.
+**Oczekiwany rezultat warunkowy:** Operacje działają według zatwierdzonego podzakresu Supabase-native i później rozstrzygniętych polityk; nie ujawniają danych innych kont.
 
-**Negatywny:** Brak automatycznie zatwierdzonego dostawcy Auth, kanału e-mail, czasu sesji i pól profilu.
+**Negatywny:** Dostawca Auth i reset e-mail są wybrane. Nie przyjmować domyślnie TTL, pól profilu ani obchodzenia PKCE; `others` zachowuje bieżącą sesję, scope nie modyfikuje konta B.
 
 ## UC-036 — Eksport i usunięcie własnych danych (wariant do decyzji)
 
@@ -623,7 +626,7 @@ Scenariusze są testami zgodności specyfikacji, nie dekoracją dokumentacji. W 
 
 **Kroki planowane:** (1) Uprawniony właściciel uruchamia eksport. (2) Sprawdza dostępność tylko własnych danych. (3) Inne konto próbuje pobrać eksport. (4) Właściciel wnioskuje o usunięcie danych. (5) Sprawdza wynik zgodny z zatwierdzoną polityką.
 
-**Oczekiwany rezultat warunkowy:** Eksport i usunięcie respektują decyzję PO, poufność i historyczne powiązania; nie obiecujemy fizycznej kasacji ani konkretnego formatu przed decyzją.
+**Oczekiwany rezultat warunkowy:** Eksport i usunięcie respektują decyzję PO, poufność i historyczne powiązania oraz wymagają odpowiedniej reautoryzacji/weryfikacji użytkownika lub stanu konta według OPEN-032/046. Format CSV/XLSX + osobne dokumenty i nieodwracalne self-delete wybrano w TD; szczegóły dostarczenia i fizycznej kasacji pozostają OPEN.
 
 **Negatywny:** Bez decyzji `OPEN` nie ma podstaw do testowania konkretnych plików eksportu, okresów retencji ani undo.
 
@@ -640,8 +643,8 @@ Scenariusze są testami zgodności specyfikacji, nie dekoracją dokumentacji. W 
 
 ## Stan planu testów
 
-- `TC-001`–`TC-034` oraz `TC-037`: **PLANNED / NOT EXECUTED** — aplikacja i prototyp nie powstały; `TC-033/034` wymagają rozstrzygnięcia mechanizmów bezpieczeństwa.
-- `TC-035`–`TC-036`: **PROPOSED / PLANNED CONDITIONAL / NOT EXECUTED** — dotyczą funkcji niewłączonych jeszcze decyzją PO do zatwierdzonego MVP.
+- `TC-001`–`TC-034` oraz `TC-037`: **PLANNED / NOT EXECUTED** — produktowe scenariusze niewykonane; F1/F2 mają odrębne historyczne dowody techniczne. `TC-033/034` wymagają implementacji i weryfikacji właściwego zakresu bezpieczeństwa, a nie ponownego wyboru Auth.
+- `TC-035`–`TC-036`: **PROPOSED / PLANNED CONDITIONAL / NOT EXECUTED** — pełne kontrakty wymagają pozostałych rozstrzygnięć; zatwierdzone podzakresy TD i DEC-051 nie oznaczają wykonania testów.
 - Każdy scenariusz powiązano z wymaganiami, ale nie każde drobne FR wymaga osobnego E2E; pełną relację pokazuje [traceability](traceability.md).
 - Testy bezpieczeństwa, własności danych, awarie importu i walidacje są rozszerzane w [strategii testów](test-strategy.md).
 

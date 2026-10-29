@@ -65,7 +65,7 @@ Moduły `domain/application/infrastructure` i wspólne DTO są kierunkiem APPROV
 
 Server Components czytają przez serwerową usługę aplikacyjną; nie trzeba robić HTTP loopback do własnego Route Handler. Server Actions i Route Handlers traktujemy jako osiągalne wejścia: przy każdym uwierzytelnienie, autoryzacja właściciela, walidacja runtime i wymagane CSRF. Żaden layout/proxy sam nie zapewnia ochrony zapisu. BFF przekazuje user JWT do Data API, nie service-role. [Oficjalne wskazówki data security](https://nextjs.org/docs/app/guides/data-security) i [authentication](https://nextjs.org/docs/app/guides/authentication).
 
-Client Components otrzymują minimalne DTO, nigdy obiekt sesji, JWT, refresh token, prywatne env czy SDK serwerowe. Bez browser Auth clienta, localStorage sesji ani przekazywania bearer do JS jako ułatwienia. Auth/refresh/OAuth i obsługa cookie powstają dopiero w [PoC Auth](foundation-pocs.md); użycie `@supabase/ssr` nie jest samo w sobie dowodem HttpOnly. Nie umieszczać prywatnych odpowiedzi ani `Set-Cookie` we współdzielonym cache; test A/B ma objąć także HTML/RSC/cache, nie tylko JSON API.
+Client Components otrzymują minimalne DTO biznesowe bez tokenów i server-only env/SDK. **Rebaseline 2026-10-29 — ADR-0012:** browser Auth client jest zatwierdzony, a sesją i cookies zarządza wspierany SDK/SSR. Nie obiecujemy HttpOnly-only ani nie kopiujemy tokenów przez props/RSC, do logów lub ręcznego magazynu. Auth/refresh/OAuth powstają w docelowej integracji [F3](foundation-plan.md), nie oddzielnej aplikacji PoC. Nie umieszczać prywatnych odpowiedzi ani `Set-Cookie` we współdzielonym cache; test A/B ma objąć także HTML/RSC/cache, nie tylko JSON API.
 
 ## 5. DoD i warunki zatrzymania
 

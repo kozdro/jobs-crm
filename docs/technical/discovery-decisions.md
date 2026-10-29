@@ -47,6 +47,8 @@
 
 ## Zastąpienia i interpretacja
 
+**Aktualny kontrakt:** aneks z 2026-10-29 poniżej i [ADR-0012](../decisions/adr/0012-supabase-native-auth-sessions-rls.md) zastępują wskazany zakres historycznych interpretacji 4/5 oraz TD 1.7/1.8. Oryginalne 40 wierszy i interpretacje pozostają zapisem decyzji z 2026-10-28; przy bieżącym planowaniu nie stosować wycofanych gwarancji sesyjnych.
+
 1. **1.40 B > 1.26 A.** „Uniwersalny” dotyczy możliwości **zapisania każdego poprawnego linku**, nie prawa do automatycznego pobierania jego treści. Dla niedozwolonej domeny system w ogóle nie inicjuje fetch/renderowania; daje manual fallback (DEC-030/FR-QC-005). Nie przyjmujemy na tej podstawie, że konkretne nazwane portale są już dopuszczone.
 2. **1.25 A po 1.40 B:** walidacja aplikacyjna pozostaje wyborem; nie jest gwarancją pełnej ochrony. Wskazana ocena SSRF i testy egress; dodanie izolacji sieciowej wymaga decyzji przy wynikach testów bezpieczeństwa.
 3. **1.28 A i 1.30 B współistnieją:** brak stagingu wierszy, lecz trwały minimalny rejestr operacji importu jest obowiązkowy; nie traktujemy rejestru jako przechowywania wierszy i mapowania.
@@ -61,3 +63,21 @@
 Brak zatwierdzonych wartości: limitów plików/importów, progów sugestii, nazw etapów/wyników, okresu i bezwzględnego timeoutu sesji, kosztu planów dostawców, konkretnych domen allowlist, kryteriów docelowej dostępności i zgodności prawnej eksportu. Te elementy pozostają OPEN / VALIDATION REQUIRED.
 
 Powiązane dokumenty: [architektura](architecture.md), [bramki](gates-and-impacts.md), [katalog ADR](../decisions/adr/README.md).
+
+## Aneks decyzyjny — Supabase-native, 2026-10-29
+
+**APPROVED:** PO w zadaniu „Jobs CRM — Supabase-native Architecture Rebaseline” zatwierdził wariant A. Normatywny następca: **[ADR-0012 — ACCEPTED](../decisions/adr/0012-supabase-native-auth-sessions-rls.md)**; ADR-0003 jest SUPERSEDED, z zachowaniem historycznej treści.
+
+| Historyczny wybór | Aktualny zakres i nadrzędność |
+|---|---|
+| TD 1.7 | Zastąpiony w części HttpOnly-only i własnego server-only token management/brokera. Obowiązuje oficjalny Supabase browser/server client i SSR, PKCE, cookies/refresh zgodne z SDK. BFF tylko dla uzasadnionej logiki/granicy zaufania. |
+| TD 1.8 | Zastąpiony w części zakończenia jednej dowolnej wskazanej innej sesji i silniejszej natychmiastowej revocation. Wiele urządzeń pozostaje; scopes local/global/others. Wydany access JWT może działać do expiry. |
+| TD 1.3/1.4/1.5/1.6/1.9/1.10/1.11 | Pozostają obowiązujące: shared schema, Managed Auth, self-signup, e-mail/hasło + Google, e-mail recovery, brak własnego MFA, RLS i autoryzacja operacji. |
+| TD 1.33/1.38 | Supabase i Drizzle pozostają; standardowy user CRUD przez Data API/RLS, bez uprzywilejowanego Drizzle w zwykłej ścieżce. |
+| TD 1.28–1.30 | Nadal obowiązują preview w pamięci, brak trwałego stagingu, jawne zatwierdzenie wierszy, jeden atomic commit i minimalny rejestr idempotencji/fingerprint. ADR-0005 pozostaje ACCEPTED. |
+| Interpretacja 4 powyżej | Weryfikacja atomic RPC/RLS/retry pozostaje wymagana przed importem. Nie musi stanowić osobnego dużego PoC przed ręcznym CRUD; rekomendowany dowód w docelowym slice importu. |
+| Interpretacja 5 powyżej | SUPERSEDED w całości jako obowiązek HttpOnly-only/brokera; zastępuje ją standardowa integracja Auth/SSR i jej rzeczywiste testy bezpieczeństwa. |
+
+**APPROVED:** PostgreSQL-native transactions + minimalne Supabase RPC dla atomowych komend, bez własnego frameworka transakcji. Zatwierdzone ograniczenie JWT nie znosi ochrony szczególnie wrażliwych operacji, RLS, private Storage, XSS/CSRF, bezpiecznych redirects, logów i cache. Polityki TTL, aktywacji, recovery, eksportu/usunięcia i dostawcy pozostają we właściwych OPEN.
+
+**Granica zadania:** dokumentacja, niezależny review, commit/push i PR bez merge. Bez implementacji Auth/RPC, nowych eksperymentów, instalacji, migracji, zmian zależności i provisioningu. Historyczne F1/F2 i ich wyniki zachowują tożsamość; F3/RPC są PLANNED / NOT RUN.

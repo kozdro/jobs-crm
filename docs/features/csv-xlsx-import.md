@@ -15,7 +15,7 @@ Przenieść rzeczywiste dane z własnych arkuszy CSV lub Excel/XLSX albo ułatwi
 | 3. Mapowanie słowników | Dopasowanie wartości statusu, etapu, wyniku zakończenia. | Nieznane/niespójne wartości: `OPEN-001/OPEN-022`. |
 | 4. Preview i walidacja | Podgląd przyszłego wyniku oraz wyróżnienie błędów i potencjalnych duplikatów. | Nie następuje zapis przed zatwierdzeniem. |
 | 5. Decyzje użytkownika | Weryfikacja rekordów, wybór pomijanych; częściowy import tylko po jawnej zgodzie. | `BR-022/BR-023`. |
-| 6. Zapis i raport | Zapis zaakceptowanych wierszy + raport pominiętych z powodami. | Transakcyjność, awaria i undo: `OPEN-010/OPEN-035`. |
+| 6. Zapis i raport | Zapis zaakceptowanych wierszy + raport pominiętych z powodami. | Atomowy zaakceptowany wsad i rollback: ADR-0005; komunikaty/undo i szczegóły retry: `OPEN-010/OPEN-035`. |
 
 ## Sytuacje błędne i przypadki brzegowe
 
@@ -26,7 +26,7 @@ Przenieść rzeczywiste dane z własnych arkuszy CSV lub Excel/XLSX albo ułatwi
 - Wiersz z potencjalnym duplikatem — pokaż konflikt do decyzji, nie nadpisuj automatycznie.
 - Potwierdzenie partial import — użytkownik wie, które wiersze zostaną pominięte i dlaczego.
 - Powtórny import tego samego wsadu — ochrona przed przypadkową duplikacją, przy czym dokładna identyfikacja/import retry jest `OPEN-035`.
-- Awaria w połowie zapisu — wymagana decyzja o efekcie i raportowaniu; **nie obiecuj rollbacku**, dopóki nie rozstrzygnięto `OPEN-010`.
+- Błąd transakcji w połowie zapisu — rollback całego zaakceptowanego wsadu według ADR-0005. Utrata odpowiedzi nie dowodzi rollbacku: retry tej samej operacji ustala wynik bez duplikacji; komunikaty pozostają OPEN-010/035.
 
 ## Rozróżnienie importu danych od faktów biznesowych
 
@@ -38,13 +38,17 @@ Status lub data z arkusza mogą odzwierciedlać stan historyczny, ale import nie
 
 ## Decyzje blokujące
 
-`OPEN-001/OPEN-002/OPEN-010/OPEN-022/OPEN-023/OPEN-024/OPEN-035`, limity `OPEN-007`, formaty dat `OPEN-037`. Wstępny opis nie jest specyfikacją atomicznego zapisu ani obsługi transakcji.
+`OPEN-001/OPEN-002/OPEN-010/OPEN-022/OPEN-023/OPEN-024/OPEN-035`, limity `OPEN-007`, formaty dat `OPEN-037`. Mechanizm atomicznego zapisu ustalają ADR-0005 i ADR-0012; szczegóły domenowe i docelowe testy pozostają bramką importu.
 
-## Dodatkowe niezmienniki QA (bez zatwierdzania transakcyjności)
+## Dodatkowe niezmienniki QA
 
-- W przypadku awarii nie wolno przedstawiać niezweryfikowanego zapisu wiersza jako sukcesu (`AC-IM-011-02`). Nie zakładamy pełnego rollbacku ani retry bez `OPEN-010/035`.
+- W przypadku awarii nie wolno przedstawiać niezweryfikowanego zapisu wiersza jako sukcesu (`AC-IM-011-02`). Wymagane są atomiczny rollback błędu DB oraz retry tego samego owner/key/payload bez dodatkowego efektu; zmieniony payload daje jawny konflikt (ADR-0005). Pozostałe szczegóły OPEN-010/035.
 - Zmiana istniejącej sprawy między preview i zapisem nie pozwala na ciche nadpisanie bez rozstrzygnięcia konfliktu (`AC-IM-014-02`).
 
 ## Decyzja techniczna 2026-10-28
 
 Wybrano parsowanie/preview **w pamięci bez trwałego stagingu wierszy**, jedną atomową transakcję dla zaakceptowanych wierszy oraz trwały rejestr idempotency key i fingerprint. Szczegóły SQL/RPC/RLS/retry nadal wymagają testu; patrz [ADR-0005](../decisions/adr/0005-atomic-inmemory-import.md) i [kontrakt importu](../technical/imports-and-jobs.md). Starsze wzmianki o `OPEN-010/035` oznaczają niezamknięte szczegóły wykonania, nie brak wyboru strategii.
+
+## Rebaseline 2026-10-29
+
+[ADR-0012](../decisions/adr/0012-supabase-native-auth-sessions-rls.md) potwierdza jedno minimalne PostgreSQL-native RPC (`supabase.rpc()`), preferowany SECURITY INVOKER, minimalne granty/RLS i rejestr retry bez trwałego stagingu wierszy ani frameworka transakcji. Weryfikacja F4 nastąpi w docelowym import slice po zatwierdzeniu domeny; nie blokuje niezależnego ręcznego CRUD. Runtime nowego import RPC: PLANNED / NOT RUN.
