@@ -7,6 +7,21 @@ export default defineConfig([
   ...nextVitals,
   ...nextTypescript,
   {
+    files: ["src/**/*.{ts,tsx}"],
+    ignores: ["src/shared/server/**"],
+    rules: {
+      "no-restricted-properties": [
+        "error",
+        {
+          object: "process",
+          property: "env",
+          message:
+            "Read environment variables only through the server-only adapter; public variables require explicit authorization.",
+        },
+      ],
+    },
+  },
+  {
     files: ["src/components/**/*.{ts,tsx}", "src/lib/**/*.{ts,tsx}"],
     rules: {
       "no-restricted-imports": [

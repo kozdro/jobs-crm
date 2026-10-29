@@ -1,6 +1,6 @@
 # Foundation F1 — scaffold, uruchamianie i dowody
 
-**Data:** 2026-10-29. **Zakres:** PR-F1, bez merge i provisioningu. **Status weryfikacji:** w toku; wyniki poniżej aktualizowane wyłącznie po wykonaniu.
+**Data:** 2026-10-29. **Zakres:** PR-F1, bez merge i provisioningu. **Status dowodów lokalnych:** FQA-01–08 PASS, negatywna próba FQA-09 PASS. Finalny wynik CI exact head SHA i zamknięcie F1 raportuje Pull Request; nie należy wywodzić go z samych lokalnych wyników.
 
 ## Podstawa, autoryzacja i wpływ
 
@@ -97,6 +97,8 @@ eslint.config.mjs, .prettierrc.json, .prettierignore
 vitest.config.ts, playwright.config.ts
 ```
 
+`pnpm ui --version` zwróciło 4.23.0. `pnpm ui info --json` rzeczywiście rozpoznało Next16.4.3, src/RSC/TypeScript, Tailwindv4, `base-nova`/`base`, `lucide`, neutral i oba komponenty; exit0, bez mutacji checkoutu.
+
 Zainstalowano tylko Card (z CardHeader/CardContent) i Badge. Card jest komponentem serwerowym, Badge używa Base UI `useRender`/`mergeProps`; upstream MIT zachowano w lokalnym LICENSE. Bez cva, motion i drugiej biblioteki ikon. Zmiany dokumentacji obejmują ten raport, Foundation Plan/frontend/QA, indeksy, README oraz ADR-0011; brak zmian dokumentacji domenowej i harnessu.
 
 ## Weryfikacja i review
@@ -108,27 +110,49 @@ Zainstalowano tylko Card (z CardHeader/CardContent) i Badge. Card jest komponent
 | FQA-01 | Fresh disposable install `pnpm install --frozen-lockfile`; 542 pakiety, strict peers/engines; lock SHA256 `aa19849a3aeee84ddee05a19f58e8420773fb5133773f77727762b364e3f38fd` bez zmiany | PASS, exit0 |
 | FQA-02 | `pnpm typecheck`: `next typegen && tsc --noEmit`, fresh typy; izolowana próba null→string ma wykryć wyłączenie strictNullChecks | PASS, exit0; strict-null fixture odrzucony |
 | FQA-03 | `pnpm lint`, `pnpm format:check`, niezależne negatywne fixtures ESLint/Prettier przez `pnpm test:boundaries` | PASS, exit0; naruszenia dają oczekiwane niezerowe wyniki |
-| FQA-04 | `pnpm test:boundaries`: 5 kontroli czułości, w tym zakazany import UI w ESLint; skopiowany Client Component importuje rzeczywisty server env; Next odmawia z diagnostyką server-only | PASS; brak modułów domenowych do testowania |
+| FQA-04 | `pnpm test:boundaries`: 7 kontroli czułości, w tym zakazany import UI w ESLint; skopiowany Client Component importuje rzeczywisty server env; Next odmawia z diagnostyką server-only | PASS; brak modułów domenowych do testowania |
 | FQA-05 | `pnpm test:unit`: 18 przypadków valid/missing/invalid/redaction; bez DB/Auth | PASS 18/18 |
 | FQA-06 | `pnpm test:canary`: build/static assets/HTML/RSC/DOM/logi i błędny env; scanner positive control | PASS, exit0; scanner wykrywa kontrolny wyciek |
 | FQA-07 | `pnpm build` oraz produkcyjny start na jawnie ustawionym porcie przez Playwright | PASS |
 | FQA-08 | `pnpm test:e2e:foundation`: desktop1280, mobile375, health200 JSON bez redirect/cookie; Tailwind computed styles/Card/Badge/Lucide/no client errors | PASS 3/3 |
-| FQA-09 | Rzeczywisty CI PR exact head SHA i izolowany czerwony PR z failed typecheck/test, skipped production oraz failed final gate | NOT RUN — przed publikacją |
+| FQA-09 | Rzeczywisty CI PR exact head SHA i izolowany czerwony PR z failed typecheck/test, skipped production oraz failed final gate | Negatywny probe PASS; wynik pozytywnego CI exact head SHA raportuje PR |
 | Harness | `python3 harness/scripts/sync.py --check`, `check.py`, `python3 -m unittest discover -s harness/scripts -p 'test_*.py' -v` w czystym snapshocie plików kandydata | PASS, 20/20; nie są testami aplikacji |
 | Audit runtime | `pnpm audit --prod --json` | PASS, zero podatności |
 | Audit cały graf | `pnpm audit --json` | exit1: jedno LOW dev CLI opisane wyżej, bez ukrywania wyniku |
 
-SHA256 manifestu sześciu plików QA (`shasum -a 256 vitest.config.ts playwright.config.ts tests/e2e/foundation-smoke.spec.ts scripts/test-fixture.mjs scripts/test-boundaries.mjs scripts/test-canary.mjs | shasum -a 256`): `1af477701038a3693981dd659aa59ce7be3a6d95e62722cee4a673758c9ebfd2`. Wszystkie kontrole lokalne wykonano 2026-10-29, exit0 poza jawnym pełnym audit i oczekiwanymi ujemnymi fixtures.
+SHA256 manifestu sześciu plików QA (`shasum -a 256 vitest.config.ts playwright.config.ts tests/e2e/foundation-smoke.spec.ts scripts/test-fixture.mjs scripts/test-boundaries.mjs scripts/test-canary.mjs | shasum -a 256`): `138e589126b3056795d76cd309929f548cf9241f3ffbf433b47c913224647db6`. Wszystkie kontrole lokalne wykonano 2026-10-29, exit0 poza jawnym pełnym audit i oczekiwanymi ujemnymi fixtures.
 
 Pierwsza próba testów harnessu w roboczym checkout została przerwana: test setup kopiuje całe drzewo wraz z node_modules. Niezmienione testy uruchomiono w czystym snapshocie źródeł bez artefaktów i przeszły 20/20; CI harness ma osobny checkout bez instalacji zależności. Harness nie był modyfikowany.
 
-Niezależne frontend/backend/security review: kandydat zamrożony, oczekuje wykonania. Reviewerzy muszą mieć osobnego rodzica read-only i nie są autorami implementacji. Pozostałe źródła i statusy: FQA-10–56, Auth/RLS/RPC/Storage/worker/DR: NOT RUN, poza F1.
+Niezależne review kandydata `59fd949f63416deeed27151266892ebcc42e084b` względem bazy `a00f865e4ffe2faf7cfc5f6bcd3825b43f706d44`, przez niezmieniony `python3 harness/scripts/review.py` w oddzielnych czystych checkoutach bez node_modules. Reviewerzy nie są autorami; nie uruchamiali testów i nie modyfikowali plików. Ocena statyczna nie jest powtórzeniem runtime testów.
+
+| Review | Sesja / narzędzia | Wynik i integralność |
+|---|---|---|
+| frontend | Codex read-only parent `01a187b3-9446-7052-943d-a1945c91a1a5`, generic child + canonical frontend-reviewer; model/reasoning NOT EXPOSED | PASS, zero P0–P3; exit0, changedFiles=[]; fingerprint przed/po `b5d9b6db14199d8656f85c41db5e09fbdd5b039d4418befd8e047b16ea87544e` |
+| backend/config | Codex read-only parent `01a187b3-9446-7553-af3d-922eca2bcd09`, generic child + canonical backend-reviewer; dokładny model/reasoning NOT EXPOSED | PASS, zero P0–P3; exit0, changedFiles=[]; fingerprint przed/po `8589cd4b6cdcbacd9a6e29c76a62d75d5bc85c7205f729b37a10c61bc300c066` |
+| security R1 | Claude restricted, Read/Grep/Glob, bez MCP; sesja `52238edc-426c-41b5-86ca-6f64d80f0824`, Opus5.5/reasoning NOT EXPOSED | PASS bez P0/P1/P2, pięć P3 opisanych poniżej; exit0, changedFiles=[]; fingerprint przed/po `f2d7e976b8a96911b8cb2e3ca23dbbf6b5b724bdfedd2720cd284693c06a3c19` |
+
+Sandbox Codex odmówił ubocznego zapisu systemowego cache xcrun; nie obchodzono ograniczenia. Oba review odnotowały FQA-09 jako niewykonane w momencie przekazania im kandydata; późniejsze dowody CI są raportowane osobno. Surowe transkrypty pozostały lokalnie poza repozytorium. Pozostałe źródła i statusy: FQA-10–56, Auth/RLS/RPC/Storage/worker/DR: NOT RUN, poza F1.
+
+### Ustalenia security i ich rozstrzygnięcie
+
+- P3 snapshot kopiujący ignorowane `secrets/` i `private/`: FIXED — oba katalogi i `.env*` wykluczone; syntetyczny temp-source test potwierdza pominięcie poufnych plików i zachowanie zwykłych źródeł.
+- P3 zakres canary: FIXED — skan również całego `.next/server/app`, wygenerowanych HTML/RSC/segments i odpowiedzi 404. Rerun canary PASS.
+- P3 przyszły nieautoryzowany publiczny env: FIXED — lint zakazuje odczytu `process.env` w `src` poza adapterami `shared/server`, z negatywnym fixture. Odrzucane są również computed access i destrukturyzacja. Obecny kod nie ma publicznych zmiennych.
+- P3 APP_ORIGIN normalizacja/HTTPS: DEFERRED do kontraktu F3, zanim origin będzie użyty do Auth/redirect/CSRF. F1 sprawdza tylko poprawny techniczny HTTP(S) origin; nie używa go do decyzji bezpieczeństwa ani nie wdraża produkcji. Nie wprowadzono nowej polityki HTTPS/sesji jako domysłu.
+- P3 ochrona gałęzi: potwierdzono brak ochrony, osobny krok administratora poniżej, poza implementacją F1.
+
+Dev-only LOW deepmerge: niezależny security reviewer ocenił ryzyko jako akceptowalne dla F1 przy oficjalnym registry, przeglądzie diffu i zależności oraz ponowieniu audit po wydaniu poprawki. CLI nie jest uruchamiany w CI/release; nie uruchamiaj go w katalogu z sekretami `.env*`, bo używa dotenv. Nie dodawaj własnego registry bez review. Podatność pozostaje jawnie zgłoszona; zero podatności runtime nie oznacza czystego całego grafu.
+
+Orchestrator potwierdził `git -C /tmp/jobs-f1-review-security-reviewer rev-parse HEAD` = `59fd949f63416deeed27151266892ebcc42e084b` i czyste drzewo po review; wrapper potwierdził identyczny fingerprint. Claude restricted nie mogło samodzielnie odczytać zewnętrznych metadanych worktree i dlatego uczciwie odnotowało tę granicę. R2 otrzymuje lokalny odczytywalny diff i metadata kandydata. Poprawki P3 zweryfikowano ponownie: typecheck/lint, 7 boundary assertions, canary oraz Prettier PASS. Docelowy wynik niezależnego R2 raportuje PR wraz z sesjami i kandydatem.
 
 ## CI i ochrona gałęzi
 
+Negatywna próba [PR #6](https://github.com/kozdro/jobs-crm/pull/6), SHA `1e042e74b2a9c793a7c3b0b28b2b43e06e434c70`, [run 40876280611](https://github.com/kozdro/jobs-crm/actions/runs/40876280611): faktyczny TS2322 null→string i AssertionError true→false; typecheck/test:unit=failure, production=skipped, Foundation required=failure. Lint, format, boundaries i harness=success. Końcowy log wymienia `checks: failure` i `production: skipped`, exit1. PR zamknięto bez merge; błędne pliki istnieją tylko na izolowanej gałęzi testowej, nigdy na gałęzi implementacyjnej.
+
 CI ma minimalne `contents: read`, uruchamia checki na head SHA PR, bez deploymentu i sekretów usług. Końcowa bramka wymaga sukcesu każdej zależności, również przy błędzie/pominięciu wcześniejszych jobów.
 
-Odczyt GitHub rulesets `includes_parents=true` 2026-10-29: pusta lista. Odczyt `branches/main/protection`: 403 „Resource not accessible by integration”. Nie potwierdzono więc egzekwowania required checks przez branch protection. Osobny krok administratora: sprawdzić istniejącą ochronę i wymagać `Foundation required` oraz review; samo istnienie workflow nie blokuje merge. Nie modyfikowano ochrony gałęzi.
+Odczyt GitHub `branches/main` 2026-10-29 potwierdził `protected: false`, `protection.enabled: false`, required checks enforcement `off`, contexts/checks puste. Rulesets `includes_parents=true`: pusta lista. Szczegółowy endpoint `branches/main/protection` zwraca 403 integracji, lecz publiczne metadata gałęzi potwierdzają brak ochrony. **Required checks nie są obecnie wymuszane przez GitHub.** Osobny krok administratora: włączyć ochronę/ruleset wymagający `Foundation required` oraz review; samo istnienie workflow nie blokuje merge. Nie modyfikowano ochrony gałęzi, zgodnie z zakresem zlecenia.
 
 ## Następny krok
 

@@ -23,13 +23,13 @@ function assertRedacted(content, label) {
   assert.ok(!content.includes(canary), `${label}: synthetic secret leaked`);
 }
 
-function scan(directory) {
+function scan(directory, label = "browser asset") {
   let files = 0;
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const filename = join(directory, entry.name);
-    if (entry.isDirectory()) files += scan(filename);
+    if (entry.isDirectory()) files += scan(filename, label);
     else {
-      assertRedacted(readFileSync(filename).toString(), "browser asset");
+      assertRedacted(readFileSync(filename).toString(), label);
       files += 1;
     }
   }
@@ -79,6 +79,21 @@ try {
 
   const assets = join(fixture.directory, ".next/static");
   assert.ok(scan(assets) > 0, "scan must inspect real browser assets");
+  const generated = join(fixture.directory, ".next/server/app");
+  assert.ok(
+    scan(generated, "generated app output") > 0,
+    "scan must inspect generated app outputs",
+  );
+  for (const output of [
+    "index.html",
+    "index.rsc",
+    "index.segments/_full.segment.rsc",
+  ]) {
+    assertRedacted(
+      readFileSync(join(generated, output), "utf8"),
+      "generated HTML/RSC/segment",
+    );
+  }
   const sentinel = join(assets, "synthetic-leak-control.txt");
   writeFileSync(sentinel, canary);
   assert.throws(
@@ -87,7 +102,9 @@ try {
     "scanner must detect a leak",
   );
   rmSync(sentinel);
-  console.log("PASS FQA-06 browser assets and scanner positive control.");
+  console.log(
+    "PASS FQA-06 browser assets, generated HTML/RSC/segments and scanner positive control.",
+  );
 
   server = spawn(
     process.execPath,
@@ -133,6 +150,11 @@ try {
     assert.equal(response.status, 200);
     assertRedacted(await response.text(), "HTTP response");
   }
+  const missing = await fetch(`${baseURL}/foundation-does-not-exist`, {
+    redirect: "manual",
+  });
+  assert.equal(missing.status, 404, "nonexistent route must return 404");
+  assertRedacted(await missing.text(), "404 response");
   const rsc = await fetch(`${baseURL}/?_rsc=foundation-canary`, {
     headers: { RSC: "1" },
   });

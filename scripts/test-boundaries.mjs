@@ -1,7 +1,48 @@
 import assert from "node:assert/strict";
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expectFailure, run, snapshot } from "./test-fixture.mjs";
+
+// Exercise the real copy filter using harmless files outside the checkout.
+const sourceFixture = mkdtempSync(join(tmpdir(), "jobs-crm-copy-sensitivity-"));
+let copiedFixture;
+try {
+  for (const directory of ["secrets", "private", "src", "node_modules"]) {
+    mkdirSync(join(sourceFixture, directory));
+  }
+  writeFileSync(
+    join(sourceFixture, "secrets/omitted.txt"),
+    "synthetic fixture",
+  );
+  writeFileSync(
+    join(sourceFixture, "private/omitted.txt"),
+    "synthetic fixture",
+  );
+  writeFileSync(join(sourceFixture, ".env.local"), "SYNTHETIC=fixture");
+  writeFileSync(join(sourceFixture, "src/included.ts"), "export {};\n");
+  copiedFixture = snapshot(sourceFixture);
+  for (const excluded of ["secrets", "private", ".env.local"]) {
+    assert.ok(
+      !existsSync(join(copiedFixture.directory, excluded)),
+      `${excluded} must be omitted`,
+    );
+  }
+  assert.ok(
+    existsSync(join(copiedFixture.directory, "src/included.ts")),
+    "snapshot must retain ordinary source files",
+  );
+  console.log("PASS FQA-06 snapshot excludes private, secrets and env files.");
+} finally {
+  copiedFixture?.cleanup();
+  rmSync(sourceFixture, { recursive: true, force: true });
+}
 
 const fixture = snapshot();
 try {
@@ -57,6 +98,24 @@ try {
     "FQA-03 forbidden UI import sensitivity",
   );
   rmSync(importFixture);
+
+  const envFixture = join(
+    fixture.directory,
+    "src/components/env-sensitivity.ts",
+  );
+  writeFileSync(
+    envFixture,
+    "export const forbidden = process.env.NEXT_PUBLIC_FAKE;\n",
+  );
+  expectFailure(
+    run(fixture.directory, "eslint/bin/eslint.js", [
+      envFixture,
+      "--max-warnings=0",
+    ]),
+    /no-restricted-properties/,
+    "FQA-04 unauthorized public environment read",
+  );
+  rmSync(envFixture);
 
   // Build only the poisoned page; type/lint fixtures must not mask the boundary error.
   writeFileSync(typeFixture, 'export const correct: string = "ok";\n');
