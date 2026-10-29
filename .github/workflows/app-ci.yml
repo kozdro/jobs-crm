@@ -91,10 +91,40 @@ jobs:
       - name: Harness regression tests
         run: python3 -m unittest discover -s harness/scripts -p 'test_*.py' -v
 
+  f2:
+    name: F2 local migrations and RLS
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 12.16.1
+          run_install: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - name: Verify pinned toolchain and local engine
+        run: |
+          test "$(node --version)" = "v24.22.2"
+          test "$(pnpm --version)" = "12.16.1"
+          docker version
+      - name: Frozen install
+        run: pnpm install --frozen-lockfile
+      - name: Complete synthetic F2 suite
+        run: pnpm test:integration:f2
+      - name: Remove only owned disposable F2 targets
+        if: ${{ always() }}
+        run: node scripts/db/cleanup.ts
+
   required:
     name: Foundation required
     if: ${{ always() }}
-    needs: [checks, production, harness]
+    needs: [checks, production, harness, f2]
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
