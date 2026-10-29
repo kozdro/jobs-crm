@@ -129,3 +129,25 @@ test("zero or partial reporter evidence cannot give successful Auth measurement 
   ].map((kind) => ({ kind, values: {} }));
   assert.doesNotThrow(() => requireAuthObservations(summary, "browser"));
 });
+
+test("native no-store exclusion requires its actual CDP reason and cannot claim the restore handler passed", () => {
+  const values = {
+    cacheExclusionObserved: true,
+    nativeNoStoreReason: "MainResourceHasCacheControlNoStore",
+    reloadedAfterBack: true,
+    noPrivateAfterLogout: true,
+    actualRestoreHandler: "NOT RUN - browser excludes no-store private page",
+  };
+  const output = capture();
+  output.push("F3_BFCACHE_OBSERVATION " + JSON.stringify(values));
+  assert.equal(output.verify().observations[0].kind, "F3_BFCACHE_OBSERVATION");
+  for (const changed of [
+    { ...values, nativeNoStoreReason: "BrowsingInstanceNotSwapped" },
+    { ...values, actualRestoreHandler: "PASS" },
+    { ...values, cacheExclusionObserved: false },
+  ]) {
+    const invalid = capture();
+    invalid.push("F3_BFCACHE_OBSERVATION " + JSON.stringify(changed));
+    assert.throws(() => invalid.verify(), /safe field validation/);
+  }
+});

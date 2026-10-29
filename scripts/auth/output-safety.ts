@@ -15,12 +15,16 @@ const signupResult = z.strictObject({
 });
 const observationSchemas = {
   F3_BFCACHE_OBSERVATION: z.strictObject({
-    restoredBeforeLogout: z.literal(true),
-    revalidatedAfterRestore: z.literal(true),
-    restoredAfterLogout: z.boolean(),
-    privateDataVisibleAfterLogout: z.literal(false),
-    authenticatedPageshowCount: n,
-    persistedPageshowCount: n,
+    cacheExclusionObserved: z.literal(true),
+    nativeNoStoreReason: z.enum([
+      "MainResourceHasCacheControlNoStore",
+      "JsNetworkRequestReceivedCacheControlNoStoreResource",
+    ]),
+    reloadedAfterBack: z.literal(true),
+    noPrivateAfterLogout: z.literal(true),
+    actualRestoreHandler: z.literal(
+      "NOT RUN - browser excludes no-store private page",
+    ),
   }),
   F3_SIGNUP_UI_OBSERVATION: z.strictObject({
     newUiOutcome: z.literal("status"),

@@ -850,6 +850,19 @@ test("AUTH-02/06 FQA-25/28 attacker PKCE and implicit fragments cannot replace a
         await anonymousPage.close();
       }
     }
+    await safeAuthNavigation(
+      victimPage,
+      `${target.appOrigin}/account#${fragment}`,
+    );
+    await expect(
+      victimPage.getByRole("button", { name: "Wyloguj tutaj", exact: true }),
+    ).toBeVisible();
+    await expect
+      .poll(() => Boolean(new URL(victimPage.url()).hash))
+      .toBe(false);
+    await expect(
+      victimPage.getByText(owner.email, { exact: true }),
+    ).toBeVisible();
     await identity(victim, target.appOrigin, owner);
   } finally {
     await victim.close();
@@ -858,7 +871,7 @@ test("AUTH-02/06 FQA-25/28 attacker PKCE and implicit fragments cannot replace a
   }
 });
 
-test("AUTH-03/07 FQA-23/29 actual BFCache restore revalidates identity and cookie-change back navigation shows no private data", async ({
+test("AUTH-03/07 FQA-23/29 native no-store BFCache exclusion and back/logout navigation preserve private data", async ({
   browser,
 }) => {
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
@@ -886,30 +899,47 @@ test("AUTH-03/07 FQA-23/29 actual BFCache restore revalidates identity and cooki
     });
     const user = await account(target);
     const page = await context.newPage();
+    const cdp = await context.newCDPSession(page);
+    await cdp.send("Page.enable");
+    const exclusionReasons: string[] = [];
+    cdp.on("Page.backForwardCacheNotUsed", (event) => {
+      for (const explanation of event.notRestoredExplanations as {
+        reason: string;
+      }[]) {
+        if (
+          explanation.reason === "MainResourceHasCacheControlNoStore" ||
+          explanation.reason ===
+            "JsNetworkRequestReceivedCacheControlNoStoreResource"
+        )
+          exclusionReasons.push(explanation.reason);
+      }
+    });
     await login(page, user);
     await expect(
       page.getByRole("button", { name: "Wyloguj tutaj", exact: true }),
     ).toBeVisible();
     await page.goto(`${target.appOrigin}/`);
-    const verifiedAfterRestore = page.waitForResponse(
+    const verifiedAfterBack = page.waitForResponse(
       (response) =>
         new URL(response.url()).pathname === "/auth/user" &&
         response.status() === 200,
     );
-    await page.goBack({ waitUntil: "commit" });
-    const validation = await verifiedAfterRestore;
+    const back = await page.goBack({ waitUntil: "commit" });
+    const validation = await verifiedAfterBack;
     expect((await validation.json()).user.id).toBe(user.id);
-    await expect
-      .poll(
-        () =>
-          events.filter((event) => event.path === "/account" && event.persisted)
-            .length,
-      )
-      .toBeGreaterThan(0);
+    expect(back?.status()).toBe(200);
+    expect(back?.headers()["cache-control"]).toContain("no-store");
+    await expect.poll(() => exclusionReasons.length).toBeGreaterThan(0);
+    expect(
+      events.filter((event) => event.path === "/account" && event.persisted)
+        .length,
+    ).toBe(0);
     await expect(page.getByText(user.email, { exact: true })).toBeVisible();
-    const restoredBeforeLogout = events.filter(
-      (event) => event.path === "/account" && event.persisted,
-    ).length;
+    const nativeNoStoreReason = exclusionReasons[0];
+    if (!nativeNoStoreReason)
+      throw new Error(
+        "Native BFCache no-store exclusion reason was not observed",
+      );
     await page.goto(`${target.appOrigin}/`);
     const logoutTab = await context.newPage();
     try {
@@ -929,19 +959,12 @@ test("AUTH-03/07 FQA-23/29 actual BFCache restore revalidates identity and cooki
       console.info(
         "F3_BFCACHE_OBSERVATION " +
           JSON.stringify({
-            restoredBeforeLogout: restoredBeforeLogout > 0,
-            revalidatedAfterRestore: true,
-            restoredAfterLogout:
-              events.filter(
-                (event) => event.path === "/account" && event.persisted,
-              ).length > restoredBeforeLogout,
-            privateDataVisibleAfterLogout: false,
-            authenticatedPageshowCount: events.filter(
-              (event) => event.path === "/account",
-            ).length,
-            persistedPageshowCount: events.filter(
-              (event) => event.path === "/account" && event.persisted,
-            ).length,
+            cacheExclusionObserved: true,
+            nativeNoStoreReason,
+            reloadedAfterBack: true,
+            noPrivateAfterLogout: true,
+            actualRestoreHandler:
+              "NOT RUN - browser excludes no-store private page",
           }),
       );
     } finally {
