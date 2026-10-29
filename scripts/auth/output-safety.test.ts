@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   captureAuthOutput,
+  requireAuthObservations,
   assertPrivateValuesAbsent,
 } from "./output-safety.ts";
 const publicKey = "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYW5vbiJ9.publicsignature";
@@ -93,4 +94,38 @@ test("structured observations cannot smuggle unknown credential or arbitrary tex
     output.push(content);
     assert.throws(() => output.verify(), /withheld/);
   }
+});
+
+test("zero or partial reporter evidence cannot give successful Auth measurement acceptance", () => {
+  const summary = {
+    bytes: 0,
+    sha256: "0".repeat(64),
+    counts: { passed: 0 },
+    observations: [] as { kind: string; values: unknown }[],
+  };
+  assert.throws(() => requireAuthObservations(summary, "sdk"), /counts/);
+  summary.counts.passed = 13;
+  assert.throws(() => requireAuthObservations(summary, "sdk"), /observations/);
+  summary.observations = [
+    "F3_JWT_REPLAY",
+    "F3_SIGNUP_OBSERVATION",
+    "F3_RECOVERY_SESSION_OBSERVATION",
+    "F3_PASSWORD_POLICY_OBSERVATION",
+  ].map((kind) => ({ kind, values: { scope: "local" } }));
+  assert.throws(() => requireAuthObservations(summary, "sdk"), /three-scope/);
+  summary.observations.push(
+    { kind: "F3_JWT_REPLAY", values: { scope: "global" } },
+    { kind: "F3_JWT_REPLAY", values: { scope: "others" } },
+  );
+  assert.doesNotThrow(() => requireAuthObservations(summary, "sdk"));
+  assert.throws(
+    () => requireAuthObservations(summary, "browser"),
+    /observations/,
+  );
+  summary.observations = [
+    "F3_SIGNUP_UI_OBSERVATION",
+    "F3_REFRESH_FAULT_OBSERVATION",
+    "F3_BFCACHE_OBSERVATION",
+  ].map((kind) => ({ kind, values: {} }));
+  assert.doesNotThrow(() => requireAuthObservations(summary, "browser"));
 });

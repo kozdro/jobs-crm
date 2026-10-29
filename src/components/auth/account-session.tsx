@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { Button } from "@base-ui/react/button";
 import {
   getBrowserClient,
@@ -17,12 +23,21 @@ export function AccountSession({
   children: ReactNode;
 }) {
   const contentRef = useRef<HTMLDivElement>(null);
+  const navigationPendingRef = useRef(false);
   const [verified, setVerified] = useState(false);
   const [pending, setPending] = useState(false);
   const [feedback, setFeedback] = useState<{
     message: string;
     error: boolean;
   } | null>(null);
+  const navigateToLogin = useCallback(() => {
+    // SIGNED_OUT may arrive before signOut resolves. Both paths share one navigation.
+    if (navigationPendingRef.current) return;
+    navigationPendingRef.current = true;
+    if (contentRef.current) contentRef.current.hidden = true;
+    setVerified(false);
+    window.location.replace("/login");
+  }, []);
   useEffect(() => {
     let active = true;
     const client = getBrowserClient();
@@ -35,9 +50,9 @@ export function AccountSession({
       try {
         const response = await fetch("/auth/user", { cache: "no-store" });
         const result = await response.json();
-        if (!active) return;
+        if (!active || navigationPendingRef.current) return;
         if (!response.ok || result.user?.id !== userId) {
-          window.location.replace("/login");
+          navigateToLogin();
           return;
         }
         setVerified(true);
@@ -53,8 +68,7 @@ export function AccountSession({
     }
     const { data } = client.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_OUT" || (session && session.user.id !== userId)) {
-        hide();
-        window.location.replace("/login");
+        navigateToLogin();
       }
     });
     function pageShow(event: PageTransitionEvent) {
@@ -69,7 +83,7 @@ export function AccountSession({
       window.removeEventListener("pagehide", hide);
       window.removeEventListener("pageshow", pageShow);
     };
-  }, [userId]);
+  }, [userId, navigateToLogin]);
   async function logout(scope: LogoutScope) {
     if (pending) return;
     setPending(true);
@@ -90,10 +104,7 @@ export function AccountSession({
             "Pozostałe sesje zostały wylogowane. Bieżąca sesja pozostaje aktywna.",
           error: false,
         });
-      else {
-        setVerified(false);
-        window.location.replace("/login");
-      }
+      else navigateToLogin();
     } catch {
       setFeedback({
         message: "Nie można połączyć się z usługą logowania. Spróbuj ponownie.",

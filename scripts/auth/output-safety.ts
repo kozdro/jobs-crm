@@ -14,6 +14,14 @@ const signupResult = z.strictObject({
   errorCode: code,
 });
 const observationSchemas = {
+  F3_BFCACHE_OBSERVATION: z.strictObject({
+    restoredBeforeLogout: z.literal(true),
+    revalidatedAfterRestore: z.literal(true),
+    restoredAfterLogout: z.boolean(),
+    privateDataVisibleAfterLogout: z.literal(false),
+    authenticatedPageshowCount: n,
+    persistedPageshowCount: n,
+  }),
   F3_SIGNUP_UI_OBSERVATION: z.strictObject({
     newUiOutcome: z.literal("status"),
     existingUiOutcome: z.enum(["status", "alert"]),
@@ -174,4 +182,52 @@ export function captureAuthOutput(options: {
       };
     },
   };
+}
+
+/** Successful subprocess exit also needs the expected measured evidence, not empty reporter output. */
+export function requireAuthObservations(
+  summary: OutputSummary,
+  stage: "sdk" | "browser",
+) {
+  if (
+    !(summary.counts.passed && summary.counts.passed > 0) ||
+    (summary.counts.failed ?? 0) !== 0 ||
+    (summary.counts.skipped ?? 0) !== 0 ||
+    (summary.counts.cancelled ?? 0) !== 0
+  )
+    throw new Error(
+      "F3 required successful test counts missing (output withheld)",
+    );
+  const required =
+    stage === "sdk"
+      ? [
+          "F3_JWT_REPLAY",
+          "F3_SIGNUP_OBSERVATION",
+          "F3_RECOVERY_SESSION_OBSERVATION",
+          "F3_PASSWORD_POLICY_OBSERVATION",
+        ]
+      : [
+          "F3_SIGNUP_UI_OBSERVATION",
+          "F3_REFRESH_FAULT_OBSERVATION",
+          "F3_BFCACHE_OBSERVATION",
+        ];
+  if (
+    required.some(
+      (kind) => !summary.observations.some((entry) => entry.kind === kind),
+    )
+  )
+    throw new Error(
+      "F3 required structured observations missing (output withheld)",
+    );
+  if (stage === "sdk") {
+    const scopes = new Set(
+      summary.observations
+        .filter((entry) => entry.kind === "F3_JWT_REPLAY")
+        .map((entry) => (entry.values as { scope: string }).scope),
+    );
+    if (["local", "global", "others"].some((scope) => !scopes.has(scope)))
+      throw new Error(
+        "F3 required three-scope JWT measurements missing (output withheld)",
+      );
+  }
 }

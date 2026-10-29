@@ -25,7 +25,7 @@ describe("Auth UI policy and output boundary", () => {
     expect(html).not.toContain("<form");
     expect(html).toContain("Logowanie nie jest skonfigurowane");
   });
-  it("blocks unresolved signup/recovery writes outside explicit fixture while retaining login", () => {
+  it("hides unresolved signup/recovery UI outside explicit fixture while retaining login", () => {
     mocks.getPublicAuthConfig.mockReturnValue({
       ...config,
       localFixture: false,

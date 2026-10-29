@@ -36,6 +36,14 @@ async function login(page: Page, user: Account) {
   ).toBeVisible();
   await identity(page.context(), target.appOrigin, user);
 }
+async function settledLogin(page: Page) {
+  await expect(page).toHaveURL(/\/login(?:\?|$)/);
+  await page.waitForLoadState("load");
+  await expect(page.getByLabel("E-mail", { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Zaloguj się", exact: true }),
+  ).toBeEnabled();
+}
 async function identity(
   context: BrowserContext,
   origin: string,
@@ -103,7 +111,7 @@ test("AUTH-01/03/04/06/07 FQA-22/23/26/28/29 login errors, validation, cookies, 
     .getByLabel("Hasło", { exact: true })
     .fill("Incorrect-synthetic-password!");
   await page.getByRole("button", { name: "Zaloguj się", exact: true }).click();
-  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(page.getByRole("main").getByRole("alert")).toBeVisible();
   expect(
     (await context.request.get(`${target.appOrigin}/auth/user`)).status(),
   ).toBe(401);
@@ -139,7 +147,7 @@ test("AUTH-01/03/04/06/07 FQA-22/23/26/28/29 login errors, validation, cookies, 
     await logoutTab
       .getByRole("button", { name: "Wyloguj tutaj", exact: true })
       .click();
-    await expect(logoutTab).toHaveURL(/\/login(?:\?|$)/);
+    await settledLogin(logoutTab);
     expect(
       (await context.request.get(`${target.appOrigin}/auth/user`)).status(),
     ).toBe(401);
@@ -231,7 +239,7 @@ test("AUTH-05/09/12 FQA-27/31/34 A/B tabs two SSR processes and UI others/global
     await pa
       .getByRole("button", { name: "Wyloguj wszędzie", exact: true })
       .click();
-    await expect(pa).toHaveURL(/\/login(?:\?|$)/);
+    await settledLogin(pa);
     expect(
       (await ca.request.get(`${target.appOrigin}/auth/user`)).status(),
     ).toBe(401);
@@ -408,6 +416,7 @@ test("AUTH-14 FQA-57 self-service browser signup confirms in same PKCE context a
   await page
     .getByRole("button", { name: "Wyloguj tutaj", exact: true })
     .click();
+  await settledLogin(page);
   try {
     await page.goto(link);
   } catch {
@@ -463,6 +472,7 @@ test("AUTH-10 FQA-32 browser recovery mail link updates password with invalid li
   await page
     .getByRole("button", { name: "Wyloguj tutaj", exact: true })
     .click();
+  await settledLogin(page);
   await login(page, { ...user, password });
   await identity(context, target.appOrigin, user);
 });
@@ -548,7 +558,9 @@ test("AUTH-05/07 FQA-27/29 real expiry refresh across tabs and two SSR processes
     await offline
       .getByRole("button", { name: "Zaloguj się", exact: true })
       .click();
-    await expect(offline.getByRole("alert")).toBeVisible({ timeout: 20000 });
+    await expect(offline.getByRole("main").getByRole("alert")).toBeVisible({
+      timeout: 20000,
+    });
     expect(
       (await unavailable.request.get(`${target.appOrigin}/auth/user`)).status(),
     ).toBe(401);
@@ -584,7 +596,9 @@ test("AUTH-10/12 FQA-32/34 recovery owner switch cannot update another account a
     await page
       .getByRole("button", { name: "Wyślij link", exact: true })
       .click();
-    await expect(page.getByRole("alert")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("main").getByRole("alert")).toBeVisible({
+      timeout: 15000,
+    });
     await expect(
       page.getByRole("button", { name: "Wyślij link", exact: true }),
     ).toBeEnabled();
@@ -604,7 +618,7 @@ test("AUTH-10/12 FQA-32/34 recovery owner switch cannot update another account a
   const otherTab = await context.newPage();
   try {
     await login(otherTab, other);
-    await expect(page.getByRole("alert")).toBeVisible();
+    await expect(page.getByRole("main").getByRole("alert")).toBeVisible();
     const save = page.getByRole("button", {
       name: "Zapisz hasło",
       exact: true,
@@ -803,7 +817,10 @@ test("AUTH-02/06 FQA-25/28 attacker PKCE and implicit fragments cannot replace a
       await victimPage
         .getByRole("button", { name: "Zaloguj się", exact: true })
         .click();
-      await expect(victimPage.getByRole("alert")).toBeVisible();
+      await expect(
+        victimPage.getByRole("main").getByRole("alert"),
+      ).toBeVisible();
+      expect(Boolean(new URL(victimPage.url()).hash)).toBe(false);
       await identity(victim, target.appOrigin, owner);
       const anonymousPage = await anonymous.newPage();
       try {
@@ -820,7 +837,10 @@ test("AUTH-02/06 FQA-25/28 attacker PKCE and implicit fragments cannot replace a
         await anonymousPage
           .getByRole("button", { name: "Zaloguj się", exact: true })
           .click();
-        await expect(anonymousPage.getByRole("alert")).toBeVisible();
+        await expect(
+          anonymousPage.getByRole("main").getByRole("alert"),
+        ).toBeVisible();
+        expect(Boolean(new URL(anonymousPage.url()).hash)).toBe(false);
         expect(
           (
             await anonymous.request.get(`${target.appOrigin}/auth/user`)
@@ -835,5 +855,99 @@ test("AUTH-02/06 FQA-25/28 attacker PKCE and implicit fragments cannot replace a
     await victim.close();
     await attacker.close();
     await anonymous.close();
+  }
+});
+
+test("AUTH-03/07 FQA-23/29 actual BFCache restore revalidates identity and cookie-change back navigation shows no private data", async ({
+  browser,
+}) => {
+  const context = await browser.newContext({ ignoreHTTPSErrors: true });
+  const events: { path: string; persisted: boolean }[] = [];
+  try {
+    await context.exposeBinding(
+      "__f3ObservePageshow",
+      (_source, value: { path: string; persisted: boolean }) => {
+        events.push(value);
+      },
+    );
+    await context.addInitScript(() => {
+      const observed = window as unknown as Window & {
+        __f3ObservePageshow(value: {
+          path: string;
+          persisted: boolean;
+        }): Promise<void>;
+      };
+      window.addEventListener("pageshow", (event) => {
+        void observed.__f3ObservePageshow({
+          path: window.location.pathname,
+          persisted: event.persisted,
+        });
+      });
+    });
+    const user = await account(target);
+    const page = await context.newPage();
+    await login(page, user);
+    await expect(
+      page.getByRole("button", { name: "Wyloguj tutaj", exact: true }),
+    ).toBeVisible();
+    await page.goto(`${target.appOrigin}/`);
+    const verifiedAfterRestore = page.waitForResponse(
+      (response) =>
+        new URL(response.url()).pathname === "/auth/user" &&
+        response.status() === 200,
+    );
+    await page.goBack({ waitUntil: "commit" });
+    const validation = await verifiedAfterRestore;
+    expect((await validation.json()).user.id).toBe(user.id);
+    await expect
+      .poll(
+        () =>
+          events.filter((event) => event.path === "/account" && event.persisted)
+            .length,
+      )
+      .toBeGreaterThan(0);
+    await expect(page.getByText(user.email, { exact: true })).toBeVisible();
+    const restoredBeforeLogout = events.filter(
+      (event) => event.path === "/account" && event.persisted,
+    ).length;
+    await page.goto(`${target.appOrigin}/`);
+    const logoutTab = await context.newPage();
+    try {
+      await logoutTab.goto(`${target.appOrigin}/account`);
+      await logoutTab
+        .getByRole("button", { name: "Wyloguj tutaj", exact: true })
+        .click();
+      await settledLogin(logoutTab);
+      await page.goBack({ waitUntil: "commit" });
+      await expect(
+        page.getByText(user.email, { exact: true }),
+      ).not.toBeVisible();
+      await settledLogin(page);
+      expect(
+        (await context.request.get(`${target.appOrigin}/auth/user`)).status(),
+      ).toBe(401);
+      console.info(
+        "F3_BFCACHE_OBSERVATION " +
+          JSON.stringify({
+            restoredBeforeLogout: restoredBeforeLogout > 0,
+            revalidatedAfterRestore: true,
+            restoredAfterLogout:
+              events.filter(
+                (event) => event.path === "/account" && event.persisted,
+              ).length > restoredBeforeLogout,
+            privateDataVisibleAfterLogout: false,
+            authenticatedPageshowCount: events.filter(
+              (event) => event.path === "/account",
+            ).length,
+            persistedPageshowCount: events.filter(
+              (event) => event.path === "/account" && event.persisted,
+            ).length,
+          }),
+      );
+    } finally {
+      await logoutTab.close();
+    }
+  } finally {
+    await context.close();
   }
 });

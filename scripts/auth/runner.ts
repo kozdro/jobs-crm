@@ -11,6 +11,7 @@ import { randomUUID } from "node:crypto";
 import {
   captureAuthOutput,
   assertPrivateValuesAbsent,
+  requireAuthObservations,
 } from "./output-safety.ts";
 import {
   startAuthTarget,
@@ -37,6 +38,7 @@ const evidence = {
   stages: [] as string[],
   outputChecks: [] as (OutputSummary & { stage: string })[],
   scannedBrowserFiles: 0,
+  scannedGeneratedResponseFiles: 0,
 };
 const children: ChildProcess[] = [];
 const childClosed: Promise<void>[] = [];
@@ -70,13 +72,20 @@ async function run(args: string[], env: NodeJS.ProcessEnv, stage: string) {
   console.log(`F3 ${stage}: ${JSON.stringify({ exit: code, ...summary })}`);
   if (code !== 0)
     throw new Error(`F3 stage ${stage} exited ${code} (raw output withheld)`);
+  if (stage === "auth-sdk-integration") requireAuthObservations(summary, "sdk");
+  if (stage === "auth-HTTPS-browser")
+    requireAuthObservations(summary, "browser");
 }
-async function scanBrowserAssets(directory: string): Promise<number> {
+async function scanBuildAssets(
+  directory: string,
+  responseFilesOnly = false,
+): Promise<number> {
   let count = 0;
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     const file = join(directory, entry.name);
-    if (entry.isDirectory()) count += await scanBrowserAssets(file);
-    else {
+    if (entry.isDirectory())
+      count += await scanBuildAssets(file, responseFilesOnly);
+    else if (!responseFilesOnly || /\.(html|rsc)$/.test(entry.name)) {
       assertPrivateValuesAbsent(
         (await readFile(file)).toString(),
         privateValues,
@@ -135,11 +144,17 @@ try {
     env,
     "production-build",
   );
-  evidence.scannedBrowserFiles = await scanBrowserAssets(
+  evidence.scannedBrowserFiles = await scanBuildAssets(
     join(root, ".next/static"),
   );
   if (!evidence.scannedBrowserFiles)
     throw new Error("F3 browser artifact scan found no files");
+  evidence.scannedGeneratedResponseFiles = await scanBuildAssets(
+    join(root, ".next/server/app"),
+    true,
+  );
+  if (!evidence.scannedGeneratedResponseFiles)
+    throw new Error("F3 generated HTML/RSC scan found no files");
   evidence.stages.push("production-build");
   for (const [upstreamPort, publicPort] of [
     [3133, 3143],

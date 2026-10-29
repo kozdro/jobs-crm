@@ -53,6 +53,17 @@ export function AuthForm({
   const recoveryInvalidRef = useRef(false);
   const [recoveryInvalid, setRecoveryInvalid] = useState(false);
   const resetBlocked = mode === "reset" && (!expectedUserId || recoveryInvalid);
+  // PKCE completes on the server callback. Auth pages never consume implicit
+  // fragment tokens; discard the entire fragment before creating any SDK client.
+  useEffect(() => {
+    if (window.location.hash) {
+      window.history.replaceState(
+        window.history.state,
+        "",
+        `${window.location.pathname}${window.location.search}`,
+      );
+    }
+  }, []);
   useEffect(() => {
     if (
       mode !== "reset" ||
@@ -159,7 +170,7 @@ export function AuthForm({
           body: JSON.stringify({ password, expectedUserId }),
         });
         if (recoveryInvalidRef.current) return;
-        if (response.status === 401 || response.status === 409) {
+        if ([401, 403, 409].includes(response.status)) {
           recoveryInvalidRef.current = true;
           formElement.reset();
           setRecoveryInvalid(true);
