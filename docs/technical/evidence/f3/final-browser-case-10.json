@@ -1,0 +1,24 @@
+{
+  "scope": "Targeted testcase10 only; actual existing R4 production build",
+  "exit": 0,
+  "bytes": 659,
+  "sha256": "e68888ebe70709a02a893c000fde9f9b8c83c5ce3c82a20adecd85d394e173c7",
+  "counts": {
+    "passed": 1
+  },
+  "observations": [
+    {
+      "kind": "F3_BFCACHE_OBSERVATION",
+      "values": {
+        "cacheExclusionObserved": true,
+        "backResponseSource": "explicit-SSR-request",
+        "nativeNoStoreReason": "MainResourceHasCacheControlNoStore",
+        "reloadedAfterBack": true,
+        "noPrivateAfterLogout": true,
+        "actualRestoreHandler": "NOT RUN - browser excludes no-store private page"
+      }
+    }
+  ],
+  "sourceSha256": "88983790c0b0c06e46b7e758aedb357a70ceb428002531b8eee2282e297d1969",
+  "applicationCandidate": "c97cba96272ec975920209adb8ba0ca12dc05557"
+}

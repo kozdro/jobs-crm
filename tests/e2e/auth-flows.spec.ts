@@ -927,9 +927,24 @@ test("AUTH-03/07 FQA-23/29 native no-store BFCache exclusion and back/logout nav
     const back = await page.goBack({ waitUntil: "commit" });
     const validation = await verifiedAfterBack;
     expect((await validation.json()).user.id).toBe(user.id);
-    expect(back?.status()).toBe(200);
-    expect(back?.headers()["cache-control"]).toContain("no-store");
+    // goBack() may return null even when a history document was not restored from BFCache.
+    // Verify real SSR headers separately in that case; CDP + pageshow remain mandatory.
+    const backResponseSource = back
+      ? "history-navigation"
+      : "explicit-SSR-request";
+    const privateResponse =
+      back ?? (await context.request.get(`${target.appOrigin}/account`));
+    expect(privateResponse.status()).toBe(200);
+    expect(privateResponse.headers()["cache-control"]).toContain("no-store");
     await expect.poll(() => exclusionReasons.length).toBeGreaterThan(0);
+    await expect
+      .poll(
+        () =>
+          events.filter(
+            (event) => event.path === "/account" && !event.persisted,
+          ).length,
+      )
+      .toBeGreaterThan(1);
     expect(
       events.filter((event) => event.path === "/account" && event.persisted)
         .length,
@@ -965,6 +980,7 @@ test("AUTH-03/07 FQA-23/29 native no-store BFCache exclusion and back/logout nav
           JSON.stringify({
             cacheExclusionObserved: true,
             nativeNoStoreReason,
+            backResponseSource,
             reloadedAfterBack: true,
             noPrivateAfterLogout: true,
             actualRestoreHandler:

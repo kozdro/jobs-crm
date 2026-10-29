@@ -16,6 +16,7 @@ const signupResult = z.strictObject({
 const observationSchemas = {
   F3_BFCACHE_OBSERVATION: z.strictObject({
     cacheExclusionObserved: z.literal(true),
+    backResponseSource: z.enum(["history-navigation", "explicit-SSR-request"]),
     nativeNoStoreReason: z.enum([
       "MainResourceHasCacheControlNoStore",
       "JsNetworkRequestReceivedCacheControlNoStoreResource",

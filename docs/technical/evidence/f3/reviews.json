@@ -1,0 +1,294 @@
+[
+  {
+    "round": "R1",
+    "role": "frontend-reviewer",
+    "candidate": "e8ac1dee9a1bb812571f96c4f8f1fee39f5321d3",
+    "testExecution": "NOT RUN by reviewer",
+    "readOnlyEnforcement": "Separate Codex read-only parent then one native generic child with canonical role",
+    "parentSession": "01a18968-50fc-7a83-a60f-37d27b26e3df",
+    "wrapper": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "9c9d4e5bf1eec022a503660f2b4158eb164929cd9218334f8489f7e3f9366e64",
+      "candidateAfter": "9c9d4e5bf1eec022a503660f2b4158eb164929cd9218334f8489f7e3f9366e64"
+    },
+    "staticReviewStatus": "FAIL",
+    "openFindingsNote": "Initial P2 findings fixed in R2",
+    "model": "gpt-6.1-sol",
+    "sandbox": {
+      "type": "read-only"
+    },
+    "approval": "never",
+    "childSession": "01a18968-9a3c-77a2-8aa2-905fd1a2de1f",
+    "childTask": "/root/frontend_reviewer",
+    "typedProfileLoaded": false
+  },
+  {
+    "round": "R1",
+    "role": "backend-reviewer",
+    "candidate": "e8ac1dee9a1bb812571f96c4f8f1fee39f5321d3",
+    "testExecution": "NOT RUN by reviewer",
+    "readOnlyEnforcement": "Separate Codex read-only parent then one native generic child with canonical role",
+    "parentSession": "01a18968-50eb-7112-b8e4-33dab5911618",
+    "wrapper": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "9c9d4e5bf1eec022a503660f2b4158eb164929cd9218334f8489f7e3f9366e64",
+      "candidateAfter": "9c9d4e5bf1eec022a503660f2b4158eb164929cd9218334f8489f7e3f9366e64"
+    },
+    "staticReviewStatus": "FAIL",
+    "openFindingsNote": "Initial P2 findings fixed in R2",
+    "model": "gpt-6.1-sol",
+    "sandbox": {
+      "type": "read-only"
+    },
+    "approval": "never",
+    "childSession": "01a18968-9deb-7a52-93a1-a5cb8213dfbd",
+    "childTask": "/root/backend_reviewer",
+    "typedProfileLoaded": false
+  },
+  {
+    "round": "R1",
+    "role": "security-reviewer",
+    "candidate": "e8ac1dee9a1bb812571f96c4f8f1fee39f5321d3",
+    "testExecution": "NOT RUN by reviewer",
+    "readOnlyEnforcement": "Claude Read/Grep/Glob",
+    "session": "e29cfb9c-3440-4325-b7a6-c9d463837812",
+    "model": "claude-opus-5-5",
+    "tools": [
+      "Read",
+      "Grep",
+      "Glob"
+    ],
+    "wrapper": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "9c9d4e5bf1eec022a503660f2b4158eb164929cd9218334f8489f7e3f9366e64",
+      "candidateAfter": "9c9d4e5bf1eec022a503660f2b4158eb164929cd9218334f8489f7e3f9366e64"
+    },
+    "staticReviewStatus": "PASS",
+    "openFindingsNote": "Initial P2 findings fixed in R2"
+  },
+  {
+    "round": "R2",
+    "role": "frontend-reviewer",
+    "candidate": "5c6787eb509304329cc0d08bb28b8d1d4f94f059",
+    "testExecution": "NOT RUN by reviewer",
+    "readOnlyEnforcement": "Separate Codex read-only parent then one native generic child with canonical role",
+    "parentSession": "01a18973-123b-7a83-ad37-2252f8b6562a",
+    "wrapper": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "cc776174f0129a247e17fcee317f79002abb2d8d51fe30d14c6ad3a8ca7f2982",
+      "candidateAfter": "cc776174f0129a247e17fcee317f79002abb2d8d51fe30d14c6ad3a8ca7f2982"
+    },
+    "staticReviewStatus": "PASS",
+    "openFindingsNote": "See foundation-f3.md and PR for residual P3 and policy gates",
+    "model": "gpt-6.1-sol",
+    "sandbox": {
+      "type": "read-only"
+    },
+    "approval": "never",
+    "childSession": "01a18973-73fd-7f01-9d3b-c4a7ca6cdd5d",
+    "childTask": "/root/frontend_reviewer",
+    "typedProfileLoaded": false
+  },
+  {
+    "round": "R2",
+    "role": "backend-reviewer",
+    "candidate": "5c6787eb509304329cc0d08bb28b8d1d4f94f059",
+    "testExecution": "NOT RUN by reviewer",
+    "readOnlyEnforcement": "Separate Codex read-only parent then one native generic child with canonical role",
+    "parentSession": "01a18973-123b-7991-aa04-c7e011e5d3df",
+    "wrapper": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "cc776174f0129a247e17fcee317f79002abb2d8d51fe30d14c6ad3a8ca7f2982",
+      "candidateAfter": "cc776174f0129a247e17fcee317f79002abb2d8d51fe30d14c6ad3a8ca7f2982"
+    },
+    "staticReviewStatus": "PASS",
+    "openFindingsNote": "See foundation-f3.md and PR for residual P3 and policy gates",
+    "model": "gpt-6.1-sol",
+    "sandbox": {
+      "type": "read-only"
+    },
+    "approval": "never",
+    "childSession": "01a18973-6290-71c3-bcba-bdeae71f79bc",
+    "childTask": "/root/backend_reviewer",
+    "typedProfileLoaded": false
+  },
+  {
+    "round": "R2",
+    "role": "security-reviewer",
+    "candidate": "5c6787eb509304329cc0d08bb28b8d1d4f94f059",
+    "testExecution": "NOT RUN by reviewer",
+    "readOnlyEnforcement": "Claude Read/Grep/Glob",
+    "session": "c13be951-1ae4-4724-8bba-6b2c6fc717e0",
+    "model": "claude-opus-5-5",
+    "tools": [
+      "Read",
+      "Grep",
+      "Glob"
+    ],
+    "wrapper": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "cc776174f0129a247e17fcee317f79002abb2d8d51fe30d14c6ad3a8ca7f2982",
+      "candidateAfter": "cc776174f0129a247e17fcee317f79002abb2d8d51fe30d14c6ad3a8ca7f2982"
+    },
+    "staticReviewStatus": "PASS",
+    "openFindingsNote": "See foundation-f3.md and PR for residual P3 and policy gates"
+  },
+  {
+    "round": "R3",
+    "role": "frontend-reviewer",
+    "candidate": "350331f4090f77ba68fd1e98ae59dd241b28b489",
+    "testExecution": "NOT RUN by reviewer",
+    "readOnlyEnforcement": "Separate Codex read-only parent then one native generic child with canonical role",
+    "parentSession": "01a1897b-8a62-7b63-9706-60ad31727080",
+    "wrapper": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "fcc0a6f225f62a3c2d495195290bd5601ace3949cfeb0f2101cd1d92e405ff31",
+      "candidateAfter": "fcc0a6f225f62a3c2d495195290bd5601ace3949cfeb0f2101cd1d92e405ff31"
+    },
+    "staticReviewStatus": "PASS",
+    "openFindingsNote": "See foundation-f3.md and PR for residual P3 and policy gates",
+    "model": "gpt-6.1-sol",
+    "sandbox": {
+      "type": "read-only"
+    },
+    "approval": "never",
+    "childSession": "01a1897b-d78a-7912-b037-307750d247c3",
+    "childTask": "/root/frontend_reviewer",
+    "typedProfileLoaded": false
+  },
+  {
+    "round": "R3",
+    "role": "backend-reviewer",
+    "candidate": "350331f4090f77ba68fd1e98ae59dd241b28b489",
+    "testExecution": "NOT RUN by reviewer",
+    "readOnlyEnforcement": "Separate Codex read-only parent then one native generic child with canonical role",
+    "parentSession": "01a1897b-8a62-72d3-b82b-abfbe79fc888",
+    "wrapper": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "fcc0a6f225f62a3c2d495195290bd5601ace3949cfeb0f2101cd1d92e405ff31",
+      "candidateAfter": "fcc0a6f225f62a3c2d495195290bd5601ace3949cfeb0f2101cd1d92e405ff31"
+    },
+    "staticReviewStatus": "PASS",
+    "openFindingsNote": "See foundation-f3.md and PR for residual P3 and policy gates",
+    "model": "gpt-6.1-sol",
+    "sandbox": {
+      "type": "read-only"
+    },
+    "approval": "never",
+    "childSession": "01a1897b-d477-7710-9051-81ed9d3a8f27",
+    "childTask": "/root/backend_reviewer",
+    "typedProfileLoaded": false
+  },
+  {
+    "round": "R3",
+    "role": "security-reviewer",
+    "candidate": "350331f4090f77ba68fd1e98ae59dd241b28b489",
+    "testExecution": "NOT RUN by reviewer",
+    "readOnlyEnforcement": "Claude Read/Grep/Glob",
+    "session": "904af3d4-066e-48eb-8927-9a449be51c30",
+    "model": "claude-opus-5-5",
+    "tools": [
+      "Read",
+      "Grep",
+      "Glob"
+    ],
+    "wrapper": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "fcc0a6f225f62a3c2d495195290bd5601ace3949cfeb0f2101cd1d92e405ff31",
+      "candidateAfter": "fcc0a6f225f62a3c2d495195290bd5601ace3949cfeb0f2101cd1d92e405ff31"
+    },
+    "staticReviewStatus": "PASS",
+    "openFindingsNote": "See foundation-f3.md and PR for residual P3 and policy gates"
+  },
+  {
+    "round": "R4",
+    "role": "backend-reviewer",
+    "candidate": "c97cba96272ec975920209adb8ba0ca12dc05557",
+    "testExecution": "NOT RUN by reviewer",
+    "readOnlyEnforcement": "Separate Codex read-only parent then one native generic child with canonical role",
+    "parentSession": "01a18988-5f19-70f2-8095-08b7b002be2b",
+    "wrapper": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "133ce5707c31ab9fd6369313f8227ab4e84f7cc4ac702e46b1cba27fe7752bb6",
+      "candidateAfter": "133ce5707c31ab9fd6369313f8227ab4e84f7cc4ac702e46b1cba27fe7752bb6"
+    },
+    "staticReviewStatus": "PASS",
+    "openFindingsNote": "See foundation-f3.md and PR for residual P3 and policy gates",
+    "model": "gpt-6.1-sol",
+    "sandbox": {
+      "type": "read-only"
+    },
+    "approval": "never",
+    "childSession": "01a18988-be7f-71f3-a936-e21f55cf3f23",
+    "childTask": "/root/backend_reviewer",
+    "typedProfileLoaded": false
+  },
+  {
+    "round": "R4",
+    "role": "security-reviewer",
+    "candidate": "c97cba96272ec975920209adb8ba0ca12dc05557",
+    "testExecution": "NOT RUN by reviewer",
+    "readOnlyEnforcement": "Claude Read/Grep/Glob",
+    "session": "f8153c59-78f6-4d98-8e97-cede74990c8d",
+    "model": "claude-opus-5-5",
+    "tools": [
+      "Read",
+      "Grep",
+      "Glob"
+    ],
+    "wrapper": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "133ce5707c31ab9fd6369313f8227ab4e84f7cc4ac702e46b1cba27fe7752bb6",
+      "candidateAfter": "133ce5707c31ab9fd6369313f8227ab4e84f7cc4ac702e46b1cba27fe7752bb6"
+    },
+    "staticReviewStatus": "PASS",
+    "openFindingsNote": "See foundation-f3.md and PR for residual P3 and policy gates"
+  },
+  {
+    "round": "test-delta",
+    "role": "backend-reviewer",
+    "candidate": "33009ea9b2858d6f2d92c3587b7afee78d07e35a",
+    "testExecution": "NOT RUN by reviewer",
+    "readOnlyEnforcement": "Separate Codex read-only parent then one native generic child with canonical role",
+    "parentSession": "01a1898c-c0fb-7640-991b-aa89615cc0d9",
+    "wrapper": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "d0b543a17d5d396d1a67c60428fe21248e9dfead9bfe68429a88cd05e2cc9e4f",
+      "candidateAfter": "d0b543a17d5d396d1a67c60428fe21248e9dfead9bfe68429a88cd05e2cc9e4f"
+    },
+    "staticReviewStatus": "PASS",
+    "openFindingsNote": "See foundation-f3.md and PR for residual P3 and policy gates",
+    "model": "gpt-6.1-sol",
+    "sandbox": {
+      "type": "read-only"
+    },
+    "approval": "never",
+    "childSession": "01a1898d-0efb-7690-89a1-414cd9ab3e4d",
+    "childTask": "/root/backend_reviewer",
+    "typedProfileLoaded": false
+  }
+]

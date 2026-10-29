@@ -1,0 +1,81 @@
+{
+  "date": "2026-10-29",
+  "environment": "macOS arm64; Node24.22.2; pnpm12.16.1; local Unix Docker",
+  "applicationUnit": {
+    "command": "pnpm test:unit",
+    "status": "PASS",
+    "vitestTests": 73,
+    "nodeTests": 46
+  },
+  "f2": {
+    "command": "pnpm test:integration:f2",
+    "status": "PASS",
+    "tapTests": 85,
+    "durationSeconds": 249.817862833
+  },
+  "f1Browser": {
+    "command": "pnpm test:e2e:foundation",
+    "status": "PASS",
+    "tests": 3
+  },
+  "f1Boundary": {
+    "command": "pnpm test:boundaries",
+    "status": "PASS",
+    "controls": 7
+  },
+  "f1Canary": {
+    "command": "pnpm test:canary",
+    "status": "PASS"
+  },
+  "harness": {
+    "commands": [
+      "python3 harness/scripts/sync.py --check",
+      "python3 harness/scripts/check.py",
+      "python3 -m unittest discover -s harness/scripts -p test_*.py -v"
+    ],
+    "status": "PASS",
+    "unitTests": 20,
+    "unitEnvironment": "source snapshot without generated dependencies"
+  },
+  "static": {
+    "commands": [
+      "pnpm typecheck",
+      "pnpm lint",
+      "pnpm format:check",
+      "git diff --check"
+    ],
+    "status": "PASS"
+  },
+  "supplyChain": {
+    "commands": [
+      "pnpm install --frozen-lockfile --offline",
+      "pnpm audit --prod --json"
+    ],
+    "status": "PASS",
+    "productionAdvisories": 0
+  },
+  "cleanup": {
+    "command": "node scripts/auth/cleanup.ts preflight-a",
+    "status": "PASS",
+    "scope": "Only owned project jobs-crm-f3-preflight-a-4b10498e643b; full stack removed then repeated idempotently; receipt retained"
+  },
+  "notRun": [
+    {
+      "case": "Google OAuth start/live",
+      "reason": "No provider credentials/config authorized"
+    },
+    {
+      "case": "Private pageshow.persisted handler",
+      "reason": "Native no-store cache exclusion confirmed by actual CDP"
+    },
+    {
+      "case": "Session older than24h reauthentication",
+      "reason": "No waiting24h or auth.* timestamp mutation; product policy OPEN"
+    }
+  ],
+  "superseded": [
+    "AUTH-13",
+    "FQA-55"
+  ],
+  "hostedCI": "Final-SHA result recorded in PR Checks/report, not inferred from local results"
+}

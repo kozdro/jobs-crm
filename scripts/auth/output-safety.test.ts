@@ -175,6 +175,7 @@ test("zero or partial reporter evidence cannot give successful Auth measurement 
 test("native no-store exclusion requires its actual CDP reason and cannot claim the restore handler passed", () => {
   const values = {
     cacheExclusionObserved: true,
+    backResponseSource: "explicit-SSR-request",
     nativeNoStoreReason: "MainResourceHasCacheControlNoStore",
     reloadedAfterBack: true,
     noPrivateAfterLogout: true,
