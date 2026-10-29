@@ -132,7 +132,7 @@ export function AuthForm({
             "Nie udało się zalogować. Sprawdź dane i spróbuj ponownie.",
             true,
           );
-        else window.location.replace("/account");
+        else window.location.replace("/dashboard");
       } else if (mode === "signup") {
         const { error } = await client.auth.signUp({
           email,

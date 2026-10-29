@@ -30,6 +30,13 @@ async function login(page: Page, user: Account) {
   await page.getByLabel("E-mail", { exact: true }).fill(user.email);
   await page.getByLabel("Hasło", { exact: true }).fill(user.password);
   await page.getByRole("button", { name: "Zaloguj się", exact: true }).click();
+  await expect(page).toHaveURL(`${target.appOrigin}/dashboard`);
+  await expect(
+    page.getByRole("heading", { name: "Dashboard", exact: true }),
+  ).toBeVisible();
+  // DEC-018: login opens the private Dashboard; the Auth regression continues
+  // on the real account surface and retains its original privacy assertions.
+  await page.goto(`${target.appOrigin}/account`);
   await expect(page).toHaveURL(`${target.appOrigin}/account`);
   await expect(
     page.getByRole("heading", { name: "Twoje konto", exact: true }),

@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1793313330233,
+      "tag": "0000_recruitment_validation",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793313355578,
+      "tag": "0001_recruitment_case",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793313390427,
+      "tag": "0002_recruitment_access_and_create",
+      "breakpoints": true
+    }
+  ]
+}

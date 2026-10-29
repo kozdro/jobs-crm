@@ -33,3 +33,14 @@ Każdy prywatny agregat posiada lub dziedziczy niepodrabialną relację do wła�
 ## Migracje
 
 Drizzle: przeglądane migracje w Git, forward-compatible i testowane w lokalnym DB na danych syntetycznych. Nigdy bez zatwierdzonych pól (OPEN-002), brak automatycznego generowania schematu z koncepcyjnych diagramów. Zmiany RLS i funkcji DB są wersjonowane razem z migracjami i objęte testami autoryzacji.
+
+
+## DATA-01 — zatwierdzony pierwszy create/read (DEC-052)
+
+PO 2026-10-29 zatwierdził minimalny podzakres [DEC-052](../decisions/product-decisions.md) przed migracjami produktu; [dokładny schemat i kontrakt](recruitment-case-first-slice.md). **APPROVED** dotyczy tylko RecruitmentCase: nazwa 1–160 znaków po trim, opcjonalny opis do 2000, pojedynczy opcjonalny URL HTTP(S), status początkowy `Zapisane`, UUID, owner z `auth.uid()`, techniczny czas i request key per owner. Unicode liczymy jako punkty kodowe, spójnie z PostgreSQL `char_length`, nie jednostki UTF-16. Brak `updated_at` do czasu rzeczywistej edycji. Nie tworzymy relacji do organizacji/kontaktu ani pól daty aplikacji.
+
+Dopuszczone uproszczenie: jeden zapis w `public.recruitment_case` z opcjonalnym `source_url`; przyszły model wielolinkowy wymaga forward migration, nie zmiany tożsamości sprawy. Nie ma `case_link`, więc testy jego wielozapisowej transakcji/owner-FK są NOT APPLICABLE dla tej postaci. Integralność zapisu wszystkich obecnych pól i klucza musi być atomowa. Stan początkowy i właściciel są egzekwowane także przy bezpośrednim Data API. Unikalność `(owner_id, request_id)` chroni retry, nigdy globalny UNIQUE nazwy/URL. Replay tego samego znormalizowanego payloadu zwraca istniejący wynik; odmienny payload z tym samym key daje konflikt bez modyfikacji. Nie przyznajemy UPDATE/DELETE ani publicznego EXECUTE.
+
+Historia migracji produktu jest osobnym profilem Drizzle i osobnym ledgerem; nie dopisuje tabel do syntetycznych pięciu migracji F2 ani `foundation_poc`. Guarded runner sprawdza lokalny target i ledger przed migracją; bez push/reset. RLS/grants/constraints i ewentualny minimalny invoker RPC należą do przeglądanej historii produktu. Rzeczywiste HTTP A/B/anon, katalog PostgreSQL i negatywna czułość tylko na disposable targetcie są warunkami PASS, nie rezultatem samej formalizacji.
+
+OPEN-002/024 oraz DATA-01 są **PARTIALLY RESOLVED**; pozostały model, lifecycle, historia, audyt, relacje, wyniki/etapy, retencja i usuwanie nadal OPEN. Brak CASCADE konta. ADR-0001/0002/0012 wystarczają dla tego zakresu; ADR-0005/importer F4 pozostają osobnym kontraktem.

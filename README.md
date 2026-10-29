@@ -1,11 +1,12 @@
 # Jobs CRM
 
-> **Status projektu:** F1/F2 zmergowane; lokalna integracja Auth F3 w osobnym PR, bez merge i publicznego wdrożenia. [Wyniki i ograniczenia F3](docs/technical/foundation-f3.md).
+> **Status projektu:** F1/F2/F3 zmergowane; pierwszy biznesowy RecruitmentCase/Manual Quick Capture w osobnym PR, bez merge i publicznego wdrożenia. [Wyniki i ograniczenia F3](docs/technical/foundation-f3.md).
 > **Stan na:** 2026-10-29. **Język dokumentacji:** polski.
-> Techniczny scaffold i lokalny syntetyczny PoC; funkcje biznesowe i infrastruktura produkcyjna pozostają kolejnymi etapami.
+> Pierwszy autoryzowany slice create/read jest opisany w [kontrakcie i raporcie](docs/technical/recruitment-case-first-slice.md); pozostałe funkcje biznesowe i infrastruktura produkcyjna pozostają kolejnymi etapami.
 
 Uruchamianie aplikacji i testów: [Foundation F1](docs/technical/foundation-f1.md).
 Lokalna baza i testy izolacji: [Foundation F2](docs/technical/foundation-f2.md).
+Biznesowy create/read z rzeczywistym lokalnym Auth/RLS: `pnpm test:recruitment` (własny izolowany target, bez cloud).
 
 Jobs CRM to projekt osobistego CRM wspierającego poszukiwanie pracy. Zastępuje rozproszoną pamięć o aplikacjach, firmach, kontaktach, rozmowach, zadaniach, terminach i dokumentach jednym uporządkowanym workspace'em. Pierwszy rynek to Polska; początkowi użytkownicy to osoby aktywnie poszukujące pracy w IT/digital.
 

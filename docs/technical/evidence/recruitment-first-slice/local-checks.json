@@ -1,0 +1,54 @@
+{
+  "toolchain": {
+    "node": "24.22.2",
+    "pnpm": "12.16.1"
+  },
+  "base": "cd92648fd4c579cb4be57a962cd88b6e3d537583",
+  "checks": [
+    {
+      "command": "pnpm install --frozen-lockfile --offline",
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm typecheck",
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm lint",
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm test:unit",
+      "status": "PASS",
+      "vitest": 114,
+      "nodeTest": 59
+    },
+    {
+      "command": "pnpm test:integration:f2",
+      "status": "PASS",
+      "tests": 85,
+      "seconds": 207.255476042
+    },
+    {
+      "command": "pnpm test:boundaries",
+      "status": "PASS",
+      "controls": 7
+    },
+    {
+      "command": "pnpm test:canary",
+      "status": "PASS",
+      "controls": 3
+    },
+    {
+      "command": "python3 harness/scripts/sync.py --check; python3 harness/scripts/check.py",
+      "status": "PASS"
+    },
+    {
+      "command": "python3 -m unittest discover -s harness/scripts -p 'test_*.py' -v",
+      "environment": "isolated source snapshot",
+      "status": "PASS",
+      "tests": 20,
+      "seconds": 6.674
+    }
+  ]
+}

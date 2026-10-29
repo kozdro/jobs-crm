@@ -92,3 +92,11 @@ Samo **prototypowanie wariantowe na danych fikcyjnych** jest możliwe teraz. Nie
 ## Aneks po Technical Discovery — 2026-10-29
 
 Historia wyborów UX powyżej pozostaje bez zmian. Późniejsze [DEC-051](../decisions/product-decisions.md) i [ADR-0012](../decisions/adr/0012-supabase-native-auth-sessions-rls.md) określają Supabase-native Auth/SSR, self-signup, reset e-mail i natywne scopes logout, bez rejestru urządzeń i natychmiastowej revocation JWT. ADR-0005 ustala atomowy zapis zaakceptowanego wsadu importu oraz ochronę retry; pozostałe szczegóły OPEN-010/035 nadal otwarte. Symulowane makiety i planowane TC nie stanowią wykonania tych mechanizmów ani zgody na nowe pola/polityki.
+
+## Doprecyzowanie pierwszego create/read — DEC-052 (2026-10-29)
+
+Powyższe wybory UX zachowują historię. Późniejsze jawne zlecenie PO „First Business Vertical Slice” §13.2, [DEC-052](../decisions/product-decisions.md), określa dla tego slice'a sekwencję **Sytuacja → Dane → Działanie → Podsumowanie**, z osobnym końcowym krokiem. Jest to wskazane źródło odstępstwa od wcześniejszego opisu trzech kroków/podsumowania w kroku 3; nie nowa arbitralna decyzja projektanta. Jedyną akcją jest „Zapisz tylko sprawę”. Dane: nazwa 1–160, opcjonalny HTTP(S), opis do 2000 pod „Więcej szczegółów”; sytuacja nie tworzy słownika DB ani faktu kontaktu/aplikacji.
+
+F02 w tym PR realizuje tylko manual capture: ostrzeżenie o tej samej nazwie/URL u właściciela, otwarcie istniejącej albo świadoma nowa sprawa bez update/merge. Pozostałe tryby nie są atrapami. Zapis nie nawiguje, toast ma „Otwórz sprawę”; save-next daje puste pola i nowy key. Dirty X/Escape/anulowanie wymaga potwierdzenia, tło nie zamyka; błąd zachowuje dane/key i nie daje sukcesu. Mobile jest pełnoekranowy, klawiatura/focus i komunikaty podlegają rzeczywistym testom.
+
+Minimalny shell pokazuje wyłącznie realne ekrany; Dashboard pozostaje wejściem zgodnie z DEC-018, bez fikcyjnych statystyk/modułów. Lista i minimalny detal nie zastępują docelowego Kanbana/drawera/osi czasu. **PARTIAL COVERAGE** UX-006/F02 i właściwych FR/AC; testy na etapie formalizacji **NOT RUN**, późniejsze wyniki w [raporcie slice'a](../technical/recruitment-case-first-slice-report.md). [Dokładny kontrakt](../technical/recruitment-case-first-slice.md).

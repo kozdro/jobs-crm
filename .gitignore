@@ -38,3 +38,6 @@ supabase/.branches/
 
 # Disposable F3 local Auth manifests and temporary HTTPS material.
 .foundation-f3/
+
+# Disposable product-model local target, receipts and temporary HTTPS material.
+.recruitment-local/

@@ -5,7 +5,7 @@
 | ID | Priorytet / bramka | Nierozstrzygnięte pytanie / wymagane rozstrzygnięcie |
 |---|---|---|
 | OPEN-001 | P0 · Lifecycle | Ostateczny zbiór wyników zamknięcia i reguły, w których można ich użyć. Omawiano: oferta przyjęta, odrzucona, rezygnacja, brak odpowiedzi, anulowanie, nie aplikowano, inny; **to nie jest przyjęty enum**. |
-| OPEN-002 | P0 · Wszystkie formularze | Pełne schematy pól: obowiązkowość, formaty, limity, daty, relacje, dopuszczalne wartości, walidacje. |
+| OPEN-002 | P0 · Wszystkie formularze | **PARTIALLY RESOLVED** — [DEC-052](product-decisions.md), PO 2026-10-29: pierwszy create/read RecruitmentCase ma tytuł 1–160 po trim, opcjonalny opis do 2000 i jeden URL HTTP(S), status Zapisane, owner z Auth, techniczny czas i key zapisu. Pozostałe formularze, warianty, pola, daty, relacje i walidacje **OPEN**; [granica DATA-01](../technical/recruitment-case-first-slice.md). |
 | OPEN-003 | P1 · Stages | Propagacja zmian globalnych szablonów etapów do istniejących spraw oraz konflikty z indywidualnymi zmianami. |
 | OPEN-004 | P0 · Historia | Edycja/usuwanie/korekta historycznych wpisów i ślad audytowy bez fikcyjnych zdarzeń. |
 | OPEN-005 | P0 · Dane | Usuwanie, archiwizacja, przywracanie i integralność powiązań spraw, firm, kontaktów. |
@@ -27,7 +27,7 @@
 | OPEN-021 | P1 · Wydarzenia | Dokładne reguły potwierdzania po terminie, czasu rzeczywistego zdarzenia i edycji uczestników. |
 | OPEN-022 | P0 · Import | Reguły mapowania nieznanych statusów/etapów/wyników i niespójnych historycznych rekordów. |
 | OPEN-023 | P1 · Import | Warianty CSV/XLSX: arkusze, kodowania, daty, formuły, nagłówki, pusty rekord, import przykładowego szablonu. |
-| OPEN-024 | P0 · Deduplication | Kryteria „potencjalny duplikat” i UX wyboru między nową a istniejącą sprawą. |
+| OPEN-024 | P0 · Deduplication | **PARTIALLY RESOLVED** — [DEC-052](product-decisions.md): ten sam URL lub identyczna nazwa po prostej deterministycznej normalizacji, tylko u bieżącego właściciela; ostrzeżenie, otwarcie dopasowania albo świadoma nowa sprawa, bez merge/update. Zaawansowane podobieństwo, relacje, aktualizacja istniejącej sprawy i importowe rozstrzygnięcia nadal **OPEN**. |
 | OPEN-025 | P1 · Links | Normalizacja URL, identyfikacja tej samej publikacji i zmiany linków; bez pobierania prywatnej korespondencji. |
 | OPEN-026 | P1 · Metadata | Zatwierdzony słownik typów URL, źródeł i kanałów aplikacji/kontaktu. |
 | OPEN-027 | P1 · Stages | Konkretna lista domyślnych etapów i ich domyślna kolejność. |
@@ -85,3 +85,10 @@ Wybory technologiczne i część polityk określono w [rejestrze 1.1–1.40](../
 Po decyzji PO: odnotuj datę/źródło, zaktualizuj odpowiedni `DEC/BR/FR/AC/UC`, zmień status `OPEN` na `RESOLVED` z linkiem do nowej decyzji w historii rejestru (nie kasuj pytania), przeprowadź analizę wpływu. **Status `RESOLVED` jest stanem operacyjnym pytania, nie zastępuje statusu decyzji `APPROVED`.**
 
 **Dowody lokalnego F3, bez zamykania OPEN:** [raport wykonania](../technical/foundation-f3.md) rozdziela konfigurację syntetycznego dostawcy od docelowych polityk. Flaga UI local fixture nie blokuje bezpośredniego Supabase Auth API; OPEN-013/041/043 przed wdrożeniem wymagają także właściwych ustawień u dostawcy. Sesje/TTL, skutki recovery i sensitive reauth pozostają OPEN-042/043.
+
+
+## Pierwszy biznesowy create/read — 2026-10-29
+
+Źródło: jawna decyzja PO wariant A w zadaniu „Jobs CRM — First Business Vertical Slice: RecruitmentCase + Manual Quick Capture”, [DEC-052](product-decisions.md). Jest to późniejsze częściowe rozstrzygnięcie, nie zamknięcie rejestru. [DATA-01 i dokładny kontrakt](../technical/recruitment-case-first-slice.md) dopuszczają minimalny model bez lifecycle, historii, audytu i usuwania. OPEN-001/004/005/018/020/029/034 nadal blokują ich przyszłe rozszerzenia; nie blokują ponownie autoryzowanego zakresu.
+
+OPEN-025/026: pierwszy slice przyjmuje opcjonalny nietypowany HTTP(S), bez fetch, bez słownika kanałów i bez identyfikacji publikacji; minimalna techniczna kanonikalizacja opisana w kontrakcie nie rozstrzyga semantyki innych URL-i. OPEN-028: zatwierdzono tylko własną listę od najnowszych i minimalny detal; pozostałe filtry, Kanban/DnD i widoki OPEN. OPEN-013/032/041–046 pozostają bramkami publicznego udostępnienia i zależnych operacji.

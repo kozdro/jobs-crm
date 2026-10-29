@@ -11,9 +11,12 @@
   "include": [
     "scripts/db/**/*.ts",
     "scripts/auth/**/*.ts",
+    "scripts/recruitment/**/*.ts",
+    "db/recruitment/**/*.ts",
     "experiments/foundation/rls/**/*.ts",
     "tests/integration/**/*.ts",
-    "drizzle.f2.config.ts"
+    "drizzle.f2.config.ts",
+    "drizzle.recruitment.config.ts"
   ],
   "exclude": ["node_modules", "tests/fixtures"]
 }
