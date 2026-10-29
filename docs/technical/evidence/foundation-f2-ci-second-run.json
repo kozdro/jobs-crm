@@ -1,0 +1,73 @@
+{
+  "headSha": "7954c4c015260c35ea8985a89f21414aacb8c8ab",
+  "runId": 40911033124,
+  "url": "https://github.com/kozdro/jobs-crm/actions/runs/40911033124",
+  "status": "FAIL",
+  "checkoutShaVerifiedFromLog": true,
+  "f2ExecutedChildCases": 0,
+  "f2Failure": "CLI startup refused POST /images/create: Unexpected image pull refused despite added docker.io/supabase alias; actual pinned CLI cold-pull sequence requires diagnosis",
+  "unit": {
+    "vitest": 18,
+    "platformPassed": 28,
+    "platformFailed": 1,
+    "failure": "New cold-pull mock contract assumed Docker29 normalization; Linux Docker28 sends bare supabase/postgres fromImage for the same CLI input"
+  },
+  "jobs": [
+    {
+      "id": 123578732857,
+      "name": "F2 local migrations and RLS",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 123578733090,
+      "name": "test:boundaries",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 123578733285,
+      "name": "test:unit",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 123578733379,
+      "name": "format:check",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 123578733390,
+      "name": "Harness checks",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 123578733405,
+      "name": "typecheck",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 123578733431,
+      "name": "lint",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 123579206362,
+      "name": "Production build and smoke",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 123579444437,
+      "name": "Foundation required",
+      "status": "completed",
+      "conclusion": "failure"
+    }
+  ],
+  "cleanup": "F2 always cleanup succeeded; no cloud/prod secrets or hosted Supabase",
+  "response": "Keep both failures; inspect exact pinned Supabase CLI cold-cache refs and narrow compatibility; no blind rerun or registry widening"
+}

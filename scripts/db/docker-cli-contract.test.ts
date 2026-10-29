@@ -309,9 +309,10 @@ test(
   },
 );
 
-// A cold cache follows docker pull; Docker normalizes the official Hub shorthand before the API call.
+// Source: supabase/cli v2.122.0 apps/cli/src/shared/services/Dockerfile + docker-registry.ts.
+// The four services use ECR/GHCR mirrors, then their own upstream source (not all supabase/*).
 test(
-  "actual Docker cold-pull serialization permits only official Supabase registry aliases",
+  "actual Docker cold pulls match the pinned Supabase service fallback sources",
   { timeout: 15000 },
   async () => {
     const { createDockerGuard } = await import("./docker-guard.ts");
@@ -359,36 +360,84 @@ test(
         timeout: 3000,
         killSignal: "SIGKILL",
       });
+    const wirePull = (image: string, tag: string) =>
+      new Promise<number>((ok, no) => {
+        const req = http.request(
+          {
+            socketPath: guard.dockerHost.replace("unix://", ""),
+            path: `/v1.48/images/create?fromImage=${encodeURIComponent(image)}&tag=${encodeURIComponent(tag)}`,
+            method: "POST",
+            agent: false,
+          },
+          (res) => {
+            res.resume();
+            res.on("end", () => ok(res.statusCode ?? 0));
+          },
+        );
+        req.on("error", no);
+        req.end();
+      });
     const services = [
-      ["postgres", "17.11.0.006"],
-      ["gotrue", "v2.197.0"],
-      ["postgrest", "v16.5"],
-      ["kong", "2.8.1"],
+      {
+        mirror: "postgres",
+        tag: "17.11.0.006",
+        source: "supabase/postgres",
+        wire: ["supabase/postgres", "docker.io/supabase/postgres"],
+      },
+      {
+        mirror: "gotrue",
+        tag: "v2.197.0",
+        source: "supabase/gotrue",
+        wire: ["supabase/gotrue", "docker.io/supabase/gotrue"],
+      },
+      {
+        mirror: "postgrest",
+        tag: "v16.5",
+        source: "postgrest/postgrest",
+        wire: ["postgrest/postgrest", "docker.io/postgrest/postgrest"],
+      },
+      {
+        mirror: "kong",
+        tag: "2.8.1",
+        source: "library/kong",
+        wire: ["kong", "docker.io/library/kong"],
+      },
     ];
+    const assertSourcePull = (service: (typeof services)[number]) => {
+      assert.ok(service.wire.includes(pulls.at(-1)?.image ?? ""));
+      assert.equal(pulls.at(-1)?.tag, service.tag);
+    };
     try {
-      // Observe the real CLI's normalization directly against the mock; no image cache is touched.
-      for (const [service, tag] of services) {
-        await pull(`supabase/${service}:${tag}`, `unix://${original}`);
-        assert.deepEqual(pulls.at(-1), {
-          image: `docker.io/supabase/${service}`,
-          tag,
-        });
+      // Actual Docker 28 uses familiar names; Docker 29 includes docker.io. Neither may change namespace.
+      for (const service of services) {
+        await pull(`${service.source}:${service.tag}`, `unix://${original}`);
+        assertSourcePull(service);
       }
-      for (const registry of [
-        "public.ecr.aws/supabase",
-        "ghcr.io/supabase",
-        "supabase",
-        "docker.io/supabase",
-      ])
-        for (const [service, tag] of services) {
+      for (const registry of ["public.ecr.aws/supabase", "ghcr.io/supabase"])
+        for (const service of services) {
           const before = pulls.length;
-          await pull(`${registry}/${service}:${tag}`, guard.dockerHost);
-          assert.equal(pulls.length, before + 1);
-          assert.equal(
-            pulls.at(-1)?.image,
-            `${registry === "supabase" ? "docker.io/supabase" : registry}/${service}`,
+          await pull(
+            `${registry}/${service.mirror}:${service.tag}`,
+            guard.dockerHost,
           );
-          assert.equal(pulls.at(-1)?.tag, tag);
+          assert.equal(pulls.length, before + 1);
+          assert.deepEqual(pulls.at(-1), {
+            image: `${registry}/${service.mirror}`,
+            tag: service.tag,
+          });
+        }
+      for (const service of services)
+        for (const input of [service.source, service.wire[1]]) {
+          const before = pulls.length;
+          await pull(`${input}:${service.tag}`, guard.dockerHost);
+          assert.equal(pulls.length, before + 1);
+          assertSourcePull(service);
+        }
+      // Force both exact observed wire forms even when the host CLI emits only one.
+      for (const service of services)
+        for (const image of service.wire) {
+          assert.equal(await wirePull(image, service.tag), 200);
+          assert.deepEqual(pulls.at(-1), { image, tag: service.tag });
         }
       const accepted = pulls.length;
       for (const image of [
@@ -400,12 +449,28 @@ test(
         "public.ecr.aws/other/postgres:17",
         "ghcr.io/other/postgres:17",
         "supabase-evil/postgres:17",
+        "library/kong:2.8.2",
+        "postgrest/postgrest:v16.4",
+        "library/nginx:2.8.1",
+        "postgrest/other:v16.5",
+        "evil.example/library/kong:2.8.1",
       ])
         await assert.rejects(pull(image, guard.dockerHost));
+      for (const image of ["kong", "docker.io/library/kong"]) {
+        assert.equal(await wirePull(image, "2.8.2"), 403);
+        assert.equal(await wirePull(image, "sha256:" + "a".repeat(64)), 403);
+      }
+      for (const image of [
+        "postgrest/postgrest",
+        "docker.io/postgrest/postgrest",
+      ]) {
+        assert.equal(await wirePull(image, "v16.4"), 403);
+        assert.equal(await wirePull(image, "sha256:" + "b".repeat(64)), 403);
+      }
       assert.equal(
         pulls.length,
         accepted,
-        "untrusted namespaces and lookalike registries never reach the mock daemon",
+        "untrusted namespaces, lookalikes, wrong upstream tags and digests never reach the mock daemon",
       );
     } finally {
       await guard.close();

@@ -263,11 +263,21 @@ export async function createDockerGuard(originalSocket: string, scope: Scope) {
       );
     }
     if (method === "POST" && route === "/images/create") {
-      if (
-        !/^(public\.ecr\.aws\/supabase\/|ghcr\.io\/supabase\/|docker\.io\/supabase\/|supabase\/)/.test(
-          u.searchParams.get("fromImage") ?? "",
-        )
-      )
+      const image = u.searchParams.get("fromImage") ?? "";
+      const tag = u.searchParams.get("tag");
+      const mirroredSupabase =
+        /^(public\.ecr\.aws\/supabase\/|ghcr\.io\/supabase\/|docker\.io\/supabase\/|supabase\/)/.test(
+          image,
+        );
+      // CLI 2.122's Dockerfile pins these two upstream fallbacks outside the Supabase namespace.
+      const pinnedUpstream =
+        (["kong", "docker.io/library/kong"].includes(image) &&
+          tag === "2.8.1") ||
+        (["postgrest/postgrest", "docker.io/postgrest/postgrest"].includes(
+          image,
+        ) &&
+          tag === "v16.5");
+      if (!mirroredSupabase && !pinnedUpstream)
         throw new GuardRefusal("Unexpected image pull refused");
       return body;
     }

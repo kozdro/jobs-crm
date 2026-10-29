@@ -1,0 +1,161 @@
+{
+  "tool": "Supabase CLI 2.122.0 with actual Docker CLI and private Unix mock API1.48",
+  "exit": {
+    "code": 1,
+    "signal": null
+  },
+  "timedOut": false,
+  "pullAttempts": 36,
+  "uniquePulls": [
+    {
+      "image": "public.ecr.aws/supabase/kong",
+      "tag": "2.8.1"
+    },
+    {
+      "image": "public.ecr.aws/supabase/gotrue",
+      "tag": "v2.197.0"
+    },
+    {
+      "image": "public.ecr.aws/supabase/postgres",
+      "tag": "17.11.0.006"
+    },
+    {
+      "image": "public.ecr.aws/supabase/postgrest",
+      "tag": "v16.5"
+    },
+    {
+      "image": "ghcr.io/supabase/gotrue",
+      "tag": "v2.197.0"
+    },
+    {
+      "image": "ghcr.io/supabase/kong",
+      "tag": "2.8.1"
+    },
+    {
+      "image": "ghcr.io/supabase/postgres",
+      "tag": "17.11.0.006"
+    },
+    {
+      "image": "ghcr.io/supabase/postgrest",
+      "tag": "v16.5"
+    },
+    {
+      "image": "docker.io/supabase/postgres",
+      "tag": "17.11.0.006"
+    },
+    {
+      "image": "docker.io/postgrest/postgrest",
+      "tag": "v16.5"
+    },
+    {
+      "image": "docker.io/library/kong",
+      "tag": "2.8.1"
+    },
+    {
+      "image": "docker.io/supabase/gotrue",
+      "tag": "v2.197.0"
+    }
+  ],
+  "unexpectedMutations": [],
+  "requests": [
+    "HEAD /_ping",
+    "GET /containers/:id/json",
+    "HEAD /_ping",
+    "HEAD /_ping",
+    "HEAD /_ping",
+    "GET /images/:image/json",
+    "GET /images/:image/json",
+    "HEAD /_ping",
+    "GET /images/:image/json",
+    "GET /images/:image/json",
+    "HEAD /_ping",
+    "HEAD /_ping",
+    "GET /images/:image/json",
+    "HEAD /_ping",
+    "GET /images/:image/json",
+    "HEAD /_ping",
+    "GET /images/:image/json",
+    "GET /images/:image/json",
+    "HEAD /_ping",
+    "HEAD /_ping",
+    "GET /images/:image/json",
+    "HEAD /_ping",
+    "GET /images/:image/json",
+    "GET /images/:image/json",
+    "HEAD /_ping",
+    "GET /images/:image/json",
+    "HEAD /_ping",
+    "HEAD /_ping",
+    "HEAD /_ping",
+    "HEAD /_ping",
+    "POST /images/create",
+    "POST /images/create",
+    "POST /images/create",
+    "POST /images/create",
+    "HEAD /_ping",
+    "HEAD /_ping",
+    "HEAD /_ping",
+    "POST /images/create",
+    "POST /images/create",
+    "POST /images/create",
+    "HEAD /_ping",
+    "POST /images/create",
+    "HEAD /_ping",
+    "HEAD /_ping",
+    "HEAD /_ping",
+    "POST /images/create",
+    "HEAD /_ping",
+    "POST /images/create",
+    "POST /images/create",
+    "POST /images/create",
+    "HEAD /_ping",
+    "POST /images/create",
+    "HEAD /_ping",
+    "HEAD /_ping",
+    "POST /images/create",
+    "POST /images/create",
+    "HEAD /_ping",
+    "POST /images/create",
+    "HEAD /_ping",
+    "POST /images/create",
+    "HEAD /_ping",
+    "POST /images/create",
+    "HEAD /_ping",
+    "POST /images/create",
+    "HEAD /_ping",
+    "POST /images/create",
+    "HEAD /_ping",
+    "HEAD /_ping",
+    "POST /images/create",
+    "POST /images/create",
+    "HEAD /_ping",
+    "POST /images/create",
+    "HEAD /_ping",
+    "POST /images/create",
+    "HEAD /_ping",
+    "HEAD /_ping",
+    "HEAD /_ping",
+    "HEAD /_ping",
+    "POST /images/create",
+    "POST /images/create",
+    "POST /images/create",
+    "POST /images/create",
+    "HEAD /_ping",
+    "HEAD /_ping",
+    "HEAD /_ping",
+    "HEAD /_ping",
+    "POST /images/create",
+    "POST /images/create",
+    "POST /images/create",
+    "POST /images/create",
+    "HEAD /_ping",
+    "HEAD /_ping",
+    "HEAD /_ping",
+    "POST /images/create",
+    "HEAD /_ping",
+    "POST /images/create",
+    "POST /images/create",
+    "POST /images/create"
+  ],
+  "errorClasses": []
+}
