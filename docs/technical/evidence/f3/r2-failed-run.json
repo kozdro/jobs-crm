@@ -1,0 +1,167 @@
+{
+  "id": "preflight-a",
+  "projectId": "jobs-crm-f3-preflight-a-4b10498e643b",
+  "startedAt": "2026-10-29T20:55:52.845Z",
+  "node": "v24.22.2",
+  "status": "FAIL",
+  "stages": [
+    "local-target-and-RLS-migrations",
+    "production-build",
+    "real-auth-sdk-data-api",
+    "build-server-logs-and-browser-artifacts-redacted"
+  ],
+  "outputChecks": [
+    {
+      "stage": "production-build",
+      "bytes": 898,
+      "sha256": "f56b41098e34a85f8e47122b40c41758e5c42ca273feb9c2a58c09c2e43e9e36",
+      "counts": {},
+      "observations": []
+    },
+    {
+      "stage": "auth-sdk-integration",
+      "bytes": 3382,
+      "sha256": "e23dde4afcea864eb62952b855c02bf1088d317568a8e8947fe51ddeee3acb99",
+      "counts": {
+        "tests": 13,
+        "passed": 13,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "observations": [
+        {
+          "kind": "F3_SIGNUP_OBSERVATION",
+          "values": {
+            "confirmationsFixture": true,
+            "newEmail": {
+              "userReturned": true,
+              "sessionReturned": false,
+              "identityCount": 1,
+              "errorCode": null
+            },
+            "existingEmail": {
+              "userReturned": false,
+              "sessionReturned": false,
+              "identityCount": null,
+              "errorCode": "user_already_exists"
+            },
+            "productionAntiEnumerationPolicy": "OPEN-041/013"
+          }
+        },
+        {
+          "kind": "F3_RECOVERY_SESSION_OBSERVATION",
+          "values": {
+            "currentRecoveryPasswordUpdated": true,
+            "otherSessions": [
+              {
+                "account": "other-A-1",
+                "refreshAccepted": false,
+                "errorCode": "refresh_token_not_found"
+              },
+              {
+                "account": "other-A-2",
+                "refreshAccepted": false,
+                "errorCode": "refresh_token_not_found"
+              }
+            ],
+            "unrelatedBRefreshAccepted": true,
+            "productionSessionConsequencesPolicy": "OPEN-043/042"
+          }
+        },
+        {
+          "kind": "F3_PASSWORD_POLICY_OBSERVATION",
+          "values": {
+            "securePasswordChangeFixture": true,
+            "freshOrdinarySessionUpdateAccepted": true,
+            "errorCode": null,
+            "stale24HourSession": "NOT RUN - no auth schema timestamp tampering",
+            "productionFreshnessAndReauthPolicy": "OPEN-013/043"
+          }
+        },
+        {
+          "kind": "F3_JWT_REPLAY",
+          "values": {
+            "scope": "local",
+            "currentRefreshSessionRevoked": true,
+            "issuedAt": 1793307364,
+            "exp": 1793307424,
+            "scopeAppliedAt": 1793307365.269,
+            "lastValidAt": 1793307454.561,
+            "firstDeniedAt": 1793307455.076,
+            "observedValidAfterLogoutSeconds": 89.292,
+            "firstDeniedAfterExpSeconds": 31.075999975204468
+          }
+        },
+        {
+          "kind": "F3_JWT_REPLAY",
+          "values": {
+            "scope": "others",
+            "currentRefreshSessionRevoked": false,
+            "issuedAt": 1793307365,
+            "exp": 1793307425,
+            "scopeAppliedAt": 1793307365.699,
+            "lastValidAt": 1793307455.585,
+            "firstDeniedAt": 1793307456.091,
+            "observedValidAfterLogoutSeconds": 89.886,
+            "firstDeniedAfterExpSeconds": 31.091000080108643
+          }
+        },
+        {
+          "kind": "F3_JWT_REPLAY",
+          "values": {
+            "scope": "global",
+            "currentRefreshSessionRevoked": true,
+            "issuedAt": 1793307365,
+            "exp": 1793307425,
+            "scopeAppliedAt": 1793307366.092,
+            "lastValidAt": 1793307455.588,
+            "firstDeniedAt": 1793307456.092,
+            "observedValidAfterLogoutSeconds": 89.496,
+            "firstDeniedAfterExpSeconds": 31.092000007629395
+          }
+        }
+      ]
+    },
+    {
+      "stage": "auth-HTTPS-browser",
+      "bytes": 5886,
+      "sha256": "cfab20f7e3a78252f252998f75f61c006b5bc911fbc6c57ac18d6564f62de957",
+      "counts": {
+        "failed": 3,
+        "passed": 6
+      },
+      "observations": [
+        {
+          "kind": "F3_REFRESH_FAULT_OBSERVATION",
+          "values": {
+            "delayedRefreshRequests": 1,
+            "networkFailures": 8,
+            "rejectedRefreshRequests": 1,
+            "actualAccessExpiryReached": true,
+            "explicitReLoginShown": true,
+            "reconnectPreservedOwner": true,
+            "unrelatedBPreserved": true
+          }
+        }
+      ]
+    },
+    {
+      "stage": "app-process-1",
+      "bytes": 153,
+      "sha256": "65d9d480b3b553e6ae934c5d2a445cdd33190a7ef4592b2926bc08dceb3b593a",
+      "counts": {},
+      "observations": []
+    },
+    {
+      "stage": "app-process-2",
+      "bytes": 152,
+      "sha256": "2f173f18c776c416f08e5db060d6ac8195c3c517c11c8a8f0a174541e038ad1e",
+      "counts": {},
+      "observations": []
+    }
+  ],
+  "scannedBrowserFiles": 16,
+  "codeCandidate": "5c6787eb509304329cc0d08bb28b8d1d4f94f059",
+  "note": "Historical failed browser run; retained, not superseded as PASS. Raw logs withheld; only safe counts and observations."
+}

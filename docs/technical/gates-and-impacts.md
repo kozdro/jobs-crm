@@ -47,3 +47,5 @@ CSV/XLSX może nie wystarczyć do realizacji wszystkich praw podmiotu danych; re
 ## Supersession 2026-10-29
 
 [ADR-0012](../decisions/adr/0012-supabase-native-auth-sessions-rls.md) zastępuje ADR-0003, TD1.7/1.8 w opisanym zakresie i poprzedni SEC-01. SEC-02 oraz IM-01 zachowują niezmienniki. OPEN-013/042 nie utrzymują anulowanej bramki brokera; TTL/reauth pozostają otwarte. F3 docelowo integruje Auth, F4 przy imporcie, F5 przed background, F6 jako kontrole każdego slice. [Karty i zależności](foundation-plan.md).
+
+**Doprecyzowanie wykonania F3:** flaga local fixture i ukrycie formularzy kontrolują UI aplikacji, nie bezpośrednie Auth API. Przed wdrożeniem OPEN-013/041/043 wymagają decyzji i sprawdzenia konfiguracji dostawcy (signup, potwierdzenia, recovery, zabezpieczenia zmiany poświadczeń). Bramka BFF nie zastępuje ich. Lokalne ustawienia i pomiary w [raporcie F3](foundation-f3.md) nie ustanawiają polityki produkcyjnej.

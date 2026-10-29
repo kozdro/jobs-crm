@@ -1,0 +1,38 @@
+{
+  "status": "NOT RUN - restored private-page handler, native page is ineligible",
+  "candidate": "350331f",
+  "browser": "Chromium 156.0.8078.4",
+  "appArtifact": "Existing production .next build used by R3 full runner",
+  "environment": "Owned preflight-a local synthetic Auth target and actual app behind local TLS",
+  "attempts": [
+    {
+      "script": "/tmp/jobs-f3-bfcache-diag.mts",
+      "browserFlags": ["ignoreDefaultArgs --disable-back-forward-cache", "channel chromium"],
+      "accountPageshowPersisted": false,
+      "cdpReasons": ["MainResourceHasCacheControlNoStore", "JsNetworkRequestReceivedCacheControlNoStoreResource", "BrowsingInstanceNotSwapped", "CacheControlNoStoreCookieModified"],
+      "navigationTimingReasons": ["masked", "response-cache-control-no-store", "response-cache-control-no-store-with-js-network-request"]
+    },
+    {
+      "script": "/tmp/jobs-f3-bfcache-native-policy-diag.mts",
+      "browserFlags": ["ignoreDefaultArgs --disable-back-forward-cache", "channel chromium", "--enable-features=CacheControlNoStoreEnterBackForwardCache:level/restore-unless-http-only-cookie-change"],
+      "accountPageshowPersisted": false,
+      "cdpReasons": ["MainResourceHasCacheControlNoStore", "JsNetworkRequestReceivedCacheControlNoStoreResource", "BrowsingInstanceNotSwapped"],
+      "navigationTimingReasons": ["masked", "response-cache-control-no-store", "response-cache-control-no-store-with-js-network-request"]
+    }
+  ],
+  "controls": {
+    "responseHeadersModified": false,
+    "sessionCookiesManuallyModified": false,
+    "jwtOrOtpTtlModified": false,
+    "authSchemaModified": false,
+    "fakePageshowEvents": false,
+    "sourceFilesModifiedByDiagnostic": false,
+    "pendingNetworkSettledBeforeAway": true,
+    "ownedAppProcessesAndProxiesClosed": true
+  },
+  "primarySources": [
+    "https://developer.chrome.com/docs/web-platform/bfcache-ccns",
+    "https://chromium.googlesource.com/chromium/src/+/68f3441bbaeef0a0f464de54ef34baeef1d6ad98/chrome/browser/policy/test/back_forward_cache_policy_browsertest.cc",
+    "https://github.com/microsoft/playwright/blob/main/tests/library/chromium/bfcache.spec.ts"
+  ]
+}

@@ -21,6 +21,8 @@ Podstawa: [Foundation Plan](foundation-plan.md), [kontrakty AUTH/RLS/RPC v2](fou
 - Czasy/ilości fixture nie są limitami ani TTL produktu. ADR-0012 akceptuje access JWT do expiry po revocation refresh; nie wymaga ponownej zgody PO na ten fakt. OPEN-013/042/043 zachowują wyłącznie pozostałe polityki operacyjne i ochronę operacji wrażliwych; `getUser()` nie jest sam w sobie ponownym podaniem poświadczeń.
 - F3 integruje docelowe adaptery bez osobnej aplikacji eksperymentalnej. Minimalne RPC F4 w slice importu; worker F5 przed pierwszą funkcją background; F6 to kontrole integracji/release ponawiane wraz z funkcją. Pierwszy ręczny slice może nastąpić po F3/RLS i jego własnych OPEN, bez import RPC/workera/pełnego DR. Publiczne wydanie nadal wymaga odpowiednich bramek prywatności i bezpieczeństwa.
 
+**Aktualne wykonanie F3 (osobna autoryzacja 2026-10-29):** szczegółowe wyniki lokalnych AUTH/FQA v2, regresji F1/F2 oraz ograniczenia znajdują się w [raporcie F3](foundation-f3.md). Poniższe PLANNED / NOT RUN są historycznym baseline rebaseline i oczekiwaniami; nie należy traktować ich jako aktualnego raportu wykonania. Live Google pozostaje NOT RUN bez credentials, AUTH-13/FQA-55 N/A.
+
 ## F1 — scaffold i minimalne CI
 
 Aktualne wyniki FQA-01–09: [raport F1](foundation-f1.md). Odpowiedzialny inżynier pisze unit/config testy; QA implementuje smoke i testy granic, platform przygotowuje czysty CI.

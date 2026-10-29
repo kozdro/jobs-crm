@@ -1,0 +1,116 @@
+{
+  "status": "PASS",
+  "sourceCandidate": "33009ea9b2858d6f2d92c3587b7afee78d07e35a",
+  "sourceSha256": "390624c761805b9f3b5b966495695f1dfecfc6b379058b6d29b2494e91173d51",
+  "node": "v24.22.2",
+  "targetProjectId": "jobs-crm-f3-preflight-a-4b10498e643b",
+  "command": "F3_TARGET_ID=preflight-a node --test scripts/auth/integration.ts (output captured/scanned in memory)",
+  "bytes": 3561,
+  "sha256": "ca10f9758fe3d9c8e801f506ecbad84272b02f82d4cead496a6ae81ed61898b5",
+  "counts": {
+    "tests": 13,
+    "passed": 13,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "observations": [
+    {
+      "kind": "F3_SIGNUP_OBSERVATION",
+      "values": {
+        "confirmationsFixture": true,
+        "newEmail": {
+          "userReturned": true,
+          "sessionReturned": false,
+          "identityCount": 1,
+          "errorCode": null
+        },
+        "existingEmail": {
+          "userReturned": false,
+          "sessionReturned": false,
+          "identityCount": null,
+          "errorCode": "user_already_exists"
+        },
+        "productionAntiEnumerationPolicy": "OPEN-041/013"
+      }
+    },
+    {
+      "kind": "F3_RECOVERY_SESSION_OBSERVATION",
+      "values": {
+        "currentRecoveryPasswordUpdated": true,
+        "otherSessions": [
+          {
+            "account": "other-A-1",
+            "refreshAccepted": false,
+            "errorCode": "refresh_token_not_found"
+          },
+          {
+            "account": "other-A-2",
+            "refreshAccepted": false,
+            "errorCode": "refresh_token_not_found"
+          }
+        ],
+        "unrelatedBRefreshAccepted": true,
+        "productionSessionConsequencesPolicy": "OPEN-043/042"
+      }
+    },
+    {
+      "kind": "F3_PASSWORD_POLICY_OBSERVATION",
+      "values": {
+        "securePasswordChangeFixture": true,
+        "freshOrdinarySessionUpdateAccepted": true,
+        "errorCode": null,
+        "stale24HourSession": "NOT RUN - no auth schema timestamp tampering",
+        "productionFreshnessAndReauthPolicy": "OPEN-013/043"
+      }
+    },
+    {
+      "kind": "F3_JWT_REPLAY",
+      "values": {
+        "scope": "local",
+        "currentRefreshSessionRevoked": true,
+        "sampledSession": "current",
+        "sampleRefreshSessionRevoked": true,
+        "issuedAt": 1793309164,
+        "exp": 1793309224,
+        "scopeAppliedAt": 1793309164.423,
+        "lastValidAt": 1793309254.827,
+        "firstDeniedAt": 1793309255.342,
+        "observedValidAfterLogoutSeconds": 90.404,
+        "firstDeniedAfterExpSeconds": 31.342000007629395
+      }
+    },
+    {
+      "kind": "F3_JWT_REPLAY",
+      "values": {
+        "scope": "others",
+        "currentRefreshSessionRevoked": false,
+        "sampledSession": "other",
+        "sampleRefreshSessionRevoked": true,
+        "issuedAt": 1793309164,
+        "exp": 1793309224,
+        "scopeAppliedAt": 1793309164.841,
+        "lastValidAt": 1793309254.831,
+        "firstDeniedAt": 1793309255.348,
+        "observedValidAfterLogoutSeconds": 89.99,
+        "firstDeniedAfterExpSeconds": 31.348000049591064
+      }
+    },
+    {
+      "kind": "F3_JWT_REPLAY",
+      "values": {
+        "scope": "global",
+        "currentRefreshSessionRevoked": true,
+        "sampledSession": "current",
+        "sampleRefreshSessionRevoked": true,
+        "issuedAt": 1793309165,
+        "exp": 1793309225,
+        "scopeAppliedAt": 1793309165.357,
+        "lastValidAt": 1793309255.865,
+        "firstDeniedAt": 1793309256.372,
+        "observedValidAfterLogoutSeconds": 90.508,
+        "firstDeniedAfterExpSeconds": 31.371999979019165
+      }
+    }
+  ]
+}

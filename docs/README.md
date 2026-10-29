@@ -41,3 +41,5 @@ PO zatwierdził wybory 1.1–1.40, w tym allowlistę domen dla Smart Import (1.4
 ## Supabase-native rebaseline (2026-10-29)
 
 Decyzja PO wariant A: [ADR-0012](decisions/adr/0012-supabase-native-auth-sessions-rls.md) zastępuje ADR-0003 i wskazany zakres TD1.7/1.8; oryginalne TD pozostają historią. F1/F2 wykonane, raporty nietknięte. [Foundation Plan](technical/foundation-plan.md) zawiera kartę następnego F3 i rekomendację F4 przy imporcie, F5 przed background oraz bieżących kontroli F6. Nowe Auth/RPC testy NOT RUN; rebaseline nie autoryzuje implementacji.
+
+**Wykonanie F3 (osobne zadanie PO, 2026-10-29):** [Supabase-native Auth Integration](technical/foundation-f3.md) opisuje lokalną implementację w src/app, wyniki i granice akceptacji. Statusy powyżej dotyczą historycznego rebaseline; live Google i polityki publicznego signup/recovery pozostają otwarte.

@@ -1,6 +1,6 @@
 # Jobs CRM
 
-> **Status projektu:** F1/F2 zmergowane; dokumentacyjny Supabase-native rebaseline; F3 nie rozpoczęte.
+> **Status projektu:** F1/F2 zmergowane; lokalna integracja Auth F3 w osobnym PR, bez merge i publicznego wdrożenia. [Wyniki i ograniczenia F3](docs/technical/foundation-f3.md).
 > **Stan na:** 2026-10-29. **Język dokumentacji:** polski.
 > Techniczny scaffold i lokalny syntetyczny PoC; funkcje biznesowe i infrastruktura produkcyjna pozostają kolejnymi etapami.
 

@@ -1,27 +1,23 @@
 import { z } from "zod";
 
-function isHttpOrigin(value: string): boolean {
-  try {
-    const url = new URL(value);
-    return (
-      (url.protocol === "http:" || url.protocol === "https:") &&
-      url.username === "" &&
-      url.password === "" &&
-      url.pathname === "/" &&
-      url.search === "" &&
-      url.hash === ""
-    );
-  } catch {
-    return false;
-  }
-}
+import { normalizeAppOrigin } from "./origin";
 
 const envSchema = z
   .object({
     APP_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
-    APP_ORIGIN: z.string().refine(isHttpOrigin).optional(),
+    APP_ORIGIN: z
+      .string()
+      .transform((value, ctx) => {
+        try {
+          return normalizeAppOrigin(value);
+        } catch {
+          ctx.addIssue({ code: "custom", message: "Invalid APP_ORIGIN" });
+          return z.NEVER;
+        }
+      })
+      .optional(),
   })
   .refine(
     (env) => env.APP_ENV !== "production" || env.APP_ORIGIN !== undefined,
