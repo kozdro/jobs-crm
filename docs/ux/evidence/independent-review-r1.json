@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-30",
+  "reviewedBaselineCommit": "ef32647a1dfe0ea5df401f32366ca38b16c1fe60",
+  "reviewedBase": "aa496fc7c881b3af94a1982fac0353d2556c6a3f",
+  "sourceGroupSHA256": "06eb4681724862fcfc25d1a0fa675f30787c13346788eb60a07fe602f50bc4fe",
+  "wrapperFingerprintBeforeAfter": "19e3e1dc12f4ab8bf3394b857965d5465d5e9599ca9aa270735c169d8313cdbd",
+  "candidateChangedFiles": [],
+  "frontend": {
+    "command": "python3 harness/scripts/review.py codex frontend-reviewer --timeout 600 < /tmp/jobs-ui-frontend-review.txt",
+    "processExit": 0,
+    "status": "FAIL finding P3, no P0-P2; author correction and independent re-review pending",
+    "parent": "01a18d27-31ec-7af2-bbee-13e92e9c13e9",
+    "child": "01a18d27-82a6-7a40-a882-afdea870b4f2",
+    "model": "gpt-6.1-sol",
+    "reasoning": "NOT EXPOSED",
+    "profile": "generic subagent + canonical frontend-reviewer",
+    "parentAndChildSandbox": "read-only",
+    "parentAndChildApproval": "never",
+    "finding": {
+      "severity": "P3",
+      "file": "src/app/recruitments/page.tsx",
+      "line": 38,
+      "issue": "Undefined danger aliases leave list-error alert without semantic error colors",
+      "requiredFix": "Use existing destructive tokens and verify actual error-state render"
+    },
+    "visualEvidence": "11 required real-app screenshots plus additional states, candidates A/B/C, official product research assets and before-correction screenshots actually viewed",
+    "limitations": [
+      "Reviewer ran no tests",
+      "Physical devices and AT NOT RUN",
+      "Native browser zoom NOT RUN",
+      "No full WCAG certification"
+    ]
+  },
+  "security": {
+    "command": "python3 harness/scripts/review.py codex security-reviewer --timeout 600 < /tmp/jobs-ui-security-review.txt",
+    "processExit": 0,
+    "status": "PASS no confirmed P0-P3 findings",
+    "parent": "01a18d27-e800-7961-9cea-bd9aaf085098",
+    "child": "01a18d28-409f-7730-a253-92484a61415a",
+    "model": "gpt-6.1-sol",
+    "reasoning": "NOT EXPOSED",
+    "profile": "generic subagent + canonical security-reviewer",
+    "parentAndChildSandbox": "read-only",
+    "parentAndChildApproval": "never",
+    "scope": [
+      "Session identity and navigation races",
+      "Synchronous private DOM and local portal hide",
+      "Native logout scopes local/global/others",
+      "Free text and URL escaping",
+      "No identity/API/database/dependency changes",
+      "QA evidence assessed as external evidence"
+    ],
+    "limitations": [
+      "No own runtime tests",
+      "Not all PNG contents reviewed",
+      "Native BFCache restore/live Google/stale24h/AT/devices NOT RUN",
+      "Hosted CI not yet run"
+    ]
+  },
+  "claudeAttempt": {
+    "status": "NOT RUN review",
+    "processExit": 1,
+    "reason": "Not logged in; no permission or authentication workaround attempted",
+    "changedFiles": []
+  },
+  "runtimeAudit": "Parent and child turn_context metadata inspected locally: actual read-only and approval never; exactly one child per independent parent. Wrapper before=after, exit0. No escalation. Raw local transcripts stay outside repository."
+}

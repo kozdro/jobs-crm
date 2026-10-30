@@ -1,0 +1,69 @@
+{
+  "status": "PASS",
+  "sourceFix": "src/app/recruitments/page.tsx canonical destructive tokens",
+  "targetId": "ui-r1-20261030",
+  "projectId": "jobs-crm-recruitment-38a08c-af756820980c",
+  "restContainerId": "23dea521c11d2cbbef45518d60f226f897d7f5c3ed3d1e3378da02a60d7e8a87",
+  "restContainerName": "/supabase_rest_jobs-crm-recruitment-38a08c-af756820980c",
+  "restImageId": "sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc",
+  "preflight": "PASS exact id/name/image/project/one-owned-network/running",
+  "startedAt": "2026-10-30T14:21:42.116Z",
+  "actions": [
+    {
+      "action": "docker stop --time 5 <exact-owned-rest-id>",
+      "observedRunning": false,
+      "at": "2026-10-30T14:21:44.918Z"
+    },
+    {
+      "action": "docker start <same-exact-rest-id>",
+      "observedRunning": true,
+      "normalOwnDataApiRead": true,
+      "normalListLinkVisible": true,
+      "postRestoreFullGuard": "PASS",
+      "at": "2026-10-30T14:22:07.922Z"
+    }
+  ],
+  "captures": [
+    {
+      "width": 1440,
+      "actualServerCatchAlert": true,
+      "appStatus": 200,
+      "authIdentityStillValid": true,
+      "styles": {
+        "color": "lab(39.0165 46.4351 32.0448)",
+        "background": "lab(96.2411 4.74829 2.26204)",
+        "border": "lab(39.0165 46.4351 32.0448)",
+        "borderWidth": "1px",
+        "canonicalColorMatches": true,
+        "canonicalSurfaceMatches": true,
+        "canonicalBorderMatches": true,
+        "innerWidth": 1440,
+        "scrollWidth": 1440
+      }
+    },
+    {
+      "width": 375,
+      "actualServerCatchAlert": true,
+      "appStatus": 200,
+      "authIdentityStillValid": true,
+      "styles": {
+        "color": "lab(39.0165 46.4351 32.0448)",
+        "background": "lab(96.2411 4.74829 2.26204)",
+        "border": "lab(39.0165 46.4351 32.0448)",
+        "borderWidth": "1px",
+        "canonicalColorMatches": true,
+        "canonicalSurfaceMatches": true,
+        "canonicalBorderMatches": true,
+        "innerWidth": 375,
+        "scrollWidth": 375
+      }
+    }
+  ],
+  "serverOutputSafety": {
+    "bytes": 154,
+    "sha256": "855ad1bb191a8f02921f2665b912b783785ec7e74dd51e803f7f46a231b5c156",
+    "counts": {},
+    "observations": []
+  },
+  "endedAt": "2026-10-30T14:22:08.025Z"
+}

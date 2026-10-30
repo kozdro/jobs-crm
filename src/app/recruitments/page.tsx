@@ -35,7 +35,7 @@ export default async function RecruitmentListPage({
       {!result ? (
         <p
           role="alert"
-          className="rounded-lg border border-danger bg-danger-surface p-5 text-sm text-danger"
+          className="rounded-lg border border-destructive bg-destructive-surface p-5 text-sm text-destructive"
         >
           Nie udało się pobrać spraw. Odśwież stronę i spróbuj ponownie.
         </p>

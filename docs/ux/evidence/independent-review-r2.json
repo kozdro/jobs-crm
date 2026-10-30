@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-30",
+  "status": "PASS, R1 P3 independently closed, no new P0-P3 findings",
+  "reviewedBaselineCommit": "ef32647a1dfe0ea5df401f32366ca38b16c1fe60",
+  "reviewedStagedDeltaFiles": 34,
+  "reviewedBinaryDiffSHA256": "d4301e42ccace577e5a53cdc6444a78087fb40426a633f206415adb906524a84",
+  "sourceGroupSHA256": "19092167adfdb7400be4e3403ca005af06443775f13ffb3264155285634520d4",
+  "sourceHashesVerified": 90,
+  "pngHashesVerified": 52,
+  "command": "python3 harness/scripts/review.py codex frontend-reviewer --timeout 600 < /tmp/jobs-ui-frontend-review-r2.txt",
+  "wrapperExecution": "COMPLETED",
+  "wrapperExit": 0,
+  "wrapperCandidateBefore": "1aa9490471a70ed87421390de1d755f80774b98edcbad8718f8d05d7e00d8eb5",
+  "wrapperCandidateAfter": "1aa9490471a70ed87421390de1d755f80774b98edcbad8718f8d05d7e00d8eb5",
+  "wrapperChangedFiles": [],
+  "wrapperScriptSHA256": "ccd5b6f366e1624fbe25e041837e267978a96ee2ec83cd96bcc2e59a202a92bb",
+  "hashPrecision": "wrapperScriptSHA256 identifies review.py itself, not the candidate. Actual candidate fingerprint comes from wrapper stderr, separately recorded above.",
+  "parent": "01a18d32-ec2f-7890-bd6c-8e130835de85",
+  "child": "01a18d33-644e-73a2-abeb-044a6b9c6ae0",
+  "model": "gpt-6.1-sol",
+  "reasoning": "NOT EXPOSED",
+  "profile": "generic subagent + canonical frontend-reviewer",
+  "parentAndChildSandbox": "read-only",
+  "parentAndChildApproval": "never",
+  "runtimeAudit": "Actual native turn_context metadata inspected for parent and child; exactly one child; no escalation.",
+  "actualImagesViewed": [
+    "docs/ux/assets/ui-foundation/list-error-1440.png",
+    "docs/ux/assets/ui-foundation/list-error-375.png"
+  ],
+  "findingClosure": {
+    "severity": "P3",
+    "source": "src/app/recruitments/page.tsx:38",
+    "fix": "One-line canonical destructive color/surface/border tokens",
+    "actualErrorTextContrast": 6.2277,
+    "actualServerCatchAndRoleAlert": "verified",
+    "isolatedOutageAndRestoreEvidence": "reviewed from artifacts, not reviewer-operated services"
+  },
+  "qaEvidenceAssessed": {
+    "build": "PASS exit0",
+    "httpRls": "25/25 PASS",
+    "browser": "29/29 PASS",
+    "ownReviewerTests": "NOT RUN"
+  },
+  "unchangedScope": [
+    "Auth/QC/session lifecycle",
+    "Business logic",
+    "Database/schema/migrations",
+    "Dependencies",
+    "Tests",
+    "CI",
+    "Harness"
+  ],
+  "limits": [
+    "No own runtime tests or service inspection",
+    "Actual browser zoom NOT RUN",
+    "AT/devices/usability NOT RUN",
+    "Native BFCache/liveGoogle/stale24h NOT RUN",
+    "Hosted CI not yet run"
+  ],
+  "postReviewDocumentationUpdate": "Only truthful R2 result metadata added after review; product/test source-group unchanged. Final hosted CI must bind exact final commit."
+}

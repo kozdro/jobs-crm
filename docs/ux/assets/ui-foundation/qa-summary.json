@@ -1,6 +1,6 @@
 {
   "date": "2026-10-30",
-  "generatedAtUTC": "2026-10-30T14:08:29.982696+00:00",
+  "generatedAtUTC": "2026-10-30T14:23:21.989414+00:00",
   "status": "PASS within explicitly tested scope; not full WCAG/product acceptance",
   "role": "qa-engineer",
   "model": "inherited / NOT EXPOSED",
@@ -12,7 +12,7 @@
       "db"
     ],
     "identicalFileCount": 90,
-    "sourceGroupSHA256": "06eb4681724862fcfc25d1a0fa675f30787c13346788eb60a07fe602f50bc4fe",
+    "sourceGroupSHA256": "19092167adfdb7400be4e3403ca005af06443775f13ffb3264155285634520d4",
     "sourceHashes": {
       "src/app/account/page.tsx": "7e05e31972523c699a999341fa3255eaf1b81d873636a517aad710af66d925f5",
       "src/app/auth/callback/route.ts": "6c064f068182b1dbe9b4147fe8984f3c9b204e12537e984d207a9910c3d8f252",
@@ -28,7 +28,7 @@
       "src/app/recruitments/[id]/not-found.tsx": "e3ca4840d6d92cb381a93deaacc9d8a98102e88dbae1a308bc058a15ca8efcd3",
       "src/app/recruitments/[id]/page.tsx": "0f0a77fd6bfe0ea71f9d46f28146f2848b25d554d6b37e2aa41b31bd92e7f5c5",
       "src/app/recruitments/commands/route.ts": "89aa2c0f08ca26baa1b995df8ea536234323101f66e59459932fa1c1dd035a46",
-      "src/app/recruitments/page.tsx": "72c2e4d26dcd5e7c62abca280f631450ce74143315d8b5320f2eb843101f3241",
+      "src/app/recruitments/page.tsx": "6f9521245dc5306b47507f9af4b8ee379381a7993326fc6e1484b479e981fbc8",
       "src/app/reset-password/page.tsx": "e8dfe0304588fd6ea28aee7ded35399dc3360b5c4e00e174c673e6d09d59b00d",
       "src/app/signup/page.tsx": "ef2bbed656fe11b6cb798b5fe20f7fa33c5d7db6ba909c51958054efae164918",
       "src/components/auth/account-session.tsx": "f68cec6fe8a58ec25a8f1239dbfd0e65208fe6dfc4b047947a7a8d59bcfcd3ca",
@@ -130,11 +130,14 @@
       }
     ],
     "f3Copy": "/tmp/jobs-crm-ui-f3-20261030",
-    "f3AppAndConsumedAuthSourcesMatchFinal": true,
-    "f3OnlyDifferencesAreUnconsumedRecruitmentE2EFiles": [
+    "f3WholeAppSourceMatchesFinal": false,
+    "f3AuthBoundaryAndConsumedAuthTestSourcesUnchanged": true,
+    "f3DifferencesFromFinal": [
+      "src/app/recruitments/page.tsx",
       "tests/e2e/recruitment-capture.spec.ts",
       "tests/e2e/recruitment-ui-foundation.spec.ts"
-    ]
+    ],
+    "f3DifferenceScope": "Two unconsumed Recruitment E2E files plus one Recruitment list-error CSS token line; Auth/session behavior and sources unchanged. No F3 repeat required for this one-line styling correction."
   },
   "environment": {
     "os": "macOS arm64",
@@ -149,13 +152,13 @@
     "auth": "v2.197.0",
     "postgrest": "PostgREST 16.5",
     "freshTarget": {
-      "id": "run-b13e53df",
-      "projectId": "jobs-crm-recruitment-518c7c-72d95dc3e960",
+      "id": "ui-r1-20261030",
+      "projectId": "jobs-crm-recruitment-38a08c-af756820980c",
       "apiPort": 56921,
       "dbPort": 56922,
       "mailPort": 56924,
       "appOrigin": "https://127.0.0.1:3153",
-      "cleanup": "PASS: runner cleaned only its own new synthetic target after success"
+      "cleanup": "PASS: manual Next/TLS app stopped; exact PostgREST restored healthy and guarded target retained for inspection. Only new own synthetic target was controlled."
     },
     "persistentDevAndOldManualDev": "Untouched; no reset, user/account removal, schema or product database changes"
   },
@@ -198,7 +201,7 @@
       "log": "/tmp/jobs-ui-foundation-f3-complete-final.log"
     },
     {
-      "command": "PATH=/Users/kozdro/.volta/tools/image/node/24.22.2/bin:$PATH UI_SCREENSHOTS_DIR=/Users/kozdro/Desktop/jobs-crm/docs/ux/assets/ui-foundation node scripts/recruitment/runner.ts",
+      "command": "PATH=/Users/kozdro/.volta/tools/image/node/24.22.2/bin:$PATH RECRUITMENT_TARGET_ID=ui-r1-20261030 UI_SCREENSHOTS_DIR=/Users/kozdro/Desktop/jobs-crm/docs/ux/assets/ui-foundation node scripts/recruitment/runner.ts",
       "where": "/tmp/jobs-crm-ui-fresh-20261030",
       "status": "PASS",
       "productionBuildExit": 0,
@@ -208,14 +211,14 @@
       "newUiBrowserTests": 9,
       "failed": 0,
       "skipped": 0,
-      "log": "/tmp/jobs-ui-foundation-recruitment-fresh-final.log"
+      "log": "/tmp/jobs-ui-foundation-recruitment-r1-fixed.log"
     }
   ],
   "redactedRunnerEvidence": {
     "recruitment": {
-      "id": "run-b13e53df",
-      "projectId": "jobs-crm-recruitment-518c7c-72d95dc3e960",
-      "startedAt": "2026-10-30T14:04:27.525Z",
+      "id": "ui-r1-20261030",
+      "projectId": "jobs-crm-recruitment-38a08c-af756820980c",
+      "startedAt": "2026-10-30T14:19:57.984Z",
       "node": "v24.22.2",
       "status": "PASS",
       "migrations": {
@@ -233,15 +236,15 @@
       "outputChecks": [
         {
           "stage": "production-build",
-          "bytes": 973,
-          "sha256": "f0a89fa8b5be16e60c1d70f043fb15d9d9406eff7a0b2ae8b0149e1547ca79e6",
+          "bytes": 972,
+          "sha256": "5d77de27ed938616668228f63184494156011ee0ffd019c434342a33a78f712e",
           "counts": {},
           "observations": []
         },
         {
           "stage": "business-integration",
-          "bytes": 3045,
-          "sha256": "15feae82fd8fb0704a2250003d0b97e5f5007bd482f5ba949ff2480db0e7cd9c",
+          "bytes": 3030,
+          "sha256": "4d0aff898a069acafc95637eebefbab2d0513bf5577d5e643c7c61c44b5bb35b",
           "counts": {
             "tests": 25,
             "passed": 25,
@@ -253,8 +256,8 @@
         },
         {
           "stage": "business-HTTPS-browser",
-          "bytes": 4922,
-          "sha256": "f7a45976629e05a9bda2a87764a2ae87bbc5cec177b6cd9ca44df94159097ff8",
+          "bytes": 4923,
+          "sha256": "3d718a189e65729a070fb4a3df0f9082bfcdf37bbf4cf6cace67566f3ed683a0",
           "counts": {
             "passed": 29
           },
@@ -263,7 +266,7 @@
         {
           "stage": "app-process-1",
           "bytes": 152,
-          "sha256": "d6801c681b1093ac48c92a4b5f2adac8d3d3f82fd7c7cbee64c5e10a107338c8",
+          "sha256": "a2389bb21fdb2b4c86869e3ab77c505bbf32439bb00bb223d16db11b704f3785",
           "counts": {},
           "observations": []
         }
@@ -467,8 +470,8 @@
   "accessibility": {
     "computedTextContrast": {
       "status": "PASS",
-      "captures": 50,
-      "visibleTextElementSamples": 1305,
+      "captures": 52,
+      "visibleTextElementSamples": 1325,
       "minimumRatio": 5.414578083366092,
       "failures": 0,
       "method": "Computed actual colors converted by Chromium canvas to sRGB; transparent ancestor backgrounds alpha-composited; normal text>=4.5, large text>=3. Group opacity/background images skipped rather than invented. Not full WCAG certification."
@@ -493,7 +496,8 @@
         "duplicate primary/Wstecz/Anuluj scrollIntoView + ShiftTab/Tab + focus + inViewport",
         "existing dirty/recovery dialog focus cases"
       ],
-      "actualMeasurementsFile": "docs/ux/assets/ui-foundation/focus-measurements.json"
+      "actualMeasurementsFile": "docs/ux/assets/ui-foundation/focus-measurements.json",
+      "measurementProvenance": "Four actual outline measurements were captured before the one-line list-error CSS correction on the prior fresh own target; focus-related source/tokens unchanged and final29 browser tests repeated all focus assertions."
     },
     "reflow": {
       "status": "PASS",
@@ -708,66 +712,66 @@
       },
       {
         "path": "docs/ux/assets/ui-foundation/account-menu-768.png",
-        "sha256": "55a538cea4bf9bdd61b6adcb23da8846eb94d8adcde8057a02a21126af28589a",
+        "sha256": "f6a3f81e9eac26fd0155e73449df3427608c05554b7df45304ab36d26d0e596f",
         "width": 768,
         "height": 960,
-        "bytes": 90805
+        "bytes": 90814
       },
       {
         "path": "docs/ux/assets/ui-foundation/account-sessions-1024.png",
-        "sha256": "012c01b7539c52933386d057e821f9b9167db2ccf1d08f3eb54712441a1e3127",
+        "sha256": "177a81936bc46e60c097e69d4d98a9dd45cb92146e5337355e1fdc3fab6e1758",
         "width": 1024,
         "height": 960,
-        "bytes": 76530
+        "bytes": 75619
       },
       {
         "path": "docs/ux/assets/ui-foundation/account-sessions-1440.png",
-        "sha256": "c9c755af51525ff12f26e8975fe263aee4dc08084508b5866654f1d2b2eef122",
+        "sha256": "8b44c243a76ee8c9ed28e2b5e12f60a39be2a9c6cbfde832f3bd606df3869dc5",
         "width": 1440,
         "height": 960,
-        "bytes": 79831
+        "bytes": 78868
       },
       {
         "path": "docs/ux/assets/ui-foundation/account-sessions-375.png",
-        "sha256": "4dfe4fd7d386a02df0d50dc64949e910a124667cae3a4a526fdb5137118aaead",
+        "sha256": "8a01805459db19126120994a0c7c2ae8a4f7b2f45b499149c414670b10de55c1",
         "width": 375,
         "height": 960,
-        "bytes": 47838
+        "bytes": 47878
       },
       {
         "path": "docs/ux/assets/ui-foundation/account-sessions-768.png",
-        "sha256": "575bd4100c722c23790a1cf3b0fd20e11f83b4198bda181ff60cd876fe7a8294",
+        "sha256": "fc53c9c6a8f80fdf7acd2eaf253d8d0850e9b8f39decfdde95829c0e68c8cf7f",
         "width": 768,
         "height": 960,
-        "bytes": 76968
+        "bytes": 76699
       },
       {
         "path": "docs/ux/assets/ui-foundation/case-detail-1024.png",
-        "sha256": "bf5219b6c62c611154b1a40560874c3aee031461a10be49eb76cacedf83ff48b",
+        "sha256": "b481c2b9b628ff031266af39dfd688c05cea9df52b59d56000e63e44b2e2c764",
         "width": 1024,
         "height": 1563,
-        "bytes": 266765
+        "bytes": 266866
       },
       {
         "path": "docs/ux/assets/ui-foundation/case-detail-1440.png",
-        "sha256": "550f33aa02af976e23cfc2816a9190c8979f2de05e59615f14af4bf08eb61a84",
+        "sha256": "855c1a83b4c0e1589c9e07c6e1dac929dfb25fd2dca6a4c377517eca6477ed17",
         "width": 1440,
         "height": 980,
-        "bytes": 216248
+        "bytes": 216339
       },
       {
         "path": "docs/ux/assets/ui-foundation/case-detail-375.png",
-        "sha256": "d079f61ddb4e8078fe5d934ec8ad0d114ae923ddf00b174aea6b2fd8f5a7dfdf",
+        "sha256": "115b47abfabbdcdeab48c0810b02b6081a26c93d6aec8e9c3607237d834c4e7a",
         "width": 375,
         "height": 2022,
-        "bytes": 196162
+        "bytes": 196244
       },
       {
         "path": "docs/ux/assets/ui-foundation/case-detail-768.png",
-        "sha256": "6fd3a2108daae0ff65929272eb4f5477a68067d9559454c53fa8449f853bd2a4",
+        "sha256": "c193f272158e2fb8d382ad97ee136718c2e2ef96efefa7924f102c6c333d46f8",
         "width": 768,
         "height": 1748,
-        "bytes": 259409
+        "bytes": 259497
       },
       {
         "path": "docs/ux/assets/ui-foundation/dashboard-1024.png",
@@ -799,17 +803,17 @@
       },
       {
         "path": "docs/ux/assets/ui-foundation/duplicate-actions-1024.png",
-        "sha256": "fa6b67cf4a7af071852d179bffc261ca05df94e37a8f62b20d2b8befebee3ac4",
+        "sha256": "7c8063d9279bb00d91bcb5c295ec186d8eea4382e58558f2b4c1b764d36d624b",
         "width": 1024,
         "height": 960,
-        "bytes": 132360
+        "bytes": 132356
       },
       {
         "path": "docs/ux/assets/ui-foundation/duplicate-actions-1440.png",
-        "sha256": "168a32877f26572ff8a76b50fa818c7850676ee2c4364d6ea70071798ad2912e",
+        "sha256": "e911f230d53b16d89f125b84c74f5f66df2c4471822a74166a9ba31ae9b561e9",
         "width": 1440,
         "height": 960,
-        "bytes": 189289
+        "bytes": 189373
       },
       {
         "path": "docs/ux/assets/ui-foundation/duplicate-actions-375.png",
@@ -827,17 +831,17 @@
       },
       {
         "path": "docs/ux/assets/ui-foundation/duplicate-footer-1024.png",
-        "sha256": "708623a6b7e4d362188b62d70ea43f843fde0303165faedda2246abb3fb55ca3",
+        "sha256": "cf774a8c09e3d33aa10f76a8d13d4ad1ce44d37a1d3ac10e40088aa08a98e834",
         "width": 1024,
         "height": 960,
-        "bytes": 132016
+        "bytes": 132049
       },
       {
         "path": "docs/ux/assets/ui-foundation/duplicate-footer-1440.png",
-        "sha256": "725a1fa98e2db9be7edd7223c5015c44cb5f3af64f4139445e7fce673cb60f3f",
+        "sha256": "7b9f733c7fc17f4e2343c29bebf3acec593e39eee7d2dea7a53393b2d367bff6",
         "width": 1440,
         "height": 960,
-        "bytes": 189723
+        "bytes": 189822
       },
       {
         "path": "docs/ux/assets/ui-foundation/duplicate-footer-375.png",
@@ -855,17 +859,17 @@
       },
       {
         "path": "docs/ux/assets/ui-foundation/duplicate-warning-1024.png",
-        "sha256": "a3745c8664137de6a6633d25446ecd92b6061bf37904d13036dfeefd2370be03",
+        "sha256": "174f6854a3739af9deb81f854f637ca1b1277daf8e14acc5670cd9b8cef93276",
         "width": 1024,
         "height": 960,
-        "bytes": 131793
+        "bytes": 131789
       },
       {
         "path": "docs/ux/assets/ui-foundation/duplicate-warning-1440.png",
-        "sha256": "22f70a601d46cc1b168c6f0b43da93304cae5e7dc0b736c067eb7c0a6f7b858d",
+        "sha256": "b8c1f9bfe767399afd7024f665adaadc0f029041274691830d456a9fef6c84ef",
         "width": 1440,
         "height": 960,
-        "bytes": 188657
+        "bytes": 188741
       },
       {
         "path": "docs/ux/assets/ui-foundation/duplicate-warning-375.png",
@@ -894,6 +898,20 @@
         "width": 375,
         "height": 1071,
         "bytes": 50113
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/list-error-1440.png",
+        "sha256": "941fed206ad121f0b0c6e72086096f9c26c73766648e8807c8f6cc3371e55d86",
+        "width": 1440,
+        "height": 960,
+        "bytes": 50736
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/list-error-375.png",
+        "sha256": "61c6a73b8d1954be2636c028e0f38d2d1a7c393b9d03693feaf873df99be79ba",
+        "width": 375,
+        "height": 960,
+        "bytes": 19864
       },
       {
         "path": "docs/ux/assets/ui-foundation/login-1024.png",
@@ -939,17 +957,17 @@
       },
       {
         "path": "docs/ux/assets/ui-foundation/quick-capture-1024.png",
-        "sha256": "9973c3014626310cf43988caeb7af9727909eca4996025d5dec180f90a86e6d3",
+        "sha256": "bf10ee99813c83e8ffca19e4890926942f6e25c581a82f463622d06e0a38ee8a",
         "width": 1024,
         "height": 960,
-        "bytes": 126429
+        "bytes": 126414
       },
       {
         "path": "docs/ux/assets/ui-foundation/quick-capture-1440.png",
-        "sha256": "544eb57cee74266abf39078f845e1c5d659d55e0b47e1bac184cce227f3f861c",
+        "sha256": "fcdefc2f8d069b76414488af35bba952a5d217bdaa1fcb01bd561e89a16299ef",
         "width": 1440,
         "height": 960,
-        "bytes": 175685
+        "bytes": 175797
       },
       {
         "path": "docs/ux/assets/ui-foundation/quick-capture-375.png",
@@ -967,31 +985,31 @@
       },
       {
         "path": "docs/ux/assets/ui-foundation/recruitments-1024.png",
-        "sha256": "6d0a6a9998f91e90d1141837e716ae292e14566a7670e6a0d12c854964bb56ec",
+        "sha256": "4c9cd83c94086ada2532797e971a04646f63f731a333871383e5714800cce2a8",
         "width": 1024,
         "height": 960,
-        "bytes": 96433
+        "bytes": 96428
       },
       {
         "path": "docs/ux/assets/ui-foundation/recruitments-1440.png",
-        "sha256": "33b6a3d619de7131f7ac1588ae23565125bf7befa82cb775893da1571d61e81d",
+        "sha256": "d1f9f27781ba0e7c115ad2e83fb7d453c4f0587ea8d9b8cd1edc51f1520c4ae2",
         "width": 1440,
         "height": 960,
-        "bytes": 103923
+        "bytes": 104450
       },
       {
         "path": "docs/ux/assets/ui-foundation/recruitments-375.png",
-        "sha256": "ea6e4c83b9737ade53d2c80212482fd60f55dd112c316ceeaea6b14d6cbe5767",
+        "sha256": "c577d31d4234b3a696324db95a6bbfa85c692ffe37da79e90c5b32d3b9d4e7e3",
         "width": 375,
         "height": 960,
-        "bytes": 60440
+        "bytes": 60412
       },
       {
         "path": "docs/ux/assets/ui-foundation/recruitments-768.png",
-        "sha256": "6f09aa973fe5c335c0586cf3f509e6403bccc88269f9a69b5669c4a8c238c6a6",
+        "sha256": "9abedc49a2824ef1259fdf042acc4bef65b70202cc56560d2e159e94383e6b7f",
         "width": 768,
         "height": 960,
-        "bytes": 93739
+        "bytes": 93256
       },
       {
         "path": "docs/ux/assets/ui-foundation/reflow-equivalent-320.png",
@@ -1036,7 +1054,7 @@
         "bytes": 43129
       }
     ],
-    "count": 50,
+    "count": 52,
     "modalCapture": "Viewport only when a visible dialog exists; prevents long underlying document below fixed overlays from appearing as visible bleed.",
     "normalCapture": "Full document for list/detail/auth/dashboard; compare actual PNG dimensions.",
     "beforeCorrections": "docs/ux/evidence/corrections-before/",
@@ -1082,7 +1100,89 @@
       "status": "FAIL retained on old own568target",
       "issue": "Reused own target accumulated1144 synthetic rows; disabled-RLS sensitivity failed before cross-owner assertion",
       "evidence": "Read-only count1144,RLSenabled; profile max_rows1000. A capped206 response is an inference, not captured directly. Fresh569 original unchanged integration passed25/25. Old568target not repaired/reset/deleted."
+    },
+    {
+      "status": "P3 resolved",
+      "issue": "Stale danger aliases left list-read error without canonical destructive styling",
+      "resolution": "One CSS class line corrected; actual own PostgREST outage rendered real server catch alert at1440/375, canonical text/surface/border colors matched, restore and normal read/list proven."
     }
   ],
-  "authorWrites": "QA source/tests frozen; qa-summary.json is final QA write. Await independent read-only reviews and exact-SHA hosted CI managed by orchestrator."
+  "authorWrites": "R1 one-line list-error styling correction fully retested; QA source/tests/artifacts frozen. qa-summary.json is final QA write. Await independent read-only reviews and exact-SHA hosted CI managed by orchestrator.",
+  "manualListErrorOutage": {
+    "status": "PASS",
+    "command": "PATH=/Users/kozdro/.volta/tools/image/node/24.22.2/bin:$PATH node ui-list-error-evidence.ts",
+    "where": "/tmp/jobs-crm-ui-fresh-20261030",
+    "scriptSHA256": "d664d51170eac4b22674e19d1017fd079292db5101e6acf6498cefe59fb77be5",
+    "log": "/tmp/jobs-ui-foundation-list-error-r1.log",
+    "evidence": {
+      "status": "PASS",
+      "sourceFix": "src/app/recruitments/page.tsx canonical destructive tokens",
+      "targetId": "ui-r1-20261030",
+      "projectId": "jobs-crm-recruitment-38a08c-af756820980c",
+      "restContainerId": "23dea521c11d2cbbef45518d60f226f897d7f5c3ed3d1e3378da02a60d7e8a87",
+      "restContainerName": "/supabase_rest_jobs-crm-recruitment-38a08c-af756820980c",
+      "restImageId": "sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc",
+      "preflight": "PASS exact id/name/image/project/one-owned-network/running",
+      "startedAt": "2026-10-30T14:21:42.116Z",
+      "actions": [
+        {
+          "action": "docker stop --time 5 <exact-owned-rest-id>",
+          "observedRunning": false,
+          "at": "2026-10-30T14:21:44.918Z"
+        },
+        {
+          "action": "docker start <same-exact-rest-id>",
+          "observedRunning": true,
+          "normalOwnDataApiRead": true,
+          "normalListLinkVisible": true,
+          "postRestoreFullGuard": "PASS",
+          "at": "2026-10-30T14:22:07.922Z"
+        }
+      ],
+      "captures": [
+        {
+          "width": 1440,
+          "actualServerCatchAlert": true,
+          "appStatus": 200,
+          "authIdentityStillValid": true,
+          "styles": {
+            "color": "lab(39.0165 46.4351 32.0448)",
+            "background": "lab(96.2411 4.74829 2.26204)",
+            "border": "lab(39.0165 46.4351 32.0448)",
+            "borderWidth": "1px",
+            "canonicalColorMatches": true,
+            "canonicalSurfaceMatches": true,
+            "canonicalBorderMatches": true,
+            "innerWidth": 1440,
+            "scrollWidth": 1440
+          }
+        },
+        {
+          "width": 375,
+          "actualServerCatchAlert": true,
+          "appStatus": 200,
+          "authIdentityStillValid": true,
+          "styles": {
+            "color": "lab(39.0165 46.4351 32.0448)",
+            "background": "lab(96.2411 4.74829 2.26204)",
+            "border": "lab(39.0165 46.4351 32.0448)",
+            "borderWidth": "1px",
+            "canonicalColorMatches": true,
+            "canonicalSurfaceMatches": true,
+            "canonicalBorderMatches": true,
+            "innerWidth": 375,
+            "scrollWidth": 375
+          }
+        }
+      ],
+      "serverOutputSafety": {
+        "bytes": 154,
+        "sha256": "855ad1bb191a8f02921f2665b912b783785ec7e74dd51e803f7f46a231b5c156",
+        "counts": {},
+        "observations": []
+      },
+      "endedAt": "2026-10-30T14:22:08.025Z"
+    },
+    "scope": "Manual-only outage of exactly one newly owned PostgREST container; no CI outage test, SQL/schema/grants/reset or persistent DEV mutation."
+  }
 }
