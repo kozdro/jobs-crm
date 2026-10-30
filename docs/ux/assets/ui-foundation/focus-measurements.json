@@ -1,0 +1,90 @@
+{
+  "targetId": "run-b13e53df",
+  "method": "Actual Chromium computed outline after keyboard modality and focus, opaque adjacent surface",
+  "measurements": [
+    {
+      "width": 1440,
+      "control": "account",
+      "focused": true,
+      "focusVisible": true,
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "lab(37.1556 -24.6754 4.641)",
+      "adjacentBackground": "lab(100 0 0)",
+      "outlineContrast": 7.155051820032173,
+      "rect": {
+        "x": 1293.5625,
+        "y": 13.5,
+        "width": 114.4375,
+        "height": 44
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 960
+      }
+    },
+    {
+      "width": 1440,
+      "control": "capture-input",
+      "focused": true,
+      "focusVisible": true,
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "lab(37.1556 -24.6754 4.641)",
+      "adjacentBackground": "lab(100 0 0)",
+      "outlineContrast": 7.155051820032173,
+      "rect": {
+        "x": 432,
+        "y": 440,
+        "width": 576,
+        "height": 44
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 960
+      }
+    },
+    {
+      "width": 375,
+      "control": "account",
+      "focused": true,
+      "focusVisible": true,
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "lab(37.1556 -24.6754 4.641)",
+      "adjacentBackground": "lab(100 0 0)",
+      "outlineContrast": 7.155051820032173,
+      "rect": {
+        "x": 293,
+        "y": 9.5,
+        "width": 66,
+        "height": 44
+      },
+      "viewport": {
+        "width": 375,
+        "height": 960
+      }
+    },
+    {
+      "width": 375,
+      "control": "capture-input",
+      "focused": true,
+      "focusVisible": true,
+      "outlineStyle": "solid",
+      "outlineWidth": "2px",
+      "outlineColor": "lab(37.1556 -24.6754 4.641)",
+      "adjacentBackground": "lab(100 0 0)",
+      "outlineContrast": 7.155051820032173,
+      "rect": {
+        "x": 20,
+        "y": 287.65625,
+        "width": 335,
+        "height": 44
+      },
+      "viewport": {
+        "width": 375,
+        "height": 960
+      }
+    }
+  ]
+}

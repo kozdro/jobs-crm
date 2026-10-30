@@ -52,7 +52,9 @@ async function openCapture(page: Page): Promise<Locator> {
   if (await manual.count()) await manual.click();
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
-  await expect(dialog.getByText("Sytuacja", { exact: true })).toBeVisible();
+  await expect(
+    dialog.getByRole("heading", { name: "Sytuacja", exact: true }),
+  ).toBeVisible();
   const progress = dialog.getByRole("list", {
     name: "Postęp dodawania sprawy",
     exact: true,
@@ -91,7 +93,9 @@ async function summaryStep(dialog: Locator) {
     .getByRole("radio", { name: "Zapisz tylko sprawę", exact: true })
     .check();
   await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
-  await expect(dialog.getByText("Podsumowanie", { exact: true })).toBeVisible();
+  await expect(
+    dialog.getByRole("heading", { name: "Podsumowanie", exact: true }),
+  ).toBeVisible();
 }
 async function prepare(
   page: Page,
@@ -197,6 +201,9 @@ test("QC data validation keeps input and no record before valid four-step submis
   await dialog.getByLabel("Nazwa sprawy", { exact: true }).fill("   ");
   await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
   await expect(dialog.getByRole("alert")).toBeVisible();
+  await expect(
+    dialog.getByLabel("Nazwa sprawy", { exact: true }),
+  ).toBeFocused();
   expect(
     (
       await dialog
@@ -208,6 +215,9 @@ test("QC data validation keeps input and no record before valid four-step submis
   await dialog.getByLabel("Nazwa sprawy", { exact: true }).fill(`${title}ą`);
   await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
   await expect(dialog.getByRole("alert")).toBeVisible();
+  await expect(
+    dialog.getByLabel("Nazwa sprawy", { exact: true }),
+  ).toBeFocused();
   await expect(dialog.getByLabel("Nazwa sprawy", { exact: true })).toHaveValue(
     `${title}ą`,
   );
@@ -217,6 +227,9 @@ test("QC data validation keeps input and no record before valid four-step submis
     .fill("javascript:alert(1)");
   await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
   await expect(dialog.getByRole("alert")).toBeVisible();
+  await expect(
+    dialog.getByLabel("Nazwa sprawy", { exact: true }),
+  ).toBeFocused();
   await dialog
     .getByLabel("URL źródłowy (opcjonalnie)", { exact: true })
     .fill("");
@@ -273,7 +286,9 @@ test("UC029 partial: save-and-add-next clears fields/action and uses a new indep
     .getByRole("button", { name: "Zapisz i dodaj kolejną", exact: true })
     .click();
   await expect(dialog).toBeVisible();
-  await expect(dialog.getByText("Sytuacja", { exact: true })).toBeVisible();
+  await expect(
+    dialog.getByRole("heading", { name: "Sytuacja", exact: true }),
+  ).toBeVisible();
   await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
   await expect(dialog.getByLabel("Nazwa sprawy", { exact: true })).toHaveValue(
     "",
@@ -549,7 +564,9 @@ test("Duplicate save-and-add-next retains the chosen continuation and resets to 
   await dialog
     .getByRole("button", { name: "Utwórz nową sprawę", exact: true })
     .click();
-  await expect(dialog.getByText("Sytuacja", { exact: true })).toBeVisible();
+  await expect(
+    dialog.getByRole("heading", { name: "Sytuacja", exact: true }),
+  ).toBeVisible();
   await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
   await expect(dialog.getByLabel("Nazwa sprawy", { exact: true })).toHaveValue(
     "",
@@ -589,7 +606,10 @@ test("Own list limits pages to25 and orders tied technical timestamps by stable 
   );
   await login(page, owner);
   await page.goto(`${target.appOrigin}/recruitments`);
-  const caseLinks = page.locator("ul > li > h2 > a");
+  const caseLinks = page
+    .getByRole("list", { name: "Sprawy rekrutacyjne", exact: true })
+    .getByRole("heading", { level: 2 })
+    .getByRole("link");
   await expect(caseLinks).toHaveCount(25);
   expect(await caseLinks.allTextContents()).toEqual(
     expected.slice(0, 25).map((row) => row.title),
@@ -834,11 +854,13 @@ test("Page-level unknown-intent controls permit re-entry and the same-list link 
     exact: true,
   });
   await expect(confirmation).toBeVisible();
-  expect(
-    await confirmation.evaluate((element) =>
-      element.contains(document.activeElement),
-    ),
-  ).toBe(true);
+  await expect
+    .poll(() =>
+      confirmation.evaluate((element) =>
+        element.contains(document.activeElement),
+      ),
+    )
+    .toBe(true);
   await confirmation
     .getByRole("button", { name: "Wróć do zapisu", exact: true })
     .click();

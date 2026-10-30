@@ -34,14 +34,11 @@ export default async function RecruitmentDetailPage({
     <Workspace userId={user.id} title={item.title}>
       <Link
         href="/recruitments"
-        className="inline-flex min-h-11 items-center text-sm underline underline-offset-4"
+        className="ui-link mb-5 inline-flex min-h-11 items-center text-sm"
       >
         Wróć do listy spraw
       </Link>
-      <section
-        className="min-w-0 rounded-xl border border-border bg-card p-5 sm:p-7"
-        aria-label="Zapisane dane sprawy"
-      >
+      <section className="min-w-0" aria-label="Zapisane dane sprawy">
         <CaseContent item={item} />
       </section>
     </Workspace>

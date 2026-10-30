@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Workspace } from "@/components/recruitment/workspace";
-import { CaseContent } from "@/components/recruitment/case-content";
+import { CaseListItem } from "@/components/recruitment/case-content";
 import {
   getTrustedUser,
   getServerClient,
@@ -27,19 +27,23 @@ export default async function RecruitmentListPage({
     /* Render a neutral error, never an empty success. */
   }
   return (
-    <Workspace userId={user.id} title="Rekrutacje">
-      <p className="text-sm text-muted-foreground">
-        Twoje zapisane sprawy, od najnowszej.
-      </p>
+    <Workspace
+      userId={user.id}
+      title="Rekrutacje"
+      description="Twoje zapisane sprawy, od najnowszej."
+    >
       {!result ? (
-        <p role="alert" className="rounded-xl border border-border p-5 text-sm">
+        <p
+          role="alert"
+          className="rounded-lg border border-destructive bg-destructive-surface p-5 text-sm text-destructive"
+        >
           Nie udało się pobrać spraw. Odśwież stronę i spróbuj ponownie.
         </p>
       ) : (
         <>
           {result.cases.length === 0 ? (
-            <section className="rounded-xl border border-border bg-card p-6">
-              <h2 className="text-lg font-medium">
+            <section className="ui-panel p-6 sm:p-9">
+              <h2 className="text-lg font-semibold">
                 {page === 1
                   ? "Nie masz jeszcze spraw"
                   : "Brak spraw na tej stronie"}
@@ -51,33 +55,20 @@ export default async function RecruitmentListPage({
               </p>
             </section>
           ) : (
-            <ul className="grid gap-4">
+            <ul aria-label="Sprawy rekrutacyjne" className="ui-panel">
               {result.cases.map((item) => (
-                <li
-                  key={item.id}
-                  className="min-w-0 rounded-xl border border-border bg-card p-5"
-                >
-                  <h2 className="mb-4 break-words text-lg font-medium [overflow-wrap:anywhere]">
-                    <Link
-                      href={`/recruitments/${item.id}`}
-                      className="underline underline-offset-4"
-                    >
-                      {item.title}
-                    </Link>
-                  </h2>
-                  <CaseContent item={item} />
-                </li>
+                <CaseListItem key={item.id} item={item} />
               ))}
             </ul>
           )}
           <nav
             aria-label="Strony listy spraw"
-            className="flex flex-wrap items-center gap-5 text-sm"
+            className="mt-5 flex flex-wrap items-center gap-5 text-sm text-muted-foreground"
           >
             {page > 1 && (
               <Link
                 href={`/recruitments?page=${page - 1}`}
-                className="inline-flex min-h-11 items-center underline underline-offset-4"
+                className="ui-link inline-flex min-h-11 items-center"
               >
                 Poprzednia strona
               </Link>
@@ -86,7 +77,7 @@ export default async function RecruitmentListPage({
             {result.hasMore && (
               <Link
                 href={`/recruitments?page=${page + 1}`}
-                className="inline-flex min-h-11 items-center underline underline-offset-4"
+                className="ui-link inline-flex min-h-11 items-center"
               >
                 Następna strona
               </Link>

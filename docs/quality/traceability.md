@@ -190,3 +190,18 @@ Status modelu: **APPROVED**; OPEN-002/024 i DATA-01 **PARTIALLY RESOLVED**, pozo
 | FR/AC-AD-002; BR-030; NFR-001; ADR-0012 | AD-002-01: prawdziwe RLS/grants HTTP A/B/anon i brak metadanych | UC/TC-034 częściowo; Data API, SQL catalog, browser logout/cache | Brak dokumentów/Search/relacji; PARTIAL COVERAGE |
 
 Dodatkowo regresje F1/F2/F3 i harness są zachowane jako osobne dowody. Testy link-table rollback i owner-qualified relation są NOT APPLICABLE, jeśli ostateczna implementacja ma jedną tabelę z `source_url`; atomiczność bieżącego zapisu wszystkich pól nadal wymaga dowodu. [Analiza i plan](../technical/recruitment-case-first-slice-analysis.md), [kontrakt modelu](../technical/recruitment-case-first-slice.md).
+
+## UI Foundation & UX Polish — DEC-053 (2026-10-30)
+
+Zakres APPROVED przez PO; implementacja i wykonanie kontroli początkowo NOT RUN. [Plan/raport](../technical/ui-foundation-report.md), [research](../ux/visual-design-research.md), [wybrany visual language](../ux/visual-language.md). To warstwa istniejącego produktu, bez rozszerzenia domenowego create/read.
+
+| Kontrakt | Kontrola | Granica |
+| --- | --- | --- |
+| FR/AC-NV-001/003, DEC-017/053 | Desktop/sidebar collapse/mobile nav, aktywna trasa, QC z istniejących ekranów, klawiatura i focus | Pozostałe pięć modułów niedostępne; brak pełnego siedmiomodułowego PASS. NV-002/Search poza zakresem. |
+| FR/AC-DB-001/007/008 | Landing i celowy pusty stan, bez fikcyjnych statystyk/aktywności/terminów i onboardingu | DB-002–006 bez nowej implementacji. |
+| FR/AC-RW-005/009, LC-001/004; DEC-052 | Lista/detal, hierarchia i techniczne metadane, paginacja, długie dane | Bez Kanbana, edycji, historii i relacji. |
+| FR/AC-QC-001/002/006/007/009/010; UC/TC-001/029 | Regresja czterech kroków, summary/warning/toast, retry/recovery i idempotencja; visual/focus/mobile | Wyłącznie manual DEC-052, bez zmiany kontraktu i walidacji. |
+| FR/AC-AD-002, DEC-051, BR-030; UC/TC-034 częściowo | Menu konta, trzy logout scopes, F3/HTTP/RLS/E2E i prywatność po logout | Natywne JWT/SDK/callback bez zmian; pełne AD i publiczne polityki nadal OPEN. |
+| NFR-005, OPEN-017/033 częściowo, DEC-053 | Rzeczywisty render 1440/1024/768/375, reflow/zoom, klawiatura, kontrasty WCAG 2.2 AA, stany skrajne i independent design/frontend review | Brak domniemanej certyfikacji AT/fizycznych urządzeń i przyszłych modułów. |
+
+Wyniki poszczególnych komend, screenshoty, kandydat i ograniczenia są w raporcie; sam zapis macierzy nie nadaje PASS. OPEN-015 zachowuje docelową nazwę/logo/branding, OPEN-017/033 pozostałą część produktu i macierz wsparcia.

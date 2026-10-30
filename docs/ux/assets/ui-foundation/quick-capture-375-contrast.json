@@ -1,0 +1,176 @@
+{
+  "checked": 36,
+  "controls": [
+    {
+      "label": "Nazwa sprawy",
+      "border": [
+        123,
+        137,
+        128,
+        1
+      ],
+      "background": [
+        255,
+        255,
+        255,
+        1
+      ],
+      "ratio": 3.663542098437587
+    },
+    {
+      "label": "URL źródłowy (opcjonalnie)",
+      "border": [
+        123,
+        137,
+        128,
+        1
+      ],
+      "background": [
+        255,
+        255,
+        255,
+        1
+      ],
+      "ratio": 3.663542098437587
+    },
+    {
+      "label": "Opis (opcjonalnie)",
+      "border": [
+        123,
+        137,
+        128,
+        1
+      ],
+      "background": [
+        255,
+        255,
+        255,
+        1
+      ],
+      "ratio": 3.663542098437587
+    }
+  ],
+  "controlFailures": [],
+  "failures": [],
+  "pairs": [
+    {
+      "text": "Dalej",
+      "foreground": [
+        255,
+        255,
+        255,
+        1
+      ],
+      "background": [
+        36,
+        98,
+        79,
+        1
+      ],
+      "ratio": 7.155051820032173,
+      "minimum": 4.5
+    },
+    {
+      "text": "Wstecz",
+      "foreground": [
+        36,
+        44,
+        40,
+        1
+      ],
+      "background": [
+        255,
+        255,
+        255,
+        1
+      ],
+      "ratio": 14.32540949278853,
+      "minimum": 4.5
+    },
+    {
+      "text": "Senior Product Design Engineer — Platform Infrastructure, dostępność i doświadczenie użytk",
+      "foreground": [
+        36,
+        44,
+        40,
+        1
+      ],
+      "background": [
+        247,
+        248,
+        246,
+        1
+      ],
+      "ratio": 13.44716381649293,
+      "minimum": 3
+    },
+    {
+      "text": "Wróć do listy spraw",
+      "foreground": [
+        36,
+        98,
+        79,
+        1
+      ],
+      "background": [
+        247,
+        248,
+        246,
+        1
+      ],
+      "ratio": 6.7163981586637105,
+      "minimum": 4.5
+    },
+    {
+      "text": "Do 2000 znaków. 0/2000",
+      "foreground": [
+        89,
+        100,
+        93,
+        1
+      ],
+      "background": [
+        255,
+        255,
+        255,
+        1
+      ],
+      "ratio": 6.166132009120798,
+      "minimum": 4.5
+    },
+    {
+      "text": "Zapisane",
+      "foreground": [
+        36,
+        98,
+        79,
+        1
+      ],
+      "background": [
+        220,
+        235,
+        227,
+        1
+      ],
+      "ratio": 5.804338629218929,
+      "minimum": 4.5
+    },
+    {
+      "text": "Dane",
+      "foreground": [
+        36,
+        98,
+        79,
+        1
+      ],
+      "background": [
+        255,
+        255,
+        255,
+        1
+      ],
+      "ratio": 7.155051820032173,
+      "minimum": 4.5
+    }
+  ]
+}

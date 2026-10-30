@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="pl">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>Jobs CRM — porównanie kierunków</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font:
+        15px/1.5 Arial,
+        Helvetica,
+        sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+    body[data-theme="a"] {
+      --bg: #f5f7fb;
+      --surface: #fff;
+      --nav: #eef2f8;
+      --text: #202b3b;
+      --muted: #566477;
+      --line: #dce2eb;
+      --input: #7b8799;
+      --accent: #2457a7;
+      --hover: #1b4587;
+      --selected: #dce8fa;
+      --radius: 8px;
+      --space: 28px;
+      --row: 18px;
+    }
+    body[data-theme="b"] {
+      --bg: #f7f8f6;
+      --surface: #fff;
+      --nav: #eef1ed;
+      --text: #242c28;
+      --muted: #59645d;
+      --line: #dce2dc;
+      --input: #7b8980;
+      --accent: #24624f;
+      --hover: #194c3d;
+      --selected: #dcebe3;
+      --radius: 6px;
+      --space: 32px;
+      --row: 20px;
+    }
+    body[data-theme="c"] {
+      --bg: #fff;
+      --surface: #fff;
+      --nav: #f5f5f4;
+      --text: #262626;
+      --muted: #5e5e5b;
+      --line: #dededb;
+      --input: #858581;
+      --accent: #30302e;
+      --hover: #101010;
+      --selected: #e7e7e3;
+      --radius: 2px;
+      --space: 36px;
+      --row: 22px;
+    }
+    a {
+      color: var(--accent);
+      text-underline-offset: 3px;
+    }
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+    button {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: var(--radius);
+      min-height: 40px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+    button.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    button:hover {
+      background: var(--selected);
+    }
+    button.primary:hover {
+      background: var(--hover);
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+    aside {
+      position: fixed;
+      inset: 0 auto 0 0;
+      width: 232px;
+      padding: 20px 12px;
+      background: var(--nav);
+      border-right: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+    }
+    aside strong {
+      font-size: 18px;
+      padding: 4px 12px 24px;
+    }
+    nav a,
+    nav span {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      color: var(--muted);
+      text-decoration: none;
+      border-radius: var(--radius);
+    }
+    nav a.active {
+      background: var(--selected);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    nav small {
+      margin-left: auto;
+      font-size: 11px;
+    }
+    aside footer {
+      margin-top: auto;
+      padding: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .workspace {
+      margin-left: 232px;
+    }
+    header {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 var(--space);
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+    }
+    .actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .context {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    main {
+      padding: var(--space);
+      max-width: 1280px;
+      margin: auto;
+      min-width: 0;
+    }
+    h1 {
+      font-size: 28px;
+      line-height: 1.2;
+      letter-spacing: -0.6px;
+      margin: 0 0 8px;
+    }
+    h2 {
+      font-size: 18px;
+      margin: 0 0 12px;
+    }
+    h3 {
+      font-size: 16px;
+      margin: 0 0 4px;
+    }
+    p {
+      margin: 0 0 16px;
+    }
+    .muted {
+      color: var(--muted);
+    }
+    .pagehead {
+      margin-bottom: 28px;
+    }
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .empty {
+      padding: 36px;
+      max-width: 760px;
+    }
+    .empty p {
+      max-width: 56ch;
+    }
+    .record {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 125px 150px;
+      gap: 20px;
+      padding: var(--row) 0;
+      border-bottom: 1px solid var(--line);
+      align-items: start;
+    }
+    .record:last-child {
+      border: 0;
+    }
+    .record a {
+      font-weight: 600;
+    }
+    .record p {
+      font-size: 14px;
+      margin: 5px 0 0;
+    }
+    .url {
+      display: block;
+      overflow-wrap: anywhere;
+      font-size: 13px;
+      margin-top: 6px;
+    }
+    .badge {
+      display: inline-block;
+      background: var(--selected);
+      color: var(--accent);
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 8px;
+      width: fit-content;
+    }
+    .meta {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .detail {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 270px;
+      gap: 28px;
+    }
+    .detail p {
+      overflow-wrap: anywhere;
+    }
+    .detail dl {
+      margin: 0;
+    }
+    .detail dt {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .detail dd {
+      margin: 0 0 20px;
+      overflow-wrap: anywhere;
+    }
+    .wizard {
+      max-width: 700px;
+      margin: auto;
+    }
+    .steps {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 16px;
+    }
+    .steps strong {
+      color: var(--accent);
+    }
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin: 20px 0 6px;
+    }
+    input,
+    textarea {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--input);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      color: var(--text);
+      min-width: 0;
+    }
+    textarea {
+      min-height: 120px;
+    }
+    .hint {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+    .warning {
+      background: #fff7e4;
+      color: #805c14;
+      padding: 16px;
+      border: 1px solid #b18a39;
+      border-radius: var(--radius);
+      margin: 20px 0;
+    }
+    .error {
+      background: #fff1f0;
+      color: #a3332b;
+      border: 1px solid #b9544d;
+      padding: 16px;
+      border-radius: var(--radius);
+      margin: 20px 0;
+    }
+    .success {
+      background: #eaf4ed;
+      color: #246244;
+      padding: 16px;
+      border: 1px solid #7c9d88;
+      border-radius: var(--radius);
+    }
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+    .end {
+      justify-content: space-between;
+    }
+    .menu {
+      width: 290px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      box-shadow: 0 8px 24px #00000014;
+      border-radius: var(--radius);
+    }
+    .menu a,
+    .menu button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 10px;
+      border: 0;
+      color: var(--text);
+    }
+    .toolbox {
+      font-size: 13px;
+      padding: 8px;
+      background: #fff;
+      border-bottom: 1px solid #ccc;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .toolbox a {
+      color: #222;
+    }
+    .mobile-label {
+      display: none;
+    }
+    .sample {
+      display: none;
+    }
+    .sample.active {
+      display: block;
+    }
+    body[data-theme="c"] h1 {
+      font-family: Georgia, serif;
+      font-weight: normal;
+      letter-spacing: -0.4px;
+    }
+    body[data-theme="c"] .badge {
+      border-radius: 2px;
+    }
+    body[data-theme="c"] .panel {
+      border-left: 0;
+      border-right: 0;
+    }
+    @media (max-width: 767px) {
+      aside {
+        display: none;
+      }
+      .workspace {
+        margin-left: 0;
+      }
+      header {
+        height: 64px;
+        padding: 0 16px;
+      }
+      .context {
+        display: none;
+      }
+      .mobile-label {
+        display: inline;
+      }
+      main {
+        padding: 24px 16px;
+      }
+      h1 {
+        font-size: 24px;
+      }
+      .record {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
+      }
+      .record .meta {
+        display: none;
+      }
+      .detail {
+        grid-template-columns: 1fr;
+      }
+      .panel,
+      .empty {
+        padding: 20px;
+      }
+      .steps {
+        font-size: 11px;
+        gap: 4px;
+      }
+      .wizard {
+        margin: -24px -16px;
+        min-height: calc(100dvh - 64px);
+        border-radius: 0;
+        border: 0;
+      }
+      .menu {
+        max-width: 100%;
+      }
+    }
+  </style>
+  <body data-theme="b">
+    <div class="toolbox">
+      <b>Prototyp syntetyczny, nie aplikacja</b
+      ><a href="?theme=a&screen=dashboard">A</a
+      ><a href="?theme=b&screen=dashboard">B</a
+      ><a href="?theme=c&screen=dashboard">C</a><span id="links"></span>
+    </div>
+    <aside>
+      <strong>Jobs CRM</strong>
+      <nav>
+        <a href="#" id="dashboard-nav">◫ Dashboard</a
+        ><a href="#" id="list-nav">▤ Rekrutacje</a
+        ><span>☑ Zadania <small>Niedostępne</small></span
+        ><span>▦ Kalendarz <small>Niedostępne</small></span
+        ><span>▱ Dokumenty <small>Niedostępne</small></span
+        ><span>▥ Firmy <small>Niedostępne</small></span
+        ><span>♧ Kontakty <small>Niedostępne</small></span>
+      </nav>
+      <footer>
+        Prywatna przestrzeń pracy<br /><button>Zwiń nawigację</button>
+      </footer>
+    </aside>
+    <div class="workspace">
+      <header>
+        <span class="context"
+          >Moja przestrzeń / <span id="context">Dashboard</span></span
+        ><span class="mobile-label">☰ Jobs CRM</span>
+        <div class="actions">
+          <button class="primary">+ Dodaj ręcznie</button
+          ><button>Konto ▾</button>
+        </div>
+      </header>
+      <main>
+        <section class="sample" id="dashboard">
+          <div class="pagehead">
+            <h1>Dashboard</h1>
+            <p class="muted">Twoja przestrzeń do porządkowania rekrutacji.</p>
+          </div>
+          <div class="panel empty">
+            <h2>Zacznij od jednej sprawy</h2>
+            <p class="muted">
+              Zapisz ofertę lub inny kontekst rekrutacji. Nie musisz znać
+              wszystkich szczegółów, żeby zachować to, co ważne.
+            </p>
+            <button class="primary">Dodaj ręcznie</button>
+          </div>
+          <div class="panel">
+            <h2>Rekrutacje</h2>
+            <p class="muted">
+              Wszystkie zapisane sprawy znajdziesz w jednym miejscu.
+            </p>
+            <a href="#">Przejdź do rekrutacji →</a>
+          </div>
+        </section>
+        <section class="sample" id="list">
+          <div class="pagehead">
+            <h1>Rekrutacje</h1>
+            <p class="muted">Zapisane sprawy i kontekst kolejnych kroków.</p>
+          </div>
+          <div class="panel">
+            <div class="record">
+              <div>
+                <a href="#"
+                  >Projektantka doświadczeń użytkownika — platforma obsługi
+                  klientów</a
+                >
+                <p class="muted">Syntetyczna oferta do porównania wariantów.</p>
+                <span class="url muted"
+                  >https://example.test/oferty/projektantka-doświadczeń-użytkownika</span
+                >
+              </div>
+              <span class="badge">Zapisane</span
+              ><span class="meta">Dodano do CRM<br />30 paź 2026, 09:15</span>
+            </div>
+            <div class="record">
+              <div>
+                <a href="#">Rozmowa o możliwej współpracy</a>
+                <p class="muted">Bez wskazanego stanowiska i URL.</p>
+              </div>
+              <span class="badge">Zapisane</span
+              ><span class="meta">Dodano do CRM<br />29 paź 2026, 15:30</span>
+            </div>
+            <div class="record">
+              <div>
+                <a href="#">Analityk danych / zespół narzędzi wewnętrznych</a>
+                <p class="muted">Zażółć gęślą jaźń — syntetyczne dane.</p>
+              </div>
+              <span class="badge">Zapisane</span
+              ><span class="meta">Dodano do CRM<br />29 paź 2026, 12:00</span>
+            </div>
+          </div>
+          <div class="controls end">
+            <span class="muted">Strona 1</span
+            ><button>Następna strona →</button>
+          </div>
+        </section>
+        <section class="sample" id="detail">
+          <a href="#">← Rekrutacje</a>
+          <div class="pagehead" style="margin-top: 20px">
+            <h1>
+              Projektantka doświadczeń użytkownika — platforma obsługi klientów
+            </h1>
+            <span class="badge">Zapisane</span>
+          </div>
+          <div class="detail">
+            <div class="panel">
+              <h2>Opis</h2>
+              <p>
+                Oferta znaleziona podczas przeglądania możliwości współpracy. Do
+                późniejszego sprawdzenia zakres odpowiedzialności i forma
+                współpracy.
+              </p>
+              <h2>URL źródłowy</h2>
+              <a class="url" href="#"
+                >https://example.test/oferty/projektantka-doświadczeń-użytkownika-platforma-obsługi-klientów?źródło=syntetyczne</a
+              >
+            </div>
+            <div class="panel">
+              <h2>Szczegóły sprawy</h2>
+              <dl>
+                <dt>Status</dt>
+                <dd>Zapisane</dd>
+                <dt>Dodano do CRM</dt>
+                <dd>30 października 2026, 09:15</dd>
+              </dl>
+            </div>
+          </div>
+        </section>
+        <section class="sample" id="capture">
+          <div class="panel wizard">
+            <div class="steps">
+              <span>1 Sytuacja</span><strong>2 Dane</strong
+              ><span>3 Działanie</span><span>4 Podsumowanie</span>
+            </div>
+            <h1>Dane sprawy</h1>
+            <p class="muted">Zapisz informacje, które masz pod ręką.</p>
+            <label>Nazwa sprawy</label
+            ><input value="Projektantka doświadczeń użytkownika" /><label
+              >Opis (opcjonalnie)</label
+            ><textarea>
+Zażółć gęślą jaźń. Syntetyczna oferta do porównania.</textarea
+            ><label>URL źródłowy (opcjonalnie)</label
+            ><input value="https://example.test/oferty/projektantka" />
+            <p class="hint">Sam zapis URL nie oznacza aplikowania.</p>
+            <div class="warning">
+              <b>Możliwy duplikat</b>
+              <p>
+                Istnieje sprawa z tym samym URL. Otwórz ją lub świadomie utwórz
+                nową.
+              </p>
+              <a href="#">Otwórz istniejącą sprawę</a>
+            </div>
+            <div class="controls end">
+              <button>Wstecz</button><button class="primary">Dalej</button>
+            </div>
+          </div>
+        </section>
+        <section class="sample" id="components">
+          <div class="pagehead">
+            <h1>Komponenty i stany</h1>
+            <p class="muted">
+              Te same treści i interakcje dla trzech kierunków.
+            </p>
+          </div>
+          <div class="panel">
+            <h2>Przyciski i status</h2>
+            <div class="controls">
+              <button class="primary">Zapisz sprawę</button
+              ><button>Wstecz</button><button disabled>Zapisywanie…</button
+              ><span class="badge">Zapisane</span>
+            </div>
+            <label>Nazwa sprawy</label><input value="Syntetyczna sprawa" />
+            <div class="error">
+              <b>Nie udało się zapisać sprawy.</b> Dane pozostały w formularzu.
+            </div>
+            <div class="success">
+              Zapisano sprawę. <a href="#">Otwórz sprawę</a>
+            </div>
+          </div>
+          <div class="menu">
+            <a href="#">Konto i sesje</a
+            ><button>Wyloguj z tego urządzenia</button
+            ><button>Wyloguj ze wszystkich urządzeń</button
+            ><button>Wyloguj z pozostałych urządzeń</button>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script>
+      const q = new URLSearchParams(location.search),
+        theme = ["a", "b", "c"].includes(q.get("theme")) ? q.get("theme") : "b",
+        screen = [
+          "dashboard",
+          "list",
+          "detail",
+          "capture",
+          "components",
+        ].includes(q.get("screen"))
+          ? q.get("screen")
+          : "dashboard";
+      document.body.dataset.theme = theme;
+      document.getElementById(screen).classList.add("active");
+      document
+        .getElementById(screen === "dashboard" ? "dashboard-nav" : "list-nav")
+        .classList.add("active");
+      document.getElementById("context").textContent =
+        screen === "dashboard" ? "Dashboard" : "Rekrutacje";
+      document.getElementById("links").innerHTML = [
+        "dashboard",
+        "list",
+        "detail",
+        "capture",
+        "components",
+      ]
+        .map(
+          (s) =>
+            `<a style="margin-right:12px" href="?theme=${theme}&screen=${s}">${s}</a>`,
+        )
+        .join("");
+    </script>
+  </body>
+</html>

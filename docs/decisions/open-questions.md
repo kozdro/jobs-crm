@@ -18,9 +18,9 @@
 | OPEN-012 | P2 · Architecture | Frontend, backend i stack; dopiero po Technical Discovery/ADR. |
 | OPEN-013 | P0 · Security | Supabase-native Auth/SSR + Data API/RLS zatwierdzone DEC-051/ADR-0012. Nadal OPEN: konkretna ochrona cookies/endpoints przed CSRF, XSS/token leakage, cache, ochrona operacji wrażliwych, testy i dopuszczenie publiczne. Bez bramki implementacji brokera ani HttpOnly-only. |
 | OPEN-014 | P2 · Infrastructure | Hosting i cele backup częściowo wybrane w TD. Nadal OPEN: konfiguracja, sekrety serwerowe/provider credentials, monitoring, DB+Storage DR i koszty. Bez własnych kluczy AEAD sesji ani magazynu refresh tokenów (ADR-0012). |
-| OPEN-015 | P2 · Brand | Docelowa nazwa i identyfikacja wizualna produktu. |
+| OPEN-015 | P2 · Brand | **PARTIALLY RESOLVED** — DEC-053 (PO 2026-10-30) deleguje visual language obecnej aplikacji po researchu. Docelowa nazwa, logo i branding marketingowy nadal **OPEN**. |
 | OPEN-016 | P2 · Business | Model komercyjny i monetyzacja; nie rozstrzygać teraz bez potrzeby. |
-| OPEN-017 | P1 · UX | Finalny design system, szczegóły dostępności, responsywność, stany błędów. |
+| OPEN-017 | P1 · UX | **PARTIALLY RESOLVED** — DEC-053 autoryzuje jasny design system i polish istniejących ekranów, ich responsywność i stany błędów. Kontrakty przyszłych modułów i pełny finalny design system nadal **OPEN**; [zakres](../technical/ui-foundation-report.md). |
 | OPEN-018 | P0 · Lifecycle | Moment zaproszenia vs „Rozpocznij rekrutację”: czy akcje są jednym krokiem, czy osobnymi; jak identyfikować kwalifikujący etap. |
 | OPEN-019 | P1 · Lifecycle | Kiedy proponować nową sprawę, a kiedy wznowić istniejącą w przypadku kolejnej aplikacji. |
 | OPEN-020 | P0 · Lifecycle | Zakres ręcznej korekty statusu i jej ślad administracyjny, bez podszywania się pod akcję. |
@@ -36,7 +36,7 @@
 | OPEN-030 | P1 · Contacts | Edytowalność i wersjonowanie powiązań uczestników oraz wiarygodność historii kontaktu. |
 | OPEN-031 | P2 · Future AI | Uprawnienia, zgody i audyt przyszłych działań agenta AI; poza pierwszym MVP. |
 | OPEN-032 | P0 · Privacy | Polityka prywatności, retencji, eksportu/usuwania danych i wrażliwych dokumentów. Dla operacji szczególnie wrażliwych określić reautoryzację, weryfikację bieżącego użytkownika lub stanu konta. Akceptacja ważności zwykłego JWT do expiry nie rozstrzyga tych polityk. |
-| OPEN-033 | P1 · UI & QA | Docelowe wymagania dostępności, urządzeń, przeglądarek i lokalizacji. |
+| OPEN-033 | P1 · UI & QA | **PARTIALLY RESOLVED** — DEC-053 wymaga WCAG 2.2 AA i kontroli 1440/1024/768/375 dla dotkniętych ekranów. Pełna macierz urządzeń/przeglądarek, technologie asystujące i lokalizacja nadal **OPEN**; wykonanie testów nie jest domniemane. |
 | OPEN-034 | P1 · Case model | W jakich wariantach etapy mogą być puste lub istnieć przy statusach innych niż „W rekrutacji”. |
 | OPEN-035 | P0 · Import | Minimalny user-scoped key/registry/fingerprint dla retry zatwierdzony ADR-0005. Nadal OPEN: identyfikacja materiału i semantyka payloadu, celowe ponowienie, polityka utrzymania rekordu i UX. Bez globalnego frameworka exactly-once. |
 | OPEN-036 | P1 · Files | Semantyka wersji CV: wersje edytowalne czy nie, usunięcie wersji już wysłanej i reprezentacja potwierdzenia wysłania. |
@@ -92,3 +92,7 @@ Po decyzji PO: odnotuj datę/źródło, zaktualizuj odpowiedni `DEC/BR/FR/AC/UC`
 Źródło: jawna decyzja PO wariant A w zadaniu „Jobs CRM — First Business Vertical Slice: RecruitmentCase + Manual Quick Capture”, [DEC-052](product-decisions.md). Jest to późniejsze częściowe rozstrzygnięcie, nie zamknięcie rejestru. [DATA-01 i dokładny kontrakt](../technical/recruitment-case-first-slice.md) dopuszczają minimalny model bez lifecycle, historii, audytu i usuwania. OPEN-001/004/005/018/020/029/034 nadal blokują ich przyszłe rozszerzenia; nie blokują ponownie autoryzowanego zakresu.
 
 OPEN-025/026: pierwszy slice przyjmuje opcjonalny nietypowany HTTP(S), bez fetch, bez słownika kanałów i bez identyfikacji publikacji; minimalna techniczna kanonikalizacja opisana w kontrakcie nie rozstrzyga semantyki innych URL-i. OPEN-028: zatwierdzono tylko własną listę od najnowszych i minimalny detal; pozostałe filtry, Kanban/DnD i widoki OPEN. OPEN-013/032/041–046 pozostają bramkami publicznego udostępnienia i zależnych operacji.
+
+## UI Foundation — częściowa delegacja PO 2026-10-30
+
+[DEC-053](product-decisions.md) dopuszcza po researchu wybór jasnego visual language, App Shell i polish istniejących ekranów, przeniesienie natywnych logout scopes do menu/widoku konta oraz WCAG 2.2 AA i visual QA tego podzakresu. OPEN-015/017/033 nie blokują ponownie tych wprost zleconych prac. Docelowa nazwa/logo/branding, przyszłe moduły, pełna macierz urządzeń/przeglądarek/lokalizacji i nieprzetestowane technologie asystujące pozostają OPEN. Delegacja nie rozstrzyga modelu danych, polityk Auth ani innych blokujących OPEN. [Werdykt i system](../ux/visual-language.md), [rzeczywiste wyniki i ograniczenia](../technical/ui-foundation-report.md).

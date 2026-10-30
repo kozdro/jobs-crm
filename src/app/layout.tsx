@@ -6,8 +6,8 @@ import { getServerEnv } from "@/shared/server/env";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Jobs CRM — fundament aplikacji",
-  description: "Techniczna strona startowa Jobs CRM.",
+  title: "Jobs CRM",
+  description: "Twoja prywatna przestrzeń do porządkowania rekrutacji.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
