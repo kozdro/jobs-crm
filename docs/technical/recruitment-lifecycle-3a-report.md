@@ -93,3 +93,7 @@ Nie wykonano merge ani deploymentu. PR i exact-SHA CI są finalnym krokiem publi
 ## Sprzątanie izolowanego targetu
 
 PASS exit0: stopRecruitmentTarget zweryfikował i usunął tylko run-5dc9f06d / jobs-crm-recruitment-8521f6-ec57742b4d65 na570xx:5 kontenerów,1 wolumen,1 sieć.44 pozostałe kontenery zachowały identyczne ID/obrazy/stan/bindings/networks, w tym manual-dev566xx(5 running) i DEV567xx(7 running). Dowody cleanup-summary.json/cleanup-receipt.json/cleaned-target-manifest.json w ignorowanym katalogu QA. Nie resetowano ani nie migrowano persistent DEV/manual-dev.
+
+## Publikacja PR
+
+[PR #15 — Recruitment Lifecycle 3A](https://github.com/kozdro/jobs-crm/pull/15), otwarty bez merge/deploymentu. Commit produktu i dowodów d0a8305d8f922d5c1fa77b2bf4befcc275a0da1f; następująca aktualizacja raportu dodaje wyłącznie ten link. Lokalnie testowany produkt/db/test103/103 odpowiada manifestowi QA i nie zmienił się po review. Hosted CI wykonuje się po publikacji dla finalnego HEAD PR; jego aktualny wynik, dokładny SHA i run URL są zapisywane w opisie PR po sprawdzeniu wszystkich11 jobs. Ten zapis przed wykonaniem CI nie nadaje mu PASS.
