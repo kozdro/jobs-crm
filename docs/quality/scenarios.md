@@ -665,3 +665,12 @@ Dodatkowo wymagane: granice Unicode/URL, double-click, retry po utracie odpowied
 - Negatywne: anulowanie, przyszły/nieprawidłowy dzień, obce konto/ID, spoofing, retry po utracie odpowiedzi, konflikt payloadu i równoległe zapisy; atomowość fakt/status.
 
 Wyniki w raporcie 3A; ta sekcja jest planem, nie dowodem PASS.
+
+
+## Wykonywany podzakres 3B — DEC-055
+
+UC/TC-005 częściowo: istniejąca własna sprawa Zapisane lub Kontakt rozpoczęty → jawne zaproszenie do oceny + potwierdzenie bieżącego etapu → W rekrutacji i etap atomowo → reload/lista/detal. Negatywnie samo potwierdzenie aplikacji nie daje kwalifikacji, anulowanie nie zmienia danych. Bez Kanbana/DnD.
+
+UC/TC-009 częściowo: indywidualna nazwa etapu → zmiana z pominięciem pośrednich bez zaproszenia → poprzednia nazwa w historii; kolejne zaproszenie może zmienić etap bez zmiany statusu. Konflikt stale revision nie zapisuje częściowego faktu, replay wcześniejszego zamiaru nie cofa stanu. Bez globalnych/default szablonów.
+
+Regresje UC/TC-001/002/003/004/034 tylko w istniejącym podzakresie: create Zapisane bez faktów, dalszy kontakt/aplikacja nie cofają W rekrutacji, owner isolation A/B/anon, historia i dane zachowane po migracji 3A→3B. Testy i komendy raportowane osobno od planu.

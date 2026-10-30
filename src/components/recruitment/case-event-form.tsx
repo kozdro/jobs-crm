@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { getBrowserClient } from "@/modules/identity/infrastructure/browser";
+import { getRecruitmentCase } from "@/modules/recruitment/application/cases";
+import type { RecruitmentCase } from "@/modules/recruitment/domain/recruitment-case";
 import { getRecruitmentCaseEventByRequestId } from "@/modules/recruitment/application/case-events";
 import {
   parseRecordCaseEventInput,
@@ -10,33 +12,59 @@ import {
   type RecordCaseEventInput,
 } from "@/modules/recruitment/domain/case-events";
 import { buttonStyles, inputStyles } from "@/components/ui/styles";
-import { eventIntentStorageKey, parsePendingEventIntent } from "./event-intent";
+import {
+  eventIntentStorageKey,
+  parsePendingEventIntent,
+  eventMatchesIntent,
+} from "./event-intent";
 import { recoveryRequiresLogin } from "./recovery-session";
 
-type Kind = "application" | "contact";
+type Kind = RecordCaseEventInput["kind"];
+type EventFormProps = {
+  userId: string;
+  caseId: string;
+  status: RecruitmentCase["status"];
+  stageVersion: number;
+};
 type Direction = "inbound" | "outbound" | "";
 export function CaseEventForm({
   userId,
   caseId,
-}: {
-  userId: string;
-  caseId: string;
-}) {
+  status,
+  stageVersion,
+}: EventFormProps) {
   return (
-    <EventSession key={`${userId}:${caseId}`} userId={userId} caseId={caseId} />
+    <EventSession
+      key={`${userId}:${caseId}`}
+      userId={userId}
+      caseId={caseId}
+      status={status}
+      stageVersion={stageVersion}
+    />
   );
 }
-function EventSession({ userId, caseId }: { userId: string; caseId: string }) {
+function EventSession({
+  userId,
+  caseId,
+  status,
+  stageVersion,
+}: EventFormProps) {
   const router = useRouter();
   const [kind, setKind] = useState<Kind | null>(null);
   const [direction, setDirection] = useState<Direction>("");
   const [occurredOn, setOccurredOn] = useState("");
+  const [stageName, setStageName] = useState("");
+  const [stageConflict, setStageConflict] = useState(false);
+  const [refreshedStage, setRefreshedStage] = useState<string | null>(null);
+  const observedVersion = useRef(stageVersion);
   const [confirmed, setConfirmed] = useState(false);
   const [pending, setPending] = useState(false);
   const [uncertainId, setUncertainId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<
-    Partial<Record<"direction" | "occurredOn" | "confirmed", string>>
+    Partial<
+      Record<"direction" | "occurredOn" | "confirmed" | "stageName", string>
+    >
   >({});
   const [canRetry, setCanRetry] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -48,7 +76,19 @@ function EventSession({ userId, caseId }: { userId: string; caseId: string }) {
   const feedback = useRef<HTMLParagraphElement>(null);
   const applicationTrigger = useRef<HTMLButtonElement>(null);
   const contactTrigger = useRef<HTMLButtonElement>(null);
+  const invitationTrigger = useRef<HTMLButtonElement>(null);
+  const stageTrigger = useRef<HTMLButtonElement>(null);
+  const stageAction = kind === "invitation" || kind === "stage-change";
   const triggerKind = useRef<Kind>("application");
+  function returnFocus() {
+    const trigger = {
+      application: applicationTrigger,
+      contact: contactTrigger,
+      invitation: invitationTrigger,
+      "stage-change": stageTrigger,
+    }[triggerKind.current];
+    requestAnimationFrame(() => trigger.current?.focus());
+  }
   const storageKey = `${eventIntentStorageKey}.${caseId}`;
 
   function clearStored() {
@@ -78,6 +118,9 @@ function EventSession({ userId, caseId }: { userId: string; caseId: string }) {
     setKind(null);
     setDirection("");
     setOccurredOn("");
+    setStageName("");
+    setStageConflict(false);
+    setRefreshedStage(null);
     setConfirmed(false);
     setUncertainId(null);
     setError(null);
@@ -91,12 +134,7 @@ function EventSession({ userId, caseId }: { userId: string; caseId: string }) {
     reset();
     setSuccess(true);
     router.refresh();
-    requestAnimationFrame(() =>
-      (triggerKind.current === "contact"
-        ? contactTrigger
-        : applicationTrigger
-      ).current?.focus(),
-    );
+    returnFocus();
   }
   async function recover(requestId: string) {
     if (busy.current) return;
@@ -121,12 +159,7 @@ function EventSession({ userId, caseId }: { userId: string; caseId: string }) {
       if (!live.current) return;
       if (found) {
         const original = frozen.current;
-        if (
-          original &&
-          (found.kind !== original.kind ||
-            found.direction !== original.direction ||
-            found.occurred_on !== original.occurredOn)
-        ) {
+        if (original && !eventMatchesIntent(found, original)) {
           setCanRetry(false);
           setError(
             "Ten identyfikator dotyczy wcześniejszego zdarzenia z innymi danymi. Niczego nie nadpisano. Sprawdź historię; porzucenie formularza nie usuwa wcześniejszego wpisu.",
@@ -176,6 +209,9 @@ function EventSession({ userId, caseId }: { userId: string; caseId: string }) {
   function open(value: Kind) {
     if (busy.current || uncertainId) return;
     triggerKind.current = value;
+    observedVersion.current = stageVersion;
+    setStageConflict(false);
+    setRefreshedStage(null);
     setKind(value);
     setSuccess(false);
     setError(null);
@@ -183,17 +219,12 @@ function EventSession({ userId, caseId }: { userId: string; caseId: string }) {
     requestAnimationFrame(() => heading.current?.focus());
   }
   function cancel() {
-    if (direction || occurredOn || confirmed || uncertainId) {
+    if (direction || occurredOn || stageName || confirmed || uncertainId) {
       setDiscard(true);
       return;
     }
     reset();
-    requestAnimationFrame(() =>
-      (triggerKind.current === "contact"
-        ? contactTrigger
-        : applicationTrigger
-      ).current?.focus(),
-    );
+    returnFocus();
   }
   async function save(event?: FormEvent) {
     event?.preventDefault();
@@ -212,10 +243,14 @@ function EventSession({ userId, caseId }: { userId: string; caseId: string }) {
         kind,
         direction: kind === "contact" ? direction : null,
         occurredOn: occurredOn || null,
+        ...(stageAction
+          ? { stageName, expectedStageVersion: observedVersion.current }
+          : {}),
       });
       if (!parsed.success) {
         if (parsed.errors.occurredOn)
           errors.occurredOn = parsed.errors.occurredOn;
+        if (parsed.errors.stageName) errors.stageName = parsed.errors.stageName;
         if (!Object.keys(errors).length)
           setError("Sprawdź rodzaj zdarzenia i dane formularza.");
       }
@@ -265,10 +300,15 @@ function EventSession({ userId, caseId }: { userId: string; caseId: string }) {
         return;
       }
       if (response.status === 409) {
+        const body = await response.json().catch(() => null);
+        setStageConflict(
+          body?.kind === "stale" &&
+            (payload.kind === "invitation" || payload.kind === "stage-change"),
+        );
         setUncertainId(payload.requestId);
         setCanRetry(false);
         setError(
-          "Ten identyfikator dotyczy wcześniejszego zapisu lub niedozwolonego stanu sprawy. Niczego nie nadpisano. Sprawdź wynik i historię przed kolejną próbą.",
+          "Stan sprawy zmienił się lub identyfikator dotyczy wcześniejszego zapisu. Niczego nie nadpisano. Sprawdź wynik; przed nowym potwierdzeniem etapu odśwież stan sprawy.",
         );
         focusFeedback();
         return;
@@ -278,7 +318,7 @@ function EventSession({ userId, caseId }: { userId: string; caseId: string }) {
       if (
         (result.kind !== "created" && result.kind !== "replayed") ||
         !result.event?.id ||
-        result.event.case_id !== caseId
+        !eventMatchesIntent(result.event, payload)
       )
         throw new Error("unconfirmed");
       finish();
@@ -293,6 +333,64 @@ function EventSession({ userId, caseId }: { userId: string; caseId: string }) {
     } finally {
       busy.current = false;
       if (live.current) setPending(false);
+    }
+  }
+  async function refreshStage() {
+    if (busy.current || !uncertainId || !stageConflict) return;
+    busy.current = true;
+    setPending(true);
+    setError(null);
+    try {
+      const client = getBrowserClient();
+      const identity = await client.auth.getUser();
+      if (!live.current) return;
+      if (identity.error && !recoveryRequiresLogin(identity.error))
+        throw new Error("unavailable");
+      if (identity.error || identity.data.user?.id !== userId) {
+        requireLogin();
+        return;
+      }
+      const found = await getRecruitmentCaseEventByRequestId(
+        client,
+        caseId,
+        uncertainId,
+      );
+      if (!live.current) return;
+      if (found) {
+        if (frozen.current && eventMatchesIntent(found, frozen.current))
+          finish();
+        else
+          setError(
+            "Ten identyfikator dotyczy wcześniejszego zdarzenia z innymi danymi. Sprawdź historię; porzucenie formularza nie usuwa wcześniejszego wpisu.",
+          );
+        return;
+      }
+      const current = await getRecruitmentCase(client, caseId);
+      if (!live.current) return;
+      if (!current) throw new Error("unavailable");
+      observedVersion.current = current.stage_version;
+      setRefreshedStage(current.current_stage);
+      frozen.current = null;
+      clearStored();
+      setUncertainId(null);
+      setStageConflict(false);
+      setCanRetry(false);
+      setConfirmed(false);
+      setError(
+        "Odświeżono stan sprawy. Sprawdź bieżący etap i ponownie potwierdź zamierzoną zmianę. Żaden nowy zapis nie został wykonany.",
+      );
+      router.refresh();
+    } catch {
+      if (live.current)
+        setError(
+          "Nie można teraz odświeżyć stanu sprawy. Zachowano dane i identyfikator zapisu.",
+        );
+    } finally {
+      busy.current = false;
+      if (live.current) {
+        setPending(false);
+        focusFeedback();
+      }
     }
   }
   const locked = pending || Boolean(uncertainId);
@@ -336,6 +434,24 @@ function EventSession({ userId, caseId }: { userId: string; caseId: string }) {
           >
             Zarejestruj kontakt
           </button>
+          <button
+            ref={invitationTrigger}
+            type="button"
+            className={buttonStyles.secondary}
+            onClick={() => open("invitation")}
+          >
+            Zarejestruj zaproszenie
+          </button>
+          {status === "W rekrutacji" && (
+            <button
+              ref={stageTrigger}
+              type="button"
+              className={buttonStyles.secondary}
+              onClick={() => open("stage-change")}
+            >
+              Zmień etap
+            </button>
+          )}
         </div>
       )}
       {(kind || uncertainId) && (
@@ -356,7 +472,11 @@ function EventSession({ userId, caseId }: { userId: string; caseId: string }) {
               ? "Zarejestruj aplikowanie"
               : kind === "contact"
                 ? "Zarejestruj kontakt"
-                : "Sprawdź poprzedni zapis zdarzenia"}
+                : kind === "invitation"
+                  ? "Zarejestruj zaproszenie"
+                  : kind === "stage-change"
+                    ? "Zmień etap"
+                    : "Sprawdź poprzedni zapis zdarzenia"}
           </h3>
           <p className="rounded-md border border-warning bg-warning-surface p-3 text-sm leading-6 text-warning">
             W tym przyroście zapisanych zdarzeń nie można edytować ani usuwać.
@@ -406,6 +526,59 @@ function EventSession({ userId, caseId }: { userId: string; caseId: string }) {
                   )}
                 </fieldset>
               )}
+              {stageAction && (
+                <div className="space-y-2">
+                  <label
+                    htmlFor="event-stage"
+                    className="block text-sm font-medium"
+                  >
+                    Nazwa etapu
+                  </label>
+                  <p
+                    id="event-stage-hint"
+                    className="text-[13px] leading-5 text-muted-foreground"
+                  >
+                    {kind === "invitation"
+                      ? "Zaproszenie musi dotyczyć oceny kwalifikacji, np. rozmowy lub zadania. Samo potwierdzenie otrzymania aplikacji nie wystarcza. "
+                      : "Odnotuj rzeczywiste przejście do etapu; możesz pominąć etapy pośrednie. Nie tworzymy nowego zaproszenia. "}
+                    Wskazany etap zostanie ustawiony jako bieżący. Data wsteczna
+                    nie odtwarza wcześniejszego stanu.
+                  </p>
+                  <input
+                    id="event-stage"
+                    type="text"
+                    value={stageName}
+                    onChange={(event) => setStageName(event.target.value)}
+                    disabled={locked}
+                    aria-invalid={Boolean(fieldErrors.stageName)}
+                    aria-describedby={`event-stage-hint event-stage-count${fieldErrors.stageName ? " event-stage-error" : ""}`}
+                    className={inputStyles}
+                  />
+                  <p
+                    id="event-stage-count"
+                    className="text-[13px] text-muted-foreground"
+                  >
+                    {Array.from(stageName.trim()).length}/160 znaków po
+                    usunięciu skrajnych odstępów
+                  </p>
+                  {refreshedStage !== null && (
+                    <p className="text-sm text-muted-foreground">
+                      Bieżący etap po odświeżeniu:{" "}
+                      <span className="font-medium [overflow-wrap:anywhere]">
+                        {refreshedStage}
+                      </span>
+                    </p>
+                  )}
+                  {fieldErrors.stageName && (
+                    <p
+                      id="event-stage-error"
+                      className="text-sm text-destructive"
+                    >
+                      {fieldErrors.stageName}
+                    </p>
+                  )}
+                </div>
+              )}
               <div className="space-y-2">
                 <label
                   htmlFor="event-date"
@@ -417,6 +590,11 @@ function EventSession({ userId, caseId }: { userId: string; caseId: string }) {
                   id="event-date-hint"
                   className="text-[13px] leading-5 text-muted-foreground"
                 >
+                  {kind === "invitation"
+                    ? "Podaj dzień otrzymania zaproszenia, a nie przyszły termin rozmowy. "
+                    : kind === "stage-change"
+                      ? "Podaj dzień rzeczywistego przejścia do etapu. "
+                      : ""}
                   Jeśli nie znasz daty, pozostaw pole puste. Zapiszemy „Data
                   zdarzenia nieznana”, bez zastępowania jej dniem dodania do
                   CRM. Przyszła data nie jest dozwolona.
@@ -454,7 +632,11 @@ function EventSession({ userId, caseId }: { userId: string; caseId: string }) {
                     className="mt-1 size-4 shrink-0 accent-primary"
                   />
                   <span>
-                    Potwierdzam, że to zdarzenie rzeczywiście miało miejsce.
+                    {kind === "invitation"
+                      ? "Potwierdzam otrzymanie zaproszenia do etapu kwalifikacyjnego i ustawienie wskazanego etapu jako bieżącego."
+                      : kind === "stage-change"
+                        ? "Potwierdzam rzeczywiste przejście do wskazanego etapu i ustawienie go jako bieżącego."
+                        : "Potwierdzam, że to zdarzenie rzeczywiście miało miejsce."}
                   </span>
                 </label>
                 {fieldErrors.confirmed && (
@@ -486,6 +668,16 @@ function EventSession({ userId, caseId }: { userId: string; caseId: string }) {
               className={buttonStyles.secondary}
             >
               Sprawdź wynik zapisu
+            </button>
+          )}
+          {stageConflict && (
+            <button
+              type="button"
+              disabled={pending}
+              onClick={() => void refreshStage()}
+              className={buttonStyles.secondary}
+            >
+              Odśwież stan sprawy
             </button>
           )}
           <div className="flex flex-wrap gap-3">
@@ -539,12 +731,7 @@ function EventSession({ userId, caseId }: { userId: string; caseId: string }) {
                   onClick={() => {
                     clearStored();
                     reset();
-                    requestAnimationFrame(() =>
-                      (triggerKind.current === "contact"
-                        ? contactTrigger
-                        : applicationTrigger
-                      ).current?.focus(),
-                    );
+                    returnFocus();
                   }}
                 >
                   Potwierdź porzucenie

@@ -107,3 +107,13 @@ OPEN-025/026: pierwszy slice przyjmuje opcjonalny nietypowany HTTP(S), bez fetch
 - OPEN-004: jawnie zatwierdzony append-only bez edycji/usuwania w przyroście 3A. Korekta/unieważnienie błędnych wpisów i audyt pozostają **OPEN — bramka przed publicznym udostępnieniem tej funkcji**. Brak korekty nie jest docelową polityką retencji. OPEN-020 (ręczna korekta statusu) nadal OPEN.
 
 OPEN-001/003/018/019/027/029/034 nie blokują tego wąskiego przyrostu bez etapów, zamykania i wznowień; nie są nim rozstrzygnięte. Publiczne bramki prywatności/Auth pozostają. Brak merge/deploymentu.
+
+
+## Recruitment Lifecycle 3B — częściowe rozstrzygnięcie 2026-10-30
+
+[DEC-055](product-decisions.md), jawne zatwierdzenie PO wariantów 1A/2A/3A z [analizy](../technical/recruitment-lifecycle-3b-analysis.md):
+
+- OPEN-018: RESOLVED dla lokalnego 3B — jedna akcja kwalifikującego zaproszenia ustawia W rekrutacji i konkretny etap; kwalifikację potwierdza użytkownik, bez analizy korespondencji.
+- OPEN-002/034: PARTIALLY RESOLVED — indywidualna nazwa 1–160 punktów kodowych po trim; opcjonalny nieprzyszły dzień faktu, unknown bez zastępowania datą zapisu; wcześniejsze statusy bez etapu, W rekrutacji z etapem; zmiana etapu tylko w W rekrutacji. Kolejne zaproszenia/zmiany ustawiają jawnie potwierdzony bieżący etap, bez automatycznego odtwarzania stanu z dat i bez cichego nadpisania konkurencyjnej zmiany. Kontakt/aplikacja w W rekrutacji nie cofają stanu. Pozostałe formularze i kombinacje (w tym Zakończone) OPEN.
+- OPEN-004: PARTIALLY RESOLVED wyłącznie lokalne append-only 3B; korekty i audyt nadal OPEN przed publicznym udostępnieniem.
+- OPEN-003/027 nadal OPEN dla globalnych szablonów i domyślnego zestawu; bez ich implementacji i seedowania w 3B. Pozostałe granice z analizy zachowane.

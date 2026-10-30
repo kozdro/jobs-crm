@@ -221,3 +221,17 @@ Wyniki poszczególnych komend, screenshoty, kandydat i ograniczenia są w raporc
 [Kontrakt/plan i delegacja](../technical/recruitment-lifecycle-3a.md). Pełne FR i TC-002/003/004 nie są ukończone w 3A; kanały, CV i osoby poza przyrostem. OPEN-004 jest bramką publicznego udostępnienia. Wyniki wykonania będą raportowane oddzielnie od pokrycia planem.
 
 **Wynik wykonania 3A:** [raport](../technical/recruitment-lifecycle-3a-report.md): unit208+87 PASS, real local integration43/43 PASS, HTTPS browser42/42 PASS, backend/frontend/security review PASS po zamknięciu P3. Dodatkowe AC zakresu objęte dowodami domeny/integracji/browser; nie podnosi to pełnych TC-002/003/004 ani całych modułów do ukończonych. Exact-SHA CI jest osobnym wynikiem PR.
+
+
+## Recruitment Lifecycle 3B — DEC-055
+
+| Podzakres | AC | Scenariusz / plan dowodu |
+|---|---|---|
+| FR-LC-007/008 | AC-LC-007-01/008-01 | UC/TC-005 częściowo; zaproszenie, atomowy status/etap, odczyt lista/detal |
+| FR-LC-011/012/013 | AC-LC-011-01/012-01/013-01 | UC/TC-009 częściowo; indywidualna nazwa, pomijanie, snapshot historii |
+| FR-LC-014 | AC-LC-014-02 | Idempotencja po progresji, stale-stage conflict, rollback/race |
+| FR-LC-005/006 | AC-LC-005-02/006-02 | Dalsze fakty w W rekrutacji bez cofania stanu; regresje 3A |
+| FR-HE-001/002/003 | AC-HE-001-01/002-04/003-03 | Mieszana paginowana historia, dzień/unknown i czas zapisu, brak fikcyjnych faktów |
+| FR-AD-002 / BR-030 | AC-AD-002 | A/B/anon, listy/direct ID/count/recovery/relacje i bezpośredni Data API |
+
+[Kontrakt, wpływ, plan i decyzje](../technical/recruitment-lifecycle-3b-analysis.md). Na etapie zapisu: PLANNED / NOT RUN; rzeczywiste wyniki w raporcie 3B po wykonaniu. Bez pełnego PASS dla LC-009/010, UC/TC-005/009, Kanbana lub publicznego udostępnienia.

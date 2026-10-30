@@ -38,3 +38,8 @@
 ## Granice reguł
 
 Reguły nie ustanawiają list domyślnych etapów, wyników zamknięcia, pól formularza, schematu bazy, limitów, progów follow-up, algorytmu podobieństwa ani protokołu cofania. [OPEN](../decisions/open-questions.md) ma pierwszeństwo przed każdą próbą ich domyślenia.
+
+
+## Doprecyzowanie lokalnego 3B — DEC-055
+
+BR-005: w autoryzowanym 3B rejestracja zaproszenia i wejście do W rekrutacji są jednym atomowym krokiem; kwalifikację potwierdza użytkownik. BR-006: etap pozostaje odrębny; zmiana etapu w aktywnej rekrutacji zachowuje status i historię, może pomijać pośrednie etapy. Dozwolone kombinacje i walidacje tego podzakresu ustala [DEC-055](../decisions/product-decisions.md); pozostałe OPEN-034 zachowane. BR-015/016: daty i historyczne nazwy nie są nadpisywane ani dopowiadane. Nie dodajemy nowej reguły kwalifikującej aplikację, automatyczne potwierdzenie czy upływ czasu.

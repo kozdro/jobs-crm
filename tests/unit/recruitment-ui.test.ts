@@ -5,7 +5,10 @@ import {
   parsePendingIntent,
   resolveSaveNext,
 } from "@/components/recruitment/intent";
-import { CaseContent } from "@/components/recruitment/case-content";
+import {
+  CaseContent,
+  CaseListItem,
+} from "@/components/recruitment/case-content";
 import { SavedCaseNotice } from "@/components/recruitment/saved-case-notice";
 import { recoveryRequiresLogin } from "@/components/recruitment/recovery-session";
 import {
@@ -25,6 +28,8 @@ const item: RecruitmentCase = {
   description: '<img src=x onerror="window.privateData=1"> Zażółć 🧑‍💻',
   source_url: "https://example.invalid/offer?publication=42&keep=1#source",
   status: "Zapisane",
+  current_stage: null,
+  stage_version: 0,
   created_at: "2026-10-29T12:00:00.000Z",
 };
 
@@ -137,5 +142,27 @@ describe("Recruitment read projection", () => {
       "Opis",
     ])
       expect(html).not.toContain(fabricated);
+  });
+});
+
+describe("Lifecycle 3B status and stage projections", () => {
+  it("shows status separately from the current individual stage on detail and list", () => {
+    const active: RecruitmentCase = {
+      ...item,
+      status: "W rekrutacji",
+      current_stage: "Zadanie <script> techniczne",
+      stage_version: 1,
+    };
+    for (const component of [CaseContent, CaseListItem]) {
+      const html = renderToStaticMarkup(
+        createElement(component, { item: active }),
+      );
+      expect(html).toContain("W rekrutacji");
+      expect(html).toContain("Zadanie &lt;script&gt; techniczne");
+      expect(html).not.toContain("<script>");
+    }
+    expect(
+      renderToStaticMarkup(createElement(CaseContent, { item: active })),
+    ).toContain("Bieżący etap");
   });
 });

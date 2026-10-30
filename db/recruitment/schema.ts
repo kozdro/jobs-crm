@@ -1,10 +1,11 @@
-/** Product model approved by DEC-052/054. Auth remains Supabase-owned. */
+/** Product model approved by DEC-052/054/055. Auth remains Supabase-owned. */
 import { sql } from "drizzle-orm";
 import {
   check,
   date,
   foreignKey,
   index,
+  integer,
   pgTable,
   text,
   timestamp,
@@ -25,6 +26,8 @@ export const recruitmentCase = pgTable(
     description: text("description"),
     sourceUrl: text("source_url"),
     status: text("status").default("Zapisane").notNull(),
+    currentStage: text("current_stage"),
+    stageVersion: integer("stage_version").default(0).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -63,8 +66,8 @@ export const recruitmentCase = pgTable(
       sql`${table.sourceUrl} IS NULL OR (${table.sourceUrl} = public.recruitment_source_url(${table.sourceUrl}) AND public.recruitment_source_url(${table.sourceUrl}) IS NOT NULL)`,
     ),
     check(
-      "recruitment_case_3a_status",
-      sql`${table.status} IN ('Zapisane', 'Kontakt rozpoczęty')`,
+      "recruitment_case_3b_status_stage",
+      sql`(${table.status} IN ('Zapisane', 'Kontakt rozpoczęty') AND ${table.currentStage} IS NULL AND ${table.stageVersion} = 0) OR (${table.status} = 'W rekrutacji' AND ${table.currentStage} IS NOT NULL AND char_length(${table.currentStage}) BETWEEN 1 AND 160 AND ${table.currentStage} = public.recruitment_trim(${table.currentStage}) AND ${table.stageVersion} >= 1)`,
     ),
   ],
 ).enableRLS();
@@ -82,6 +85,9 @@ export const recruitmentCaseEvent = pgTable(
     kind: text("kind").notNull(),
     direction: text("direction"),
     occurredOn: date("occurred_on", { mode: "string" }),
+    stageName: text("stage_name"),
+    previousStage: text("previous_stage"),
+    expectedStageVersion: integer("expected_stage_version"),
     recordedAt: timestamp("recorded_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -97,8 +103,8 @@ export const recruitmentCaseEvent = pgTable(
       foreignColumns: [recruitmentCase.ownerId, recruitmentCase.id],
     }).onDelete("no action"),
     check(
-      "recruitment_case_event_kind_direction_valid",
-      sql`(${table.kind} = 'application' AND ${table.direction} IS NULL) OR (${table.kind} = 'contact' AND ${table.direction} IS NOT NULL AND ${table.direction} IN ('inbound', 'outbound'))`,
+      "recruitment_case_event_3b_payload_valid",
+      sql`((${table.kind} = 'application' AND ${table.direction} IS NULL) OR (${table.kind} = 'contact' AND ${table.direction} IS NOT NULL AND ${table.direction} IN ('inbound', 'outbound'))) AND ${table.stageName} IS NULL AND ${table.previousStage} IS NULL AND ${table.expectedStageVersion} IS NULL OR (${table.kind} IN ('invitation', 'stage-change') AND ${table.direction} IS NULL AND ${table.stageName} IS NOT NULL AND char_length(${table.stageName}) BETWEEN 1 AND 160 AND ${table.stageName} = public.recruitment_trim(${table.stageName}) AND ${table.expectedStageVersion} IS NOT NULL AND ${table.expectedStageVersion} BETWEEN 0 AND 2147483646 AND (${table.previousStage} IS NULL OR (char_length(${table.previousStage}) BETWEEN 1 AND 160 AND ${table.previousStage} = public.recruitment_trim(${table.previousStage}))))`,
     ),
     check(
       "recruitment_case_event_date_valid",

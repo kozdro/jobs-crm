@@ -46,3 +46,10 @@ Po wznowieniu następne zamknięcie nie nadpisuje wcześniejszych ClosureRecord 
 ## Wykonywany przyrost 3A — DEC-054
 
 [Zatwierdzony kontrakt](../technical/recruitment-lifecycle-3a.md) ogranicza pierwszy przyrost do istniejącej sprawy i aplikowania/kontaktu inbound/outbound. Dwa punkty wejścia na detalu, jawne potwierdzenie faktu, opcjonalny dzień lub data nieznana; jedna historia i atomowe przejście Zapisane → Kontakt rozpoczęty. Kolejne fakty dopisywane bez zmiany statusu. Bez kanałów, relacji osób/CV, etapów i pozostałych przejść. Brak edycji/usuwania historii jest świadomym ograniczeniem lokalnego 3A, z OPEN-004 przed publicznym udostępnieniem.
+
+
+## Przyrost 3B — DEC-055
+
+[Zatwierdzony zakres 1A/2A/3A](../technical/recruitment-lifecycle-3b-analysis.md): na istniejącym detalu rejestracja kwalifikującego zaproszenia ustawia atomowo W rekrutacji i konkretny indywidualny etap. Formularz odróżnia otrzymanie zaproszenia od terminu przyszłej rozmowy, wymaga potwierdzenia faktu i skutku ustawienia etapu jako bieżącego. Nazwa po trim 1–160 punktów kodowych, opcjonalny nieprzyszły dzień, brak daty zachowany. Bez wymagania wcześniejszej aplikacji/kontaktu, osoby, firmy i CV.
+
+W W rekrutacji można zapisać kolejne zaproszenie lub świadomie zmienić etap, także pomijając pośrednie. Zmiana etapu nie generuje zaproszenia. Rzeczywisty kontakt/aplikowanie zachowują aktywny status i etap. Historia append-only przechowuje snapshoty nazw oraz osobno dzień faktu i czas rejestracji. Konflikt równoczesnej zmiany etapu wymaga odświeżenia; replay wcześniejszej operacji nie przestawia sprawy ponownie. Bez globalnego/default zestawu, konfiguratora, Kanbana, kalendarza, closure/reopen i korekt. FR/AC-LC-007/008/011/012/013/014 i UC/TC-005/009 mają wyłącznie pokrycie tego podzakresu.

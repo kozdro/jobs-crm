@@ -11,6 +11,9 @@ export function formatEventDay(day: string) {
 }
 export function caseEventLabel(event: Pick<CaseEvent, "kind" | "direction">) {
   if (event.kind === "application") return "Zarejestrowano aplikowanie";
+  if (event.kind === "invitation")
+    return "Zarejestrowano kwalifikujące zaproszenie";
+  if (event.kind === "stage-change") return "Zmieniono etap rekrutacji";
   return event.direction === "inbound"
     ? "Kontakt przychodzący"
     : "Kontakt wychodzący";
@@ -21,6 +24,24 @@ function HistoryEntries({ events }: { events: CaseEvent[] }) {
       {events.map((event) => (
         <li key={event.id} className="py-4 first:pt-0">
           <p className="text-sm font-semibold">{caseEventLabel(event)}</p>
+          {event.stage_name && (
+            <dl className="mt-2 space-y-1 text-sm [overflow-wrap:anywhere]">
+              <div>
+                <dt className="inline text-muted-foreground">
+                  Poprzedni etap:{" "}
+                </dt>
+                <dd className="inline">
+                  {event.previous_stage ?? "Nie ustawiono etapu"}
+                </dd>
+              </div>
+              <div>
+                <dt className="inline text-muted-foreground">
+                  Ustawiony etap:{" "}
+                </dt>
+                <dd className="inline">{event.stage_name}</dd>
+              </div>
+            </dl>
+          )}
           {event.occurred_on && (
             <p className="mt-1 text-sm text-muted-foreground">
               Data zdarzenia:{" "}

@@ -31,6 +31,8 @@ const saved = {
   description: null,
   source_url: null,
   status: "Zapisane",
+  current_stage: null,
+  stage_version: 0,
   created_at: "2026-10-29T12:00:00Z",
 };
 function request(headers?: Record<string, string>, input: unknown = body) {
@@ -206,7 +208,7 @@ describe("Bounded private case reads", () => {
     expect(result.cases).toHaveLength(25);
     expect(result.hasMore).toBe(true);
     expect(select).toHaveBeenCalledWith(
-      "id,title,description,source_url,status,created_at",
+      "id,title,description,source_url,status,created_at,current_stage,stage_version",
     );
   });
   it("rejects invalid offsets before querying and malformed IDs without an oracle query", async () => {

@@ -50,3 +50,8 @@ Decyzja PO wariant A: [ADR-0012](decisions/adr/0012-supabase-native-auth-session
 [DEC-054](decisions/product-decisions.md) i [kontrakt/plan](technical/recruitment-lifecycle-3a.md) zatwierdzają lokalne rejestrowanie aplikowania i kontaktu inbound/outbound, Kontakt rozpoczęty oraz append-only historię na istniejącej sprawie. Korekty OPEN-004 przed publicznym udostępnieniem; bez merge/deploymentu.
 
 Wyniki wykonania i ograniczenia 3A: [raport](technical/recruitment-lifecycle-3a-report.md).
+
+
+## Recruitment Lifecycle 3B — 2026-10-30
+
+[DEC-055](decisions/product-decisions.md) zatwierdza warianty 1A/2A/3A z [analizy i planu](technical/recruitment-lifecycle-3b-analysis.md): kwalifikujące zaproszenia, W rekrutacji i indywidualne etapy z historią. Lokalna implementacja i osobny PR autoryzowane, bez merge/deploymentu. OPEN-004 nadal przed publicznym udostępnieniem; globalne/default etapy poza przyrostem.

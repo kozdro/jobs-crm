@@ -18,6 +18,8 @@ const item: RecruitmentCase = {
   description: "Długi kontekst ".repeat(100),
   source_url: "https://example.test/oferta?publication=42#source",
   status: "Zapisane",
+  current_stage: null,
+  stage_version: 0,
   created_at: "2026-10-30T09:15:00.000Z",
 };
 

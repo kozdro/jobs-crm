@@ -44,3 +44,8 @@ Dopuszczone uproszczenie: jeden zapis w `public.recruitment_case` z opcjonalnym 
 Historia migracji produktu jest osobnym profilem Drizzle i osobnym ledgerem; nie dopisuje tabel do syntetycznych pięciu migracji F2 ani `foundation_poc`. Guarded runner sprawdza lokalny target i ledger przed migracją; bez push/reset. RLS/grants/constraints i ewentualny minimalny invoker RPC należą do przeglądanej historii produktu. Rzeczywiste HTTP A/B/anon, katalog PostgreSQL i negatywna czułość tylko na disposable targetcie są warunkami PASS, nie rezultatem samej formalizacji.
 
 OPEN-002/024 oraz DATA-01 są **PARTIALLY RESOLVED**; pozostały model, lifecycle, historia, audyt, relacje, wyniki/etapy, retencja i usuwanie nadal OPEN. Brak CASCADE konta. ADR-0001/0002/0012 wystarczają dla tego zakresu; ADR-0005/importer F4 pozostają osobnym kontraktem.
+
+
+## DATA-01 3B — DEC-055
+
+Rozszerzenie istniejącej sprawy i append-only faktów o kwalifikujące zaproszenie, indywidualny bieżący etap oraz historyczne nazwy. Współbieżność etapu chroniona kontrolą wersji; retry istniejącego zamiaru nie powtarza skutków. Bez nowych globalnych słowników, backfillu, zmian poprzednich migracji, retencji/delete i kalendarza. [Zakres zatwierdzony](recruitment-lifecycle-3b-analysis.md); OPEN-004 pozostaje bramką publicznego udostępnienia.

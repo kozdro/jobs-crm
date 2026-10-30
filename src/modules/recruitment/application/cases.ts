@@ -7,11 +7,14 @@ import {
   type RecruitmentCase,
 } from "../domain/recruitment-case";
 
-const columns = "id,title,description,source_url,status,created_at";
+const columns =
+  "id,title,description,source_url,status,created_at,current_stage,stage_version";
 export const casePageSize = 25;
 
 export class CaseRepositoryError extends Error {
-  constructor(public readonly kind: "unavailable" | "conflict" | "invalid") {
+  constructor(
+    public readonly kind: "unavailable" | "conflict" | "invalid" | "stale",
+  ) {
     super("Nie udało się potwierdzić operacji na sprawie.");
     this.name = "CaseRepositoryError";
   }
@@ -28,7 +31,16 @@ function readCase(value: unknown): RecruitmentCase {
     typeof row.title !== "string" ||
     !(row.description === null || typeof row.description === "string") ||
     !(row.source_url === null || typeof row.source_url === "string") ||
-    (row.status !== "Zapisane" && row.status !== "Kontakt rozpoczęty") ||
+    (row.status !== "Zapisane" &&
+      row.status !== "Kontakt rozpoczęty" &&
+      row.status !== "W rekrutacji") ||
+    !Number.isSafeInteger(row.stage_version) ||
+    (row.stage_version as number) < 0 ||
+    (row.status === "W rekrutacji"
+      ? typeof row.current_stage !== "string" ||
+        !row.current_stage.trim() ||
+        (row.stage_version as number) < 1
+      : row.current_stage !== null || row.stage_version !== 0) ||
     typeof row.created_at !== "string" ||
     !Number.isFinite(Date.parse(row.created_at))
   )
@@ -40,6 +52,8 @@ function readCase(value: unknown): RecruitmentCase {
     source_url: row.source_url,
     status: row.status,
     created_at: row.created_at,
+    current_stage: row.current_stage as string | null,
+    stage_version: row.stage_version as number,
   };
 }
 
