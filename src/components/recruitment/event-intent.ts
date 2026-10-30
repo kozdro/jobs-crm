@@ -51,3 +51,17 @@ export function eventMatchesIntent(
       (intent.expectedStageVersion ?? null)
   );
 }
+
+/** Successful responses establish a floor while RSC refresh may still be pending. */
+export function confirmedStageRevision(
+  previous: number,
+  event: CaseEvent,
+): number {
+  if (
+    (event.kind === "invitation" || event.kind === "stage-change") &&
+    event.expected_stage_version !== null
+  ) {
+    return Math.max(previous, event.expected_stage_version + 1);
+  }
+  return previous;
+}

@@ -10,6 +10,7 @@ import { CaseEventForm } from "@/components/recruitment/case-event-form";
 import {
   parsePendingEventIntent,
   eventMatchesIntent,
+  confirmedStageRevision,
 } from "@/components/recruitment/event-intent";
 import type { CaseEvent } from "@/modules/recruitment/domain/case-events";
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
@@ -187,5 +188,39 @@ describe("Lifecycle 3B truthful presentation and recovery", () => {
       { ...invitation, kind: "stage-change" as const },
     ])
       expect(eventMatchesIntent(changed, intent)).toBe(false);
+  });
+});
+
+describe("Lifecycle stage revision across asynchronous refresh", () => {
+  it("keeps successive confirmed writes usable before an older RSC response settles", () => {
+    const first: CaseEvent = {
+      ...event,
+      kind: "invitation",
+      stage_name: "Screening",
+      previous_stage: null,
+      expected_stage_version: 0,
+    };
+    const second: CaseEvent = {
+      ...first,
+      stage_name: "Rozmowa techniczna",
+      previous_stage: "Screening",
+      expected_stage_version: 1,
+    };
+    let confirmed = confirmedStageRevision(0, first);
+    expect(confirmed).toBe(1);
+    confirmed = confirmedStageRevision(confirmed, second);
+    expect(confirmed).toBe(2);
+    // A replayed older response or an unrelated contact cannot regress or advance it.
+    expect(confirmedStageRevision(confirmed, first)).toBe(2);
+    expect(
+      confirmedStageRevision(confirmed, {
+        ...event,
+        kind: "contact",
+        direction: "inbound",
+      }),
+    ).toBe(2);
+    // Newer server reads remain eligible; an existing draft is not rebased here.
+    expect(Math.max(1, confirmed)).toBe(2);
+    expect(Math.max(3, confirmed)).toBe(3);
   });
 });

@@ -34,3 +34,8 @@ Requirement (FR/AC/BR/DEC/OPEN) → impact analysis → plan → implementacja �
 Powyższy opis rebaseline pozostaje historią etapu planowania. Późniejsze zlecenie PO „First Business Vertical Slice” i [DEC-052](../decisions/product-decisions.md) autoryzują dokumentację, minimalne migracje produktu, lokalny kod/testy/CI, review, commit/push i PR z `feat/recruitment-case-first-slice`, bez merge/cloud. Baza F3: PR #11, `cd92648fd4c579cb4be57a962cd88b6e3d537583`; nie zastępuje to nowej regresji.
 
 [Kontrakt DATA-01](recruitment-case-first-slice.md), [analiza i plan delegacji](recruitment-case-first-slice-analysis.md), [raport wykonania](recruitment-case-first-slice-report.md). Etapy: formalizacja/przegląd modelu → niezależne ownership backend/frontend/platform/QA → migracje i implementacja → unit + real local PostgreSQL/Auth/Data API + Playwright → niezależne backend/frontend/security review → aktualna traceability i final-SHA CI → otwarty PR. F4 importu, F5 worker, lifecycle, historia, relacje i publiczne wydanie pozostają poza zleceniem.
+
+
+## Lokalny przyrost Lifecycle 3B — 2026-10-30
+
+PO zatwierdził warianty 1A/2A/3A i pełne wykonanie w osobnym PR, bez merge/deploymentu: [DEC-055](../decisions/product-decisions.md), [kontrakt, wpływ i delegacja](recruitment-lifecycle-3b-analysis.md). Baza 94f9628 (merge PR #15), prace izolowane od cudzych zmian oryginalnego worktree. Zaproszenia + W rekrutacji + indywidualne etapy z historią; globalne/default etapy, zamknięcia, wznowienia, korekty i kalendarz pozostają osobnymi zakresami. Publiczne udostępnienie wymaga OPEN-004 i pozostałych zależnych bramek.

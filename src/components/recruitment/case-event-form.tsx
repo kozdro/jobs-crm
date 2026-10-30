@@ -10,12 +10,14 @@ import {
   parseRecordCaseEventInput,
   warsawToday,
   type RecordCaseEventInput,
+  type CaseEvent,
 } from "@/modules/recruitment/domain/case-events";
 import { buttonStyles, inputStyles } from "@/components/ui/styles";
 import {
   eventIntentStorageKey,
   parsePendingEventIntent,
   eventMatchesIntent,
+  confirmedStageRevision,
 } from "./event-intent";
 import { recoveryRequiresLogin } from "./recovery-session";
 
@@ -57,6 +59,7 @@ function EventSession({
   const [stageConflict, setStageConflict] = useState(false);
   const [refreshedStage, setRefreshedStage] = useState<string | null>(null);
   const observedVersion = useRef(stageVersion);
+  const confirmedVersion = useRef(stageVersion);
   const [confirmed, setConfirmed] = useState(false);
   const [pending, setPending] = useState(false);
   const [uncertainId, setUncertainId] = useState<string | null>(null);
@@ -129,7 +132,11 @@ function EventSession({
     frozen.current = null;
     setCanRetry(false);
   }
-  function finish() {
+  function finish(event: CaseEvent) {
+    confirmedVersion.current = confirmedStageRevision(
+      confirmedVersion.current,
+      event,
+    );
     clearStored();
     reset();
     setSuccess(true);
@@ -165,7 +172,7 @@ function EventSession({
             "Ten identyfikator dotyczy wcześniejszego zdarzenia z innymi danymi. Niczego nie nadpisano. Sprawdź historię; porzucenie formularza nie usuwa wcześniejszego wpisu.",
           );
           focusFeedback();
-        } else finish();
+        } else finish(found);
       } else {
         setError(
           "Nie potwierdzono wyniku poprzedniego zapisu. Brak wpisu w odczycie nie oznacza cofnięcia operacji. Sprawdź ponownie lub ponów zapis tych samych danych, jeśli formularz nadal je przechowuje.",
@@ -209,7 +216,9 @@ function EventSession({
   function open(value: Kind) {
     if (busy.current || uncertainId) return;
     triggerKind.current = value;
-    observedVersion.current = stageVersion;
+    // Never regress a locally confirmed revision while the RSC refresh settles.
+    // An already open draft retains its own observed revision until explicit refresh.
+    observedVersion.current = Math.max(stageVersion, confirmedVersion.current);
     setStageConflict(false);
     setRefreshedStage(null);
     setKind(value);
@@ -321,7 +330,7 @@ function EventSession({
         !eventMatchesIntent(result.event, payload)
       )
         throw new Error("unconfirmed");
-      finish();
+      finish(result.event);
     } catch {
       if (live.current) {
         setUncertainId(payload.requestId);
@@ -358,7 +367,7 @@ function EventSession({
       if (!live.current) return;
       if (found) {
         if (frozen.current && eventMatchesIntent(found, frozen.current))
-          finish();
+          finish(found);
         else
           setError(
             "Ten identyfikator dotyczy wcześniejszego zdarzenia z innymi danymi. Sprawdź historię; porzucenie formularza nie usuwa wcześniejszego wpisu.",
@@ -368,6 +377,10 @@ function EventSession({
       const current = await getRecruitmentCase(client, caseId);
       if (!live.current) return;
       if (!current) throw new Error("unavailable");
+      confirmedVersion.current = Math.max(
+        confirmedVersion.current,
+        current.stage_version,
+      );
       observedVersion.current = current.stage_version;
       setRefreshedStage(current.current_stage);
       frozen.current = null;
