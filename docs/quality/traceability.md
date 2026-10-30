@@ -235,3 +235,6 @@ Wyniki poszczególnych komend, screenshoty, kandydat i ograniczenia są w raporc
 | FR-AD-002 / BR-030 | AC-AD-002 | A/B/anon, listy/direct ID/count/recovery/relacje i bezpośredni Data API |
 
 [Kontrakt, wpływ, plan i decyzje](../technical/recruitment-lifecycle-3b-analysis.md). Na etapie zapisu: PLANNED / NOT RUN; rzeczywiste wyniki w raporcie 3B po wykonaniu. Bez pełnego PASS dla LC-009/010, UC/TC-005/009, Kanbana lub publicznego udostępnienia.
+
+
+**Wynik wykonania 3B:** [raport](../technical/recruitment-lifecycle-3b-report.md) i [QA](../technical/recruitment-lifecycle-3b-qa.md):235+87unitPASS,53/53realintegrationPASS,50/50HTTPSbrowserPASS na produkcie f6db0d4. Osobna korekta capture w1c9c830: build/integracja53/targetedbrowser1PASS; nie zastępuje ani nie rozszerza liczby50. Backend/frontend/security statycznyreviewPASS; runtime wykonywało QA. Publiczne udostępnienie i pełne moduły/TC pozostają poza akceptacją. Final-SHA CI osobno w PR.

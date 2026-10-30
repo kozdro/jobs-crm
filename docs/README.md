@@ -55,3 +55,6 @@ Wyniki wykonania i ograniczenia 3A: [raport](technical/recruitment-lifecycle-3a-
 ## Recruitment Lifecycle 3B — 2026-10-30
 
 [DEC-055](decisions/product-decisions.md) zatwierdza warianty 1A/2A/3A z [analizy i planu](technical/recruitment-lifecycle-3b-analysis.md): kwalifikujące zaproszenia, W rekrutacji i indywidualne etapy z historią. Lokalna implementacja i osobny PR autoryzowane, bez merge/deploymentu. OPEN-004 nadal przed publicznym udostępnieniem; globalne/default etapy poza przyrostem.
+
+
+Wyniki 3B i ograniczenia: [raport wykonania](technical/recruitment-lifecycle-3b-report.md), [QA](technical/recruitment-lifecycle-3b-qa.md). Wynik CI jest raportowany dla dokładnego finalnego SHA w PR, niezależnie od lokalnych testów.

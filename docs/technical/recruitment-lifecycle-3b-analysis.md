@@ -95,3 +95,8 @@ Istniejące komendy z main: `pnpm test:unit`, `pnpm typecheck`, `pnpm lint`, `pn
 Wszystkie 17 zewnętrznie zmienionych plików jest bajtowo identycznych z wersjami ac55059 (main sprzed 3A). Wyglądają na częściowe cofnięcie 3A; autor i zamiar są nieustalone. Nie jest to przesłanka do ich naprawienia. Zachowano patch i SHA256 w /private/tmp/jobs-crm-3b-isolation, a pierwotny katalog pozostaje nietknięty. Nowy worktree /private/tmp/jobs-crm-lifecycle-3b, branch feat/recruitment-lifecycle-3b, baza 94f962841cd3c669c320b8612ad2ab69aa68e2cd. Oryginał analizy skopiowano, bez przenoszenia lub usuwania go ze źródła.
 
 DEC-055 utrwala zatwierdzenie 1A/2A/3A. Operacyjny warunek izolacji spełniony; wcześniejsze BLOCKED/NOT RUN powyżej są snapshotem planu. Nowe wyniki w osobnym raporcie 3B. Użycie nowych skills record-decision/implement-slice/verify-acceptance/review-change oraz Supabase/Context7. Istniejący ledger Drizzle ma pierwszeństwo przed ogólną procedurą Supabase CLI; bez równoległego ledgeru i mutacji persistent DEV.
+
+
+## Wyniki wykonania
+
+[Raport wykonania](recruitment-lifecycle-3b-report.md) i [raport QA](recruitment-lifecycle-3b-qa.md) rozdzielają bieżące wyniki od historycznego planu i zachowanych nieudanych prób. Scope publikacji rozszerzony przez zlecenie PO: osobny PR dopuszczony, merge/deployment nadal wyłączone.
