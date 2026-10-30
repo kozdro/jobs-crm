@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Workspace } from "@/components/recruitment/workspace";
+import { CaseEventForm } from "@/components/recruitment/case-event-form";
+import { CaseHistory } from "@/components/recruitment/case-history";
+import { listRecruitmentCaseEvents } from "@/modules/recruitment/application/case-events";
 import { CaseContent } from "@/components/recruitment/case-content";
 import {
   getTrustedUser,
@@ -11,8 +14,10 @@ export const dynamic = "force-dynamic";
 
 export default async function RecruitmentDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ historyPage?: string | string[] }>;
 }) {
   const user = await getTrustedUser();
   if (!user) redirect("/login");
@@ -30,6 +35,24 @@ export default async function RecruitmentDetailPage({
     );
   }
   if (!item) notFound();
+  const query = await searchParams;
+  const rawPage = query.historyPage;
+  const historyPage =
+    typeof rawPage === "string" && /^[1-9][0-9]{0,5}$/.test(rawPage)
+      ? Number(rawPage)
+      : 1;
+  let history: Awaited<ReturnType<typeof listRecruitmentCaseEvents>> | null =
+    null;
+  try {
+    history = await listRecruitmentCaseEvents(
+      await getServerClient(),
+      id,
+      historyPage,
+    );
+  } catch {
+    /* A failed history read is not an empty history. */
+  }
+
   return (
     <Workspace userId={user.id} title={item.title}>
       <Link
@@ -40,6 +63,8 @@ export default async function RecruitmentDetailPage({
       </Link>
       <section className="min-w-0" aria-label="Zapisane dane sprawy">
         <CaseContent item={item} />
+        <CaseEventForm userId={user.id} caseId={item.id} />
+        <CaseHistory caseId={item.id} result={history} />
       </section>
     </Workspace>
   );

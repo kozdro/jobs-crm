@@ -96,3 +96,14 @@ OPEN-025/026: pierwszy slice przyjmuje opcjonalny nietypowany HTTP(S), bez fetch
 ## UI Foundation — częściowa delegacja PO 2026-10-30
 
 [DEC-053](product-decisions.md) dopuszcza po researchu wybór jasnego visual language, App Shell i polish istniejących ekranów, przeniesienie natywnych logout scopes do menu/widoku konta oraz WCAG 2.2 AA i visual QA tego podzakresu. OPEN-015/017/033 nie blokują ponownie tych wprost zleconych prac. Docelowa nazwa/logo/branding, przyszłe moduły, pełna macierz urządzeń/przeglądarek/lokalizacji i nieprzetestowane technologie asystujące pozostają OPEN. Delegacja nie rozstrzyga modelu danych, polityk Auth ani innych blokujących OPEN. [Werdykt i system](../ux/visual-language.md), [rzeczywiste wyniki i ograniczenia](../technical/ui-foundation-report.md).
+
+## Recruitment Lifecycle 3A — częściowe rozstrzygnięcie 2026-10-30
+
+[DEC-054](product-decisions.md), jawne zatwierdzenie PO wariantów 1A/2A/3A, rozszerza [DATA-01 wyłącznie dla 3A](../technical/recruitment-lifecycle-3a.md):
+
+- OPEN-002: RESOLVED tylko formularz trzech faktów na istniejącej sprawie (aplikowanie, kontakt inbound/outbound), opcjonalny rzeczywisty dzień albo brak daty, bez dodatkowych pól biznesowych. Pozostałe formularze i relacje OPEN.
+- OPEN-026: kanały i ich słownik świadomie poza 3A; nie wyprowadzać kanału aplikowania z source_url. Sam słownik nadal OPEN.
+- OPEN-037: RESOLVED tylko precyzja dnia bez godziny i odrzucenie przyszłej daty; Europe/Warsaw jest lokalnym wyborem wykonawczym granicy bieżącego dnia, nie polityką kalendarza/profilu. Czas wpisu nadawany oddzielnie przez DB. Pozostałe strefy, godziny, kalendarz OPEN.
+- OPEN-004: jawnie zatwierdzony append-only bez edycji/usuwania w przyroście 3A. Korekta/unieważnienie błędnych wpisów i audyt pozostają **OPEN — bramka przed publicznym udostępnieniem tej funkcji**. Brak korekty nie jest docelową polityką retencji. OPEN-020 (ręczna korekta statusu) nadal OPEN.
+
+OPEN-001/003/018/019/027/029/034 nie blokują tego wąskiego przyrostu bez etapów, zamykania i wznowień; nie są nim rozstrzygnięte. Publiczne bramki prywatności/Auth pozostają. Brak merge/deploymentu.

@@ -42,3 +42,7 @@ Quick Capture, Companies & Contacts, Tasks/Events, History, Documents, Workspace
 ## Niezmienniki przy powtórnym zamknięciu
 
 Po wznowieniu następne zamknięcie nie nadpisuje wcześniejszych ClosureRecord (`AC-LC-017-01`, `AC-LC-019-02`). Brak wyniku i nierozstrzygnięte otwarte elementy blokują zakończenie (`AC-LC-016-01/02`, `AC-LC-018-01/02`); słowniki i efekty pozostają `OPEN-001/029`.
+
+## Wykonywany przyrost 3A — DEC-054
+
+[Zatwierdzony kontrakt](../technical/recruitment-lifecycle-3a.md) ogranicza pierwszy przyrost do istniejącej sprawy i aplikowania/kontaktu inbound/outbound. Dwa punkty wejścia na detalu, jawne potwierdzenie faktu, opcjonalny dzień lub data nieznana; jedna historia i atomowe przejście Zapisane → Kontakt rozpoczęty. Kolejne fakty dopisywane bez zmiany statusu. Bez kanałów, relacji osób/CV, etapów i pozostałych przejść. Brak edycji/usuwania historii jest świadomym ograniczeniem lokalnego 3A, z OPEN-004 przed publicznym udostępnieniem.

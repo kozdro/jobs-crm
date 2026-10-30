@@ -655,3 +655,13 @@ Powyższe UC/TC zachowują pełne znaczenie i wcześniejsze statusy. W [pierwszy
 - **UC/TC-034 — PARTIAL COVERAGE:** prawdziwe Auth/JWT A/B/anon i Data API nowej tabeli: własny create/read/list/ID/count/duplikaty, spoof owner/status, brak UPDATE/DELETE i brak danych po logout. Bez dokumentów, kontaktów i Search.
 
 Dodatkowo wymagane: granice Unicode/URL, double-click, retry po utracie odpowiedzi, równoległy key, konflikt innego payloadu, ten sam key A/B, ostrzeżenie/continue/cancel, błąd bez fałszywego sukcesu, dirty discard/keyboard/mobile i negatywna czułość tylko na disposable targetcie. To nie pełny PASS UC/TC ani prognoza wyniku. [Raport](../technical/recruitment-case-first-slice-report.md) podaje dokładne komendy, środowisko, SHA oraz PASS/FAIL/NOT RUN.
+
+## Podscenariusze wykonawcze Recruitment Lifecycle 3A — DEC-054
+
+- TC-002/3A: istniejąca sprawa → jawne zarejestrowanie aplikowania → Kontakt rozpoczęty i jeden fakt; brak kanału w 3A oznacza częściowe pokrycie pełnego TC-002.
+- TC-003/3A: sprawa bez URL/pracodawcy/CV → fakt aplikowania bez wymyślania wysłanej wersji. Pełny TC-003 (wersja CV) poza 3A.
+- TC-004/3A: kontakt outbound bez CV oraz symetryczny inbound z nieznanym pracodawcą, bez fikcyjnej aplikacji. Pełny TC-004 (relacja osoby) poza 3A.
+- History 3A: wpis wsteczny/bez daty, stabilna kolejność, osobny czas rejestracji, brak backfillu, brak edycji/usuwania jawny przed zapisem.
+- Negatywne: anulowanie, przyszły/nieprawidłowy dzień, obce konto/ID, spoofing, retry po utracie odpowiedzi, konflikt payloadu i równoległe zapisy; atomowość fakt/status.
+
+Wyniki w raporcie 3A; ta sekcja jest planem, nie dowodem PASS.

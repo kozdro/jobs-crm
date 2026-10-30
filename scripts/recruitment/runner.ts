@@ -261,7 +261,12 @@ try {
     proxies.push(proxy);
   }
   await run(
-    ["--test", "tests/integration/recruitment/recruitment.test.ts"],
+    [
+      "--test",
+      "--test-concurrency=1",
+      "tests/integration/recruitment/recruitment.test.ts",
+      "tests/integration/recruitment/lifecycle.test.ts",
+    ],
     env,
     "business-integration",
   );

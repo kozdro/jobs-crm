@@ -74,3 +74,7 @@ Ostateczne pola, wymagalność, referencje, identyfikacja duplikatów, wersje, r
 [Kontrakt pierwszego slice'a](../technical/recruitment-case-first-slice.md) zatwierdza tytuł sprawy (jedyne wymagane pole biznesowe), opcjonalny opis i pojedynczy URL przy tworzeniu, status `Zapisane`, UUID, zaufanego właściciela, techniczny czas i identyfikator zamiaru zapisu. Nie wymaga żadnego z koncepcyjnych powiązań powyżej. Opis „Rozmowa z CTO” jest nazwą kontekstu; sam nie potwierdza odbycia rozmowy.
 
 To świadomie częściowy model: brak edycji/lifecycle, tabel historii i audytu. `created_at` nie jest datą aplikacji. Pierwsza kolumna `source_url` może zostać później przeniesiona do relacji 0..n bez zmiany UUID sprawy; ograniczenie formularza do jednego linku nie zastępuje DEC-014/BR-013 docelowym limitem domeny. Pełna granularność publikacji, retencja, relacje i usuwanie nadal OPEN.
+
+## Podmodel Lifecycle 3A — DEC-054
+
+[Kontrakt](../technical/recruitment-lifecycle-3a.md) rozszerza minimalny create/read o rzeczywisty fakt aplikowania lub kontaktu inbound/outbound na istniejącej sprawie. Opcjonalny dzień zdarzenia nie jest czasem rejestracji. Historia tylko dopisuje fakty; status Zapisane przechodzi atomowo w Kontakt rozpoczęty, a kolejne fakty tego statusu nie zmieniają. Brak relacji osób/CV, kanałów, treści komunikacji, etapów i backfillu. OPEN-004 nadal blokuje publiczne udostępnienie bez rozstrzygnięcia korekt.

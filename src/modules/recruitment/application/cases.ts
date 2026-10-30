@@ -28,7 +28,7 @@ function readCase(value: unknown): RecruitmentCase {
     typeof row.title !== "string" ||
     !(row.description === null || typeof row.description === "string") ||
     !(row.source_url === null || typeof row.source_url === "string") ||
-    row.status !== "Zapisane" ||
+    (row.status !== "Zapisane" && row.status !== "Kontakt rozpoczęty") ||
     typeof row.created_at !== "string" ||
     !Number.isFinite(Date.parse(row.created_at))
   )

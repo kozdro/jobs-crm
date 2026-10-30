@@ -46,3 +46,7 @@ To **nie jest zamknięta tabela wszystkich dozwolonych przejść**. W szczególn
 ## Brakujące decyzje blokujące implementację automatu stanów
 
 `OPEN-001`, `OPEN-018`, `OPEN-020`, `OPEN-029` oraz powiązane `OPEN-002/OPEN-034`. Nie implementować domniemanego pełnego grafu przejść.
+
+## Autoryzowany podzbiór przejść 3A — DEC-054
+
+[3A](../technical/recruitment-lifecycle-3a.md): aplikowanie lub kontakt inbound/outbound na istniejącej własnej sprawie Zapisane zapisuje jeden fakt i atomowo zmienia status na Kontakt rozpoczęty. W Kontakt rozpoczęty kolejny rzeczywisty fakt dopisuje historię bez zmiany statusu. Komenda nie obsługuje innych statusów/przejść, korekt, zamykania i wznowień. Nie jest to pełny graf lifecycle. Data wsteczna nie cofa statusu; brak daty nie jest zastępowany created_at.

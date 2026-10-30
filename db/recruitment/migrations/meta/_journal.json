@@ -50,6 +50,13 @@
       "when": 1793316047247,
       "tag": "0006_recruitment_numeric_host_parity",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793374992260,
+      "tag": "0007_recruitment_lifecycle_3a",
+      "breakpoints": true
     }
   ]
 }

@@ -11,6 +11,9 @@ import { protectAuthResponse } from "@/modules/identity/infrastructure/http";
 import { getRouteClient } from "@/modules/identity/infrastructure/server";
 import { getAuthConfig } from "@/shared/server/env";
 
+import { parseRecordCaseEventInput } from "@/modules/recruitment/domain/case-events";
+import { recordRecruitmentCaseEvent } from "@/modules/recruitment/application/case-events";
+
 export const dynamic = "force-dynamic";
 
 /** Domain command: validation, browser identity binding and cookie/CSRF boundary. */
@@ -60,14 +63,22 @@ export async function POST(request: NextRequest) {
     const { expectedUserId, ...payload } = raw as Record<string, unknown>;
     if (typeof expectedUserId !== "string" || !uuidPattern.test(expectedUserId))
       return failure(400, "invalid");
-    const parsed = parseCreateCaseInput(payload);
+    const eventAction = payload.action === "record-event";
+    const eventPayload = { ...payload };
+    if (eventAction) delete eventPayload.action;
+    const parsed = eventAction
+      ? parseRecordCaseEventInput(eventPayload)
+      : parseCreateCaseInput(payload);
     if (!parsed.success)
       return reply({ kind: "invalid", errors: parsed.errors }, 400);
     const client = getRouteClient(request, cookieResponse);
     const { data, error } = await client.auth.getUser();
     if (error || !data.user) return failure(401, "unauthenticated");
     if (data.user.id !== expectedUserId) return failure(403, "forbidden");
-    const result = await createRecruitmentCase(client, parsed.data);
+    const result =
+      "caseId" in parsed.data
+        ? await recordRecruitmentCaseEvent(client, parsed.data)
+        : await createRecruitmentCase(client, parsed.data);
     return reply(result);
   } catch (error) {
     if (error instanceof CaseRepositoryError)
