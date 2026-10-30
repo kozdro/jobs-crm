@@ -1,0 +1,1 @@
+{"status":"FAIL","reason":"QA nested sibling t.test deadlock","code":1,"bytes":1740,"sha256":"9a9dd614b0567cdda87680049d06b8cc9776410858e9e612f13a4590c927efb9","counts":{"tests":8,"passed":5,"failed":0,"cancelled":3,"skipped":0},"target":"preflight-b","node":"24.22.2","timeoutSeconds":120}

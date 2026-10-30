@@ -2,7 +2,7 @@
 
 **Stan:** `BASELINED`; `AC-*` formalizują warunki weryfikacji powiązanych `FR-*`. Kryteria dotyczące `FR PROPOSED` są warunkowe, a szczegóły zależne od `OPEN-*` nie są kompletnymi kontraktami implementacyjnymi.
 
-**Struktura:** zachowujemy główne AC i dodatkowe kryteria z sufiksem `-01`, `-02` itd. Wszystkie kryteria danego FR są umieszczone razem w sekcji jego modułu. Pełną listę powiązań zawiera [traceability](traceability.md). Wszystkie testy pozostają `PLANNED / NOT EXECUTED`.
+**Struktura:** zachowujemy główne AC i dodatkowe kryteria z sufiksem `-01`, `-02` itd. Wszystkie kryteria danego FR są umieszczone razem w sekcji jego modułu. Pełną listę powiązań zawiera [traceability](traceability.md). Bazowy katalog był `PLANNED / NOT EXECUTED`; późniejsze wykonania są raportowane oddzielnie dla dokładnego zakresu i kandydata, bez nadania całemu katalogowi PASS.
 
 
 ## LC — Recruitment Lifecycle & Stages
@@ -10,9 +10,12 @@
 | ID | Test akceptacji (Given / When / Then, opisowo) | Powiązany FR |
 |---|---|---|
 | **AC-LC-001** | Mając spontaniczną kandydaturę bez stanowiska i ogłoszenia, gdy użytkownik zapisuje dozwolony minimalny zestaw danych, wtedy powstaje sprawa bez wymagania URL-u ani nazwy stanowiska. | FR-LC-001 |
+| **AC-LC-001-01** | Zgodnie z DEC-052 można utworzyć sprawę mając wyłącznie nazwę 1–160 punktów kodowych Unicode po trim; 0/161 oraz same białe znaki są odrzucane. Brak stanowiska, pracodawcy, ogłoszenia, kontaktu i CV nie blokuje zapisu. | FR-LC-001 |
+| **AC-LC-001-02** | Opcjonalny opis pusty lub sam whitespace jest brakiem, 2000 punktów kodowych jest dozwolone, 2001 odrzucone; polskie litery i znaki spoza BMP są liczone spójnie w TypeScript i PostgreSQL. | FR-LC-001 |
 | **AC-LC-002** | Dla każdego z pięciu wariantów źródłowych użytkownik może zarejestrować sprawę bez podstawiania fikcyjnych akcji z pozostałych wariantów. | FR-LC-002 |
 | **AC-LC-003** | Mając istniejącą sprawę firmy, gdy użytkownik rejestruje drugi odrębny proces tej firmy, wtedy oba procesy pozostają osobnymi sprawami i są powiązane z tą samą organizacją. | FR-LC-003 |
 | **AC-LC-004** | Dla każdej nowej i zapisanej sprawy status należy do czterech wartości z BR-003 i nie można wybrać Wstrzymane. | FR-LC-004 |
+| **AC-LC-004-01** | Nowa sprawa DEC-052 ma wyłącznie Zapisane; również bezpośredni Data API nie pozwala podstawić innego statusu. Brak przejść w tym slice nie zmienia czterech statusów domeny. | FR-LC-004 |
 | **AC-LC-005** | Mając sprawę Zapisane, gdy użytkownik świadomie rejestruje wysłanie CV lub formularza, wtedy można rozpoznać kontakt/aplikację, ale status W rekrutacji nie jest nadany z samego tego faktu. | FR-LC-005 |
 | **AC-LC-006** | Mając wiadomość od rekrutera albo własną wiadomość do CTO bez CV, gdy użytkownik rejestruje kontakt w sprawie, wtedy zachowany jest fakt kontaktu bez dopisywania wysłania CV. | FR-LC-006 |
 | **AC-LC-007** | Mając potwierdzenie wysłania aplikacji bez zaproszenia, nie można na jego podstawie uznać statusu W rekrutacji; mając kwalifikujące zaproszenie, istnieje jawny przebieg rozpoczęcia rekrutacji. | FR-LC-007 |
@@ -78,14 +81,22 @@
 |---|---|---|
 | **AC-QC-001** | Z każdego z siedmiu modułów głównych można wywołać Quick Capture bez wcześniejszego przejścia do Rekrutacji. | FR-QC-001 |
 | **AC-QC-002** | Gdy użytkownik wybiera dodawanie ręczne i wpisuje zaakceptowane dane, może zapisać sprawę bez URL-u. | FR-QC-002 |
+| **AC-QC-002-01** | Kreator DEC-052 przechodzi Sytuacja → Dane → Działanie → Podsumowanie i pokazuje dokładnie zapisywane dane; jedyną akcją jest Zapisz tylko sprawę. Zmiana kroku i anulowanie nie zapisują rekordów ani zdarzeń biznesowych. | FR-QC-002 |
+| **AC-QC-002-02** | Ten sam key zapisu u właściciela i ten sam znormalizowany payload zwracają jeden istniejący wynik po double-click, retry, utracie odpowiedzi i równoległych requestach; odmienny payload zwraca konflikt bez zmiany rekordu. Ten sam key kont A/B nie łączy ich danych. | FR-QC-002 |
+| **AC-QC-002-03** | Opcjonalny źródłowy URL jest absolutnym HTTP(S); błędny URL i inne schematy są odrzucane. Zapis nie pobiera strony, metadanych, favicon ani obrazów; query identyfikujące ogłoszenie nie są usuwane. | FR-QC-002 |
+| **AC-QC-002-04** | Błąd zapisu zachowuje wpisane dane i identyfikator zamiaru, umożliwia retry i nie daje fałszywego sukcesu. Jeśli po odświeżeniu klient zachował nierozstrzygnięty zamiar, retry używa tego samego key/payloadu; timeout nie oznacza automatycznie rollbacku. | FR-QC-002 |
 | **AC-QC-003** | W pojedynczym przebiegu URL użytkownik wprowadza jedną ofertę/link, a system nie inicjuje zbiorczego przetwarzania listy URL-i. | FR-QC-003 |
 | **AC-QC-004** | Po odczycie URL dane są przedstawione do sprawdzenia, a zapis nie następuje bez działania akceptującego użytkownika. | FR-QC-004 |
 | **AC-QC-005** | Gdy parser URL nie potrafi odczytać oferty, użytkownik może przejść do ręcznego uzupełnienia zamiast tracić możliwość zapisu. | FR-QC-005 |
 | **AC-QC-006** | Mając istniejący potencjalnie odpowiadający rekord, podczas dodawania użytkownik otrzymuje sygnał do rozstrzygnięcia; rekordy nie są automatycznie łączone. | FR-QC-006 |
+| **AC-QC-006-01** | Identyczna znormalizowana nazwa lub ten sam URL u A daje ostrzeżenie i linki do własnych dopasowań; zgodność wyłącznie u B niczego A nie ujawnia. Awaria lub wyścig sprawdzania nie jest przedstawiana jako potwierdzony brak duplikatów. | FR-QC-006 |
 | **AC-QC-007** | Mając zgłoszony duplikat, samo jego wykrycie nie zmienia ani istniejącej, ani nowej sprawy bez świadomej decyzji użytkownika. | FR-QC-007 |
+| **AC-QC-007-01** | Po ostrzeżeniu użytkownik może otworzyć istniejącą sprawę, anulować bez zapisu albo świadomie utworzyć nową niezależną sprawę. Żaden wariant nie scala ani nie aktualizuje istniejącego rekordu. | FR-QC-007 |
 | **AC-QC-008** | Gdy użytkownik wybiera istniejącą sprawę do aktualizacji i zatwierdza operację, aktualizacja odnosi się do wskazanej sprawy, nie do losowo dopasowanej. | FR-QC-008 |
 | **AC-QC-009** | Gdy użytkownik uruchamia Quick Capture z Dashboardu i wybiera Zapisz, po pomyślnym zapisie pozostaje na Dashboardzie bez automatycznego otwarcia nowej strony sprawy. | FR-QC-009 |
+| **AC-QC-009-01** | Zapis w minimalnym shellu DEC-052 zamyka kreator po potwierdzonym sukcesie, zachowuje bieżący adres i pokazuje toast; dopiero świadome Otwórz sprawę przechodzi do pełnej minimalnej strony. | FR-QC-009 |
 | **AC-QC-010** | Po pomyślnym Zapisz i dodaj kolejną użytkownik może wprowadzić następną niezależną sprawę bez ponownego szukania globalnej akcji dodawania. | FR-QC-010 |
+| **AC-QC-010-01** | Zapisz i dodaj kolejną po sukcesie przygotowuje pusty kreator, bez kopiowania pól/działania i z nowym key zapisu. | FR-QC-010 |
 | **AC-QC-011** | Gdy użytkownik tylko importuje URL i zapisuje ofertę, historia sprawy nie zawiera faktu faktycznej wysyłki aplikacji. | FR-QC-011 |
 | **AC-QC-012** | W pierwszym wydaniu Quick Capture nie prezentuje workflow importu wielu URL-i na raz ani obowiązkowego browser extension. | FR-QC-012 |
 
@@ -216,6 +227,7 @@
 |---|---|---|
 | **AC-AD-001** | APPROVED: Mając użytkownika po pomyślnym logowaniu, gdy wchodzi do produktu, otrzymuje swój Dashboard bez obowiązkowego onboardingu; metoda: Supabase Auth według ADR-0012, szczegóły polityki `OPEN-013`. | FR-AD-001 |
 | **AC-AD-002** | APPROVED: Mając konta A i B oraz prywatne dane A, gdy B próbuje je odczytać przez widok, wyszukiwanie lub pobranie pliku, nie uzyskuje danych A; A zachowuje dostęp do swoich uprawnionych rekordów. Data API z JWT użytkownika i RLS według ADR-0012; szczegóły ochrony i weryfikacja `OPEN-013`. | FR-AD-002 |
+| **AC-AD-002-01** | Dla nowego create/read rzeczywisty HTTP z JWT A/B i anon sprawdza własny zapis/odczyt A i odmowę B/anon: listy, bezpośredni ID, count, duplikaty oraz RPC. Próby spoofingu ownera/statusu i niepotrzebnego UPDATE/DELETE nie dają dostępu. Cudzy i nieistniejący ID nie ujawniają istnienia cudzej sprawy. | FR-AD-002 |
 | **AC-AD-003** | PROPOSED — pełny kontrakt: po przejściu zatwierdzonego procesu samoobsługowej rejestracji Supabase nowy użytkownik otrzymuje własne konto bez danych innych kont. Dostępność rejestracji zatwierdzona DEC-051; pola i aktywacja `OPEN-041`. | FR-AD-003 |
 | **AC-AD-004** | PROPOSED — pełny kontrakt: `local` usuwa standardową bieżącą sesję klienta, `global` kończy wszystkie sesje, `others` pozostałe z zachowaniem bieżącej, zgodnie z natywnym kontraktem Supabase. Test rozdziela stan klienta, możliwość refresh i nadal ważny access JWT; nie wymaga natychmiastowej odmowy starego JWT przez każdą powierzchnię Data API. Sesje poza wskazanym scope i konto B nie są nieuprawnienie zmieniane. | FR-AD-004 |
 | **AC-AD-005** | PROPOSED — pełny kontrakt: poprawna sesja może być odświeżana przez SDK; błędna/wygasła sesja nie ujawnia danych, a zakończona sesja nie jest po cichu odtwarzana przez standardowy klient. Testy współbieżności, wielu urządzeń i cache A/B sprawdzają kontrakt SDK. Osobny pomiar dokumentuje możliwość użycia zachowanego JWT do wygaśnięcia; nie jest to FAIL za brak anulowanego wymagania natychmiastowej revocation. TTL i ochrona operacji wrażliwych `OPEN-013/042`. | FR-AD-005 |
@@ -237,3 +249,8 @@
 1. Każdy `FR-*` musi mieć co najmniej jedno AC; dodatkowe AC stosują sufiksy `-01`, `-02` itd.
 2. AC zależne od `OPEN` pozostaje scenariuszem kontrolnym, ale jego szczegółowe dane wejściowe będą sprecyzowane po decyzji PO.
 3. Dla implementacji wprowadź testy negatywne z [UC/TC](scenarios.md) i security/regresje; nie deklaruj wykonania testu na podstawie samego dokumentu.
+
+
+## Granica akceptacji DEC-052
+
+Nowe sufiksy powyżej są `APPROVED` w zakresie [DEC-052](../decisions/product-decisions.md); ich wykonanie na etapie formalizacji to **PLANNED / NOT RUN**. [Raport slice'a](../technical/recruitment-case-first-slice-report.md) wiąże wyniki z komendą, środowiskiem i SHA. Nie nadaje to pełnego PASS dla QC-001 (siedem modułów), RW-005/009 (Kanban/lista i drawer), LC-004 (pełne lifecycle) ani AD-002 (dokumenty/Search/pozostałe tabele). UC/TC-001/029/034 mają tylko pokrycie ręcznego create/read. Podstawowa klawiatura, focus, dirty cancel i mobile należą do weryfikacji F02; nie rozstrzygają całego NFR-005.

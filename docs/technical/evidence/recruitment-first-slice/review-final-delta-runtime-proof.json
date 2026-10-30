@@ -1,0 +1,66 @@
+{
+  "backend-final-delta": {
+    "parentThreadId": "01a18a1d-2232-7591-9e5f-b37cf44814bc",
+    "childThreadId": "01a18a1d-5734-7313-869c-a6734a870ebf",
+    "childParentThreadId": "01a18a1d-2232-7591-9e5f-b37cf44814bc",
+    "nativeStartedChildren": 1,
+    "parent": {
+      "cwd": "/private/tmp/jobs-firstslice-final-review-86eb79d",
+      "approval_policy": "never",
+      "sandbox_policy": {
+        "type": "read-only"
+      },
+      "model": "gpt-6.1-sol"
+    },
+    "child": {
+      "cwd": "/private/tmp/jobs-firstslice-final-review-86eb79d",
+      "approval_policy": "never",
+      "sandbox_policy": {
+        "type": "read-only"
+      },
+      "model": "gpt-6.1-sol"
+    },
+    "model": "gpt-6.1-sol",
+    "reasoning": "NOT EXPOSED",
+    "adapter": "generic subagent + canonical role; no typed-profile claim",
+    "wrapper": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "370ae552e4044d0113df070dc505f45f337693a20fc119157e8dd7725a22c515",
+      "candidateAfter": "370ae552e4044d0113df070dc505f45f337693a20fc119157e8dd7725a22c515"
+    }
+  },
+  "security-final-delta": {
+    "parentThreadId": "01a18a1d-2232-7070-96ea-c8786283e921",
+    "childThreadId": "01a18a1d-5869-7043-9be9-7435adb0bda3",
+    "childParentThreadId": "01a18a1d-2232-7070-96ea-c8786283e921",
+    "nativeStartedChildren": 1,
+    "parent": {
+      "cwd": "/private/tmp/jobs-firstslice-final-review-86eb79d",
+      "approval_policy": "never",
+      "sandbox_policy": {
+        "type": "read-only"
+      },
+      "model": "gpt-6.1-sol"
+    },
+    "child": {
+      "cwd": "/private/tmp/jobs-firstslice-final-review-86eb79d",
+      "approval_policy": "never",
+      "sandbox_policy": {
+        "type": "read-only"
+      },
+      "model": "gpt-6.1-sol"
+    },
+    "model": "gpt-6.1-sol",
+    "reasoning": "NOT EXPOSED",
+    "adapter": "generic subagent + canonical role; no typed-profile claim",
+    "wrapper": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "370ae552e4044d0113df070dc505f45f337693a20fc119157e8dd7725a22c515",
+      "candidateAfter": "370ae552e4044d0113df070dc505f45f337693a20fc119157e8dd7725a22c515"
+    }
+  }
+}

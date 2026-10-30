@@ -4,7 +4,6 @@
 
 Scenariusze są testami zgodności specyfikacji, nie dekoracją dokumentacji. W każdym: warunek wejścia → kroki → wynik pozytywny → ważny test negatywny. Po implementacji zautomatyzuj odpowiednie `TC-*` oraz dodaj testy integracyjne i jednostkowe dla szczegółów.
 
-
 ## UC-001 — Zapisanie oferty bez aplikowania
 
 **Test:** `TC-001` · **Wymagania:** `FR-LC-001`, `FR-LC-004`, `FR-QC-001`, `FR-QC-004`, `FR-QC-009`, `FR-QC-011` · **Reguły:** `BR-001`, `BR-004`, `BR-021`, `BR-029`
@@ -630,7 +629,6 @@ Scenariusze są testami zgodności specyfikacji, nie dekoracją dokumentacji. W 
 
 **Negatywny:** Bez decyzji `OPEN` nie ma podstaw do testowania konkretnych plików eksportu, okresów retencji ani undo.
 
-
 ## UC-037 — Przypomnienie skonfigurowanego zadania
 
 **Test:** `TC-037` · **Wymagania:** `FR-TN-002`, `FR-TN-004` · **Bramka:** `OPEN-009` · **Status:** `PLANNED / NOT EXECUTED`.
@@ -648,3 +646,12 @@ Scenariusze są testami zgodności specyfikacji, nie dekoracją dokumentacji. W 
 - Każdy scenariusz powiązano z wymaganiami, ale nie każde drobne FR wymaga osobnego E2E; pełną relację pokazuje [traceability](traceability.md).
 - Testy bezpieczeństwa, własności danych, awarie importu i walidacje są rozszerzane w [strategii testów](test-strategy.md).
 
+## Adaptacja pierwszego create/read — DEC-052 (2026-10-29)
+
+Powyższe UC/TC zachowują pełne znaczenie i wcześniejsze statusy. W [pierwszym slice](../technical/recruitment-case-first-slice.md) wykonujemy tylko podzakres, na etapie formalizacji **PLANNED / NOT RUN**:
+
+- **UC/TC-001 — PARTIAL COVERAGE:** ręczne utworzenie z nazwą, opcjonalnym opisem/URL, potwierdzenie „Zapisz tylko sprawę”, status Zapisane, bez aplikacji/CV i fikcyjnej historii, pozostanie w bieżącym widoku i jawne otwarcie detalu. Nie wykonuje Smart Import ani wejścia z siedmiu modułów.
+- **UC/TC-029 — PARTIAL COVERAGE:** „Zapisz i dodaj kolejną”, pusty kreator/nowy key, jedna opcjonalna URL na wpis, brak kopiowania danych/działania; bez importerowych i globalnych modułów.
+- **UC/TC-034 — PARTIAL COVERAGE:** prawdziwe Auth/JWT A/B/anon i Data API nowej tabeli: własny create/read/list/ID/count/duplikaty, spoof owner/status, brak UPDATE/DELETE i brak danych po logout. Bez dokumentów, kontaktów i Search.
+
+Dodatkowo wymagane: granice Unicode/URL, double-click, retry po utracie odpowiedzi, równoległy key, konflikt innego payloadu, ten sam key A/B, ostrzeżenie/continue/cancel, błąd bez fałszywego sukcesu, dirty discard/keyboard/mobile i negatywna czułość tylko na disposable targetcie. To nie pełny PASS UC/TC ani prognoza wyniku. [Raport](../technical/recruitment-case-first-slice-report.md) podaje dokładne komendy, środowisko, SHA oraz PASS/FAIL/NOT RUN.

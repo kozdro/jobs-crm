@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "target": "ace-parity-a",
+  "migrations": 7,
+  "httpTests": 25,
+  "positiveUrlVectors": 49,
+  "nativeRejectedHostVectors": 12,
+  "outputSha256": "d07b2e599d8d6427d8f71efba816e6dbb3d9f3d3e6ad74215d5e13ccdfbf0659",
+  "bytes": 3042,
+  "ACE": "Pinned Node24.22.2 and Chromium156 accept xn--a and reviewed ACE examples; no discrepancy, no new IDNA policy",
+  "numericHost": "bare0x raw rejected by DB; native canonical0.0.0.0 accepted; a.0x rejected in both",
+  "knownOriginalNegative": "Old dot-path helper and old RPC race still detected; exact functions/policies/ACL/INVOKER and ledger restored"
+}

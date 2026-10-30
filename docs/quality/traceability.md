@@ -9,10 +9,10 @@
 
 | Wymaganie | Podstawa `DEC/BR` | Kryterium akceptacji | Scenariusze / planowane testy | Bramka szczegółów | Pokrycie formalne |
 |---|---|---|---|---|---|
-| FR-LC-001 | DEC-001/DEC-002 BR-001 | AC-LC-001 | UC-001/TC-001 UC-003/TC-003 UC-004/TC-004 | OPEN-002 | AC + UC/TC planned |
+| FR-LC-001 | DEC-001/DEC-002 BR-001 DEC-052 | AC-LC-001 AC-LC-001-01 AC-LC-001-02 | UC-001/TC-001 UC-003/TC-003 UC-004/TC-004 | OPEN-002 | AC + UC/TC planned |
 | FR-LC-002 | DEC-002 BR-001 | AC-LC-002 | UC-003/TC-003 UC-004/TC-004 UC-008/TC-008 | OPEN-002 | AC + UC/TC planned |
 | FR-LC-003 | DEC-003 BR-002 | AC-LC-003 | UC-006/TC-006 UC-014/TC-014 | OPEN-024 | AC + UC/TC planned |
-| FR-LC-004 | DEC-004/DEC-005 BR-003 | AC-LC-004 | UC-001/TC-001 | OPEN-020 | AC + UC/TC planned |
+| FR-LC-004 | DEC-004/DEC-005 BR-003 DEC-052 | AC-LC-004 AC-LC-004-01 | UC-001/TC-001 | OPEN-020 | AC + UC/TC planned |
 | FR-LC-005 | DEC-006/DEC-009 BR-004 | AC-LC-005 | UC-002/TC-002 UC-003/TC-003 | OPEN-002 | AC + UC/TC planned |
 | FR-LC-006 | DEC-002/DEC-009 BR-001/BR-018 | AC-LC-006 | UC-004/TC-004 UC-008/TC-008 | OPEN-002 | AC + UC/TC planned |
 | FR-LC-007 | DEC-006 BR-004/BR-005 | AC-LC-007 | UC-005/TC-005 | OPEN-018 | AC + UC/TC planned |
@@ -54,15 +54,15 @@
 | FR-DB-007 | DEC-016 | AC-DB-007 | UC-024/TC-024 | — | AC + UC/TC planned |
 | FR-DB-008 | DEC-018 | AC-DB-008 | UC-024/TC-024 UC-033/TC-033 | — | AC + UC/TC planned |
 | FR-QC-001 | DEC-017/DEC-029 | AC-QC-001 | UC-001/TC-001 UC-024/TC-024 | OPEN-017 | AC + UC/TC planned |
-| FR-QC-002 | DEC-029 BR-001 | AC-QC-002 | UC-004/TC-004 UC-016/TC-016 | OPEN-002 | AC + UC/TC planned |
+| FR-QC-002 | DEC-029 BR-001 DEC-052 | AC-QC-002 AC-QC-002-01 AC-QC-002-02 AC-QC-002-03 AC-QC-002-04 | UC-004/TC-004 UC-016/TC-016 | OPEN-002 | AC + UC/TC planned |
 | FR-QC-003 | DEC-029/DEC-049 | AC-QC-003 | UC-007/TC-007 UC-015/TC-015 UC-016/TC-016 UC-029/TC-029 | OPEN-011/OPEN-025 | AC + UC/TC planned |
 | FR-QC-004 | DEC-029 BR-021 | AC-QC-004 | UC-001/TC-001 UC-016/TC-016 | OPEN-002/OPEN-011 | AC + UC/TC planned |
 | FR-QC-005 | DEC-030 | AC-QC-005 | UC-016/TC-016 | OPEN-011 | AC + UC/TC planned |
-| FR-QC-006 | DEC-031 BR-022 | AC-QC-006 | UC-007/TC-007 UC-015/TC-015 | OPEN-024/OPEN-025 | AC + UC/TC planned |
-| FR-QC-007 | DEC-031 BR-022 | AC-QC-007 | UC-015/TC-015 | OPEN-024 | AC + UC/TC planned |
+| FR-QC-006 | DEC-031 BR-022 DEC-052 | AC-QC-006 AC-QC-006-01 | UC-007/TC-007 UC-015/TC-015 | OPEN-024/OPEN-025 | AC + UC/TC planned |
+| FR-QC-007 | DEC-031 BR-022 DEC-052 | AC-QC-007 AC-QC-007-01 | UC-015/TC-015 | OPEN-024 | AC + UC/TC planned |
 | FR-QC-008 | DEC-031 | AC-QC-008 | UC-007/TC-007 UC-015/TC-015 | OPEN-024/OPEN-002 | AC + UC/TC planned |
-| FR-QC-009 | DEC-032 BR-029 | AC-QC-009 | UC-001/TC-001 UC-029/TC-029 | — | AC + UC/TC planned |
-| FR-QC-010 | DEC-032 BR-029 | AC-QC-010 | UC-029/TC-029 | — | AC + UC/TC planned |
+| FR-QC-009 | DEC-032 BR-029 DEC-052 | AC-QC-009 AC-QC-009-01 | UC-001/TC-001 UC-029/TC-029 | — | AC + UC/TC planned |
+| FR-QC-010 | DEC-032 BR-029 DEC-052 | AC-QC-010 AC-QC-010-01 | UC-029/TC-029 | — | AC + UC/TC planned |
 | FR-QC-011 | DEC-015/DEC-029 BR-014/BR-021 | AC-QC-011 | UC-001/TC-001 UC-002/TC-002 UC-016/TC-016 | — | AC + UC/TC planned |
 | FR-QC-012 | DEC-049 | AC-QC-012 | UC-029/TC-029 | — | AC + UC/TC planned |
 | FR-IM-001 | DEC-033 | AC-IM-001 | UC-017/TC-017 | OPEN-007/OPEN-023 | AC + UC/TC planned |
@@ -141,7 +141,7 @@
 | Wymaganie | Podstawa `DEC/BR/NFR` | AC | Scenariusze / TC | Bramka | Status FR i pokrycie |
 |---|---|---|---|---|---|
 | FR-AD-001 | DEC-018/DEC-051 BR-030 ADR-0012 | AC-AD-001 | UC-033/TC-033 | OPEN-013 | APPROVED (limited) · PLANNED / NOT EXECUTED |
-| FR-AD-002 | BR-030 NFR-001 | AC-AD-002 | UC-034/TC-034 UC-036/TC-036* | OPEN-006/OPEN-013/OPEN-032 | APPROVED (invariant) · PLANNED / NOT EXECUTED |
+| FR-AD-002 | BR-030 NFR-001 DEC-052 | AC-AD-002 AC-AD-002-01 | UC-034/TC-034 UC-036/TC-036* | OPEN-006/OPEN-013/OPEN-032 | APPROVED (invariant) · PLANNED / NOT EXECUTED |
 | FR-AD-003 | DEC-051 ADR-0012 | AC-AD-003 | UC-035/TC-035* | OPEN-041/OPEN-013 | PROPOSED — pełny kontrakt; podzakres APPROVED DEC-051 · CONDITIONAL / NOT EXECUTED |
 | FR-AD-004 | DEC-051 ADR-0012 | AC-AD-004 | UC-035/TC-035* | OPEN-042/OPEN-013 | PROPOSED — pełny kontrakt; podzakres APPROVED DEC-051 · CONDITIONAL / NOT EXECUTED |
 | FR-AD-005 | DEC-051 ADR-0012 NFR-001 | AC-AD-005 | UC-035/TC-035* | OPEN-013/OPEN-042 | PROPOSED — pełny kontrakt; podzakres APPROVED DEC-051 · CONDITIONAL / NOT EXECUTED |
@@ -173,3 +173,20 @@ Stabilne ID FR/AC/UC/TC pozostają. Aktualizacja kontraktów Auth i technicznej 
 
 
 **Wykonanie technicznego podzakresu F3 (2026-10-29):** [raport F3](../technical/foundation-f3.md) mapuje AUTH/FQA v2 na lokalne dowody SDK/SSR i syntetyczne RLS A/B. Nie jest to wykonanie pełnych UC/TC-034/035 ani całych FR/AC-AD-002–006 dla nieistniejących modułów danych, dokumentów i otwartych polityk. Statusy APPROVED/PROPOSED/OPEN i historyczne wyniki pozostają bez zmian.
+
+
+## Pierwszy biznesowy create/read — DEC-052 (2026-10-29)
+
+Status modelu: **APPROVED**; OPEN-002/024 i DATA-01 **PARTIALLY RESOLVED**, pozostałe podzakresy **OPEN**. Status wykonania: na etapie formalizacji **NOT RUN**; późniejsze komendy, środowisko, kandydat i dowody w [raporcie](../technical/recruitment-case-first-slice-report.md). Poniższa macierz opisuje zakres testowania, nie prognozę PASS.
+
+| Podstawa | Zatwierdzony podzakres / nowe AC | Scenariusz i poziom testu | Granica pełnego pokrycia |
+| --- | --- | --- | --- |
+| FR/AC-LC-001; DEC-001/002/052; BR-001/028 | LC-001-01/02: nazwa, opcjonalny opis, Unicode; bez innych wymagań | UC/TC-001 adaptacja manual; unit + DB + browser | Brak pełnych wariantów z akcjami LC-002/UC-003/004 |
+| FR/AC-LC-004; DEC-004/052; BR-003/004/007/016 | LC-004-01: Zapisane i brak spoofingu przez API | UC/TC-001 częściowo; HTTP/SQL i browser | Bez lifecycle/przejść; PARTIAL COVERAGE |
+| FR/AC-QC-001/002; DEC-017/029/052 | QC-002-01–04: 4 kroki, runtime walidacja, HTTP(S) bez fetch, idempotencja/retry | UC/TC-001 częściowo; unit, HTTP concurrency i Playwright | Siedem modułów/Smart Import poza zakresem; QC-001 PARTIAL COVERAGE |
+| FR/AC-QC-006/007; DEC-031/052; BR-021/022 | QC-006-01/007-01: owner-only nazwa/URL, wybór i brak merge/update | HTTP A/B + Playwright warning/continue/cancel | FR-QC-008 i zaawansowany/importowy dedup OPEN |
+| FR/AC-QC-009/010; DEC-032/052; BR-029 | QC-009-01/010-01: toast, bieżący widok, pusty nowy zamiar | UC/TC-029 adaptacja manual; Playwright | Pełny UC-029 obejmuje URL/Smart Import i NV; PARTIAL COVERAGE |
+| FR/AC-RW-005/009; DEC-019/020/052 | Własna lista newest-first i pełny minimalny detal | HTTP i Playwright list/detail | Bez Kanbana, drawera i pełnych powiązań; PARTIAL COVERAGE |
+| FR/AC-AD-002; BR-030; NFR-001; ADR-0012 | AD-002-01: prawdziwe RLS/grants HTTP A/B/anon i brak metadanych | UC/TC-034 częściowo; Data API, SQL catalog, browser logout/cache | Brak dokumentów/Search/relacji; PARTIAL COVERAGE |
+
+Dodatkowo regresje F1/F2/F3 i harness są zachowane jako osobne dowody. Testy link-table rollback i owner-qualified relation są NOT APPLICABLE, jeśli ostateczna implementacja ma jedną tabelę z `source_url`; atomiczność bieżącego zapisu wszystkich pól nadal wymaga dowodu. [Analiza i plan](../technical/recruitment-case-first-slice-analysis.md), [kontrakt modelu](../technical/recruitment-case-first-slice.md).

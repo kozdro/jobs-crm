@@ -19,3 +19,10 @@
 ## Sposób akceptacji
 
 Dla `APPROVED` testuj zasadę biznesową poprzez scenariusze i weryfikację security/QA. Dla `OPEN` najpierw określ mierzalne cele, testy lub kontrolę bezpieczeństwa; nie ustawiaj bez zatwierdzenia SLA, wartości czasu odpowiedzi, limitów plików ani wybranych standardów bezpieczeństwa.
+
+
+## Zakres DEC-052 — pierwszy lokalny create/read
+
+[DEC-052](../decisions/product-decisions.md) zatwierdza minimalny model i kontrakt ręcznego zapisu; nie podnosi całych NFR ze statusu OPEN. NFR-001 obejmuje teraz rzeczywiste RecruitmentCase HTTP A/B/anon, RLS/grants, listy/ID/count/duplikaty, owner/status spoofing i prywatny cache. NFR-002/003 wymagają braku fikcyjnej historii, komunikacji i automatycznego merge/update. Retry tego samego ręcznego zamiaru i konflikt innego payloadu mają odrębny kontrakt create/read; nie stanowią wykonania importowego NFR-008/IM-01.
+
+NFR-005: testujemy klawiaturę/focus/dialog, dirty cancel oraz desktop/mobile dla tego UI, bez zatwierdzania kompletnej macierzy przeglądarek. NFR-006: bounded list i stabilne sortowanie są szczegółami implementacyjnymi, bez nowego SLA. NFR-009: brak jakiegokolwiek fetch wpisanego URL nie daje PASS Smart Import/SSRF. NFR-007/010/011 i pozostałe OPEN nadal wymagają swoich decyzji. Wyniki, w tym NOT RUN, są w [raporcie wykonania](../technical/recruitment-case-first-slice-report.md).

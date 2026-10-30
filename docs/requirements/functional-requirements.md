@@ -234,3 +234,10 @@ Każdy FR ma co najmniej jedno testowalne AC. Macierz powiązań ze scenariuszam
 - Wymagania `DEFERRED` znajdują się w [zakresie produktu](../product/vision-and-scope.md) i [DEC](../decisions/product-decisions.md); brak implementacji nie jest brakiem wymagań MVP.
 - Powiązania z `BR` nie zastępują sprawdzania niezmienników we wszystkich istotnych akcjach (Quick Capture, import, DnD, wyszukiwanie).
 
+
+
+## Zatwierdzony pierwszy create/read — DEC-052, 2026-10-29
+
+Późniejsza decyzja [DEC-052](../decisions/product-decisions.md) określa minimalny ręczny podzakres FR-LC-001/004, FR-QC-001/002/006/007/009/010, FR-RW-005/009 i niezmiennik FR-AD-002. [Dokładny kontrakt DATA-01](../technical/recruitment-case-first-slice.md): nazwa 1–160 punktów kodowych po trim, opcjonalny opis do 2000 i jeden URL HTTP(S), status `Zapisane`, idempotentny zapis i właściciel z Auth. Żadne inne pole biznesowe nie jest wymagane. Ostrzeżenie dotyczy identycznej nazwy lub URL wyłącznie u właściciela; dozwolona jest świadoma druga niezależna sprawa bez merge/update.
+
+OPEN-002/024 są **PARTIALLY RESOLVED**, reszta pozostaje OPEN. Ta adnotacja nie zmienia historycznego znaczenia FR ani nie zatwierdza lifecycle, edycji, importu czy relacji. **PARTIAL COVERAGE:** QC-001 bez siedmiu modułów, LC-004 bez przejść, RW-005/009 bez Kanbana/drawera, AD-002 bez dokumentów/Search; pozostałe FR też raportujemy tylko w faktycznie wykonanym podzakresie. Dodatkowe AC z sufiksami opisują mierzalny create/read; wyniki wykonania są w [raporcie](../technical/recruitment-case-first-slice-report.md).

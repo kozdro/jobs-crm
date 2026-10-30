@@ -1,0 +1,39 @@
+{
+  "id": "ace-parity-a",
+  "projectId": "jobs-crm-recruitment-7ad923-f334844b3838",
+  "startedAt": "2026-10-29T23:39:00.579Z",
+  "node": "v24.22.2",
+  "status": "PASS",
+  "migrations": {
+    "applied": 0,
+    "total": 7,
+    "checkpoint": "81538aa2a1d29bc866448ceee302b8dad45b7a0bef4985e03ff612016749b205"
+  },
+  "stages": [
+    "local-target-and-RLS-migrations",
+    "existing-R8-production-build-reused-without-build",
+    "production-build",
+    "production-HTTPS-browser",
+    "build-server-logs-and-browser-artifacts-redacted"
+  ],
+  "outputChecks": [
+    {
+      "stage": "business-HTTPS-browser",
+      "bytes": 396,
+      "sha256": "66735ad42e76254d8c6c8101e011779e5f524ddcb8f8eb3103febb16bb5749e6",
+      "counts": {
+        "passed": 1
+      },
+      "observations": []
+    },
+    {
+      "stage": "app-process-1",
+      "bytes": 153,
+      "sha256": "ae624f0846bde092015e5d8601253b197151b3cbabca3a6654566489732d1ac5",
+      "counts": {},
+      "observations": []
+    }
+  ],
+  "scannedBrowserFiles": 35,
+  "scannedGeneratedResponseFiles": 24
+}

@@ -1,0 +1,59 @@
+{
+  "id": "url-parity-a",
+  "projectId": "jobs-crm-recruitment-7cedcc-66431a11087d",
+  "startedAt": "2026-10-29T23:07:47.297Z",
+  "node": "v24.22.2",
+  "status": "FAIL",
+  "migrations": {
+    "applied": 0,
+    "total": 6,
+    "checkpoint": "dee8ce1a64f0d50cb53959d1111ca6ba7182249aada1b9cbcc7bbf8cbb1303f7"
+  },
+  "stages": [
+    "local-target-and-RLS-migrations",
+    "production-build",
+    "real-business-auth-data-api",
+    "build-server-logs-and-browser-artifacts-redacted"
+  ],
+  "outputChecks": [
+    {
+      "stage": "production-build",
+      "bytes": 992,
+      "sha256": "2c8622f84199383d03e4499ffdc2c7784b2540c97da812d02008816d990db771",
+      "counts": {},
+      "observations": []
+    },
+    {
+      "stage": "business-integration",
+      "bytes": 2921,
+      "sha256": "2552c7f53a0fc57d2ca169dbf5ea944048f9cc7821374443db9bcd1a3c6771ec",
+      "counts": {
+        "tests": 24,
+        "passed": 24,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "observations": []
+    },
+    {
+      "stage": "business-HTTPS-browser",
+      "bytes": 4836,
+      "sha256": "cb1bc26d2f85e3114784b8988f266d24bcc5eadf1eecae4ad48e4430f2a38474",
+      "counts": {
+        "failed": 1,
+        "passed": 16
+      },
+      "observations": []
+    },
+    {
+      "stage": "app-process-1",
+      "bytes": 152,
+      "sha256": "0ab9426fb0894234a23978edced3ef3ff801a9baa4c2532c74bf14582ae87943",
+      "counts": {},
+      "observations": []
+    }
+  ],
+  "scannedBrowserFiles": 19,
+  "scannedGeneratedResponseFiles": 15
+}

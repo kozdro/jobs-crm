@@ -67,3 +67,10 @@ Diagram jest **koncepcyjny**: krotności `0..n` ilustrują optionalność w wiel
 ## Luki modelu
 
 Ostateczne pola, wymagalność, referencje, identyfikacja duplikatów, wersje, retencja i usuwanie: `OPEN-002/OPEN-005/OPEN-006/OPEN-024/OPEN-036`. Nie generuj z tego diagramu migracji bazodanowej bez dalszej decyzji.
+
+
+## Zatwierdzony podmodel create/read — DEC-052, 2026-10-29
+
+[Kontrakt pierwszego slice'a](../technical/recruitment-case-first-slice.md) zatwierdza tytuł sprawy (jedyne wymagane pole biznesowe), opcjonalny opis i pojedynczy URL przy tworzeniu, status `Zapisane`, UUID, zaufanego właściciela, techniczny czas i identyfikator zamiaru zapisu. Nie wymaga żadnego z koncepcyjnych powiązań powyżej. Opis „Rozmowa z CTO” jest nazwą kontekstu; sam nie potwierdza odbycia rozmowy.
+
+To świadomie częściowy model: brak edycji/lifecycle, tabel historii i audytu. `created_at` nie jest datą aplikacji. Pierwsza kolumna `source_url` może zostać później przeniesiona do relacji 0..n bez zmiany UUID sprawy; ograniczenie formularza do jednego linku nie zastępuje DEC-014/BR-013 docelowym limitem domeny. Pełna granularność publikacji, retencja, relacje i usuwanie nadal OPEN.

@@ -1,0 +1,55 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1793313330233,
+      "tag": "0000_recruitment_validation",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793313355578,
+      "tag": "0001_recruitment_case",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793313390427,
+      "tag": "0002_recruitment_access_and_create",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793314326881,
+      "tag": "0003_recruitment_intent_before_warning",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793315027706,
+      "tag": "0004_recruitment_url_canonical_boundary",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793315173755,
+      "tag": "0005_recruitment_url_constraint_revalidation",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793316047247,
+      "tag": "0006_recruitment_numeric_host_parity",
+      "breakpoints": true
+    }
+  ]
+}

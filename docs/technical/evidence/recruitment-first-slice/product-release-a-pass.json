@@ -1,0 +1,59 @@
+{
+  "id": "release-a",
+  "projectId": "jobs-crm-recruitment-aad9ee-67c852f9dd90",
+  "startedAt": "2026-10-29T23:52:29.481Z",
+  "node": "v24.22.2",
+  "status": "PASS",
+  "migrations": {
+    "applied": 7,
+    "total": 7,
+    "checkpoint": "81538aa2a1d29bc866448ceee302b8dad45b7a0bef4985e03ff612016749b205"
+  },
+  "stages": [
+    "local-target-and-RLS-migrations",
+    "production-build",
+    "real-business-auth-data-api",
+    "production-HTTPS-browser",
+    "build-server-logs-and-browser-artifacts-redacted"
+  ],
+  "outputChecks": [
+    {
+      "stage": "production-build",
+      "bytes": 994,
+      "sha256": "2f6045975b06d131de7667445861eca2e4dab20f89630f3ee4ad68ea62e77c2f",
+      "counts": {},
+      "observations": []
+    },
+    {
+      "stage": "business-integration",
+      "bytes": 3043,
+      "sha256": "7badba0596b666209f02abdfc9ea6869a9ae686bb0732af7bde4cc2d1e1d1b65",
+      "counts": {
+        "tests": 25,
+        "passed": 25,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "observations": []
+    },
+    {
+      "stage": "business-HTTPS-browser",
+      "bytes": 3539,
+      "sha256": "42622c5f3b3fc9839e087bef5ee7c8061ea77889eae3f22beabf60cf457e71f8",
+      "counts": {
+        "passed": 20
+      },
+      "observations": []
+    },
+    {
+      "stage": "app-process-1",
+      "bytes": 152,
+      "sha256": "ce4c4fa7f296bcb18950f5d6f1fe8e2c52ddb078816d751e411b13d83d01f717",
+      "counts": {},
+      "observations": []
+    }
+  ],
+  "scannedBrowserFiles": 19,
+  "scannedGeneratedResponseFiles": 15
+}

@@ -1,0 +1,66 @@
+{
+  "backend-r4": {
+    "parentThreadId": "01a18a0d-4343-7970-98d4-468e7a39f3bf",
+    "childThreadId": "01a18a0d-8049-7780-86fc-de0c8eb3c724",
+    "childParentThreadId": "01a18a0d-4343-7970-98d4-468e7a39f3bf",
+    "nativeStartedChildren": 1,
+    "parent": {
+      "cwd": "/private/tmp/jobs-firstslice-review-3ca3e2d",
+      "approval_policy": "never",
+      "sandbox_policy": {
+        "type": "read-only"
+      },
+      "model": "gpt-6.1-sol"
+    },
+    "child": {
+      "cwd": "/private/tmp/jobs-firstslice-review-3ca3e2d",
+      "approval_policy": "never",
+      "sandbox_policy": {
+        "type": "read-only"
+      },
+      "model": "gpt-6.1-sol"
+    },
+    "model": "gpt-6.1-sol",
+    "reasoning": "NOT EXPOSED",
+    "adapter": "generic subagent + canonical role; no typed-profile claim",
+    "wrapper": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "3f2601b7bd5db58a5773e2f12743be2f27f2e395d40be872679c8851d92619a0",
+      "candidateAfter": "3f2601b7bd5db58a5773e2f12743be2f27f2e395d40be872679c8851d92619a0"
+    }
+  },
+  "frontend-r4-codex": {
+    "parentThreadId": "01a18a0e-e861-70a3-b8e0-5a000789fe9f",
+    "childThreadId": "01a18a0f-14e1-7e00-915a-544522523193",
+    "childParentThreadId": "01a18a0e-e861-70a3-b8e0-5a000789fe9f",
+    "nativeStartedChildren": 1,
+    "parent": {
+      "cwd": "/private/tmp/jobs-firstslice-review-3ca3e2d",
+      "approval_policy": "never",
+      "sandbox_policy": {
+        "type": "read-only"
+      },
+      "model": "gpt-6.1-sol"
+    },
+    "child": {
+      "cwd": "/private/tmp/jobs-firstslice-review-3ca3e2d",
+      "approval_policy": "never",
+      "sandbox_policy": {
+        "type": "read-only"
+      },
+      "model": "gpt-6.1-sol"
+    },
+    "model": "gpt-6.1-sol",
+    "reasoning": "NOT EXPOSED",
+    "adapter": "generic subagent + canonical role; no typed-profile claim",
+    "wrapper": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "3f2601b7bd5db58a5773e2f12743be2f27f2e395d40be872679c8851d92619a0",
+      "candidateAfter": "3f2601b7bd5db58a5773e2f12743be2f27f2e395d40be872679c8851d92619a0"
+    }
+  }
+}

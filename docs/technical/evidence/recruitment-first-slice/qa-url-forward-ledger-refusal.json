@@ -1,0 +1,13 @@
+{
+  "status": "FAIL",
+  "cause": "Required forward migration0005 appeared after suite began; guarded helper refused incomplete history before fixture DDL",
+  "outputSha256": "cf13c28e9d759772b8d52693b19e4f278dc10b1dcbb6e27560194359f4c90f93",
+  "counts": {
+    "tests": 19,
+    "pass": 17,
+    "fail": 2,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "resolution": "Guarded migration applied explicit append-only history; complete suite repeated without data repair"
+}

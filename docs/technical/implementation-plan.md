@@ -1,6 +1,6 @@
 # Przejście SDD/AIDD → implementacja Jobs CRM
 
-**Status:** PROPOSED plan wdrożenia; PO zatwierdził stack, pominięcie prototypu i Supabase-native rebaseline (ADR-0012); F1/F2 wykonane. F3 i kolejne implementacje wymagają osobnych zleceń. Zakres prac etapowych nie zastępuje pełnego publicznego MVP.
+**Status:** PROPOSED plan wdrożenia; PO zatwierdził stack, pominięcie prototypu i Supabase-native rebaseline (ADR-0012); F1/F2 wykonane. F3 wykonano w zmergowanym PR #11; DEC-052 osobno autoryzuje minimalny pierwszy biznesowy create/read. Pozostałe implementacje wymagają osobnych zleceń. Zakres prac etapowych nie zastępuje pełnego publicznego MVP.
 
 ## Kolejność etapów
 
@@ -8,7 +8,7 @@
 |---|---|---|
 | 0. Documentation merge / readiness | Review ADR i kontraktów, wybór minimalnego zestawu OPEN P0 dla pierwszego slice, decyzja o planie Supabase i kosztach | PR bez sprzeczności, zero niezatwierdzonych enumów/pól |
 | 1. Technical foundation | Node/Next/React/TS, modular monolith, Drizzle migrations, local Supabase, docelowa integracja Supabase Auth/SSR, role/RLS, CI, Render config bez prywatnych danych | typecheck/build/test, testy natywnych sesji SDK/SSR i cross-account, SEC-01/02 |
-| 2. Vertical slice RecruitmentCase | Minimalny **zatwierdzony** model sprawy, Quick Capture ręczne, lista/karta, historia biznesowa vs audyt | AC dla slice, user A/B isolation, nie-fikcyjna historia |
+| 2. Vertical slice RecruitmentCase | **APPROVED zakres DEC-052:** minimalny create/read, Quick Capture ręczne, własna lista i detal, idempotencja i ostrzeżenie; bez tabel historii/audytu | AC dla slice, A/B/anon HTTP, retry/concurrency/conflict, brak fikcyjnej historii, niezależny review i CI exact SHA |
 | 3. Lifecycle + relacje | statusy/etapy (po OPEN-001/018/020/034), closure/reopen, firmy/kontakty, wydarzenia/zadania | testy BR i powiązań; bez auto-close |
 | 4. Documents/Search | private Storage, immutable versions, autoryzacja, FTS | testy no cross-account, wysłane CV ≠ linked CV |
 | 5. Imports/background | CSV/XLSX + minimalny atomowy RPC i user-scoped registry; pgmq worker dopiero przed pierwszą funkcją background; allowlisted URL adapters; bezpieczny fallback | rollback/idempotency/SSRF testy i świadoma akceptacja |
@@ -27,3 +27,10 @@ Rebaseline autoryzuje dokumentację, review i PR bez merge; nie instalację SDK,
 Requirement (FR/AC/BR/DEC/OPEN) → impact analysis → plan → implementacja → testy (raport z wynikiem) → review → aktualizacja dokumentacji/traceability. 1 PR na jeden logiczny slice, bez niepowiązanych refactorów. Decyzje odwracające architekturę do osobnych ADR. W PR: zmienione pliki, zakres, testy wykonane i niewykonane, ryzyka, zależności i blokujące OPEN.
 
 **Nie uruchamiaj pełnej produkcji bez** zweryfikowanej integracji Auth/SSR, DB/RLS, atomowych importów, zatwierdzonej domenowej allowlist URL, prywatnego Storage, planu kopiowania obiektów, formalizacji retencji/usunięć i testów odzyskiwania.
+
+
+## Autoryzowane wykonanie pierwszego biznesowego slice'a — 2026-10-29
+
+Powyższy opis rebaseline pozostaje historią etapu planowania. Późniejsze zlecenie PO „First Business Vertical Slice” i [DEC-052](../decisions/product-decisions.md) autoryzują dokumentację, minimalne migracje produktu, lokalny kod/testy/CI, review, commit/push i PR z `feat/recruitment-case-first-slice`, bez merge/cloud. Baza F3: PR #11, `cd92648fd4c579cb4be57a962cd88b6e3d537583`; nie zastępuje to nowej regresji.
+
+[Kontrakt DATA-01](recruitment-case-first-slice.md), [analiza i plan delegacji](recruitment-case-first-slice-analysis.md), [raport wykonania](recruitment-case-first-slice-report.md). Etapy: formalizacja/przegląd modelu → niezależne ownership backend/frontend/platform/QA → migracje i implementacja → unit + real local PostgreSQL/Auth/Data API + Playwright → niezależne backend/frontend/security review → aktualna traceability i final-SHA CI → otwarty PR. F4 importu, F5 worker, lifecycle, historia, relacje i publiczne wydanie pozostają poza zleceniem.

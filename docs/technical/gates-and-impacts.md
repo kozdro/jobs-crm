@@ -6,7 +6,7 @@
 
 | Priorytet | OPEN | Kontrakt/bloker |
 |---|---|---|
-| P0 przed modelem sprawy | 001,002,004,005,018,020,029 | wynik zamknięcia, pola, korekta, kasowanie, kwalifikujące zaproszenie, skutki zamknięcia |
+| P0 przed pełnym modelem sprawy | 001,002,004,005,018,020,029 | wynik zamknięcia, pola, korekta, kasowanie, kwalifikujące zaproszenie, skutki zamknięcia; DEC-052 zatwierdza odrębny minimalny create/read bez tych operacji |
 | P0 przed CSV import | 010 (częściowo technicznie ustalone),022,024,035 (mechanizm wybrany) | walidacja mapowań, duplikatów, retry; minimalne RPC w docelowym import slice, bez blokowania CRUD |
 | P0 przed publiczną rejestracją | 013 (technologia wybrana),032,041 (samoobsługa wybrana),042 (model wybrany),045 (format wybrany),046 (tryb wybrany) | bezpieczeństwo Auth/SSR, natywne scopes sesji, zakres eksportu, retencja, zgodność prawna i kasowanie |
 | P0/P1 pliki | 006,007,036 | metadane sent version, archiwizacja, prawnie uzasadniona retencja, rozmiary, formaty |
@@ -22,7 +22,7 @@ Nie uznajemy całych OPEN-010/013/014/032/042/045/046 za zamknięte: część te
 - **SEC-01:** standardowa integracja Supabase Auth/SSR według ADR-0012: browser/server SDK cookies i refresh, email/signup/reset, Google PKCE, local/global/others, zaufany user, XSS/token leakage, CSRF właściwy endpointom, cache A/B i redakcja. Testować odmowę niepoprawnej/wygasłej sesji i brak refresh po revoke; osobno udokumentować ważność wydanego JWT do expiry. Bez brokera, HttpOnly-only i target-by-id; brak live credentials = NOT RUN Google. Operacje wrażliwe wymagają dodatkowej ochrony według OPEN, a nie założenia natychmiastowej revocation.
 - **SEC-02:** macierz RLS dla wszystkich tabel, Storage, views/RPC oraz worker; testy negatywne dwóch kont.
 - **SEC-03:** allowlist domen zatwierdzona po testach dostępności i zasad pobierania; SSRF, redirects i Playwright subresources bez obejścia.
-- **DATA-01:** logiczny schemat zatwierdzony po OPEN-002 i typach wyników/stage; brak fikcyjnych wydarzeń.
+- **DATA-01:** **PARTIALLY RESOLVED / APPROVED minimalny create/read** przez DEC-052 (PO 2026-10-29), [dokładny podmodel](recruitment-case-first-slice.md). Bez lifecycle, wyników/stage, historii/audytu, relacji, kasowania i fikcyjnych wydarzeń. Pozostały logiczny schemat wymaga OPEN-002 i zależnych OPEN-001/004/005/018/020/029/034. Formalizacja nie zastępuje runtime proof ani review migracji.
 - **IM-01:** jedno minimalne atomic RPC PostgreSQL na zaakceptowany wsad + minimalny user-scoped key/registry i fingerprint, rollback, payload conflict, RLS/grants i podstawowe retry/concurrency. ADR-0005 ACCEPTED; przed importem, bez zależności zwykłego CRUD.
 - **OPS-01:** realistyczne kosztorysy, RPO 1 h i retencja 7 dni dla DB **i** Storage, DR test, rejestr usunięć.
 - **QA-01:** testy mapowane na FR/AC/TC; brak regresji zakończenia, przypomnień i historii.
@@ -49,3 +49,10 @@ CSV/XLSX może nie wystarczyć do realizacji wszystkich praw podmiotu danych; re
 [ADR-0012](../decisions/adr/0012-supabase-native-auth-sessions-rls.md) zastępuje ADR-0003, TD1.7/1.8 w opisanym zakresie i poprzedni SEC-01. SEC-02 oraz IM-01 zachowują niezmienniki. OPEN-013/042 nie utrzymują anulowanej bramki brokera; TTL/reauth pozostają otwarte. F3 docelowo integruje Auth, F4 przy imporcie, F5 przed background, F6 jako kontrole każdego slice. [Karty i zależności](foundation-plan.md).
 
 **Doprecyzowanie wykonania F3:** flaga local fixture i ukrycie formularzy kontrolują UI aplikacji, nie bezpośrednie Auth API. Przed wdrożeniem OPEN-013/041/043 wymagają decyzji i sprawdzenia konfiguracji dostawcy (signup, potwierdzenia, recovery, zabezpieczenia zmiany poświadczeń). Bramka BFF nie zastępuje ich. Lokalne ustawienia i pomiary w [raporcie F3](foundation-f3.md) nie ustanawiają polityki produkcyjnej.
+
+
+## Wpływ pierwszego biznesowego slice'a — DEC-052
+
+Częściowe rozstrzygnięcie OPEN-002/024 i DATA-01 obejmuje wyłącznie zatwierdzony manual create/read, walidację, owner-only list/detail, ostrzeżenie i idempotencję. [Analiza i plan](recruitment-case-first-slice-analysis.md) mapują wymagania i testy. SEC-02 musi teraz objąć rzeczywiste nowe tabele/granty/RPC przez HTTP A/B/anon oraz listy, count, ID i duplikaty. QA-01 obejmuje brak fikcyjnej historii i regresje F1/F2/F3. Wyników nie nadaje samo APPROVED.
+
+Publiczne SEC/OPS/privacy i pozostałe OPEN nadal obowiązują. Brak fetch w tym slice oznacza brak Smart Import/SSRF execution, nie wykonanie SEC-03. Minimalna lista nie zastępuje docelowego Kanbana. Nie ma wymagania ukończenia importerowego F4 ani workera przed tym zatwierdzonym zapisem.

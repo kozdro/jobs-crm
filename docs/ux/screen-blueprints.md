@@ -214,3 +214,7 @@ ADR-0005 wymaga atomowego zapisu całego zaakceptowanego zbioru i rollbacku bł�
 | Skeleton / status ładowania | Rozpoznawalne oczekiwanie na dane | Nie pokaż „zapisano” bez potwierdzenia |
 
 **Dalsza kontrola:** [flow-contracts.md](flow-contracts.md) definiuje skutki, błędy i scenariusze sprawdzenia.
+
+## Doprecyzowanie pierwszego create/read — DEC-052 (2026-10-29)
+
+Późniejsze zlecenie PO §13.2, [DEC-052](../decisions/product-decisions.md), wymaga w tym slice czterech kroków **Sytuacja → Dane → Działanie → Podsumowanie**, z jedyną akcją „Zapisz tylko sprawę”. Historia wcześniejszego wariantu trzech kroków pozostaje powyżej. [Aneks decyzji UX](blueprint-decisions.md) i [dokładny kontrakt slice'a](../technical/recruitment-case-first-slice.md) opisują pola, duplikaty, retry, dirty state i minimalny shell. To PARTIAL COVERAGE UX-006/F02; wykonane wyniki i NOT RUN są w [raporcie](../technical/recruitment-case-first-slice-report.md).

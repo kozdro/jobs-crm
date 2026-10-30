@@ -35,7 +35,7 @@ Każdy poniższy identyfikator zachowuje **`OPEN` w nierozstrzygniętym zakresie
 | OPEN | Klasa / najwcześniejsza zależność | Co pozostaje i warunek dalszej pracy |
 | --- | --- | --- |
 | OPEN-001 | B: fizyczny model sprawy/lifecycle | Słownik wyników i reguły użycia. Zachować bramkę przed modelem z gates-and-impacts; nie tworzyć domyślnego enuma. |
-| OPEN-002 | B: schemat i formularz | Minimalne pola, obowiązkowość, formaty, limity, daty, relacje, walidacje. Nie blokuje syntetycznych tabel technicznych PoC; blokuje RecruitmentCase i jego migracje. |
+| OPEN-002 | B: schemat i formularz | **PARTIALLY RESOLVED DEC-052:** minimalny RecruitmentCase create/read i migracje autoryzowane. Pozostałe formularze, pola, relacje i lifecycle OPEN; nie blokuje syntetycznych PoC. |
 | OPEN-003 | D → B: edycja etapów | Propagacja szablonów i konflikty; poza minimalnym save/read, przed implementacją konfiguracji etapów. |
 | OPEN-004 | B: model historii/audytu | Korekta/edycja/usuwanie historii i ślad audytowy. Żaden techniczny log nie udaje aplikacji. |
 | OPEN-005 | B: model relacji; R: delete | Usuwanie/archiwizacja/przywracanie i integralność relacji. Bramka modelu nie znika po schowaniu przycisku Usuń. |
@@ -57,7 +57,7 @@ Każdy poniższy identyfikator zachowuje **`OPEN` w nierozstrzygniętym zakresie
 | OPEN-021 | D → B: wydarzenia | Potwierdzanie po terminie, daty rzeczywiste, uczestnicy; bez automatycznego uznawania spotkania za odbyte. |
 | OPEN-022 | D → B: import | Nieznane słowniki i niespójna historia; brak cichego mapowania do domyślnych wartości. Syntetyczny RPC bez słowników nie wymaga tej decyzji. |
 | OPEN-023 | D → B: CSV/XLSX | Arkusze/kodowania/daty/formuły/nagłówki; brak parsera plików w technicznym RPC PoC. |
-| OPEN-024 | B: Quick Capture | Kryteria podobieństwa i UX człowieka. Obowiązku ostrzeżenia o potencjalnym duplikacie nie wolno po cichu wyłączyć z pierwszego capture. |
+| OPEN-024 | B: Quick Capture | **PARTIALLY RESOLVED DEC-052:** owner-only identyczna nazwa lub URL, ostrzeżenie i świadoma nowa sprawa; bez merge/update. Zaawansowane podobieństwo i import nadal OPEN. |
 | OPEN-025 | B: jeśli pierwszy slice zapisuje URL; D: fetch | Normalizacja i identyfikacja publikacji. URL może pozostać poza pierwszym autoryzowanym zakresem, bez zamiany tego w ograniczenie MVP. |
 | OPEN-026 | B: jeśli pierwszy slice zapisuje źródło/kanał/link | Słowniki; nie narzucać wymaganych wartości lub mieszać źródła z kanałem. |
 | OPEN-027 | D → B: etapy | Domyślny zestaw i kolejność. Żadnego seedowania etapów w Foundation. |
@@ -86,19 +86,19 @@ Każdy poniższy identyfikator zachowuje **`OPEN` w nierozstrzygniętym zakresie
 ## Rekomendowane pakiety rozstrzygnięć — PROPOSED
 
 1. **Przed zależną polityką Auth:** OPEN-013/041/042/043 rozstrzygają tylko pozostałe szczegóły signup, APP_ORIGIN/redirect/CSRF, TTL i reset/sensitive reauth. Supabase-native, scopes i JWT do expiry już zatwierdzone. Brak credentials = NOT RUN live Google, bez blokowania niezależnego lokalnego zakresu. Przed publicznym udostępnieniem potrzebne pełne adekwatne SEC-01/02.
-2. **Przed RecruitmentCase:** jeden pakiet pól i niezmienników OPEN-001/002/004/005/018/020/029 zgodnie z istniejącą DATA-01, plus OPEN-024 dla capture; także OPEN-034, jeśli projekt dotyka etapów. Rekomendacja: zatwierdzić dokładny minimalny write/read kontrakt, rozdzielenie stanu, historii i audytu oraz relacje/konflikty. Brak przycisku nie uzasadnia usunięcia istniejącej bramki modelu.
+2. **Przed pełnym RecruitmentCase:** pakiet OPEN-001/002/004/005/018/020/029 i OPEN-034 dla etapów nadal obowiązuje. Późniejszy DEC-052 jawnie zatwierdza minimalny write/read, DATA-01 i OPEN-024 tylko w podzakresie create/read, bez historii/lifecycle/relacji/delete. To źródło dopuszczenia minimalnego modelu, nie wniosek z ukrycia przycisków.
 3. **Przed public release:** OPEN-013/014/032/041–046 w odpowiednich zakresach, koszty i DB+Storage DR, deletion ledger i legal/privacy. Nie pytać ponownie o dostawcę, otwarty signup, email reset, format eksportu ani irreversible delete.
 
-## Pierwszy biznesowy vertical slice — PROPOSED do osobnej autoryzacji PO
+## Pierwszy biznesowy vertical slice — zakres zatwierdzony później DEC-052
 
 **Cel:** zalogowany właściciel świadomie zapisuje minimalną sprawę ręcznie i może odczytać wyłącznie swoje sprawy (lista i szczegół po ID). Przypadek startowy: „Zapisz tylko sprawę”, bez rejestrowania aplikacji lub innego zdarzenia, którego użytkownik nie potwierdził. Jest to etap wewnętrznej implementacji z DEC-047, nie redefinicja publicznego MVP.
 
 | Zakres/kontrakt | Źródła i status | Ograniczenie oceny |
 | --- | --- | --- |
-| Minimalne utworzenie bez wymaganego ogłoszenia/stanowiska | FR-LC-001/AC-LC-001; FR-QC-002/AC-QC-002; DEC-001/002/029; BR-001 `APPROVED` | OPEN-002 przed fizycznym schematem. Brak znanego pracodawcy nie może blokować dopuszczonego wariantu BR-028. Pełne FR-LC-002/AC-LC-002 obejmuje pięć wariantów i pozostaje poza pełnym pokryciem tego kroku. |
+| Minimalne utworzenie bez wymaganego ogłoszenia/stanowiska | FR-LC-001/AC-LC-001; FR-QC-002/AC-QC-002; DEC-001/002/029; BR-001 `APPROVED` | DEC-052 zatwierdza pola i minimalny schemat; reszta OPEN-002 pozostaje. Brak znanego pracodawcy nie może blokować dopuszczonego wariantu BR-028. Pełne FR-LC-002/AC-LC-002 obejmuje pięć wariantów i pozostaje poza pełnym pokryciem tego kroku. |
 | Świadomy zapis, zachowanie kontekstu i kolejny wpis | FR-QC-009/010, AC-QC-009/010; DEC-032, BR-029 `APPROVED` | Modal/kreator, podsumowanie i toast zgodnie z UX; brak samoczynnego przejścia do detalu. |
 | Bez fikcyjnej aplikacji, połączenia lub korekty statusu | BR-004/007/016/021/022, DEC-009/022/031 `APPROVED`; FR-QC-007/AC-QC-007 | Powtórzony submit/retry nie może dać dwóch spraw; to idempotencja żądania, odrębna od produktu „potencjalny duplikat” OPEN-024. Nie twierdzić, że manual-only test wykonuje URL-specific AC-QC-011. |
-| Ostrzeżenie o potencjalnym duplikacie i decyzja użytkownika | FR-QC-006/007, AC-QC-006/007; DEC-031, BR-022 `APPROVED` | OPEN-024 przed implementacją; aktualizacja istniejącej sprawy FR-QC-008 wymaga oddzielnego zatwierdzonego kontraktu i może być późniejszym krokiem po jawnej autoryzacji granicy slice'a. Brak automatycznego merge. |
+| Ostrzeżenie o potencjalnym duplikacie i decyzja użytkownika | FR-QC-006/007, AC-QC-006/007; DEC-031, BR-022 `APPROVED` | DEC-052 rozstrzyga minimalne ostrzeżenie; pozostały OPEN-024 trwa. Aktualizacja istniejącej sprawy FR-QC-008 wymaga oddzielnego zatwierdzonego kontraktu i może być późniejszym krokiem po jawnej autoryzacji granicy slice'a. Brak automatycznego merge. |
 | Odczyt listy i własnego ID | FR-RW-005 i FR-RW-009 jako powiązane `APPROVED`; AC-RW-005/009; BR-030/NFR-001; FR-AD-002/AC-AD-002 `APPROVED` niezmiennik | Lista i minimalny detal są częściami wymagań, nie pełnym Kanban/lista/drawer/detail AC. List-only nie staje się nowym domyślnym Workspace; domyślny Kanban pozostaje zatwierdzony. |
 | Globalne wejście | FR-QC-001/AC-QC-001; DEC-017/029 `APPROVED` | Quick Capture w istniejącym shellu; pełny PASS wymaga siedmiu prawdziwych modułów. Nie tworzyć martwych ekranów w celu pozorowania AC. |
 
@@ -114,6 +114,13 @@ Każdy poniższy identyfikator zachowuje **`OPEN` w nierozstrzygniętym zakresie
 
 **DoD przyszłego slice'a:** odrębna autoryzacja PO exact zakresu, wymagane OPEN i DATA-01 rozstrzygnięte, wykorzystywane techniczne gates F1/F2/F3 spełnione; importer-specific F4 i worker F5 nie są zależnością manualnego CRUD, brak arbitralnych pól i enumów; wykonane adekwatne unit/integration/RLS/Playwright/static/build/CI; niezależne review bez P0/P1; dokumentacja i traceability rozdzielają pełne i częściowe AC oraz NOT RUN. Nie ogłaszać całego FR-RW/FR-QC/FR-AD jako ukończonego na podstawie tego slice'a.
 
-## Status obecnego zadania
+## Historyczny status rebaseline
 
 Rebaseline dotyczy wyłącznie dokumentów i review/PR. Raporty F1/F2 i ich wcześniejsze PASS pozostają bez zmian; F3/Auth, F4/import RPC i nowe runtime testy są PLANNED / NOT RUN. Kontrole dokumentacji/harnessu i review raportowane osobno. Utworzono ADR-0012 i supersession ADR-0003; żaden OPEN nie został automatycznie zamknięty.
+
+
+## Obecne zlecenie: DEC-052 / minimalny biznesowy create/read
+
+PO 2026-10-29 zatwierdził wariant A i wykonanie [pierwszego slice'a](recruitment-case-first-slice.md). F3/ADR-0012 jest bazą po merge PR #11. OPEN-002/024 i DATA-01 mają **PARTIALLY RESOLVED** wyłącznie w tym podzakresie. Ze starszych opisów „przed decyzjami” nie wynika ponowna bramka PO dla już zleconych pól. OPEN-025/026/028 pozostają dla pozostałej semantyki; obecny slice ma jeden nietypowany HTTP(S) bez fetch, prostą deterministyczną normalizację i własną listę newest-first.
+
+[Plan i analiza](recruitment-case-first-slice-analysis.md) utrzymują podział autorów, QA od początku i niezależnych reviewerów. **Weryfikacja:** NOT RUN na etapie formalizacji; rzeczywiste PASS/FAIL/NOT RUN i dokładny kandydat są w [raporcie wykonania](recruitment-case-first-slice-report.md). Pełne AC-LC/RW/QC/AD, siedem modułów, Kanban/drawer i UC/TC-001/029/034 pozostają częściowo pokryte. Historycznych raportów F1/F2/F3 nie zmieniamy.

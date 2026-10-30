@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "node": "24.22.2",
+  "target": "preflight-b",
+  "migrations": 4,
+  "counts": {
+    "tests": 22,
+    "passed": 22,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "output": {
+    "bytes": 2649,
+    "sha256": "72b354128743d0a1d991624ee58e248b1b11f87fbd7d9e02b89d3914ad4ad330"
+  },
+  "deterministicScheduling": {
+    "barrier": "RLS INVOKER helper pauses duplicate aggregation; exact pg_locks wait before direct HTTP INSERT commits",
+    "identicalPayload": "replayed",
+    "differentPayload": "HTTP409 PT409",
+    "negativeControl": "Canonical 0002 produces duplicates for both schedules; unchanged expected-outcome oracle rejects both",
+    "restoration": "Exact pg_get_functiondef, policy, ACL and INVOKER fingerprint restored; fixture helper/schema absent; migration ledger reverified"
+  }
+}

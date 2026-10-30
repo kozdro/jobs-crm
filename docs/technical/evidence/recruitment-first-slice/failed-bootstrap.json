@@ -1,0 +1,11 @@
+{
+  "status": "FAIL",
+  "target": "preflight-a",
+  "at": "2026-10-29T22:34:19.885Z",
+  "guardDenials": [
+    "POST /volumes/create: Unowned volume create refused",
+    "POST /containers/prune: Unsupported Docker mutation refused"
+  ],
+  "cause": "CLI sanitizes project ID to 40 characters; initial project ID exceeded limit",
+  "mutations": "No product migrations or containers; only owned network created, then retired by guard"
+}
