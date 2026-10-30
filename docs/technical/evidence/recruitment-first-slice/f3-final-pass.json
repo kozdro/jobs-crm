@@ -1,0 +1,192 @@
+{
+  "id": "run-77dfcfda",
+  "projectId": "jobs-crm-f3-run-77dfcfda-66d46d5a9600",
+  "startedAt": "2026-10-29T23:43:52.331Z",
+  "node": "v24.22.2",
+  "status": "PASS",
+  "stages": [
+    "local-target-and-RLS-migrations",
+    "production-build",
+    "real-auth-sdk-data-api",
+    "production-HTTPS-browser",
+    "build-server-logs-and-browser-artifacts-redacted"
+  ],
+  "outputChecks": [
+    {
+      "stage": "production-build",
+      "bytes": 992,
+      "sha256": "388a687c6cb8739a28ee3a0391ac41ddd0ca2d1a17eb99e157fc73bac61d4989",
+      "counts": {},
+      "observations": []
+    },
+    {
+      "stage": "auth-sdk-integration",
+      "bytes": 3565,
+      "sha256": "a55cb6272201a54ee4d8053f608ba742406e16cc6cc31fe5c2a72e822dcc5ed5",
+      "counts": {
+        "tests": 13,
+        "passed": 13,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "observations": [
+        {
+          "kind": "F3_SIGNUP_OBSERVATION",
+          "values": {
+            "confirmationsFixture": true,
+            "newEmail": {
+              "userReturned": true,
+              "sessionReturned": false,
+              "identityCount": 1,
+              "errorCode": null
+            },
+            "existingEmail": {
+              "userReturned": false,
+              "sessionReturned": false,
+              "identityCount": null,
+              "errorCode": "user_already_exists"
+            },
+            "productionAntiEnumerationPolicy": "OPEN-041/013"
+          }
+        },
+        {
+          "kind": "F3_RECOVERY_SESSION_OBSERVATION",
+          "values": {
+            "currentRecoveryPasswordUpdated": true,
+            "otherSessions": [
+              {
+                "account": "other-A-1",
+                "refreshAccepted": false,
+                "errorCode": "refresh_token_not_found"
+              },
+              {
+                "account": "other-A-2",
+                "refreshAccepted": false,
+                "errorCode": "refresh_token_not_found"
+              }
+            ],
+            "unrelatedBRefreshAccepted": true,
+            "productionSessionConsequencesPolicy": "OPEN-043/042"
+          }
+        },
+        {
+          "kind": "F3_PASSWORD_POLICY_OBSERVATION",
+          "values": {
+            "securePasswordChangeFixture": true,
+            "freshOrdinarySessionUpdateAccepted": true,
+            "errorCode": null,
+            "stale24HourSession": "NOT RUN - no auth schema timestamp tampering",
+            "productionFreshnessAndReauthPolicy": "OPEN-013/043"
+          }
+        },
+        {
+          "kind": "F3_JWT_REPLAY",
+          "values": {
+            "scope": "local",
+            "currentRefreshSessionRevoked": true,
+            "sampledSession": "current",
+            "sampleRefreshSessionRevoked": true,
+            "issuedAt": 1793317445,
+            "exp": 1793317505,
+            "scopeAppliedAt": 1793317445.933,
+            "lastValidAt": 1793317535.826,
+            "firstDeniedAt": 1793317536.341,
+            "observedValidAfterLogoutSeconds": 89.893,
+            "firstDeniedAfterExpSeconds": 31.341000080108643
+          }
+        },
+        {
+          "kind": "F3_JWT_REPLAY",
+          "values": {
+            "scope": "others",
+            "currentRefreshSessionRevoked": false,
+            "sampledSession": "other",
+            "sampleRefreshSessionRevoked": true,
+            "issuedAt": 1793317446,
+            "exp": 1793317506,
+            "scopeAppliedAt": 1793317446.303,
+            "lastValidAt": 1793317536.856,
+            "firstDeniedAt": 1793317537.369,
+            "observedValidAfterLogoutSeconds": 90.553,
+            "firstDeniedAfterExpSeconds": 31.36899995803833
+          }
+        },
+        {
+          "kind": "F3_JWT_REPLAY",
+          "values": {
+            "scope": "global",
+            "currentRefreshSessionRevoked": true,
+            "sampledSession": "current",
+            "sampleRefreshSessionRevoked": true,
+            "issuedAt": 1793317446,
+            "exp": 1793317506,
+            "scopeAppliedAt": 1793317446.686,
+            "lastValidAt": 1793317536.859,
+            "firstDeniedAt": 1793317537.373,
+            "observedValidAfterLogoutSeconds": 90.173,
+            "firstDeniedAfterExpSeconds": 31.372999906539917
+          }
+        }
+      ]
+    },
+    {
+      "stage": "auth-HTTPS-browser",
+      "bytes": 2543,
+      "sha256": "89960237b186b189eb24e85783030d78c213bf468b27f49bdd27a332b0092529",
+      "counts": {
+        "passed": 10
+      },
+      "observations": [
+        {
+          "kind": "F3_SIGNUP_UI_OBSERVATION",
+          "values": {
+            "newUiOutcome": "status",
+            "existingUiOutcome": "alert",
+            "messagesEqual": false,
+            "productionAntiEnumerationPolicy": "OPEN-041/013 - provider configuration dependent"
+          }
+        },
+        {
+          "kind": "F3_REFRESH_FAULT_OBSERVATION",
+          "values": {
+            "delayedRefreshRequests": 2,
+            "networkFailures": 8,
+            "rejectedRefreshRequests": 1,
+            "actualAccessExpiryReached": true,
+            "explicitReLoginShown": true,
+            "reconnectPreservedOwner": true,
+            "unrelatedBPreserved": true
+          }
+        },
+        {
+          "kind": "F3_BFCACHE_OBSERVATION",
+          "values": {
+            "cacheExclusionObserved": true,
+            "backResponseSource": "explicit-SSR-request",
+            "nativeNoStoreReason": "MainResourceHasCacheControlNoStore",
+            "reloadedAfterBack": true,
+            "noPrivateAfterLogout": true,
+            "actualRestoreHandler": "NOT RUN - browser excludes no-store private page"
+          }
+        }
+      ]
+    },
+    {
+      "stage": "app-process-1",
+      "bytes": 152,
+      "sha256": "784d90c34d8f6b9abdb99d6c4f709949c6c3845fd5a644c03316c8cb81c9e573",
+      "counts": {},
+      "observations": []
+    },
+    {
+      "stage": "app-process-2",
+      "bytes": 152,
+      "sha256": "a5c75de88ecc3a732070d65763e78eb74a1c273cf54b6788d0202a44837f282c",
+      "counts": {},
+      "observations": []
+    }
+  ],
+  "scannedBrowserFiles": 19,
+  "scannedGeneratedResponseFiles": 15
+}

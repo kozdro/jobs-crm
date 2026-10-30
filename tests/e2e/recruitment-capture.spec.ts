@@ -1,7 +1,13 @@
 /** Product browser tests require an independently guarded local product target. */
 import { randomUUID } from "node:crypto";
 import { appendFile, mkdir } from "node:fs/promises";
-import { expect, test, type Locator, type Page } from "@playwright/test";
+import {
+  expect,
+  test,
+  type BrowserContext,
+  type Locator,
+  type Page,
+} from "@playwright/test";
 import {
   readRecruitmentTarget,
   type RecruitmentTarget,
@@ -1042,5 +1048,190 @@ test("Recovery SDK401/403 hides an open private portal before login navigation c
       if (recoveryClick) await Promise.allSettled([recoveryClick]);
       await phase("finally-after");
     }
+  }
+});
+
+test("Real BFF command denies anon, wrong identity, unsafe Origin and owner/status injection without writes or private error leakage", async ({
+  browser,
+}) => {
+  const ca = await browser.newContext({ ignoreHTTPSErrors: true });
+  const cb = await browser.newContext({ ignoreHTTPSErrors: true });
+  const anonymous = await browser.newContext({ ignoreHTTPSErrors: true });
+  try {
+    const [pa, pb] = await Promise.all([ca.newPage(), cb.newPage()]);
+    await Promise.all([login(pa, a), login(pb, b)]);
+    for (const [context, owner] of [
+      [ca, a],
+      [cb, b],
+    ] as const) {
+      const identity = await context.request.get(
+        `${target.appOrigin}/auth/user`,
+        { maxRedirects: 0 },
+      );
+      expect(identity.status()).toBe(200);
+      expect(
+        ((await identity.json()) as { user: { id: string } }).user.id,
+      ).toBe(owner.id);
+    }
+    expect(
+      (
+        await anonymous.request.get(`${target.appOrigin}/auth/user`, {
+          maxRedirects: 0,
+        })
+      ).status(),
+    ).toBe(401);
+
+    const clients = await Promise.all(
+      [a, b].map(async (owner) => {
+        const client = sdk(target);
+        const auth = await client.auth.signInWithPassword({
+          email: owner.email,
+          password: owner.password,
+        });
+        expect(auth.error === null && auth.data.user?.id === owner.id).toBe(
+          true,
+        );
+        return client;
+      }),
+    );
+    const scenarios: {
+      name: string;
+      context: BrowserContext;
+      expectedUserId: string;
+      origin?: string;
+      extra?: Record<string, unknown>;
+      status: number;
+      kind: string;
+    }[] = [
+      {
+        name: "anon with expected A",
+        context: anonymous,
+        expectedUserId: a.id,
+        origin: target.appOrigin,
+        status: 401,
+        kind: "unauthenticated",
+      },
+      {
+        name: "B with expected A",
+        context: cb,
+        expectedUserId: a.id,
+        origin: target.appOrigin,
+        status: 403,
+        kind: "forbidden",
+      },
+      {
+        name: "A with expected B",
+        context: ca,
+        expectedUserId: b.id,
+        origin: target.appOrigin,
+        status: 403,
+        kind: "forbidden",
+      },
+      {
+        name: "A with foreign Origin",
+        context: ca,
+        expectedUserId: a.id,
+        origin: "https://external.example.invalid",
+        status: 403,
+        kind: "forbidden",
+      },
+      {
+        name: "A without Origin",
+        context: ca,
+        expectedUserId: a.id,
+        status: 403,
+        kind: "forbidden",
+      },
+      {
+        name: "A with injected owner",
+        context: ca,
+        expectedUserId: a.id,
+        origin: target.appOrigin,
+        extra: { owner_id: b.id },
+        status: 400,
+        kind: "invalid",
+      },
+      {
+        name: "A with injected status",
+        context: ca,
+        expectedUserId: a.id,
+        origin: target.appOrigin,
+        extra: { status: "W rekrutacji" },
+        status: 400,
+        kind: "invalid",
+      },
+    ];
+    for (const scenario of scenarios) {
+      const requestId = randomUUID();
+      const title = `BFF-denied-${randomUUID()}`;
+      // APIRequestContext uses the real logged-in browser cookie jar. No route
+      // interception, fabricated session or mocked BFF/Auth response is involved.
+      const response = await scenario.context.request.post(
+        `${target.appOrigin}/recruitments/commands`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Sec-Fetch-Site": "same-origin",
+            ...(scenario.origin === undefined
+              ? {}
+              : { Origin: scenario.origin }),
+          },
+          data: {
+            requestId,
+            title,
+            description: null,
+            sourceUrl: null,
+            allowDuplicate: false,
+            expectedUserId: scenario.expectedUserId,
+            ...scenario.extra,
+          },
+          maxRedirects: 0,
+        },
+      );
+      expect(response.status(), scenario.name).toBe(scenario.status);
+      expect(response.headers()["cache-control"]).toContain("private");
+      expect(response.headers()["cache-control"]).toContain("no-store");
+      const bodyText = await response.text();
+      const body = JSON.parse(bodyText) as {
+        kind: string;
+        error?: unknown;
+        errors?: Record<string, unknown>;
+      };
+      expect(body.kind, scenario.name).toBe(scenario.kind);
+      if (scenario.status === 400) {
+        expect(Object.keys(body).sort()).toEqual(["errors", "kind"]);
+        expect(Object.keys(body.errors ?? {})).toEqual(["form"]);
+        expect(typeof body.errors?.form).toBe("string");
+      } else {
+        expect(Object.keys(body).sort()).toEqual(["error", "kind"]);
+        expect(typeof body.error).toBe("string");
+      }
+      expect(
+        /SQLSTATE|PostgREST|PGRST|auth\.uid|service_role|access_token|refresh_token|eyJ[A-Za-z0-9_-]+\.eyJ|stack|23505|42501/.test(
+          bodyText,
+        ),
+      ).toBe(false);
+      for (const privateValue of [
+        a.id,
+        b.id,
+        a.email,
+        b.email,
+        a.password,
+        b.password,
+        requestId,
+        title,
+      ])
+        expect(bodyText.includes(privateValue), scenario.name).toBe(false);
+      for (const client of clients) {
+        const absent = await client
+          .from("recruitment_case")
+          .select("id")
+          .or(`request_id.eq.${requestId},title.eq.${title}`);
+        expect(absent.error === null, scenario.name).toBe(true);
+        expect(absent.data, scenario.name).toEqual([]);
+      }
+    }
+  } finally {
+    await Promise.all([ca.close(), cb.close(), anonymous.close()]);
   }
 });

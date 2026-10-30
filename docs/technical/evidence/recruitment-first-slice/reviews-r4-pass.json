@@ -1,0 +1,81 @@
+{
+  "backend": {
+    "status": "PASS static no confirmed P0/P1/P2/P3",
+    "candidate": "3ca3e2df2851a7b06274761ce2e8968d4eb16887",
+    "runtime": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "3f2601b7bd5db58a5773e2f12743be2f27f2e395d40be872679c8851d92619a0",
+      "candidateAfter": "3f2601b7bd5db58a5773e2f12743be2f27f2e395d40be872679c8851d92619a0"
+    },
+    "sessions": [
+      "01a18a0d-4343-7970-98d4-468e7a39f3bf"
+    ],
+    "models": [
+      "gpt-6.1-sol"
+    ],
+    "reasoning": "NOT EXPOSED",
+    "tools": [
+      "native read-only parent + one read-only canonical-role child, see runtime proof"
+    ],
+    "report": "**PASS — statyczny review backend/domain/platform** kandydata `3ca3e2df2851a7b06274761ce2e8968d4eb16887` względem `cd92648fd4c579cb4be57a962cd88b6e3d537583`. Brak potwierdzonych findings P0/P1/P2/P3.\n\nUruchomiono dokładnie jednego **generic subagent + canonical role `backend-reviewer`**, bez typed profile i dalszej delegacji. Odczytano AGENTS.md, delivery, rolę i skill review-change. Sandbox był rzeczywiście read-only; nie zmieniano plików ani nie uruchamiano testów.\n\nRozstrzygnięcie wcześniejszych findings:\n\n- **P2 wyścig direct INSERT:** zamknięte przez `0003` oraz dowody deterministycznego oracle i przywrócenia funkcji.\n- **P2 zgodność reprezentacji URL:** zamknięte dla zgłoszonych przypadków przez `0004–0005` i dowody QA.\n- **P2 ACE:** odrzucone — rzeczywiste wyniki przypiętych Node i Chromium przeczą wcześniejszej przesłance odrzucenia `xn--a.invalid`.\n- **P3 bare `0x`:** zamknięte przez `0006`, rewalidację CHECK i odpowiednie wektory testowe.\n\nOceniono również RLS/granty, INVOKER RPC, idempotencję, projekcje i paginację, BFF, ledger/source drift, guard/cleanup oraz sensowność testów regresyjnych.\n\n**NOT RUN w tej sesji:** runtime, testy, hosted CI, pełna akceptacja FR oraz pełne frontend/security review. Wyniki R9 i pozostałe raporty oceniono jako dostarczone dowody QA, nie własne wykonanie. Manual AT i natywny prywatny bfcache pozostają niezweryfikowane."
+  },
+  "frontend": {
+    "status": "PASS static no confirmed P0/P1/P2/P3",
+    "candidate": "3ca3e2df2851a7b06274761ce2e8968d4eb16887",
+    "runtime": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "3f2601b7bd5db58a5773e2f12743be2f27f2e395d40be872679c8851d92619a0",
+      "candidateAfter": "3f2601b7bd5db58a5773e2f12743be2f27f2e395d40be872679c8851d92619a0"
+    },
+    "sessions": [
+      "01a18a0e-e861-70a3-b8e0-5a000789fe9f"
+    ],
+    "models": [
+      "gpt-6.1-sol"
+    ],
+    "reasoning": "NOT EXPOSED",
+    "tools": [
+      "native read-only parent + one read-only canonical-role child, see runtime proof"
+    ],
+    "report": "**PASS — ograniczony statyczny review frontendu. Brak potwierdzonych findings P0/P1/P2/P3.**\n\nOceniony kandydat: `3ca3e2df2851a7b06274761ce2e8968d4eb16887`, baza: `cd92648fd4c579cb4be57a962cd88b6e3d537583`.\n\nUruchomiono dokładnie jednego **generic subagent + canonical role `frontend-reviewer`**, odebrano findings; bez typed profile i dalszej delegacji. Przeczytano AGENTS.md, delivery, kanoniczną rolę i skill `review-change`. Sandbox był read-only. Nie zmieniano plików ani nie uruchamiano testów; końcowy status Git pozostał czysty.\n\nWcześniejsze findings frontendowe:\n\n- **R2: dwa P2 i trzy P3 zamknięte** — porzucenie niepotwierdzonego zamiaru, 401/403, save-next, rozróżnienie zwykłego zapisu, reset/lifetime oraz semantyka kroków i walidacji.\n- **R3: trzy P3 zamknięte w kodzie i zakresie dowodów QA** — link listy zamyka oba dialogi, status sukcesu ma trwały region live, testy obejmują wejście ze strony i ukrycie portalu przed zakończeniem nawigacji.\n- Pytanie o `AuthSessionMissingError` wyjaśniono przez oficjalny predykat SDK i test jednostkowy.\n\nOceniono pełny diff frontendu, bieżący kod oraz testy dotyczące formularza, retry/duplikatów, prywatnych portali, focusu, listy, szczegółów i paginacji. Raport R9 zawiera build PASS, HTTP 25/25 i Playwright 19/19 — **to dostarczone wyniki QA, nie własne wykonanie**.\n\nWcześniejsza przesłanka zarzutu ACE jest sprzeczna z dostarczonymi obserwacjami przypiętego Node i Chromium; nie ma podstaw do jej podtrzymania.\n\n**NOT RUN:** runtime w tej sesji, manualne czytniki ekranowe, fizyczne urządzenia, rzeczywisty persisted bfcache i hosted CI. PASS obejmuje statyczny frontend; nie oznacza pełnego PASS FR/AC ani końcowego backend/security review."
+  },
+  "security": {
+    "status": "PASS static no confirmed P0/P1/P2/P3",
+    "candidate": "3ca3e2df2851a7b06274761ce2e8968d4eb16887",
+    "runtime": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "3f2601b7bd5db58a5773e2f12743be2f27f2e395d40be872679c8851d92619a0",
+      "candidateAfter": "3f2601b7bd5db58a5773e2f12743be2f27f2e395d40be872679c8851d92619a0"
+    },
+    "sessions": [
+      "f66768b0-ce76-4823-ae81-531e51f332ab"
+    ],
+    "models": [
+      "claude-opus-5-5"
+    ],
+    "reasoning": "NOT EXPOSED",
+    "tools": [
+      "Read",
+      "Grep",
+      "Glob"
+    ],
+    "report": "**Wynik: PASS w zakresie bezpieczeństwa, tylko statycznie.** Na kandydacie `3ca3e2df2851a7b06274761ce2e8968d4eb16887` (baza `cd92648f…`) nie ma findings P0, P1, P2 ani P3. Nie potwierdzam, że runtime ani pełne FR przechodzą.\n\n**Metadane**\n- Rola: `security-reviewer`. Model: `claude-opus-5-5`, reasoning: NOT EXPOSED. Nie jestem autorem zmian.\n- Miałem tylko Read, Grep i Glob, bez Bash, Write, Edit i MCP, więc ograniczenie było rzeczywiste. Nic nie zmieniłem, nie uruchomiłem testów i niczego nie delegowałem.\n- Przeczytałem AGENTS.md, delivery, rolę i skill review-change.\n- Ocenione: cały `.harness-runs/delta.patch` (R3→R4) oraz bieżące pliki:\n  - migracja `0006`, `_journal.json`, `schema.ts:60-61`, ACL w `0000:88-90`;\n  - `quick-capture.tsx` (fragmenty z autoryzacją, odzyskiwaniem zapisu, cyklem życia i porzuceniem), `recovery-session.ts`, `saved-case-notice.tsx`;\n  - testy w `url-parity.ts`, w tym test wrażliwości `:295-381`;\n  - dowody `ace-runtime-counterevidence.json`, `qa-ace-numeric-parity-pass.json` i `reviews-r3.json`.\n\n## Rozstrzygnięcie wcześniejszych findings\n\n**Security R3 P3 (goły host `0x`): zamknięte.**\n- **Kod:** `0006:132-134` odrzuca ostatnią etykietę pasującą do `0x[0-9a-f]*\\.?`. Host jest wcześniej zmieniany na małe litery (`:118`), więc `0X` też jest odrzucane. `0xg` dalej przechodzi jako zwykła domena, co zgadza się z WHATWG.\n- **Uprawnienia funkcji:** helper nadal jest SECURITY INVOKER z `search_path=''` i wywołuje tylko kwalifikowane `pg_catalog`. `CREATE OR REPLACE` zachowuje ACL z `0000:88-90`: brak dostępu dla PUBLIC, anon i service_role, EXECUTE tylko dla authenticated.\n- **Istniejące dane:** w `0006:142-149` DROP i ADD CHECK są w jednym ALTER, bez `NOT VALID`. Wszystkie istniejące wiersze są więc sprawdzane ponownie, a migracja przerwie się na niezgodnym wierszu.\n  - Wyrażenie CHECK jest identyczne z `schema.ts:61`.\n  - Migracje `0000–0005` są nietknięte, a journal ma idx 6.\n- **Dowody QA:**\n  - testy jednostkowe: `0x` i `0x.` dają `0.0.0.0`, a `a.0x` jest odrzucane;\n  - `verifyInvalidHostnameRejection` sprawdza, że rzeczywiście natywny `new URL` odrzuca każdy wektor, a potem odrzucenie przez BFF, RPC i bezpośredni INSERT oraz to, że nie zostaje częściowy wiersz;\n  - `qa-ace-numeric-parity-pass.json`.\n- Inne zapisy numeryczne (ósemkowy, skrócony IPv4, kropka na końcu) sprawdziłem tylko statycznie. Są odrzucane, czyli błąd jest bezpieczny.\n\n**Backend R3 P2 (ACE `xn--a`): przesłanka obalona, to nie jest defekt w obecnym kontrakcie.**\n- Kontrakt zadania to „URL.href w przypiętym runtime”.\n- `ace-runtime-counterevidence.json` pokazuje, że przypięty Node 24.22.2 (ada 4.0.0, ICU 78.3, globalny `URL` to `node:url`, brak `NODE_OPTIONS`) i Chromium 156 przyjmują `https://xn--a.invalid/` bez zmian. Tak samo DB.\n- Nie ma więc rozbieżności BFF, DB i przeglądarki dla tego przypadku. Skutków dla bezpieczeństwa też nie ma: brak pobierania (no-fetch), tylko http(s), dane tylko właściciela.\n- Celowo nie wprowadzam normatywnej polityki IDNA. To wymagałoby decyzji PO. Ostateczne zamknięcie tego findingu należy do backend-reviewera.\n\n**Security R2: PASS bez findings.** Rdzeń RLS, grantów, Auth, proxy i platformy nie zmienił się w R3→R4, więc ta ocena pozostaje w mocy.\n\n## Zmiany R4 sprawdzone bez uwag\n\n- **Odzyskiwanie po błędzie sesji (`recoveryRequiresLogin`):** 401, 403 i `AuthSessionMissingError` (400) prowadzą do `requireLogin`. Ta funkcja synchronicznie ukrywa portale, czyści szkic i robi `location.replace(\"/login\")` na stały adres, więc nie ma open redirect. Błąd sieci lub 500 daje komunikat „spróbuj ponownie”, a treść prywatna nie wycieka.\n- **Sesja przypisana do właściciela:** `CaptureSession key={userId}` dostaje `userId` zweryfikowany po stronie serwera przez `getUser` na stronach. Przy zmianie właściciela komponent się przemontowuje, a dodatkowo cleanup zwiększa `lifetimeRef` (`:217`). Spóźnione odpowiedzi poprzedniego właściciela są odrzucane. Klucz w `sessionStorage` dalej ma `ownerId` i jest sprawdzany przez `parsePendingIntent`.\n- **Link „Otwórz listę spraw” (`:859-884`):** robi tylko `setOpen(false)` oraz `router.refresh()` lub `router.push` na stały adres. Nie ma DELETE ani RPC, klucz nie jest czyszczony, a rozpoczęty zapis nie jest cofany. „Porzuć ten zapis” (`:893-898`) jest wyłącznie lokalne: `clearStoredIntent()` i `resetDraft()`. Treść nie twierdzi, że coś cofnięto.\n- **`SavedCaseNotice`:** renderuje tylko id (UUID) z serwera przez React. Dwa egzemplarze nie mają jednocześnie treści, więc `id=\"capture-success-message\"` się nie dubluje.\n- **Grep w `src/`:** brak service-role i `dangerouslySetInnerHTML`.\n- **Test e2e:** dziennik faz zapisuje się tylko przy `RECRUITMENT_QA_DEBUG_PHASES=true`, do `.harness-runs` z uprawnieniami 0600, i zawiera tylko status i fazę. Obserwacja DOM jest pasywna, bez sztucznych zdarzeń.\n- **Test wrażliwości na stary helper:** działa tylko na jednorazowej bazie z guardem. Przywraca dokładną definicję funkcji i sprawdza odcisk definicji, ACL i INVOKER. Usuwa tylko swój wiersz (warunek na id i właściciela), a na koniec weryfikuje ledger.\n\n## Ograniczenia\n- To review statyczny. Wyniki R9 (HTTP 25/25, Playwright 19/19), testy unit 148 i 59, F1, F2 i F3 to dowody QA. Nie uruchamiałem ich. Powtórka F3 trwa, hosted CI oczekuje.\n- Bez Bash nie sprawdziłem, że `delta.patch` to dokładnie `git diff` R3..R4, ani nie przeliczyłem manifestu (122 pliki). Pliki przeczytałem jednak bezpośrednio z worktree kandydata.\n- Wyniki dla ACE to obserwacja runtime dostarczona przez QA, nie moja reprodukcja. Zgodności ze ścisłym UTS46 nie oceniam, bo to kwestia decyzji PO, a nie defekt.\n- Pozostają NOT RUN:\n  - prywatna ścieżka bfcache (`pageshow` z `persisted`);\n  - ręczne testy z czytnikami NVDA, JAWS i VoiceOver;\n  - rzeczywista odmowa 401/403 z BFF i SDK (test podstawia odpowiedź przez `route.fulfill`).\n- Brak findings nie dowodzi braku defektów.\n\n**Następny krok:** zamknięcie zadania wymaga jeszcze hosted CI, zakończenia F3 oraz finalnych review backendu i frontendu na tym samym commicie."
+  },
+  "frontendClaudeQuota": {
+    "status": "NOT RUN due session capacity limit",
+    "runtime": {
+      "reviewExecution": "FAILED",
+      "exitCode": 1,
+      "changedFiles": [],
+      "candidateBefore": "3f2601b7bd5db58a5773e2f12743be2f27f2e395d40be872679c8851d92619a0",
+      "candidateAfter": "3f2601b7bd5db58a5773e2f12743be2f27f2e395d40be872679c8851d92619a0"
+    },
+    "replacement": "Independent Codex frontend-r4-codex PASS through unchanged read-only wrapper"
+  }
+}

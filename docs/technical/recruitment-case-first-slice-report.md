@@ -1,6 +1,6 @@
 # Pierwszy RecruitmentCase — raport wykonania
 
-**Stan: lokalny produkt zweryfikowany; końcowy review i hosted CI pozostają bramką DoD.** Autoryzacja PO 2026-10-29, wariant A, [DEC-052](../decisions/product-decisions.md). Baza `cd92648fd4c579cb4be57a962cd88b6e3d537583`, branch `feat/recruitment-case-first-slice`; PR #11 MERGED potwierdzony przez GitHub i ancestry. Bez merge/cloud/produkcji/F4.
+**Stan: lokalne testy produktu i niezależne review kodu PASS; końcowy test/documentation delta review i hosted CI pozostają bramką publikacji.** Autoryzacja PO 2026-10-29, wariant A, [DEC-052](../decisions/product-decisions.md). Baza `cd92648fd4c579cb4be57a962cd88b6e3d537583`, branch `feat/recruitment-case-first-slice`; PR #11 MERGED potwierdzony przez GitHub i ancestry. Bez merge/cloud/produkcji/F4.
 
 [Dokładny model DATA-01](recruitment-case-first-slice.md), [analiza/delegacja](recruitment-case-first-slice-analysis.md), [plan QA](recruitment-case-test-plan.md). Minimalny model APPROVED, OPEN-002/024 PARTIALLY RESOLVED; pozostałe formularze/lifecycle/relacje/retencja/delete nadal OPEN. FR/AC/UC mają PARTIAL COVERAGE; brak pełnego PASS LC/RW/QC/AD.
 
@@ -27,13 +27,13 @@ Node24.22.2/pnpm12.16.1, macOS arm64 i lokalny Linux Docker. Bez nowych zależno
 | Harness | sync.py --check, check.py | PASS |
 | Harness regresje | python3 -m unittest discover -s harness/scripts -p 'test_*.py' -v, isolated source snapshot | PASS 20/20, 6.674s; nie są to testy aplikacji |
 | F2 | pnpm test:integration:f2 / własne profile5642x | PASS85/85 TAP, 207.255s; wszystkie owned targets usunięte guardem |
-| Produkt build/HTTP | RECRUITMENT_TARGET_ID=ace-parity-a pnpm test:recruitment R9 | PASS build i25/25HTTP |
-| Produkt browser | ten sam R9, desktop/mobile375px, HTTPS3153 | PASS19/19, zero skips/failures |
+| Produkt build/HTTP | RECRUITMENT_TARGET_ID=release-a pnpm test:recruitment | PASS build i25/25HTTP |
+| Produkt browser | ten sam release-a, desktop/mobile375px, HTTPS3153 | PASS20/20, zero skips/failures |
 | F1 boundaries/canary | pnpm test:boundaries; pnpm test:canary | PASS7kontroli +3kontrole |
 | F1 build/browser | pnpm build; pnpm test:e2e:foundation | PASS build i3/3browser |
 | F3 pełna regresja Auth/HTTPS | pnpm test:auth:f3 | PASS build, SDK13/13 i browser10/10, artifact/log scans oraz owned cleanup |
-| Niezależny backend/frontend/security review | harness/scripts/review.py, frozen candidate | NOT RUN |
-| Hosted CI final SHA | Application CI / Foundation required | NOT RUN |
+| Niezależny backend/frontend/security review | harness/scripts/review.py / isolated3ca3e2d | PASS wszystkie3role, bez findings; nowa delta wyłącznie test/docs jest oceniana osobno |
+| Hosted CI final SHA | Application CI / Foundation required | NOT RUN w tym lokalnym snapshot przed publikacją; rozstrzygający wynik dokładnego head SHA będzie w Checks i opisie PR |
 
 ## Zachowane nieudane próby i targety
 
@@ -63,9 +63,9 @@ Historyczny R2 (trzy migracje) ma [osobny wynik](evidence/recruitment-first-slic
 
 ## Potwierdzone zachowanie produktu
 
-[Pełny R9](evidence/recruitment-first-slice/product-r9-pass.json), [manifest źródeł](evidence/recruitment-first-slice/source-manifest.json), [runtime](evidence/recruitment-first-slice/runtime-preflight.json). Realne HTTP potwierdziło własny create/read A/B, deny anon, brak cross-owner list/ID/count/duplicates, owner/status/id/time spoof denial, minimalne grants i INVOKER, native DB constraints, same-key replay/409/concurrency oraz direct-INSERT race. Negative sensitivity na disposable targetcie wykryła wyłączenie RLS w obu kierunkach, po czym RLS przywrócono i ponownie potwierdzono izolację.
+[Pełny release-a](evidence/recruitment-first-slice/product-release-a-pass.json), [manifest źródeł](evidence/recruitment-first-slice/source-manifest.json), [runtime](evidence/recruitment-first-slice/runtime-preflight.json). Realne HTTP potwierdziło własny create/read A/B, deny anon, brak cross-owner list/ID/count/duplicates, owner/status/id/time spoof denial, minimalne grants i INVOKER, native DB constraints, same-key replay/409/concurrency oraz direct-INSERT race. Negative sensitivity na disposable targetcie wykryła wyłączenie RLS w obu kierunkach, po czym RLS przywrócono i ponownie potwierdzono izolację.
 
-Playwright19/19: login F3→Dashboard, cztery kroki/no premature writes, Unicode/walidacja, duplicate cancel/continue i save-next, toast/open/stay, dirty Escape/X/backdrop/focus, failed-response retry+doubleclick, owner list/detail/404 i logout/cache, mobile375px/overflow/semantics, recovery po refresh przy utracie udanej odpowiedzi, pending payload/key freeze i paginacja25/27 ze stabilnym UUID przy wspólnym created_at. Testy źródłowego URL nie wykonały fetch; UI renderuje wyłącznie tekst i świadome safe links.
+Playwright20/20: login F3→Dashboard, cztery kroki/no premature writes, Unicode/walidacja, duplicate cancel/continue i save-next, toast/open/stay, dirty Escape/X/backdrop/focus, failed-response retry+doubleclick, owner list/detail/404 i logout/cache, mobile375px/overflow/semantics, recovery po refresh przy utracie udanej odpowiedzi, pending payload/key freeze i paginacja25/27 ze stabilnym UUID przy wspólnym created_at. Testy źródłowego URL nie wykonały fetch; UI renderuje wyłącznie tekst i świadome safe links.
 
 Dodatkowe nowe E2E: unknown request nigdy nie dotarł do DB→reload→świadome porzucenie bez deklaracji rollbacku,401/403→login/ukrycie portalu, widoczny i dostępny status save-next w mobile Popup, ordinary Save po dupwarn+edit zamyka kreator, Escape w nested AlertDialog zachowuje szkic. R4 miał16PASS/1FAIL z powodu niejednoznacznego selektora alertu obejmującego Next route announcer; zakres selektora poprawiono na main, bez zmiany wymaganego komunikatu. [R4 FAIL](evidence/recruitment-first-slice/product-r4-failed-browser.json) i R5PASS pozostają osobne.
 
@@ -81,9 +81,17 @@ Dwie nowe E2E sprawdzają page-level porzucenie/re-entry i link listy oraz ukryc
 
 [Końcowy HTTP](evidence/recruitment-first-slice/qa-ace-numeric-parity-pass.json) obejmuje49dodatnich wektorów i12rzeczywiście odrzucanych hostów. Siedem migracji i zwalidowany CHECK potwierdzono w realnym katalogu. UI19/19 obejmuje pasywną obserwację starego dokumentu: MutationObserver/binding wysyła stan DOM do Node przed zakończeniem nawigacji; wstrzymanie loginu jest zwalniane dopiero po asercjach ukrycia portalu i owner-key. Nie generuje się sztucznych events ani nie osłabia timeoutu.
 
+## Końcowy review kodu i uzupełnienie rzeczywistego BFF
+
+[Review R4](evidence/recruitment-first-slice/reviews-r4-pass.json), kandydat3ca3e2d: backend/frontend/security PASS bez potwierdzonych P0/P1/P2/P3. Backend niezależnie wycofał ACE finding na podstawie runtime; wszystkie wcześniejsze rzeczywiste findings zamknięte. [Natywny dowód](evidence/recruitment-first-slice/review-runtime-proof.json) przez app-server thread/read + turn_context potwierdza dokładnie1dziecko kanonicznej roli, parent/childread-only, approvalnever, modelgpt-6.1-sol, brak typed-profile claim. SecurityClaude ma rzeczywisty Read/Grep/Glob pool, claude-opus-5-5. Wszystkie ukończone wrapperyexit0/changedFiles=[]/before=after. FrontendClaude R4 osiągnął limit sesji (NOT RUN), pełny niezależny Codexreplacement PASS; bez rozszerzania uprawnień. Reviewerzy nie uruchamiali testów ani nie poprawiali źródeł.
+
+Po R4 dodano wyłącznie20ty scenariusz E2E i raport/evidence, bez zmian src/db/scripts/config. Świeży targetrelease-a zastosował7migracji od pustego public, productionbuildPASS, HTTP25/25 i UI20/20. Nowy test wykonuje7rzeczywistych BFFodmów bez route.fulfill: anon401; A/Bexpectedidentity mismatch i foreign/missingOrigin403; owner/status injection400. Każda odpowiedź private/no-store, bez SQL/provider leakage, brak requestId/title w DB u A i B. Użyto prawdziwych localAuthcookies/getUser/JWT; UIfault-injection tests pozostają odrębnym dowodem.
+
+[Historyczny R9 manifest](evidence/recruitment-first-slice/source-manifest-r9.json) zachowano, finalny zmienia wyłącznie hash E2E. Końcowy delta review i rozstrzygnięcie CI są osobnymi bramkami; kod src/db/scripts/config pozostał identyczny z pełnym R4review. Finalny SHA/PR/hosted wynik publikowane w opisie otwartego PR; raport stanowi snapshot lokalnych wyników przed publikacją.
+
 ## Cleanup i izolacja
 
-[Cleanup produktu](evidence/recruitment-first-slice/cleanup-pass.json) PASS, także powtórzenie. Tylko własne kontenery/sieci/wolumeny usunięte; manifesty i receipts pozostają lokalnym dowodem. F2 i F3 własne targety także sprzątnięte. Inwentarz pięciu zastanych kontenerów Bluvv/Medusa pozostał bez zmian. Nie wykonano resetu bazy ani provisioning/deploy/merge.
+[Cleanup produktu](evidence/recruitment-first-slice/cleanup-pass.json) PASS, także powtórzenie. Tylko własne kontenery/sieci/wolumeny usunięte; manifesty i receipts pozostają lokalnym dowodem. [Fresh release-a cleanup](evidence/recruitment-first-slice/cleanup-release-pass.json) PASS, także powtórzenie; ace-parity-a i url-parity-a także zakończone. F2 i F3 własne targety także sprzątnięte. Inwentarz pięciu zastanych kontenerów Bluvv/Medusa pozostał bez zmian. Nie wykonano resetu bazy ani provisioning/deploy/merge.
 
 ## Rekomendacja kolejnego małego slice
 
