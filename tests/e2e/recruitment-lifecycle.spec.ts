@@ -809,14 +809,25 @@ for (const width of [1440, 1024, 768, 375])
       });
     await save(page).click();
     await expect(save(page)).not.toBeVisible();
-    if (width === 1440)
+    await expect(
+      page.getByText("W rekrutacji", { exact: true }).first(),
+    ).toBeVisible();
+    if (width === 1440) {
+      await expect(history(page).getByRole("listitem")).toHaveCount(1);
+      await expect(
+        page.getByRole("region", { name: "Szczegóły sprawy", exact: true }),
+      ).toContainText("😀".repeat(160));
+      await expect(
+        page.getByRole("form", {
+          name: "Zarejestruj zaproszenie",
+          exact: true,
+        }),
+      ).not.toBeVisible();
       await page.screenshot({
         path: test.info().outputPath("active-detail-1440.png"),
         fullPage: true,
       });
-    await expect(
-      page.getByText("W rekrutacji", { exact: true }).first(),
-    ).toBeVisible();
+    }
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= window.innerWidth,
