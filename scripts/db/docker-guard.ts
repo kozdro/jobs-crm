@@ -4,7 +4,7 @@ import net from "node:net";
 import { randomUUID } from "node:crypto";
 import { chmod, mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 
 interface Scope {
   projectId: string;
@@ -12,6 +12,8 @@ interface Scope {
   workdir: string;
   publishedPorts?: Readonly<Record<string, string>>;
   networkLabel?: string;
+  /** DEV-only: replace the pinned Studio snippets bind with this owned named volume. */
+  studioSnippetsVolume?: string;
 }
 class GuardRefusal extends Error {}
 const nonEmpty = (value: unknown) =>
@@ -104,6 +106,23 @@ export function guardCreate(
     nonEmpty(config.Links)
   )
     throw new GuardRefusal("Unsafe container mode refused");
+  if (
+    scope.studioSnippetsVolume &&
+    name === `supabase_studio_${scope.projectId}`
+  ) {
+    const expected = `supabase_snippets_${scope.projectId}`;
+    const source = resolve(scope.workdir, "supabase/snippets");
+    if (
+      scope.studioSnippetsVolume !== expected ||
+      !["public.ecr.aws/supabase/", "ghcr.io/supabase/", "supabase/"].some(
+        (prefix) => body.Image === prefix + "studio:2026.10.19-sha-b375769",
+      )
+    )
+      throw new GuardRefusal("Unexpected Studio snippets scope refused");
+    config.Binds = ((config.Binds ?? []) as string[]).map((bind) =>
+      bind === `${source}:${source}:rw` ? `${expected}:${source}:rw` : bind,
+    );
+  }
   const bindings = (config.PortBindings ?? {}) as Record<
     string,
     { HostIp?: string; HostPort?: string }[]
