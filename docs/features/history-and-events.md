@@ -35,3 +35,7 @@ Utrzymać jedną, prawdziwą chronologię sprawy oraz cykl życia zaplanowanych 
 ## OPEN
 
 `OPEN-004/OPEN-020/OPEN-021/OPEN-030/OPEN-037` — edycja historii, rozliczenie uczestników, daty i strefy; nie ustanawiaj domyślnego automatu zdarzeń poza zatwierdzonymi możliwościami.
+
+## Przyrost historii 3A — DEC-054
+
+[3A](../technical/recruitment-lifecycle-3a.md) dodaje wyłącznie fakty aplikowania i kontaktu inbound/outbound; nie implementuje kalendarza, notatek ani uczestników. Fakty mają opcjonalny dzień bez godziny i osobny serwerowy czas rejestracji; znane daty malejąco ze stabilnym remisem, nieznane w oznaczonym obszarze. Bez fikcyjnego backfillu, osobnego zdarzenia zmiany statusu i kopiowania faktu. Append-only bez edycji/usuwania zaakceptowane jako ograniczenie przyrostu; OPEN-004 (korekta/unieważnienie/audyt) nadal obowiązuje przed publicznym udostępnieniem.

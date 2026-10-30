@@ -670,7 +670,7 @@ test(
     );
 
     await check(
-      "Catalog: one product table, RLS, minimal grants, INVOKER, no PUBLIC EXECUTE or cascade owner delete",
+      "Catalog: bounded product tables, RLS, minimal grants, INVOKER, no PUBLIC EXECUTE or cascade owner delete",
       async () => {
         const sql = db();
         try {
@@ -678,9 +678,9 @@ test(
             await sql`select c.relname,c.relrowsecurity from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind='r' order by c.relname`;
           assert.deepEqual(
             relations.map((row) => row.relname),
-            ["recruitment_case"],
+            ["recruitment_case", "recruitment_case_event"],
           );
-          assert.equal(relations[0].relrowsecurity, true);
+          assert.ok(relations.every((row) => row.relrowsecurity === true));
           for (const role of ["anon", "authenticated"]) {
             const [p] =
               await sql`select has_table_privilege(${role},'public.recruitment_case','SELECT') can_select,has_table_privilege(${role},'public.recruitment_case','INSERT') table_insert,has_table_privilege(${role},'public.recruitment_case','UPDATE') can_update,has_table_privilege(${role},'public.recruitment_case','DELETE') can_delete,has_table_privilege(${role},'public.recruitment_case','TRUNCATE') can_truncate`;

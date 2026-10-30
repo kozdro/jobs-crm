@@ -2,6 +2,7 @@
 
 > **Status projektu:** F1/F2/F3 i pierwszy RecruitmentCase/Manual Quick Capture zmergowane; bez publicznego wdrożenia. [Wyniki i ograniczenia F3](docs/technical/foundation-f3.md).
 > **Stan na:** 2026-10-30. **Język dokumentacji:** polski.
+> Recruitment Lifecycle 3A (DEC-054): [kontrakt](docs/technical/recruitment-lifecycle-3a.md) i [wyniki weryfikacji](docs/technical/recruitment-lifecycle-3a-report.md); bez publicznego wdrożenia.
 > Pierwszy autoryzowany slice create/read jest opisany w [kontrakcie i raporcie](docs/technical/recruitment-case-first-slice.md); pozostałe funkcje biznesowe i infrastruktura produkcyjna pozostają kolejnymi etapami.
 
 Ręczny development: **`pnpm dev:local`** — trwała baza, Auth, Studio i lokalna poczta. [Wymagania, faktyczny Node pnpm, start/stop/reset i adresy](docs/technical/local-development.md).

@@ -254,3 +254,18 @@
 ## Granica akceptacji DEC-052
 
 Nowe sufiksy powyżej są `APPROVED` w zakresie [DEC-052](../decisions/product-decisions.md); ich wykonanie na etapie formalizacji to **PLANNED / NOT RUN**. [Raport slice'a](../technical/recruitment-case-first-slice-report.md) wiąże wyniki z komendą, środowiskiem i SHA. Nie nadaje to pełnego PASS dla QC-001 (siedem modułów), RW-005/009 (Kanban/lista i drawer), LC-004 (pełne lifecycle) ani AD-002 (dokumenty/Search/pozostałe tabele). UC/TC-001/029/034 mają tylko pokrycie ręcznego create/read. Podstawowa klawiatura, focus, dirty cancel i mobile należą do weryfikacji F02; nie rozstrzygają całego NFR-005.
+
+## AC podzakresu Lifecycle 3A — DEC-054
+
+Poniższe dodatkowe kryteria dotyczą wyłącznie [kontraktu 3A](../technical/recruitment-lifecycle-3a.md). Nie zmieniają historycznej granicy AC-LC-004-01 create-only DEC-052.
+
+| ID | Kryterium | FR |
+|---|---|---|
+| AC-LC-005-01 | Świadome zarejestrowanie aplikowania na własnej istniejącej sprawie Zapisane tworzy jeden fakt i Kontakt rozpoczęty atomowo; nie tworzy zaproszenia ani wysłanej wersji CV. | FR-LC-005 |
+| AC-LC-006-01 | Inbound/outbound zapisują odrębny rodzaj kontaktu bez domyślnej aplikacji, CV, pracodawcy lub osoby; następny rzeczywisty kontakt przy Kontakt rozpoczęty dodaje fakt bez zmiany statusu. | FR-LC-006 |
+| AC-LC-014-01 | Ta sama tożsamość i klucz zamiaru z identycznym payloadem zwracają wynik bez nowego faktu; odmienny payload daje konflikt bez mutacji, także przy retry i współbieżności. Inne statusy nie są obsługiwane przez tę komendę. | FR-LC-014 |
+| AC-HE-001-01 | Znane dni zdarzeń są na jednej osi najnowsze pierwsze, remisy rozstrzygane stabilnie; nieznane daty mają oznaczony odrębny obszar bez arbitralnego datowania. Pełny odczyt ma dostępną paginację. | FR-HE-001 |
+| AC-HE-002-03 | Opcjonalny prawidłowy dzień bez godziny może poprzedzać utworzenie sprawy; przyszły dzień jest odrzucony. Brak daty pozostaje brakiem. Czas rejestracji pochodzi z DB i jest prezentowany osobno. | FR-HE-002 |
+| AC-HE-003-02 | Nie powstają fakty z samego created_at, URL, nazwy ani technicznej zmiany statusu; brak drugiego wpisu dla statusu wynikającego z zapisanego faktu. UI uprzedza, że w 3A brak edycji/usuwania. | FR-HE-003 |
+
+Owner isolation FR/AC-AD-002 i BR-030 obejmuje nowe fakty, ich listy/count/ID oraz relacje ze sprawą również przez bezpośredni Data API; wpis nie może zostać przypisany cudzej sprawie. Publiczne udostępnienie nadal wymaga OPEN-004 oraz pozostałych zależnych bramek.

@@ -1,7 +1,8 @@
-/** Product create/read model approved by DEC-052. Auth remains Supabase-owned. */
+/** Product model approved by DEC-052/054. Auth remains Supabase-owned. */
 import { sql } from "drizzle-orm";
 import {
   check,
+  date,
   foreignKey,
   index,
   pgTable,
@@ -34,6 +35,7 @@ export const recruitmentCase = pgTable(
       columns: [table.ownerId],
       foreignColumns: [authUsers.id],
     }).onDelete("no action"),
+    unique("recruitment_case_owner_id_unique").on(table.ownerId, table.id),
     unique("recruitment_case_owner_request_unique").on(
       table.ownerId,
       table.requestId,
@@ -60,6 +62,54 @@ export const recruitmentCase = pgTable(
       "recruitment_case_url_valid",
       sql`${table.sourceUrl} IS NULL OR (${table.sourceUrl} = public.recruitment_source_url(${table.sourceUrl}) AND public.recruitment_source_url(${table.sourceUrl}) IS NOT NULL)`,
     ),
-    check("recruitment_case_saved_only", sql`${table.status} = 'Zapisane'`),
+    check(
+      "recruitment_case_3a_status",
+      sql`${table.status} IN ('Zapisane', 'Kontakt rozpoczęty')`,
+    ),
+  ],
+).enableRLS();
+
+/** Append-only real facts; triggers enforce atomically coupled lifecycle effects. */
+export const recruitmentCaseEvent = pgTable(
+  "recruitment_case_event",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    requestId: uuid("request_id").notNull(),
+    caseId: uuid("case_id").notNull(),
+    kind: text("kind").notNull(),
+    direction: text("direction"),
+    occurredOn: date("occurred_on", { mode: "string" }),
+    recordedAt: timestamp("recorded_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    unique("recruitment_case_event_owner_request_unique").on(
+      table.ownerId,
+      table.requestId,
+    ),
+    foreignKey({
+      name: "recruitment_case_event_owned_case_fk",
+      columns: [table.ownerId, table.caseId],
+      foreignColumns: [recruitmentCase.ownerId, recruitmentCase.id],
+    }).onDelete("no action"),
+    check(
+      "recruitment_case_event_kind_direction_valid",
+      sql`(${table.kind} = 'application' AND ${table.direction} IS NULL) OR (${table.kind} = 'contact' AND ${table.direction} IS NOT NULL AND ${table.direction} IN ('inbound', 'outbound'))`,
+    ),
+    check(
+      "recruitment_case_event_date_valid",
+      sql`${table.occurredOn} IS NULL OR (${table.occurredOn} >= DATE '0001-01-01' AND ${table.occurredOn} <= (CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Warsaw')::date)`,
+    ),
+    index("recruitment_case_event_timeline_idx").on(
+      table.ownerId,
+      table.caseId,
+      table.occurredOn.desc().nullsLast(),
+      table.recordedAt.desc(),
+      table.id.desc(),
+    ),
   ],
 ).enableRLS();

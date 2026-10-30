@@ -158,3 +158,7 @@ Każdy przepływ opisuje: wejście → decyzję użytkownika → stan po zapisie
 ## Doprecyzowanie pierwszego create/read — DEC-052 (2026-10-29)
 
 Późniejsze zlecenie PO §13.2, [DEC-052](../decisions/product-decisions.md), wymaga w tym slice czterech kroków **Sytuacja → Dane → Działanie → Podsumowanie**, z jedyną akcją „Zapisz tylko sprawę”. Historia wcześniejszego wariantu trzech kroków pozostaje powyżej. [Aneks decyzji UX](blueprint-decisions.md) i [dokładny kontrakt slice'a](../technical/recruitment-case-first-slice.md) opisują pola, duplikaty, retry, dirty state i minimalny shell. To PARTIAL COVERAGE UX-006/F02; wykonane wyniki i NOT RUN są w [raporcie](../technical/recruitment-case-first-slice-report.md).
+
+## F04 — autoryzowany podzakres 3A (DEC-054)
+
+Na detalu własnej istniejącej sprawy użytkownik rejestruje aplikowanie lub kontakt inbound/outbound. Formularz nie sugeruje wykonania na podstawie URL/nazwy, wymaga świadomego potwierdzenia faktu, pozwala podać dzień bez godziny albo pozostawić datę nieznaną i uprzedza o braku edycji/usuwania. Nie dodaje kanału, opisu komunikacji, osoby ani CV. Anulowanie nie zapisuje niczego; błąd zachowuje dane, niepewny wynik pozwala sprawdzić/ponowić ten sam zamiar, bez obietnicy niezapisanego sukcesu. Po potwierdzonym zapisie detal/lista pokazują Kontakt rozpoczęty i jeden fakt. Jedna historia, znane daty najnowsze pierwsze i osobny obszar nieznanych dat, czas zapisu dostępny oddzielnie. OPEN-004 przed publicznym udostępnieniem; korekty i reszta F04 nadal poza 3A.

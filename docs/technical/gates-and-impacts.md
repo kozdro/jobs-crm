@@ -56,3 +56,7 @@ CSV/XLSX może nie wystarczyć do realizacji wszystkich praw podmiotu danych; re
 Częściowe rozstrzygnięcie OPEN-002/024 i DATA-01 obejmuje wyłącznie zatwierdzony manual create/read, walidację, owner-only list/detail, ostrzeżenie i idempotencję. [Analiza i plan](recruitment-case-first-slice-analysis.md) mapują wymagania i testy. SEC-02 musi teraz objąć rzeczywiste nowe tabele/granty/RPC przez HTTP A/B/anon oraz listy, count, ID i duplikaty. QA-01 obejmuje brak fikcyjnej historii i regresje F1/F2/F3. Wyników nie nadaje samo APPROVED.
 
 Publiczne SEC/OPS/privacy i pozostałe OPEN nadal obowiązują. Brak fetch w tym slice oznacza brak Smart Import/SSRF execution, nie wykonanie SEC-03. Minimalna lista nie zastępuje docelowego Kanbana. Nie ma wymagania ukończenia importerowego F4 ani workera przed tym zatwierdzonym zapisem.
+
+## Rozszerzenie DATA-01 — Lifecycle 3A, DEC-054
+
+[Kontrakt 3A](recruitment-lifecycle-3a.md) rozszerza DATA-01 o trwałe fakty aplikowania/kontaktu i jedyne przejście Zapisane → Kontakt rozpoczęty. Minimalne pola, opcjonalny dzień bez godziny, brak przyszłych dat i osobny czas zapisu zatwierdzone. SEC-02 obejmuje nowe tabele, RPC, triggery, granty i relacje przez realne Auth/Data API/RLS A/B/anon; atomowość i retry wymagają runtime proof. OPEN-004 pozostaje bramką publicznego udostępnienia (korekta/usuwanie/audyt); pozostały lifecycle i zależne OPEN nie są rozstrzygnięte. Nie resetować persistent local target; testy przez izolowany runner.

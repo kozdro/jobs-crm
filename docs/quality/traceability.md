@@ -205,3 +205,19 @@ Zakres APPROVED przez PO; implementacja i wykonanie kontroli początkowo NOT RUN
 | NFR-005, OPEN-017/033 częściowo, DEC-053 | Rzeczywisty render 1440/1024/768/375, reflow/zoom, klawiatura, kontrasty WCAG 2.2 AA, stany skrajne i independent design/frontend review | Brak domniemanej certyfikacji AT/fizycznych urządzeń i przyszłych modułów. |
 
 Wyniki poszczególnych komend, screenshoty, kandydat i ograniczenia są w raporcie; sam zapis macierzy nie nadaje PASS. OPEN-015 zachowuje docelową nazwę/logo/branding, OPEN-017/033 pozostałą część produktu i macierz wsparcia.
+
+## Recruitment Lifecycle 3A — DEC-054
+
+| Wymaganie / podzakres | Dodatkowe AC | Scenariusz / dowód |
+|---|---|---|
+| FR-LC-005 | AC-LC-005-01 | TC-002/003 częściowo, 3A aplikowanie |
+| FR-LC-006 | AC-LC-006-01 | TC-004 częściowo, 3A inbound/outbound |
+| FR-LC-014 | AC-LC-014-01 | 3A komenda, retry/conflict/race/atomicity |
+| FR-HE-001 | AC-HE-001-01 | 3A chronologia i nieznane daty |
+| FR-HE-002 | AC-HE-002-03 | 3A dzień zdarzenia i osobny czas zapisu |
+| FR-HE-003 | AC-HE-003-02 | 3A brak fikcyjnej historii i jawne ograniczenie append-only |
+| FR-AD-002 / BR-030 | istniejące AC-AD-002 | 3A real Auth/Data API A/B/anon, relacje i brak wycieków |
+
+[Kontrakt/plan i delegacja](../technical/recruitment-lifecycle-3a.md). Pełne FR i TC-002/003/004 nie są ukończone w 3A; kanały, CV i osoby poza przyrostem. OPEN-004 jest bramką publicznego udostępnienia. Wyniki wykonania będą raportowane oddzielnie od pokrycia planem.
+
+**Wynik wykonania 3A:** [raport](../technical/recruitment-lifecycle-3a-report.md): unit208+87 PASS, real local integration43/43 PASS, HTTPS browser42/42 PASS, backend/frontend/security review PASS po zamknięciu P3. Dodatkowe AC zakresu objęte dowodami domeny/integracji/browser; nie podnosi to pełnych TC-002/003/004 ani całych modułów do ukończonych. Exact-SHA CI jest osobnym wynikiem PR.
