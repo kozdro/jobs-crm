@@ -41,3 +41,7 @@ supabase/.branches/
 
 # Disposable product-model local target, receipts and temporary HTTPS material.
 .recruitment-local/
+
+# Persistent manual Local DEV state, receipts, certificates and control socket.
+.local-dev/
+.local-dev-history/

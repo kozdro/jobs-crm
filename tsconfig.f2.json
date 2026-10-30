@@ -16,7 +16,8 @@
     "experiments/foundation/rls/**/*.ts",
     "tests/integration/**/*.ts",
     "drizzle.f2.config.ts",
-    "drizzle.recruitment.config.ts"
+    "drizzle.recruitment.config.ts",
+    "scripts/local-dev/**/*.ts"
   ],
   "exclude": ["node_modules", "tests/fixtures"]
 }

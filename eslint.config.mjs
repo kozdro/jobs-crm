@@ -44,6 +44,8 @@ export default defineConfig([
   prettier,
   globalIgnores([
     ".next/**",
+    ".local-dev/**",
+    ".local-dev-history/**",
     "node_modules/**",
     "next-env.d.ts",
     "playwright-report/**",

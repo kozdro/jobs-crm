@@ -13,7 +13,7 @@
     "lint": "eslint . --max-warnings=0",
     "format:check": "prettier --check src tests scripts experiments db *.ts *.mjs package.json components.json pnpm-workspace.yaml .prettierrc.json .github/workflows/app-ci.yml",
     "format:write": "prettier --write src tests scripts experiments db *.ts *.mjs package.json components.json pnpm-workspace.yaml .prettierrc.json .github/workflows/app-ci.yml",
-    "test:unit": "vitest run && node --test scripts/db/*.test.ts scripts/auth/*.test.ts scripts/recruitment/*.test.ts",
+    "test:unit": "vitest run && node --test scripts/db/*.test.ts scripts/auth/*.test.ts scripts/recruitment/*.test.ts scripts/local-dev/*.test.ts",
     "test:boundaries": "node scripts/test-boundaries.mjs",
     "test:canary": "node scripts/test-canary.mjs",
     "build": "next build",
@@ -26,7 +26,11 @@
     "db:f2:preflight": "node scripts/db/cli.ts preflight",
     "test:integration:f2": "node --test --test-concurrency=1 tests/integration/rls/f2.test.ts",
     "test:auth:f3": "node scripts/auth/runner.ts",
-    "test:recruitment": "node scripts/recruitment/runner.ts"
+    "test:recruitment": "node scripts/recruitment/runner.ts",
+    "dev:local": "node scripts/local-dev/cli.ts start",
+    "dev:local:stop": "node scripts/local-dev/cli.ts stop",
+    "dev:local:reset": "node scripts/local-dev/cli.ts reset",
+    "dev:local:status": "node scripts/local-dev/cli.ts status"
   },
   "dependencies": {
     "@base-ui/react": "1.9.0",

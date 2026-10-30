@@ -17,6 +17,8 @@ export function snapshot(sourceRoot = root) {
     ".foundation-f2",
     ".foundation-f3",
     ".recruitment-local",
+    ".local-dev",
+    ".local-dev-history",
     "test-results",
     "playwright-report",
     "secrets",

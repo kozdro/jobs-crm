@@ -20,6 +20,8 @@ try {
     ".foundation-f2",
     ".foundation-f3",
     ".recruitment-local",
+    ".local-dev",
+    ".local-dev-history",
     "src",
     "node_modules",
   ]) {
@@ -46,6 +48,14 @@ try {
     join(sourceFixture, ".recruitment-local/omitted.txt"),
     "synthetic local product state",
   );
+  writeFileSync(
+    join(sourceFixture, ".local-dev/omitted.txt"),
+    "synthetic DEV private state",
+  );
+  writeFileSync(
+    join(sourceFixture, ".local-dev-history/omitted.txt"),
+    "synthetic DEV receipts",
+  );
   writeFileSync(join(sourceFixture, "src/included.ts"), "export {};\n");
   copiedFixture = snapshot(sourceFixture);
   for (const excluded of [
@@ -55,6 +65,8 @@ try {
     ".foundation-f2",
     ".foundation-f3",
     ".recruitment-local",
+    ".local-dev",
+    ".local-dev-history",
   ]) {
     assert.ok(
       !existsSync(join(copiedFixture.directory, excluded)),
@@ -66,7 +78,7 @@ try {
     "snapshot must retain ordinary source files",
   );
   console.log(
-    "PASS FQA-06 snapshot excludes private, secrets, env and local F2/F3/product state.",
+    "PASS FQA-06 snapshot excludes private, secrets, env and local F2/F3/product/DEV state.",
   );
 } finally {
   copiedFixture?.cleanup();

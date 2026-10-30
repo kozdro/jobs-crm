@@ -1,0 +1,84 @@
+# Persistent Local DEV only. Start through pnpm dev:local, never bare CLI:
+# the wrapper creates a project-specific bridge with loopback-only host publishing.
+project_id = "jobs-crm-dev-template"
+
+[api]
+enabled = true
+port = 56721
+# Product tables in public are owned exclusively by db/recruitment Drizzle history.
+# This profile never applies the synthetic foundation_poc migrations.
+schemas = ["public"]
+extra_search_path = ["extensions"]
+max_rows = 1000
+auto_expose_new_tables = false
+
+[db]
+port = 56722
+shadow_port = 56720
+major_version = 17
+health_timeout = "3m"
+
+[db.pooler]
+enabled = false
+
+[db.migrations]
+enabled = false
+schema_paths = []
+
+[db.seed]
+enabled = false
+sql_paths = []
+
+[realtime]
+enabled = false
+
+[studio]
+enabled = true
+port = 56723
+
+[local_smtp]
+enabled = true
+port = 56724
+
+[storage]
+enabled = false
+
+[storage.s3_protocol]
+enabled = false
+
+[storage.vector]
+enabled = false
+
+[auth]
+enabled = true
+site_url = "https://127.0.0.1:3163"
+additional_redirect_urls = [
+  "https://127.0.0.1:3163/auth/callback",
+  "https://127.0.0.1:3163/auth/callback?next=/account",
+  "https://127.0.0.1:3163/auth/callback?next=/reset-password",
+]
+enable_signup = true
+enable_anonymous_sign_ins = false
+jwt_expiry = 60
+minimum_password_length = 12
+
+[auth.email]
+# Local-only test values. These are not production activation, TTL or reauth policy.
+enable_signup = true
+enable_confirmations = true
+
+secure_password_change = true
+max_frequency = "1s"
+otp_expiry = 60
+
+[auth.rate_limit]
+email_sent = 1000
+sign_in_sign_ups = 1000
+token_refresh = 1000
+token_verifications = 1000
+
+[analytics]
+enabled = false
+
+[edge_runtime]
+enabled = false

@@ -35,8 +35,12 @@ export interface CleanupInventory {
 export function planRecruitmentCleanup(
   scope: CleanupScope,
   inventory: CleanupInventory,
+  policy?: {
+    publishedPorts: Readonly<Record<string, string>>;
+    networkLabel: string;
+  },
 ) {
-  const ports: Record<string, string> = {
+  const ports: Readonly<Record<string, string>> = policy?.publishedPorts ?? {
     "5432/tcp": "56622",
     "8000/tcp": "56621",
     "8025/tcp": "56624",
@@ -79,7 +83,8 @@ export function planRecruitmentCleanup(
     n &&
     (!n.Id ||
       n.Name !== scope.networkId ||
-      n.Labels?.["jobs-crm.recruitment-local"] !== scope.projectId ||
+      n.Labels?.[policy?.networkLabel ?? "jobs-crm.recruitment-local"] !==
+        scope.projectId ||
       n.Options?.["com.docker.network.bridge.host_binding_ipv4"] !==
         "127.0.0.1" ||
       Object.keys(n.Containers ?? {}).some(
