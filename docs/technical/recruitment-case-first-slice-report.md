@@ -1,6 +1,6 @@
 # Pierwszy RecruitmentCase — raport wykonania
 
-**Stan: lokalne testy produktu i niezależne review kodu PASS; końcowy test/documentation delta review i hosted CI pozostają bramką publikacji.** Autoryzacja PO 2026-10-29, wariant A, [DEC-052](../decisions/product-decisions.md). Baza `cd92648fd4c579cb4be57a962cd88b6e3d537583`, branch `feat/recruitment-case-first-slice`; PR #11 MERGED potwierdzony przez GitHub i ancestry. Bez merge/cloud/produkcji/F4.
+**Stan: lokalne testy produktu, pełne niezależne review i końcowy test/documentation delta review PASS. Hosted CI dla finalnego SHA pozostaje bramką ukończenia zadania; jego wynik będzie w Checks i opisie PR.** Autoryzacja PO 2026-10-29, wariant A, [DEC-052](../decisions/product-decisions.md). Baza `cd92648fd4c579cb4be57a962cd88b6e3d537583`, branch `feat/recruitment-case-first-slice`; PR #11 MERGED potwierdzony przez GitHub i ancestry. Bez merge/cloud/produkcji/F4.
 
 [Dokładny model DATA-01](recruitment-case-first-slice.md), [analiza/delegacja](recruitment-case-first-slice-analysis.md), [plan QA](recruitment-case-test-plan.md). Minimalny model APPROVED, OPEN-002/024 PARTIALLY RESOLVED; pozostałe formularze/lifecycle/relacje/retencja/delete nadal OPEN. FR/AC/UC mają PARTIAL COVERAGE; brak pełnego PASS LC/RW/QC/AD.
 
@@ -16,24 +16,24 @@ Strony `/dashboard`, `/recruitments`, `/recruitments/[id]`; POST `/recruitments/
 
 Node24.22.2/pnpm12.16.1, macOS arm64 i lokalny Linux Docker. Bez nowych zależności/pinów i bez cloud credentials. Context7 resolve→query: Supabase functions/RLS, Drizzle migracje/ledger, Base UI1.9 Dialog/focus, Next request/cache. Changelog Supabase odczytany 2026-10-29: PG17.11 bez użycia dotkniętych rozszerzeń, CBC sunset dotyczy hostingu, self-hosted nie dotyczy.
 
-| Kontrola | Komenda / zakres | Wynik |
-| --- | --- | --- |
-| Frozen install | pnpm install --frozen-lockfile --offline | PASS |
-| Unit aplikacji | pnpm test:unit | PASS 148/148 Vitest |
-| Unit narzędzi | ta sama komenda | PASS 59/59 node:test |
-| Typy | pnpm typecheck | PASS |
-| Lint | pnpm lint | PASS |
-| Format | pnpm format:check | PASS |
-| Harness | sync.py --check, check.py | PASS |
-| Harness regresje | python3 -m unittest discover -s harness/scripts -p 'test_*.py' -v, isolated source snapshot | PASS 20/20, 6.674s; nie są to testy aplikacji |
-| F2 | pnpm test:integration:f2 / własne profile5642x | PASS85/85 TAP, 207.255s; wszystkie owned targets usunięte guardem |
-| Produkt build/HTTP | RECRUITMENT_TARGET_ID=release-a pnpm test:recruitment | PASS build i25/25HTTP |
-| Produkt browser | ten sam release-a, desktop/mobile375px, HTTPS3153 | PASS20/20, zero skips/failures |
-| F1 boundaries/canary | pnpm test:boundaries; pnpm test:canary | PASS7kontroli +3kontrole |
-| F1 build/browser | pnpm build; pnpm test:e2e:foundation | PASS build i3/3browser |
-| F3 pełna regresja Auth/HTTPS | pnpm test:auth:f3 | PASS build, SDK13/13 i browser10/10, artifact/log scans oraz owned cleanup |
-| Niezależny backend/frontend/security review | harness/scripts/review.py / isolated3ca3e2d | PASS wszystkie3role, bez findings; nowa delta wyłącznie test/docs jest oceniana osobno |
-| Hosted CI final SHA | Application CI / Foundation required | NOT RUN w tym lokalnym snapshot przed publikacją; rozstrzygający wynik dokładnego head SHA będzie w Checks i opisie PR |
+| Kontrola                                    | Komenda / zakres                                                                            | Wynik                                                                                                                  |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Frozen install                              | pnpm install --frozen-lockfile --offline                                                    | PASS                                                                                                                   |
+| Unit aplikacji                              | pnpm test:unit                                                                              | PASS 148/148 Vitest                                                                                                    |
+| Unit narzędzi                               | ta sama komenda                                                                             | PASS 59/59 node:test                                                                                                   |
+| Typy                                        | pnpm typecheck                                                                              | PASS                                                                                                                   |
+| Lint                                        | pnpm lint                                                                                   | PASS                                                                                                                   |
+| Format                                      | pnpm format:check                                                                           | PASS                                                                                                                   |
+| Harness                                     | sync.py --check, check.py                                                                   | PASS                                                                                                                   |
+| Harness regresje                            | python3 -m unittest discover -s harness/scripts -p 'test_*.py' -v, isolated source snapshot | PASS 20/20, końcowa powtórka 7.070s; nie są to testy aplikacji                                                         |
+| F2                                          | pnpm test:integration:f2 / własne profile5642x                                              | PASS85/85 TAP, 207.255s; wszystkie owned targets usunięte guardem                                                      |
+| Produkt build/HTTP                          | RECRUITMENT_TARGET_ID=release-a pnpm test:recruitment                                       | PASS build i25/25HTTP                                                                                                  |
+| Produkt browser                             | ten sam release-a, desktop/mobile375px, HTTPS3153                                           | PASS20/20, zero skips/failures                                                                                         |
+| F1 boundaries/canary                        | pnpm test:boundaries; pnpm test:canary                                                      | PASS7kontroli +3kontrole                                                                                               |
+| F1 build/browser                            | pnpm build; pnpm test:e2e:foundation                                                        | PASS build i3/3browser                                                                                                 |
+| F3 pełna regresja Auth/HTTPS                | pnpm test:auth:f3                                                                           | PASS build, SDK13/13 i browser10/10, artifact/log scans oraz owned cleanup                                             |
+| Niezależny backend/frontend/security review | harness/scripts/review.py / isolated3ca3e2d                                                 | PASS wszystkie3role, bez findings; końcowa delta wyłącznie test/docs także PASS backend/security na86eb79d             |
+| Hosted CI final SHA                         | Application CI / Foundation required                                                        | NOT RUN w tym lokalnym snapshot przed publikacją; rozstrzygający wynik dokładnego head SHA będzie w Checks i opisie PR |
 
 ## Zachowane nieudane próby i targety
 
@@ -87,7 +87,7 @@ Dwie nowe E2E sprawdzają page-level porzucenie/re-entry i link listy oraz ukryc
 
 Po R4 dodano wyłącznie20ty scenariusz E2E i raport/evidence, bez zmian src/db/scripts/config. Świeży targetrelease-a zastosował7migracji od pustego public, productionbuildPASS, HTTP25/25 i UI20/20. Nowy test wykonuje7rzeczywistych BFFodmów bez route.fulfill: anon401; A/Bexpectedidentity mismatch i foreign/missingOrigin403; owner/status injection400. Każda odpowiedź private/no-store, bez SQL/provider leakage, brak requestId/title w DB u A i B. Użyto prawdziwych localAuthcookies/getUser/JWT; UIfault-injection tests pozostają odrębnym dowodem.
 
-[Historyczny R9 manifest](evidence/recruitment-first-slice/source-manifest-r9.json) zachowano, finalny zmienia wyłącznie hash E2E. Końcowy delta review i rozstrzygnięcie CI są osobnymi bramkami; kod src/db/scripts/config pozostał identyczny z pełnym R4review. Finalny SHA/PR/hosted wynik publikowane w opisie otwartego PR; raport stanowi snapshot lokalnych wyników przed publikacją.
+[Historyczny R9 manifest](evidence/recruitment-first-slice/source-manifest-r9.json) zachowano, finalny zmienia wyłącznie hash E2E. [Końcowy delta review](evidence/recruitment-first-slice/reviews-final-delta-pass.json) backend/security na `86eb79d83b85cec5e6b685934d6c9e07e1324a4b` PASS bez findings P0–P3; [native runtime proof](evidence/recruitment-first-slice/review-final-delta-runtime-proof.json) potwierdza po jednym niezależnym read-only dziecku i read-only rodzicu, approval never, before=after i changedFiles=[]. Obaj reviewerzy rekomendują publikację PR, rozróżniając ocenę statyczną od QA. Finalny update po review dodaje wyłącznie te metadane i raport, bez zmian ocenionych źródeł. Rozstrzygnięcie CI pozostaje osobną bramką; kod src/db/scripts/config pozostał identyczny z pełnym R4review. Finalny SHA/PR/hosted wynik publikowane w opisie otwartego PR; raport stanowi snapshot lokalnych wyników przed publikacją.
 
 ## Cleanup i izolacja
 

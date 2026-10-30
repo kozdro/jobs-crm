@@ -1,0 +1,28 @@
+{
+  "backend-final-delta": {
+    "status": "PASS static no confirmed P0/P1/P2/P3",
+    "candidate": "86eb79d83b85cec5e6b685934d6c9e07e1324a4b",
+    "scope": "Only final real-BFF negative E2E and docs/evidence delta since full R4; no application/SQL/config change",
+    "runtime": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "370ae552e4044d0113df070dc505f45f337693a20fc119157e8dd7725a22c515",
+      "candidateAfter": "370ae552e4044d0113df070dc505f45f337693a20fc119157e8dd7725a22c515"
+    },
+    "report": "**PASS — statyczny review końcowej delty** kandydata `86eb79d83b85cec5e6b685934d6c9e07e1324a4b`. Brak potwierdzonych findings P0/P1/P2/P3.\n\nUruchomiono dokładnie jednego **generic subagent + canonical role `backend-reviewer`**, odebrano findings; bez typed profile i dalszej delegacji. Odczytano wymagane instrukcje i skill `review-change`. Nie zmieniono plików ani nie uruchomiono testów.\n\nPotwierdzono:\n\n- siedem rzeczywistych odmów BFF, poprawne sesje A/B, kontrolę odpowiedzi i brak rekordów pod oboma właścicielami;\n- deltę ograniczoną do 12 plików test/docs/evidence; kod aplikacji i konfiguracja niezmienione względem pełnego R4;\n- zgodność wszystkich 122 hashy manifestu; względem manifestu R9 zmienił się wyłącznie E2E;\n- poprawne rozróżnienie dowodów QA, statycznego review i oczekującego CI, z zachowaniem ograniczeń oraz częściowego pokrycia wymagań.\n\n**NOT RUN przez reviewerów:** runtime, testy i reprodukcja cleanup. Wyniki QA oceniono jako dostarczone dowody.\n\n**Rekomenduję publikację PR.** Hosted CI dla dokładnego opublikowanego SHA pozostaje otwartą bramką; PASS nie oznacza zgody na merge ani pełnej akceptacji FR/AC."
+  },
+  "security-final-delta": {
+    "status": "PASS static no confirmed P0/P1/P2/P3",
+    "candidate": "86eb79d83b85cec5e6b685934d6c9e07e1324a4b",
+    "scope": "Only final real-BFF negative E2E and docs/evidence delta since full R4; no application/SQL/config change",
+    "runtime": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "370ae552e4044d0113df070dc505f45f337693a20fc119157e8dd7725a22c515",
+      "candidateAfter": "370ae552e4044d0113df070dc505f45f337693a20fc119157e8dd7725a22c515"
+    },
+    "report": "**PASS — ograniczony statyczny review delty testów i dokumentacji** kandydata `86eb79d83b85cec5e6b685934d6c9e07e1324a4b`. Brak potwierdzonych findings P0/P1/P2/P3.\n\nUruchomiono dokładnie jednego **generic subagent + canonical role `security-reviewer`**, odebrano wynik PASS; bez typed profile i dalszej delegacji. Sesja read-only, approval `never`; bez zmian plików i uruchamiania testów. Końcowy Git status czysty.\n\nPotwierdzono:\n\n- Patch odpowiada dokładnie Git diff względem `3ca3e2d…`; kod aplikacji, DB, skrypty, harness, konfiguracja i zależności pozostają identyczne.\n- [Nowy test](/private/tmp/jobs-firstslice-final-review-86eb79d/tests/e2e/recruitment-capture.spec.ts:1054) sprawdza siedem rzeczywistych odmów BFF, poprawne tożsamości A/B, cache, ogólne błędy i brak rekordów po requestId/tytule u obu właścicieli.\n- Wszystkie 122 hashe manifestu są zgodne. Historyczny manifest odpowiada poprzedniemu kandydatowi; jedyna różnica względem finalnego to E2E.\n- Dowody zachowują rozróżnienie lokalnych wyników QA, statycznego review i oczekującego CI. Nie znaleziono wartości wrażliwych ani nowych rozstrzygnięć polityki PO.\n\n**NOT RUN przeze mnie:** runtime, testy, skany live i cleanup. Wyniki QA oceniono, bez reprodukcji. Google OAuth, AT i natywny prywatny bfcache pozostają niepotwierdzone; częściowe FR/AC/UC oraz OPEN-002/024 zachowano.\n\n**Rekomendacja:** można kontynuować autoryzowaną publikację PR. Przed uznaniem DoD za ukończone należy zweryfikować i opublikować wymagane hosted CI dla dokładnego finalnego HEAD."
+  }
+}
