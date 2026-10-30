@@ -10,6 +10,7 @@
 | Co z jakością i bezpieczeństwem? | [NFR](requirements/nonfunctional-requirements.md), [strategia testowa](quality/test-strategy.md) |
 | Co dokładnie oznacza akceptacja? | [Kryteria AC](quality/acceptance-criteria.md) |
 | Jak użytkownik się porusza? | [Architektura informacji](ux/information-architecture.md), [przepływy](ux/interaction-flows.md), [UX Blueprint v1](ux/blueprint.md), [ekrany](ux/screen-blueprints.md), [kontrakty interakcji](ux/flow-contracts.md), [rejestr wyborów UX](ux/blueprint-decisions.md) |
+| Jak wygląda obecna aplikacja i dlaczego? | [Research i porównanie kierunków](ux/visual-design-research.md), [Visual Language](ux/visual-language.md), [UI Foundation — plan, QA i review](technical/ui-foundation-report.md) |
 | Co dzieje się w poszczególnych modułach? | [Indeks funkcji](features/README.md), [specyfikacje funkcji](features/), [Account & Data Management](features/account-and-data-management.md) |
 | Co zatwierdzono? | [Rejestr DEC](decisions/product-decisions.md) |
 | Czego nie wiemy? | [Rejestr OPEN](decisions/open-questions.md) |

@@ -1,0 +1,144 @@
+{
+  "checked": 12,
+  "controls": [],
+  "controlFailures": [],
+  "failures": [],
+  "pairs": [
+    {
+      "text": "Dodaj",
+      "foreground": [
+        255,
+        255,
+        255,
+        1
+      ],
+      "background": [
+        36,
+        98,
+        79,
+        1
+      ],
+      "ratio": 7.155051820032173,
+      "minimum": 4.5
+    },
+    {
+      "text": "Nie masz jeszcze spraw",
+      "foreground": [
+        36,
+        44,
+        40,
+        1
+      ],
+      "background": [
+        255,
+        255,
+        255,
+        1
+      ],
+      "ratio": 14.32540949278853,
+      "minimum": 4.5
+    },
+    {
+      "text": "Rekrutacje",
+      "foreground": [
+        36,
+        44,
+        40,
+        1
+      ],
+      "background": [
+        247,
+        248,
+        246,
+        1
+      ],
+      "ratio": 13.44716381649293,
+      "minimum": 3
+    },
+    {
+      "text": "Strona 1",
+      "foreground": [
+        89,
+        100,
+        93,
+        1
+      ],
+      "background": [
+        247,
+        248,
+        246,
+        1
+      ],
+      "ratio": 5.788105902488078,
+      "minimum": 4.5
+    },
+    {
+      "text": "Wybierz „Dodaj”, aby zapisać pierwszą sprawę.",
+      "foreground": [
+        89,
+        100,
+        93,
+        1
+      ],
+      "background": [
+        255,
+        255,
+        255,
+        1
+      ],
+      "ratio": 6.166132009120798,
+      "minimum": 4.5
+    },
+    {
+      "text": "Nawigacja",
+      "foreground": [
+        36,
+        44,
+        40,
+        1
+      ],
+      "background": [
+        238,
+        241,
+        237,
+        1
+      ],
+      "ratio": 12.579368745295021,
+      "minimum": 4.5
+    },
+    {
+      "text": "Dashboard",
+      "foreground": [
+        89,
+        100,
+        93,
+        1
+      ],
+      "background": [
+        238,
+        241,
+        237,
+        1
+      ],
+      "ratio": 5.414578083366092,
+      "minimum": 4.5
+    },
+    {
+      "text": "Rekrutacje",
+      "foreground": [
+        36,
+        98,
+        79,
+        1
+      ],
+      "background": [
+        220,
+        235,
+        227,
+        1
+      ],
+      "ratio": 5.804338629218929,
+      "minimum": 4.5
+    }
+  ]
+}

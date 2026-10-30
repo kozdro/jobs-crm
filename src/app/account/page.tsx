@@ -1,26 +1,30 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
-import { AuthShell } from "@/components/auth/auth-shell";
-import { AccountSession } from "@/components/auth/account-session";
+import { Workspace } from "@/components/recruitment/workspace";
+import { SessionControls } from "@/components/auth/account-session";
 import { getTrustedUser } from "@/modules/identity/infrastructure/server";
 export const dynamic = "force-dynamic";
 export default async function AccountPage() {
   const user = await getTrustedUser();
   if (!user) redirect("/login");
   return (
-    <AuthShell title="Twoje konto">
-      <AccountSession userId={user.id}>
-        <Link
-          href="/dashboard"
-          className="inline-flex min-h-11 items-center text-sm underline underline-offset-4"
-        >
-          Dashboard
-        </Link>
-        <p className="break-words text-sm leading-6">
-          Zalogowano jako{" "}
-          <span className="font-medium">{user.email ?? "użytkownik"}</span>.
-        </p>
-      </AccountSession>
-    </AuthShell>
+    <Workspace
+      userId={user.id}
+      title="Twoje konto"
+      description="Dostęp do Twojej przestrzeni i zarządzanie sesjami."
+    >
+      <div className="max-w-4xl space-y-5">
+        <section className="ui-panel p-5 sm:p-6">
+          <h2 className="text-lg font-semibold">Dane logowania</h2>
+          <p className="mt-3 break-words text-sm leading-6">
+            Zalogowano jako{" "}
+            <span className="font-semibold [overflow-wrap:anywhere]">
+              {user.email ?? "użytkownik"}
+            </span>
+            .
+          </p>
+        </section>
+        <SessionControls />
+      </div>
+    </Workspace>
   );
 }

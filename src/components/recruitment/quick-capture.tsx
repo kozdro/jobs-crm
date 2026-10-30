@@ -22,12 +22,11 @@ import {
 } from "./intent";
 import { SavedCaseNotice } from "./saved-case-notice";
 import { recoveryRequiresLogin } from "./recovery-session";
+import { buttonStyles, inputStyles } from "@/components/ui/styles";
 
-const buttonClass =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60";
-const primaryClass = `${buttonClass} bg-foreground text-background hover:bg-foreground hover:opacity-90`;
-const inputClass =
-  "min-h-11 w-full min-w-0 rounded-md border border-border bg-background px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60";
+const buttonClass = buttonStyles.secondary;
+const primaryClass = buttonStyles.primary;
+const inputClass = inputStyles;
 const steps = ["Sytuacja", "Dane", "Działanie", "Podsumowanie"];
 type DuplicateResult = Extract<CreateCaseResult, { kind: "duplicates" }>;
 
@@ -434,6 +433,7 @@ function CaptureSession({ userId }: { userId: string }) {
       )}
       <SavedCaseNotice
         item={open ? null : toast}
+        floating
         onDismiss={() => setToast(null)}
       />
       <Dialog.Root
@@ -447,13 +447,13 @@ function CaptureSession({ userId }: { userId: string }) {
         }}
       >
         <Dialog.Portal>
-          <Dialog.Backdrop className="fixed inset-0 z-40 bg-black/35" />
+          <Dialog.Backdrop className="fixed inset-0 z-40 bg-overlay" />
           <Dialog.Popup
             aria-modal="true"
             ref={popupRef}
             initialFocus={headingRef}
             finalFocus={triggerRef}
-            className="fixed inset-0 z-50 flex max-h-dvh min-w-0 flex-col overflow-y-auto bg-card p-5 text-foreground shadow-xl outline-none sm:inset-auto sm:left-1/2 sm:top-1/2 sm:max-h-[90dvh] sm:w-[min(40rem,calc(100vw-3rem))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-xl sm:p-7"
+            className="fixed inset-0 z-50 flex max-h-dvh min-w-0 flex-col overflow-y-auto bg-card p-5 text-foreground shadow-xl outline-none sm:inset-auto sm:left-1/2 sm:top-1/2 sm:max-h-[90dvh] sm:w-[min(40rem,calc(100vw-3rem))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-lg sm:p-8"
           >
             <div className="flex items-start justify-between gap-3">
               <Dialog.Title className="text-xl font-semibold">
@@ -477,16 +477,24 @@ function CaptureSession({ userId }: { userId: string }) {
               />
             </div>
             <ol
-              className="mt-6 flex items-center gap-2"
+              className="mt-6 grid grid-cols-4 gap-2 border-b border-border pb-5"
               aria-label="Postęp dodawania sprawy"
             >
               {steps.map((name, index) => (
                 <li
                   key={name}
                   aria-current={index === step ? "step" : undefined}
-                  className={`flex size-8 items-center justify-center rounded-full border text-sm ${index === step ? "border-foreground bg-foreground text-background" : "border-border text-muted-foreground"}`}
+                  className={`flex min-w-0 flex-col gap-2 text-xs ${index === step ? "font-semibold text-primary" : "text-muted-foreground"}`}
                 >
-                  <span aria-hidden="true">{index + 1}</span>
+                  <span
+                    aria-hidden="true"
+                    className={`flex size-7 items-center justify-center rounded-sm border ${index === step ? "border-primary bg-primary text-primary-foreground" : "border-input"}`}
+                  >
+                    {index + 1}
+                  </span>
+                  <span aria-hidden="true" className="text-[11px] sm:text-xs">
+                    {name}
+                  </span>
                   <span className="sr-only">
                     Krok {index + 1} z 4: {name}
                   </span>
@@ -499,7 +507,7 @@ function CaptureSession({ userId }: { userId: string }) {
               aria-describedby={
                 open && toast ? "capture-success-message" : undefined
               }
-              className="mt-6 text-lg font-medium outline-none"
+              className="mt-6 text-lg font-semibold outline-none"
             >
               {steps[step]}
             </h3>
@@ -541,7 +549,10 @@ function CaptureSession({ userId }: { userId: string }) {
                       {Array.from(title.trim()).length}/160
                     </p>
                     {errors.title && (
-                      <p id="case-title-error" className="text-sm">
+                      <p
+                        id="case-title-error"
+                        className="text-sm text-destructive"
+                      >
                         {errors.title}
                       </p>
                     )}
@@ -577,7 +588,10 @@ function CaptureSession({ userId }: { userId: string }) {
                       pobiera strony.
                     </p>
                     {errors.sourceUrl && (
-                      <p id="case-url-error" className="text-sm">
+                      <p
+                        id="case-url-error"
+                        className="text-sm text-destructive"
+                      >
                         {errors.sourceUrl}
                       </p>
                     )}
@@ -611,7 +625,10 @@ function CaptureSession({ userId }: { userId: string }) {
                         /2000
                       </p>
                       {errors.description && (
-                        <p id="case-description-error" className="text-sm">
+                        <p
+                          id="case-description-error"
+                          className="text-sm text-destructive"
+                        >
                           {errors.description}
                         </p>
                       )}
@@ -622,14 +639,14 @@ function CaptureSession({ userId }: { userId: string }) {
               {step === 2 && (
                 <fieldset className="space-y-3">
                   <legend className="sr-only">Działanie przy zapisie</legend>
-                  <label className="flex min-h-14 cursor-pointer items-start gap-3 rounded-lg border border-border p-4 text-sm">
+                  <label className="flex min-h-14 cursor-pointer items-start gap-3 rounded-lg border border-input p-4 text-sm has-checked:border-primary has-checked:bg-accent">
                     <input
                       type="radio"
                       name="case-action"
                       checked={action}
                       onChange={() => setAction(true)}
                       disabled={frozen}
-                      className="mt-0.5 size-4 accent-foreground"
+                      className="mt-0.5 size-4 accent-primary"
                     />
                     <span>Zapisz tylko sprawę</span>
                   </label>
@@ -675,7 +692,7 @@ function CaptureSession({ userId }: { userId: string }) {
               )}
               {duplicates && (
                 <section
-                  className="space-y-3 rounded-lg border border-border bg-secondary p-4"
+                  className="space-y-3 rounded-lg border border-warning bg-warning-surface p-4 text-warning"
                   aria-label="Potencjalne duplikaty"
                 >
                   <p
@@ -732,7 +749,7 @@ function CaptureSession({ userId }: { userId: string }) {
                   ref={feedbackRef}
                   role="alert"
                   tabIndex={-1}
-                  className="rounded-lg border border-border p-3 text-sm leading-6 outline-none"
+                  className="rounded-lg border border-destructive bg-destructive-surface p-3 text-sm leading-6 text-destructive outline-none"
                 >
                   {error}
                 </p>
@@ -839,7 +856,7 @@ function CaptureSession({ userId }: { userId: string }) {
               }}
             >
               <AlertDialog.Portal>
-                <AlertDialog.Backdrop className="fixed inset-0 z-60 bg-black/45" />
+                <AlertDialog.Backdrop className="fixed inset-0 z-60 bg-overlay" />
                 <AlertDialog.Popup
                   aria-modal="true"
                   ref={discardPopupRef}

@@ -1,0 +1,47 @@
+[
+  {
+    "product": "attio",
+    "source": "https://a.storyblok.com/f/234930/626x921/27b93190df/attio-sidebar.png",
+    "accessDate": "2026-10-30",
+    "path": "attio.png",
+    "sha256": "a5ed83431c998aa071e594205698465b77dd70a4b9fc479bd922c2a61e1b9019",
+    "kind": "official product screenshot",
+    "scope": "research only; not a bundled product asset"
+  },
+  {
+    "product": "folk",
+    "source": "https://help.folk.app/en/articles/5007276-contact-profile",
+    "accessDate": "2026-10-30",
+    "path": "folk.png",
+    "sha256": "eb74c34a3eef4a807953d009f0127e0d9d056daec050ff7fead853b53a8f71dc",
+    "kind": "first frame of official embedded GIF",
+    "scope": "research only; not a bundled product asset"
+  },
+  {
+    "product": "linear",
+    "source": "https://webassets.linear.app/images/ornj730p/production/6588c3dbdde8688ffd192a47210980e8e1a3c4fc-2494x1021.png",
+    "accessDate": "2026-10-30",
+    "path": "linear.png",
+    "sha256": "5c22321480cf2231aa8b920207608911a1ed7f73a657ab04272103ef186473a2",
+    "kind": "official product screenshot",
+    "scope": "research only; not a bundled product asset"
+  },
+  {
+    "product": "intercom",
+    "source": "https://www.intercom.com/help/en/articles/6258745-the-inbox-explained",
+    "accessDate": "2026-10-30",
+    "path": "intercom.png",
+    "sha256": "bff1ae47da17ad7df5ccfdfe5e23dcf0f3356ea4c86d5aecc9db7f604f0aef1c",
+    "kind": "first frame of official embedded GIF",
+    "scope": "research only; not a bundled product asset"
+  },
+  {
+    "product": "notion",
+    "source": "https://images.ctfassets.net/spoqsaf9291f/nfJxbTGWexijW7BSAEPZL/a39afeb87300553e7fb97fc7006d320d/layouts.png",
+    "accessDate": "2026-10-30",
+    "path": "notion.png",
+    "sha256": "517ec97e586ca141a7f44e02a31c21602ad2a971b775d0dbae51e49743b12ac9",
+    "kind": "official product screenshot",
+    "scope": "research only; not a bundled product asset"
+  }
+]

@@ -1,6 +1,8 @@
 "use client";
 
 import {
+  createContext,
+  useContext,
   useCallback,
   useEffect,
   useRef,
@@ -14,6 +16,65 @@ import {
 } from "@/modules/identity/infrastructure/browser";
 import type { LogoutScope } from "@/modules/identity/application/validation";
 import { Feedback } from "./feedback";
+import { buttonStyles } from "@/components/ui/styles";
+
+type SessionActions = {
+  pending: boolean;
+  logout: (scope: LogoutScope) => Promise<void>;
+  feedback: { message: string; error: boolean } | null;
+};
+const SessionContext = createContext<SessionActions | null>(null);
+export function useSessionActions() {
+  const actions = useContext(SessionContext);
+  if (!actions) throw new Error("Session controls require AccountSession");
+  return actions;
+}
+
+export function SessionFeedback() {
+  const { feedback } = useSessionActions();
+  return feedback ? (
+    <div className="mb-5 max-w-3xl">
+      <Feedback {...feedback} />
+    </div>
+  ) : null;
+}
+
+export function SessionControls() {
+  const { pending, logout } = useSessionActions();
+  return (
+    <section className="ui-panel p-5 sm:p-6" aria-labelledby="session-heading">
+      <h2 id="session-heading" className="text-lg font-semibold">
+        Zarządzanie sesjami
+      </h2>
+      <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+        Wybierz, które sesje chcesz zakończyć.
+      </p>
+      <div className="mt-5 flex flex-wrap gap-3" aria-busy={pending}>
+        {(
+          [
+            ["local", "Wyloguj tutaj"],
+            ["global", "Wyloguj wszędzie"],
+            ["others", "Wyloguj pozostałe sesje"],
+          ] as const
+        ).map(([scope, label]) => (
+          <Button
+            key={scope}
+            type="button"
+            disabled={pending}
+            onClick={() => void logout(scope)}
+            className={buttonStyles.secondary}
+          >
+            {label}
+          </Button>
+        ))}
+      </div>
+      <p className="mt-5 max-w-2xl text-[13px] leading-5 text-muted-foreground">
+        Wylogowanie kończy możliwość odnawiania wskazanych sesji. Wydane
+        wcześniej tokeny dostępu mogą działać do wygaśnięcia.
+      </p>
+    </section>
+  );
+}
 
 export function AccountSession({
   userId,
@@ -115,39 +176,20 @@ export function AccountSession({
     }
   }
   return (
-    <div className="space-y-5">
+    <SessionContext.Provider value={{ pending, logout, feedback }}>
       {!verified && (
-        <p role="status" className="text-sm text-muted-foreground">
+        <p role="status" className="p-5 text-sm text-muted-foreground">
           Sprawdzanie sesji…
         </p>
       )}
-      <div ref={contentRef} hidden={!verified} className="space-y-5">
+      <div ref={contentRef} hidden={!verified}>
         {children}
-        <div className="grid gap-3" aria-busy={pending}>
-          {(
-            [
-              ["local", "Wyloguj tutaj"],
-              ["global", "Wyloguj wszędzie"],
-              ["others", "Wyloguj pozostałe sesje"],
-            ] as const
-          ).map(([scope, label]) => (
-            <Button
-              key={scope}
-              type="button"
-              disabled={pending}
-              onClick={() => void logout(scope)}
-              className="min-h-11 rounded-md border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
-            >
-              {label}
-            </Button>
-          ))}
-        </div>
-        <p className="text-xs leading-5 text-muted-foreground">
-          Wylogowanie kończy możliwość odnawiania wskazanych sesji. Wydane
-          wcześniej tokeny dostępu mogą działać do wygaśnięcia.
-        </p>
       </div>
-      {feedback && <Feedback {...feedback} />}
-    </div>
+      {!verified && feedback && (
+        <div className="mx-5 max-w-3xl">
+          <Feedback {...feedback} />
+        </div>
+      )}
+    </SessionContext.Provider>
   );
 }

@@ -12,6 +12,7 @@ import {
 } from "@/modules/identity/application/validation";
 import { getPublicAuthConfig } from "@/shared/public/auth-config";
 import { Feedback } from "./feedback";
+import { buttonStyles, inputStyles } from "@/components/ui/styles";
 
 type Mode = "login" | "signup" | "forgot" | "reset";
 const labels: Record<Mode, string> = {
@@ -20,10 +21,8 @@ const labels: Record<Mode, string> = {
   forgot: "Wyślij link",
   reset: "Zapisz hasło",
 };
-const buttonClass =
-  "inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60";
-const inputClass =
-  "min-h-11 w-full rounded-md border border-border bg-background px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60";
+const buttonClass = `${buttonStyles.primary} w-full`;
+const inputClass = inputStyles;
 
 export function AuthForm({
   mode,
@@ -291,7 +290,7 @@ export function AuthForm({
               type="button"
               onClick={google}
               disabled={pending || resetBlocked}
-              className={buttonClass}
+              className={`${buttonStyles.secondary} w-full`}
             >
               Kontynuuj z Google
             </Button>
@@ -304,7 +303,7 @@ export function AuthForm({
       )}
       <nav
         aria-label="Dostęp do konta"
-        className="flex flex-wrap gap-x-4 gap-y-3 text-sm underline underline-offset-4"
+        className="flex flex-wrap gap-x-4 gap-y-3 text-sm text-primary underline underline-offset-4"
       >
         {mode !== "login" && <Link href="/login">Zaloguj się</Link>}
         {mode !== "signup" && <Link href="/signup">Utwórz konto</Link>}

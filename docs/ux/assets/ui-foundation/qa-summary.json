@@ -1,0 +1,1088 @@
+{
+  "date": "2026-10-30",
+  "generatedAtUTC": "2026-10-30T14:08:29.982696+00:00",
+  "status": "PASS within explicitly tested scope; not full WCAG/product acceptance",
+  "role": "qa-engineer",
+  "model": "inherited / NOT EXPOSED",
+  "reasoning": "NOT EXPOSED",
+  "candidate": {
+    "sourceDirectories": [
+      "src",
+      "tests",
+      "db"
+    ],
+    "identicalFileCount": 90,
+    "sourceGroupSHA256": "06eb4681724862fcfc25d1a0fa675f30787c13346788eb60a07fe602f50bc4fe",
+    "sourceHashes": {
+      "src/app/account/page.tsx": "7e05e31972523c699a999341fa3255eaf1b81d873636a517aad710af66d925f5",
+      "src/app/auth/callback/route.ts": "6c064f068182b1dbe9b4147fe8984f3c9b204e12537e984d207a9910c3d8f252",
+      "src/app/auth/password/route.ts": "918c289add854a383b0a0c55b12aa96fd23a79affb8edc7b19ac44ed9cc03569",
+      "src/app/auth/user/route.ts": "219f228d471a30e5301805ee28d393fba1820e68345eb688b0bf148d3356ec89",
+      "src/app/dashboard/page.tsx": "74f3c1f2344bc1f2758b000aa0d399f140a3958f6923a7f126894525863cbff1",
+      "src/app/forgot-password/page.tsx": "7d9c7ab31aeb7d41bfcef87f2200d4e5bbd1a6c05c72b117f9ad72ba2226b9f4",
+      "src/app/globals.css": "2ab4d3214338ef414682e758d6608ffcc6924b2d8738951df007baebcd0cb2bd",
+      "src/app/health/ready/route.ts": "9dbc1884714fe0cb1815a77fc2882ac0432f769ffe6b6ddf23e2f1eae06d60c8",
+      "src/app/layout.tsx": "16dbfb50aad88e5279d9b8d1789256fee64607ab2883842feaaef975385e5e37",
+      "src/app/login/page.tsx": "c138a59d2ad2f238d761888a3236fd612f2fa1ef611989fd6febea6cf8729802",
+      "src/app/page.tsx": "393912b3ffa3af589456582418c9f50dfba6e176a3b6750c753df4437d33a67a",
+      "src/app/recruitments/[id]/not-found.tsx": "e3ca4840d6d92cb381a93deaacc9d8a98102e88dbae1a308bc058a15ca8efcd3",
+      "src/app/recruitments/[id]/page.tsx": "0f0a77fd6bfe0ea71f9d46f28146f2848b25d554d6b37e2aa41b31bd92e7f5c5",
+      "src/app/recruitments/commands/route.ts": "89aa2c0f08ca26baa1b995df8ea536234323101f66e59459932fa1c1dd035a46",
+      "src/app/recruitments/page.tsx": "72c2e4d26dcd5e7c62abca280f631450ce74143315d8b5320f2eb843101f3241",
+      "src/app/reset-password/page.tsx": "e8dfe0304588fd6ea28aee7ded35399dc3360b5c4e00e174c673e6d09d59b00d",
+      "src/app/signup/page.tsx": "ef2bbed656fe11b6cb798b5fe20f7fa33c5d7db6ba909c51958054efae164918",
+      "src/components/auth/account-session.tsx": "f68cec6fe8a58ec25a8f1239dbfd0e65208fe6dfc4b047947a7a8d59bcfcd3ca",
+      "src/components/auth/auth-form.tsx": "623f9b8c6fb2b18f1058aa5a6a85d26c580324b9f78956a218a3bda87634baa9",
+      "src/components/auth/auth-shell.tsx": "d5f91b05cb4c296b0411214b3f2f805629a3b3bd2e18405a5498d07a09a889df",
+      "src/components/auth/feedback.tsx": "2dc19a0f4cc9fe10495f6cfd3e66c9af453f467081641c4745d1d7e74e32aaba",
+      "src/components/recruitment/case-content.tsx": "fc1065c9b4eb9b2b107a4c986ead38ecb7138248bc3e48be869ae160a6e7b4b5",
+      "src/components/recruitment/intent.ts": "0ba6f5dd3d1e51feb3cf136187986e7254bac5936afd68140cac6ffe771968e2",
+      "src/components/recruitment/quick-capture.tsx": "14242b79f40af078b6983b22897a532bc50c7d536e83bacc0dcea1d035689bcf",
+      "src/components/recruitment/recovery-session.ts": "a73df7c37a88c64bfa7caba1cbde6281d4e9ff6930198af938a92bb9513b8cef",
+      "src/components/recruitment/saved-case-notice.tsx": "2c1a55d9825e2a697f78867bf218184336b025e775c957b2283e688270b9d382",
+      "src/components/recruitment/workspace.tsx": "04b3e3ad31e8a477a6bf3d566aa0b2853500807625c88f53cdc5ced826272bc2",
+      "src/components/ui/LICENSE": "1564074e13439397221ffd522e2e504d56561994a23d371aa5e3ad43e4f5423f",
+      "src/components/ui/badge.tsx": "355afa81ee5621e01c60b2f465a9f86c402afe769aba8213e33f87a97add5100",
+      "src/components/ui/card.tsx": "6eab3ffeac8be0500a4aa234e3a7db44b409d9684a85f684105eb8def5a6058d",
+      "src/components/ui/styles.ts": "a9545a06c42c804ea84b9db7017235b05301387a034443f43f7ccc531b1d02cc",
+      "src/components/workspace/account-menu.tsx": "1b79e2c1bcbf36e5f37c287a29ff147ea6bf12ccf98dfa411214499060428190",
+      "src/components/workspace/app-shell.tsx": "480fcc1b2e2094636585d2950f2ef6365e261e6161b633431959dded2a562dbe",
+      "src/components/workspace/sidebar.tsx": "408b38825a554ca481a6f5fdaa763d0e603e3a72e9848f02763f052059c3076a",
+      "src/lib/utils.ts": "d1f1e0d62cb8d8d1e04c26e14de842d8a151f75812d81b046c65b5d1fe8e4b27",
+      "src/modules/identity/application/validation.ts": "fc6e572948ff97a8cdf033097a4b0da3964a5b6988db632a7af54e4da63e1e79",
+      "src/modules/identity/infrastructure/browser.ts": "e1d5c99e9ce1c701c3a08a68e4da05799c32eabcb399dfb3dfc7eedecbee96c2",
+      "src/modules/identity/infrastructure/http.ts": "b34e40e52e3fedd44eef381618998c26069e1e95e548685fa6a3fe9c0651f987",
+      "src/modules/identity/infrastructure/server.ts": "e2e373632ad02931343e5e01df207d90b1b26043846f456b55b71c043589dccd",
+      "src/modules/recruitment/application/cases.ts": "f1d6946449120b161bb6a0dd2f0f012339f8bf3c0f206b63869ed8bf4b984a40",
+      "src/modules/recruitment/domain/recruitment-case.ts": "1d5bbd0f614b613d77a41565491c0ee8033ea177ca319304a485dde7a07f9d28",
+      "src/proxy.ts": "512041ac38274bb8c9cdc52123b0daede88d33f9d8ef435989ce664d9b31cbec",
+      "src/shared/public/auth-config.ts": "7c4ba36eb8f08c4cbf2f66f831654ff7e5372a8e6f190cf8b31bd435c33e59c5",
+      "src/shared/server/env.ts": "a93d853dcab7ca18d9ecde41cda620dd3a2fd6f4328312c7ff43d5004e59af50",
+      "src/shared/validation/auth-config.ts": "5ee069c23ef87cd95beff06603f20f08bc3a752c1b66a23c722e03eb7504ee27",
+      "src/shared/validation/env.ts": "a48ecb242157624450d146b67125697b78d029f252b793ab7445ceaff1af991a",
+      "src/shared/validation/origin.ts": "8c3d2d1f6608b5650addbcbffa077bdb5dd3b514501b9fde0ddebc02bb088ad6",
+      "tests/e2e/auth-flows.spec.ts": "3608af62975a0795f553e05b2527410ba57206e94f5bf393656cd89dede7ce87",
+      "tests/e2e/foundation-smoke.spec.ts": "5f4843a033e3862e8875aef39605878dabdef5caf99bddec73a50c528d7ff0c7",
+      "tests/e2e/recruitment-capture.spec.ts": "282b7758a69e0e0b6f3b73bc94afc2cc7442df06775c23ae27b69459cf2ec459",
+      "tests/e2e/recruitment-ui-foundation.spec.ts": "75c7c30bfe298b94cc3f3b59a63cd9e3f2e124f79d3f1e33d0b5b58574f207c9",
+      "tests/e2e/ui-rendered-audit.ts": "6da02ca0c5c66c24647b4fd83f7fc0728f79e9206fbaeb8af007097762b4939e",
+      "tests/integration/auth/fixtures.ts": "b8813e29ea45028dc7e528957517ddf1d95f0df88fe787a2a9258f9230a52044",
+      "tests/integration/auth/sdk-cases.ts": "f95895e69b11633982e6ba04160e47254eadc0c698b1d1a9f4961a881b6b59d2",
+      "tests/integration/migrations/checks.ts": "3104480c9751b25afceb6ad201953a930f775543328bcf3d3bfcf9651488d798",
+      "tests/integration/recruitment/direct-insert-race.ts": "949a88668c52fbe9c8c18fc1494b14745acbf85bee8f626706034d8f58da28f3",
+      "tests/integration/recruitment/recruitment.test.ts": "0f23b9bb8e6c3e1af6a578bbadd08794d387a5d603fd5bac9e8a8d2105e65899",
+      "tests/integration/recruitment/url-parity.ts": "126feba491521d3609f96796a31529809f389138c8723734f48f68049350d054",
+      "tests/integration/rls/catalog.ts": "28c5482efc465a511cd55321ccd32813a622512b96933ef900b5fa66d725cd1b",
+      "tests/integration/rls/data-api.ts": "603d0504e08bae07b87104b49b73f5c52954229ebb5ea1ac57b5b74cc15feb6f",
+      "tests/integration/rls/f2.test.ts": "0aeb7e71e328780dc8089a3052fd87b8ddd0045a30a3ddd003fc6f208eab88a7",
+      "tests/integration/rls/matrix.ts": "eaceefe7e7c249e976b2e8eeb8e7f89f8521af7a88b7cd855de5d1ce71c5bacf",
+      "tests/unit/auth-browser.test.ts": "e73aa3237b846984c6dcede51f734e5fb15fbb72b1b74fcabcfafc3595d9d7ed",
+      "tests/unit/auth-callback.test.ts": "d650910b1c62de3529edb4a0db41f37a989feed99b039289f1777f1657fd82a6",
+      "tests/unit/auth-config.test.ts": "cbcaadeec6b9ffa1f70134c912b94d3f3edf7088e41dfd334596ebe9f7d59c0b",
+      "tests/unit/auth-password.test.ts": "2be96a4331aede742c3e1f346ab0ce481d82f8d996b27bb83f9ec5d0132d8b4d",
+      "tests/unit/auth-server.test.ts": "3b2bc1c532410b42bbbac540d6a67ed9ab40b7a0b287a64f807137ad1cfb1292",
+      "tests/unit/auth-ui.test.ts": "f3f8ee09b966b1b76696d9a61758713f95d8e6e127e6753cd2f70e28bc1db752",
+      "tests/unit/auth-validation.test.ts": "208c0ac6b2ed0e01fce0f44b6269b9e7150dabb031f3574943188ea2262ee5bc",
+      "tests/unit/env.test.ts": "802ed8d79b47966e13587c36128b826bd4ef030e1d4ceb954a40b145817bb19c",
+      "tests/unit/recruitment-command.test.ts": "003bc53c72851e59dbe1b2c773bd35adbf5e978c72d3413607dadcd9d26820bb",
+      "tests/unit/recruitment-domain.test.ts": "44e1265ca4a07291bc19ceb9ea89a1a4d2978f774560d4d1020517b2e21d19e9",
+      "tests/unit/recruitment-ui.test.ts": "323e53768bec3720ea07382ad16c9a971de4ea3bf81c5174c6b6e4292197a844",
+      "tests/unit/workspace-ui.test.ts": "42fe4aa4c8dab1f9227bf07a460f4a87255843aeaeab49262da287814e1cf554",
+      "db/recruitment/migrations/0000_recruitment_validation.sql": "640ae10d48af84a1468b2a764c8a13ea68eda21bf25a1be8cfbb4361e24573bd",
+      "db/recruitment/migrations/0001_recruitment_case.sql": "d17053c59a8063e54db97e4c30fda7f05d0e2eb52ff65e07089acf1bf2b159e6",
+      "db/recruitment/migrations/0002_recruitment_access_and_create.sql": "2ee4db5cc11271c8ba34aacf0dfab86100231111a3446bdea78e2e91e99a747a",
+      "db/recruitment/migrations/0003_recruitment_intent_before_warning.sql": "a09fe0b3d0596da51e36faf0c2efe63a049daa2b20648100811b79b77ed03347",
+      "db/recruitment/migrations/0004_recruitment_url_canonical_boundary.sql": "844601688ef784e4f8bba3fb04708833c99bfdd6f20b611b3caa7b1d0f8fe1d2",
+      "db/recruitment/migrations/0005_recruitment_url_constraint_revalidation.sql": "7bdd45f5b6dd031525fd42cf2ca0b133ccf8c54d57e04b702d810852ba98ab90",
+      "db/recruitment/migrations/0006_recruitment_numeric_host_parity.sql": "c01abf7026b3117ea5e62e1d17a918b5b15ddb1716a690bf44c4678d1cd34b82",
+      "db/recruitment/migrations/meta/0000_snapshot.json": "69a3653d19a33546cac79eec6640fe3b96acc33988827fc8d34afbbf4fa58268",
+      "db/recruitment/migrations/meta/0001_snapshot.json": "9ef6f556a87789eb46f306114190a5c09b3757cf786c311066074ee283263d74",
+      "db/recruitment/migrations/meta/0002_snapshot.json": "3869672e2c71a5d51b210db9b07d96a64c5ab9fcd26c6a936c487dae7d83fdd0",
+      "db/recruitment/migrations/meta/0003_snapshot.json": "472cc857fbfd80afd7db7c67ae9c2feff55438449cbe423f6c396833056c75ec",
+      "db/recruitment/migrations/meta/0004_snapshot.json": "1b15585de111f2286e6f2eeb3fbe7e31850a304c1a64c1fc62ac4ec1d0388bc5",
+      "db/recruitment/migrations/meta/0005_snapshot.json": "26e9929e9da76a6d0ace47ceba470005bd6b9e39f2ba68d56e0091c9fb6b8745",
+      "db/recruitment/migrations/meta/0006_snapshot.json": "d334c661617c10a88c267e78136da8af3a0bc18bcf8e3bbde3dd7849242a052e",
+      "db/recruitment/migrations/meta/_journal.json": "254931695b3d9c966fcd53cbba64ad82bcc861131112dd79942ceb0304e73bb0",
+      "db/recruitment/schema.ts": "c0634a824d2d295e8602e2f5cb59483b10e1bd58f865b78db6374b068d709f9c"
+    },
+    "freshCopy": "/tmp/jobs-crm-ui-fresh-20261030",
+    "dependencies": "Actual filesystem-cloned pinned node_modules inside copy; no new install, no external dependency symlink",
+    "packageJSONSHA256": "cf20153ba3cde84a57092506a93403e9ba8291c040533623eb8541d478153968",
+    "lockfileSHA256": "afc82319ba1403253e9616e8919e8aa2c113eb0b17db75d23c875a24767f3fe5",
+    "copyOnlyInfrastructureRemaps": [
+      {
+        "file": "scripts/recruitment/target.ts",
+        "sourceSHA256": "7bec84b1fb29ba85ff0325d652651a54101bbbf1ae4fd4a855e2b8cbc5227e4a",
+        "copySHA256": "5891807d2869bdf5f407a70026727ab9e8fa15ad287a8547de6bb124471d7a29",
+        "change": "5662x to 5692x only"
+      },
+      {
+        "file": "scripts/recruitment/cleanup-plan.ts",
+        "sourceSHA256": "42661e07b2d86b48afbd9ba3c02d046667937445913dab824ce597406556809b",
+        "copySHA256": "e58e3d840d3485350b301790c03640978cbf50f1191ece122f17619f6d75a671",
+        "change": "5662x to 5692x only"
+      },
+      {
+        "file": "supabase/recruitment-config.toml",
+        "sourceSHA256": "9e406e2afcc94e52feca21c1f486673372c33d61a4d9739399a5f724e5f08366",
+        "copySHA256": "3eab2c13c57dee5b52f39e45011c50217afba0e343820dd7746b619106e60185",
+        "change": "5662x to 5692x only"
+      }
+    ],
+    "f3Copy": "/tmp/jobs-crm-ui-f3-20261030",
+    "f3AppAndConsumedAuthSourcesMatchFinal": true,
+    "f3OnlyDifferencesAreUnconsumedRecruitmentE2EFiles": [
+      "tests/e2e/recruitment-capture.spec.ts",
+      "tests/e2e/recruitment-ui-foundation.spec.ts"
+    ]
+  },
+  "environment": {
+    "os": "macOS arm64",
+    "node": "24.22.2",
+    "pnpm": "12.16.1",
+    "nodePath": "/Users/kozdro/.volta/tools/image/node/24.22.2/bin/node",
+    "browser": "Chromium / Chrome for Testing 156.0.8078.4 (Playwright 1.64.1)",
+    "next": "16.4.3 production Turbopack build",
+    "localDockerOnly": true,
+    "supabaseCLI": "2.122.0",
+    "postgres": "17.11",
+    "auth": "v2.197.0",
+    "postgrest": "PostgREST 16.5",
+    "freshTarget": {
+      "id": "run-b13e53df",
+      "projectId": "jobs-crm-recruitment-518c7c-72d95dc3e960",
+      "apiPort": 56921,
+      "dbPort": 56922,
+      "mailPort": 56924,
+      "appOrigin": "https://127.0.0.1:3153",
+      "cleanup": "PASS: runner cleaned only its own new synthetic target after success"
+    },
+    "persistentDevAndOldManualDev": "Untouched; no reset, user/account removal, schema or product database changes"
+  },
+  "commands": [
+    {
+      "command": "PATH=/Users/kozdro/.volta/tools/image/node/24.22.2/bin:$PATH node scripts/ui-candidates.mjs",
+      "where": "repository",
+      "status": "PASS",
+      "renders": 90,
+      "candidateScreenshots": 30,
+      "log": "/tmp/jobs-ui-candidates-qa-result.json"
+    },
+    {
+      "command": "PATH=/Users/kozdro/.volta/tools/image/node/24.22.2/bin:$PATH pnpm test:integration:f2",
+      "where": "repository / own isolated targets564xx",
+      "status": "PASS",
+      "tests": 85,
+      "failed": 0,
+      "skipped": 0,
+      "durationSeconds": 219.18,
+      "log": "/tmp/jobs-ui-foundation-f2.log"
+    },
+    {
+      "command": "PATH=/Users/kozdro/.volta/tools/image/node/24.22.2/bin:$PATH pnpm test:unit",
+      "where": "repository / orchestrator final run",
+      "status": "PASS",
+      "vitestFiles": 12,
+      "vitestTests": 152,
+      "nodeTests": 87,
+      "total": 239,
+      "log": "/tmp/jobs-ui-unit-complete-final.log"
+    },
+    {
+      "command": "PATH=/Users/kozdro/.volta/tools/image/node/24.22.2/bin:$PATH F3_TARGET_ID=run-d6932e68 node scripts/auth/runner.ts",
+      "where": "/tmp/jobs-crm-ui-f3-20261030",
+      "status": "PASS",
+      "productionBuildExit": 0,
+      "sdkTests": 13,
+      "browserTests": 10,
+      "log": "/tmp/jobs-ui-foundation-f3-complete-final.log"
+    },
+    {
+      "command": "PATH=/Users/kozdro/.volta/tools/image/node/24.22.2/bin:$PATH UI_SCREENSHOTS_DIR=/Users/kozdro/Desktop/jobs-crm/docs/ux/assets/ui-foundation node scripts/recruitment/runner.ts",
+      "where": "/tmp/jobs-crm-ui-fresh-20261030",
+      "status": "PASS",
+      "productionBuildExit": 0,
+      "httpRlsTests": 25,
+      "browserTests": 29,
+      "existingBrowserTests": 20,
+      "newUiBrowserTests": 9,
+      "failed": 0,
+      "skipped": 0,
+      "log": "/tmp/jobs-ui-foundation-recruitment-fresh-final.log"
+    }
+  ],
+  "redactedRunnerEvidence": {
+    "recruitment": {
+      "id": "run-b13e53df",
+      "projectId": "jobs-crm-recruitment-518c7c-72d95dc3e960",
+      "startedAt": "2026-10-30T14:04:27.525Z",
+      "node": "v24.22.2",
+      "status": "PASS",
+      "migrations": {
+        "applied": 7,
+        "total": 7,
+        "checkpoint": "81538aa2a1d29bc866448ceee302b8dad45b7a0bef4985e03ff612016749b205"
+      },
+      "stages": [
+        "local-target-and-RLS-migrations",
+        "production-build",
+        "real-business-auth-data-api",
+        "production-HTTPS-browser",
+        "build-server-logs-and-browser-artifacts-redacted"
+      ],
+      "outputChecks": [
+        {
+          "stage": "production-build",
+          "bytes": 973,
+          "sha256": "f0a89fa8b5be16e60c1d70f043fb15d9d9406eff7a0b2ae8b0149e1547ca79e6",
+          "counts": {},
+          "observations": []
+        },
+        {
+          "stage": "business-integration",
+          "bytes": 3045,
+          "sha256": "15feae82fd8fb0704a2250003d0b97e5f5007bd482f5ba949ff2480db0e7cd9c",
+          "counts": {
+            "tests": 25,
+            "passed": 25,
+            "failed": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "observations": []
+        },
+        {
+          "stage": "business-HTTPS-browser",
+          "bytes": 4922,
+          "sha256": "f7a45976629e05a9bda2a87764a2ae87bbc5cec177b6cd9ca44df94159097ff8",
+          "counts": {
+            "passed": 29
+          },
+          "observations": []
+        },
+        {
+          "stage": "app-process-1",
+          "bytes": 152,
+          "sha256": "d6801c681b1093ac48c92a4b5f2adac8d3d3f82fd7c7cbee64c5e10a107338c8",
+          "counts": {},
+          "observations": []
+        }
+      ],
+      "scannedBrowserFiles": 18,
+      "scannedGeneratedResponseFiles": 15
+    },
+    "f3": {
+      "id": "run-d6932e68",
+      "projectId": "jobs-crm-f3-run-d6932e68-e1b218676e67",
+      "startedAt": "2026-10-30T13:56:07.023Z",
+      "node": "v24.22.2",
+      "status": "PASS",
+      "stages": [
+        "local-target-and-RLS-migrations",
+        "production-build",
+        "real-auth-sdk-data-api",
+        "production-HTTPS-browser",
+        "build-server-logs-and-browser-artifacts-redacted"
+      ],
+      "outputChecks": [
+        {
+          "stage": "production-build",
+          "bytes": 973,
+          "sha256": "3dcd845cdeee8b0a99a936e1a4b468febfebdc71d4e565487e01fbfbf7c173a3",
+          "counts": {},
+          "observations": []
+        },
+        {
+          "stage": "auth-sdk-integration",
+          "bytes": 3560,
+          "sha256": "331aa5d99fa5647699f1624bf41ccdfab7bd99320db654bd7a8105d277fa87f0",
+          "counts": {
+            "tests": 13,
+            "passed": 13,
+            "failed": 0,
+            "cancelled": 0,
+            "skipped": 0
+          },
+          "observations": [
+            {
+              "kind": "F3_SIGNUP_OBSERVATION",
+              "values": {
+                "confirmationsFixture": true,
+                "newEmail": {
+                  "userReturned": true,
+                  "sessionReturned": false,
+                  "identityCount": 1,
+                  "errorCode": null
+                },
+                "existingEmail": {
+                  "userReturned": false,
+                  "sessionReturned": false,
+                  "identityCount": null,
+                  "errorCode": "user_already_exists"
+                },
+                "productionAntiEnumerationPolicy": "OPEN-041/013"
+              }
+            },
+            {
+              "kind": "F3_RECOVERY_SESSION_OBSERVATION",
+              "values": {
+                "currentRecoveryPasswordUpdated": true,
+                "otherSessions": [
+                  {
+                    "account": "other-A-1",
+                    "refreshAccepted": false,
+                    "errorCode": "refresh_token_not_found"
+                  },
+                  {
+                    "account": "other-A-2",
+                    "refreshAccepted": false,
+                    "errorCode": "refresh_token_not_found"
+                  }
+                ],
+                "unrelatedBRefreshAccepted": true,
+                "productionSessionConsequencesPolicy": "OPEN-043/042"
+              }
+            },
+            {
+              "kind": "F3_PASSWORD_POLICY_OBSERVATION",
+              "values": {
+                "securePasswordChangeFixture": true,
+                "freshOrdinarySessionUpdateAccepted": true,
+                "errorCode": null,
+                "stale24HourSession": "NOT RUN - no auth schema timestamp tampering",
+                "productionFreshnessAndReauthPolicy": "OPEN-013/043"
+              }
+            },
+            {
+              "kind": "F3_JWT_REPLAY",
+              "values": {
+                "scope": "local",
+                "currentRefreshSessionRevoked": true,
+                "sampledSession": "current",
+                "sampleRefreshSessionRevoked": true,
+                "issuedAt": 1793368576,
+                "exp": 1793368636,
+                "scopeAppliedAt": 1793368576.776,
+                "lastValidAt": 1793368666.6,
+                "firstDeniedAt": 1793368667.123,
+                "observedValidAfterLogoutSeconds": 89.824,
+                "firstDeniedAfterExpSeconds": 31.122999906539917
+              }
+            },
+            {
+              "kind": "F3_JWT_REPLAY",
+              "values": {
+                "scope": "others",
+                "currentRefreshSessionRevoked": false,
+                "sampledSession": "other",
+                "sampleRefreshSessionRevoked": true,
+                "issuedAt": 1793368576,
+                "exp": 1793368636,
+                "scopeAppliedAt": 1793368577.197,
+                "lastValidAt": 1793368666.608,
+                "firstDeniedAt": 1793368667.13,
+                "observedValidAfterLogoutSeconds": 89.411,
+                "firstDeniedAfterExpSeconds": 31.130000114440918
+              }
+            },
+            {
+              "kind": "F3_JWT_REPLAY",
+              "values": {
+                "scope": "global",
+                "currentRefreshSessionRevoked": true,
+                "sampledSession": "current",
+                "sampleRefreshSessionRevoked": true,
+                "issuedAt": 1793368577,
+                "exp": 1793368637,
+                "scopeAppliedAt": 1793368577.728,
+                "lastValidAt": 1793368667.64,
+                "firstDeniedAt": 1793368668.151,
+                "observedValidAfterLogoutSeconds": 89.912,
+                "firstDeniedAfterExpSeconds": 31.151000022888184
+              }
+            }
+          ]
+        },
+        {
+          "stage": "auth-HTTPS-browser",
+          "bytes": 2543,
+          "sha256": "11fd7ba3f08b666a9388a853b5fc1dbf072041e9123142fda027b8df56d72ac5",
+          "counts": {
+            "passed": 10
+          },
+          "observations": [
+            {
+              "kind": "F3_SIGNUP_UI_OBSERVATION",
+              "values": {
+                "newUiOutcome": "status",
+                "existingUiOutcome": "alert",
+                "messagesEqual": false,
+                "productionAntiEnumerationPolicy": "OPEN-041/013 - provider configuration dependent"
+              }
+            },
+            {
+              "kind": "F3_REFRESH_FAULT_OBSERVATION",
+              "values": {
+                "delayedRefreshRequests": 2,
+                "networkFailures": 8,
+                "rejectedRefreshRequests": 1,
+                "actualAccessExpiryReached": true,
+                "explicitReLoginShown": true,
+                "reconnectPreservedOwner": true,
+                "unrelatedBPreserved": true
+              }
+            },
+            {
+              "kind": "F3_BFCACHE_OBSERVATION",
+              "values": {
+                "cacheExclusionObserved": true,
+                "backResponseSource": "explicit-SSR-request",
+                "nativeNoStoreReason": "MainResourceHasCacheControlNoStore",
+                "reloadedAfterBack": true,
+                "noPrivateAfterLogout": true,
+                "actualRestoreHandler": "NOT RUN - browser excludes no-store private page"
+              }
+            }
+          ]
+        },
+        {
+          "stage": "app-process-1",
+          "bytes": 813,
+          "sha256": "b65e767e3208aa13061f339bac4061f36bd2777564f5685345912377fbe30115",
+          "counts": {},
+          "observations": []
+        },
+        {
+          "stage": "app-process-2",
+          "bytes": 153,
+          "sha256": "5423a2157dd7afbe4125cafdd987474dbef7375e4d0ea9de834c8f06dc49042b",
+          "counts": {},
+          "observations": []
+        }
+      ],
+      "scannedBrowserFiles": 18,
+      "scannedGeneratedResponseFiles": 15
+    }
+  },
+  "accessibility": {
+    "computedTextContrast": {
+      "status": "PASS",
+      "captures": 50,
+      "visibleTextElementSamples": 1305,
+      "minimumRatio": 5.414578083366092,
+      "failures": 0,
+      "method": "Computed actual colors converted by Chromium canvas to sRGB; transparent ancestor backgrounds alpha-composited; normal text>=4.5, large text>=3. Group opacity/background images skipped rather than invented. Not full WCAG certification."
+    },
+    "inputBoundaryContrast": {
+      "status": "PASS",
+      "samples": 30,
+      "minimumRatio": 3.663542098437587,
+      "threshold": 3,
+      "failures": 0
+    },
+    "focus": {
+      "status": "PASS",
+      "actualOutlineMeasurements": 4,
+      "minimumOutlineContrast": 7.155051820032173,
+      "minimumOutlineWidthCSSPixels": 2,
+      "keyboardProofs": [
+        "sidebar collapse names/current route",
+        "mobile navigation trap12Tabs and Escape return",
+        "Quick Capture mobile trap12Tabs",
+        "menu Escape return",
+        "duplicate primary/Wstecz/Anuluj scrollIntoView + ShiftTab/Tab + focus + inViewport",
+        "existing dirty/recovery dialog focus cases"
+      ],
+      "actualMeasurementsFile": "docs/ux/assets/ui-foundation/focus-measurements.json"
+    },
+    "reflow": {
+      "status": "PASS",
+      "requiredWidths": [
+        1440,
+        1024,
+        768,
+        375
+      ],
+      "equivalentViewportWidths": [
+        320,
+        720
+      ],
+      "equivalence": "320CSSpx corresponds to1280 viewport at400%;720CSSpx to1440 at200%. This is viewport reflow equivalence, not actual browser UI zoom.",
+      "largeType": "200% root font-size at375CSSpx tested separately; fixed px text is not a claim of full browser zoom",
+      "noOverflowPredicate": "document.documentElement.scrollWidth <= innerWidth, visible main width>0 after verified session settles",
+      "measuredRequiredWidths": {
+        "measurements-1024": {
+          "dashboard": {
+            "innerWidth": 1024,
+            "scrollWidth": 1024,
+            "viewport": 1024,
+            "main": 792
+          },
+          "account": {
+            "innerWidth": 1024,
+            "scrollWidth": 1024,
+            "viewport": 1024,
+            "main": 792
+          },
+          "list": {
+            "innerWidth": 1024,
+            "scrollWidth": 1024,
+            "viewport": 1024,
+            "main": 792
+          },
+          "detail": {
+            "innerWidth": 1024,
+            "scrollWidth": 1024,
+            "viewport": 1024,
+            "main": 792
+          },
+          "capture": {
+            "innerWidth": 1024,
+            "scrollWidth": 1024,
+            "viewport": 1024,
+            "main": 792
+          },
+          "duplicate": {
+            "innerWidth": 1024,
+            "scrollWidth": 1024,
+            "viewport": 1024,
+            "main": 792
+          }
+        },
+        "measurements-1440": {
+          "dashboard": {
+            "innerWidth": 1440,
+            "scrollWidth": 1440,
+            "viewport": 1440,
+            "main": 1208
+          },
+          "account": {
+            "innerWidth": 1440,
+            "scrollWidth": 1440,
+            "viewport": 1440,
+            "main": 1208
+          },
+          "list": {
+            "innerWidth": 1440,
+            "scrollWidth": 1440,
+            "viewport": 1440,
+            "main": 1208
+          },
+          "detail": {
+            "innerWidth": 1440,
+            "scrollWidth": 1440,
+            "viewport": 1440,
+            "main": 1208
+          },
+          "capture": {
+            "innerWidth": 1440,
+            "scrollWidth": 1440,
+            "viewport": 1440,
+            "main": 1208
+          },
+          "duplicate": {
+            "innerWidth": 1440,
+            "scrollWidth": 1440,
+            "viewport": 1440,
+            "main": 1208
+          }
+        },
+        "measurements-375": {
+          "dashboard": {
+            "innerWidth": 375,
+            "scrollWidth": 375,
+            "viewport": 375,
+            "main": 375
+          },
+          "account": {
+            "innerWidth": 375,
+            "scrollWidth": 375,
+            "viewport": 375,
+            "main": 375
+          },
+          "list": {
+            "innerWidth": 375,
+            "scrollWidth": 375,
+            "viewport": 375,
+            "main": 375
+          },
+          "detail": {
+            "innerWidth": 375,
+            "scrollWidth": 375,
+            "viewport": 375,
+            "main": 375
+          },
+          "capture": {
+            "innerWidth": 375,
+            "scrollWidth": 375,
+            "viewport": 375,
+            "main": 375
+          },
+          "duplicate": {
+            "innerWidth": 375,
+            "scrollWidth": 375,
+            "viewport": 375,
+            "main": 375
+          }
+        },
+        "measurements-768": {
+          "dashboard": {
+            "innerWidth": 768,
+            "scrollWidth": 768,
+            "viewport": 768,
+            "main": 536
+          },
+          "account": {
+            "innerWidth": 768,
+            "scrollWidth": 768,
+            "viewport": 768,
+            "main": 536
+          },
+          "list": {
+            "innerWidth": 768,
+            "scrollWidth": 768,
+            "viewport": 768,
+            "main": 536
+          },
+          "detail": {
+            "innerWidth": 768,
+            "scrollWidth": 768,
+            "viewport": 768,
+            "main": 536
+          },
+          "capture": {
+            "innerWidth": 768,
+            "scrollWidth": 768,
+            "viewport": 768,
+            "main": 536
+          },
+          "duplicate": {
+            "innerWidth": 768,
+            "scrollWidth": 768,
+            "viewport": 768,
+            "main": 536
+          }
+        }
+      },
+      "equivalentViewportRawGeometryRetained": false
+    },
+    "semantics": [
+      "Future modules have no active links",
+      "No fake searchbox",
+      "Status has explicit Zapisane text",
+      "Existing field labels/errors preserved",
+      "Auth logout local/global/others preserved"
+    ],
+    "notRun": [
+      "physical mobile devices",
+      "screen readers / assistive technology",
+      "actual browser UI zoom",
+      "real Google OAuth",
+      "stale24-hour reauthentication fixture",
+      "actual BFCache restore handler: Chromium excludes no-store pages; native exclusion and history/logout tested",
+      "formal full acceptance of entire FR/AC modules"
+    ]
+  },
+  "visualEvidence": {
+    "screenshots": [
+      {
+        "path": "docs/ux/assets/ui-foundation/account-menu-1024.png",
+        "sha256": "19d38455d84cb2e7928463e84025b36aeadcccf80b3c046d6f1ece6825f37b5b",
+        "width": 1024,
+        "height": 960,
+        "bytes": 92094
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/account-menu-1440.png",
+        "sha256": "187b191a741fe2a53a050e2dfa2c74b3cb4e2cd756fa9396d471e7a6ee5915f8",
+        "width": 1440,
+        "height": 960,
+        "bytes": 95148
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/account-menu-375.png",
+        "sha256": "f521d3c4bfabac84874ecccc6972543ea3ae5a64b33399fa21d052677e13989d",
+        "width": 375,
+        "height": 960,
+        "bytes": 59104
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/account-menu-768.png",
+        "sha256": "55a538cea4bf9bdd61b6adcb23da8846eb94d8adcde8057a02a21126af28589a",
+        "width": 768,
+        "height": 960,
+        "bytes": 90805
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/account-sessions-1024.png",
+        "sha256": "012c01b7539c52933386d057e821f9b9167db2ccf1d08f3eb54712441a1e3127",
+        "width": 1024,
+        "height": 960,
+        "bytes": 76530
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/account-sessions-1440.png",
+        "sha256": "c9c755af51525ff12f26e8975fe263aee4dc08084508b5866654f1d2b2eef122",
+        "width": 1440,
+        "height": 960,
+        "bytes": 79831
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/account-sessions-375.png",
+        "sha256": "4dfe4fd7d386a02df0d50dc64949e910a124667cae3a4a526fdb5137118aaead",
+        "width": 375,
+        "height": 960,
+        "bytes": 47838
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/account-sessions-768.png",
+        "sha256": "575bd4100c722c23790a1cf3b0fd20e11f83b4198bda181ff60cd876fe7a8294",
+        "width": 768,
+        "height": 960,
+        "bytes": 76968
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/case-detail-1024.png",
+        "sha256": "bf5219b6c62c611154b1a40560874c3aee031461a10be49eb76cacedf83ff48b",
+        "width": 1024,
+        "height": 1563,
+        "bytes": 266765
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/case-detail-1440.png",
+        "sha256": "550f33aa02af976e23cfc2816a9190c8979f2de05e59615f14af4bf08eb61a84",
+        "width": 1440,
+        "height": 980,
+        "bytes": 216248
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/case-detail-375.png",
+        "sha256": "d079f61ddb4e8078fe5d934ec8ad0d114ae923ddf00b174aea6b2fd8f5a7dfdf",
+        "width": 375,
+        "height": 2022,
+        "bytes": 196162
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/case-detail-768.png",
+        "sha256": "6fd3a2108daae0ff65929272eb4f5477a68067d9559454c53fa8449f853bd2a4",
+        "width": 768,
+        "height": 1748,
+        "bytes": 259409
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/dashboard-1024.png",
+        "sha256": "1a8c82071abd18d4f7c3f3d80bb67d9abcaff0995eca9791f42244af83f68d79",
+        "width": 1024,
+        "height": 960,
+        "bytes": 87022
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/dashboard-1440.png",
+        "sha256": "104afbf1530c1db1b8b012eda3d988a0310afe09b54e4e6b0567ab5d048f58eb",
+        "width": 1440,
+        "height": 960,
+        "bytes": 90061
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/dashboard-375.png",
+        "sha256": "9f85285d930249c4d824ba9dc2c83125f3656f6f3e2a34ed44eb5eca3db7526a",
+        "width": 375,
+        "height": 960,
+        "bytes": 56951
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/dashboard-768.png",
+        "sha256": "417178d787d05cfa5252321aa1e9c8a9954872a415fcc170bf81e0892a5c7d5c",
+        "width": 768,
+        "height": 960,
+        "bytes": 86458
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/duplicate-actions-1024.png",
+        "sha256": "fa6b67cf4a7af071852d179bffc261ca05df94e37a8f62b20d2b8befebee3ac4",
+        "width": 1024,
+        "height": 960,
+        "bytes": 132360
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/duplicate-actions-1440.png",
+        "sha256": "168a32877f26572ff8a76b50fa818c7850676ee2c4364d6ea70071798ad2912e",
+        "width": 1440,
+        "height": 960,
+        "bytes": 189289
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/duplicate-actions-375.png",
+        "sha256": "61dd39ddbf7393eeb449dffbf2cd4dccc24650b19e7e4081bc234f4c8ee5825c",
+        "width": 375,
+        "height": 960,
+        "bytes": 75930
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/duplicate-actions-768.png",
+        "sha256": "427e910eddb4d470233691de52d9366e815d5edf0e8feb3e9ae65e21537a8fb1",
+        "width": 768,
+        "height": 960,
+        "bytes": 109371
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/duplicate-footer-1024.png",
+        "sha256": "708623a6b7e4d362188b62d70ea43f843fde0303165faedda2246abb3fb55ca3",
+        "width": 1024,
+        "height": 960,
+        "bytes": 132016
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/duplicate-footer-1440.png",
+        "sha256": "725a1fa98e2db9be7edd7223c5015c44cb5f3af64f4139445e7fce673cb60f3f",
+        "width": 1440,
+        "height": 960,
+        "bytes": 189723
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/duplicate-footer-375.png",
+        "sha256": "c070a2b39eeda57a10fff803d5a6dd91f2843256b42f0a1e693b11b9f6eb2517",
+        "width": 375,
+        "height": 960,
+        "bytes": 75941
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/duplicate-footer-768.png",
+        "sha256": "e1e8f43d44a0b275e842dbf4abaeba8d8ef328f71a4d56d5fd3026555d6111a1",
+        "width": 768,
+        "height": 960,
+        "bytes": 109405
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/duplicate-warning-1024.png",
+        "sha256": "a3745c8664137de6a6633d25446ecd92b6061bf37904d13036dfeefd2370be03",
+        "width": 1024,
+        "height": 960,
+        "bytes": 131793
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/duplicate-warning-1440.png",
+        "sha256": "22f70a601d46cc1b168c6f0b43da93304cae5e7dc0b736c067eb7c0a6f7b858d",
+        "width": 1440,
+        "height": 960,
+        "bytes": 188657
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/duplicate-warning-375.png",
+        "sha256": "aec549416f7e5338edac395ee4f3bce76a3cfe88cf3e4090582626e4b1721bbe",
+        "width": 375,
+        "height": 960,
+        "bytes": 75379
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/duplicate-warning-768.png",
+        "sha256": "7978a206a4aeedff174c7b38e8b87ffeb738a627ed11f201a84def608b9873db",
+        "width": 768,
+        "height": 960,
+        "bytes": 108811
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/empty-recruitments-1440.png",
+        "sha256": "bf1c1eb37aa68f3e5de58b31894e64d278b1a2a859181153d9d9f23d703d027e",
+        "width": 1440,
+        "height": 960,
+        "bytes": 53519
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/large-text-375.png",
+        "sha256": "f5f8e6aa348c5237bc83303afbdee405db2749883c0620e0263df8d9bcb879f7",
+        "width": 375,
+        "height": 1071,
+        "bytes": 50113
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/login-1024.png",
+        "sha256": "07cae2477031ef83cdf182635303f58f7d043f1946ad2babb266d178483c9e55",
+        "width": 1024,
+        "height": 900,
+        "bytes": 48171
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/login-1440.png",
+        "sha256": "bd0404677600e98d634377118675a89e460258bce946adf7c3878942a9ae2701",
+        "width": 1440,
+        "height": 900,
+        "bytes": 50783
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/login-375.png",
+        "sha256": "404b3131f0a86c23f8d7c1095c3905ff4ded75b8615e51f05633a4770abf8ab8",
+        "width": 375,
+        "height": 900,
+        "bytes": 21231
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/login-768.png",
+        "sha256": "511510862f9b881497e387fdcc17e7ff2362d00b960ce54a00183075c217d6b9",
+        "width": 768,
+        "height": 900,
+        "bytes": 47856
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/login-error-375.png",
+        "sha256": "a3b7c48a83d727f36264d40b3a98521d98c843fb0967e63268ddb2802aa45831",
+        "width": 375,
+        "height": 900,
+        "bytes": 32372
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/mobile-navigation-375.png",
+        "sha256": "af579c159dd6de966caacd5cb72b895b7335eadee087ee3b10cecd97f7c63569",
+        "width": 375,
+        "height": 812,
+        "bytes": 25518
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/quick-capture-1024.png",
+        "sha256": "9973c3014626310cf43988caeb7af9727909eca4996025d5dec180f90a86e6d3",
+        "width": 1024,
+        "height": 960,
+        "bytes": 126429
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/quick-capture-1440.png",
+        "sha256": "544eb57cee74266abf39078f845e1c5d659d55e0b47e1bac184cce227f3f861c",
+        "width": 1440,
+        "height": 960,
+        "bytes": 175685
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/quick-capture-375.png",
+        "sha256": "7bc2f3f31fe868a2b7bf899ecbe351412df5d59634864f8345702ce358f9a556",
+        "width": 375,
+        "height": 960,
+        "bytes": 45926
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/quick-capture-768.png",
+        "sha256": "f7eb79ccb4f694867021500c80ea5c324b4d576ab092aefb412033c54943103d",
+        "width": 768,
+        "height": 960,
+        "bytes": 109667
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/recruitments-1024.png",
+        "sha256": "6d0a6a9998f91e90d1141837e716ae292e14566a7670e6a0d12c854964bb56ec",
+        "width": 1024,
+        "height": 960,
+        "bytes": 96433
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/recruitments-1440.png",
+        "sha256": "33b6a3d619de7131f7ac1588ae23565125bf7befa82cb775893da1571d61e81d",
+        "width": 1440,
+        "height": 960,
+        "bytes": 103923
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/recruitments-375.png",
+        "sha256": "ea6e4c83b9737ade53d2c80212482fd60f55dd112c316ceeaea6b14d6cbe5767",
+        "width": 375,
+        "height": 960,
+        "bytes": 60440
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/recruitments-768.png",
+        "sha256": "6f09aa973fe5c335c0586cf3f509e6403bccc88269f9a69b5669c4a8c238c6a6",
+        "width": 768,
+        "height": 960,
+        "bytes": 93739
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/reflow-equivalent-320.png",
+        "sha256": "365161ef3028e40fe01cac738b38d3229416871347c8b7213606f5d6e1704487",
+        "width": 320,
+        "height": 960,
+        "bytes": 21700
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/reflow-equivalent-720.png",
+        "sha256": "71555cc1afbc1a2aef7c18fe6878d1b13fa68914a3c6d71e1457deda9c99c16b",
+        "width": 720,
+        "height": 960,
+        "bytes": 25348
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/signup-1024.png",
+        "sha256": "f1d92134cf0f08bde81daa68ffb284f94718489878301b8a5fa2ae4e4fdbcd81",
+        "width": 1024,
+        "height": 900,
+        "bytes": 43639
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/signup-1440.png",
+        "sha256": "cd507402041766745219e19be366924d1e43794eb4b38e57f9d25b73a68384fb",
+        "width": 1440,
+        "height": 900,
+        "bytes": 45992
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/signup-375.png",
+        "sha256": "fdf60216ca4a7fecb82bb2f1f178afe437f706a851478a89601799301c9b8c50",
+        "width": 375,
+        "height": 900,
+        "bytes": 16905
+      },
+      {
+        "path": "docs/ux/assets/ui-foundation/signup-768.png",
+        "sha256": "bcb0e5b0c674643786bb81067bbac0bcd2b2063c21125cd5b5bfd7ac531fe09d",
+        "width": 768,
+        "height": 900,
+        "bytes": 43129
+      }
+    ],
+    "count": 50,
+    "modalCapture": "Viewport only when a visible dialog exists; prevents long underlying document below fixed overlays from appearing as visible bleed.",
+    "normalCapture": "Full document for list/detail/auth/dashboard; compare actual PNG dimensions.",
+    "beforeCorrections": "docs/ux/evidence/corrections-before/",
+    "designerAssessment": "Independent designer reviewed actual PNGs; final verdict recorded separately by designer/orchestrator."
+  },
+  "historicalFailuresPreserved": [
+    {
+      "status": "FAIL resolved",
+      "issue": "External node_modules symlink refused by Turbopack",
+      "resolution": "Filesystem clone dependencies within isolated root, no framework config weakening"
+    },
+    {
+      "status": "FAIL resolved",
+      "issue": "Base UI required Menu.Portal, missing portal crashed Dashboard",
+      "resolution": "Author added correct local-container Portal plus regression unit; real runtime and privacy proofs passed"
+    },
+    {
+      "status": "FAIL resolved",
+      "issue": "Old progress text selectors ambiguous after visual hierarchy update",
+      "resolution": "Semantic heading assertions, same business assertions"
+    },
+    {
+      "status": "FAIL resolved",
+      "issue": "Synthetic description trailing space violated existing CHECK",
+      "resolution": "Normalize fixture with trim; no validation/schema weakening"
+    },
+    {
+      "status": "FAIL resolved",
+      "issue": "Focused test raced runner-owned app shutdown",
+      "resolution": "One controlled full runner owns build/server/test lifecycle"
+    },
+    {
+      "status": "FAIL resolved",
+      "issue": "Immediate Base UI focus checks sampled transition/guard state; old field-fill raced existing scheduled error focus",
+      "resolution": "Poll same strict containment and await expected field focus before subsequent input; no arbitrary sleep"
+    },
+    {
+      "status": "FAIL resolved",
+      "issue": "Privacy observer attempted evaluate during held navigation or binding after page destruction",
+      "resolution": "Preinstalled passive MutationObserver and synchronous pagehide visibility receipt; actual original document hidden before navigation completed"
+    },
+    {
+      "status": "FAIL retained on old own568target",
+      "issue": "Reused own target accumulated1144 synthetic rows; disabled-RLS sensitivity failed before cross-owner assertion",
+      "evidence": "Read-only count1144,RLSenabled; profile max_rows1000. A capped206 response is an inference, not captured directly. Fresh569 original unchanged integration passed25/25. Old568target not repaired/reset/deleted."
+    }
+  ],
+  "authorWrites": "QA source/tests frozen; qa-summary.json is final QA write. Await independent read-only reviews and exact-SHA hosted CI managed by orchestrator."
+}

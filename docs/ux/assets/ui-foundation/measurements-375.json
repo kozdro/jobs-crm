@@ -1,0 +1,38 @@
+{
+  "dashboard": {
+    "innerWidth": 375,
+    "scrollWidth": 375,
+    "viewport": 375,
+    "main": 375
+  },
+  "account": {
+    "innerWidth": 375,
+    "scrollWidth": 375,
+    "viewport": 375,
+    "main": 375
+  },
+  "list": {
+    "innerWidth": 375,
+    "scrollWidth": 375,
+    "viewport": 375,
+    "main": 375
+  },
+  "detail": {
+    "innerWidth": 375,
+    "scrollWidth": 375,
+    "viewport": 375,
+    "main": 375
+  },
+  "capture": {
+    "innerWidth": 375,
+    "scrollWidth": 375,
+    "viewport": 375,
+    "main": 375
+  },
+  "duplicate": {
+    "innerWidth": 375,
+    "scrollWidth": 375,
+    "viewport": 375,
+    "main": 375
+  }
+}
