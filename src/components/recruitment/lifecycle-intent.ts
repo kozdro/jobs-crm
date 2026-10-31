@@ -205,3 +205,19 @@ export function persistLifecycleIntent(
     return "unavailable";
   }
 }
+
+/** A refused, never-sent candidate must not become an immutable retry. Freeze
+ * only after persistence succeeds; an existing uncertain command stays intact.
+ */
+export function persistAndFreezeLifecycleIntent(
+  storage: Pick<Storage, "getItem" | "setItem">,
+  key: string,
+  expected: LifecycleIntent & { command: ConfirmLifecycleInput },
+  frozen: { current: ConfirmLifecycleInput | null },
+): ReturnType<typeof persistLifecycleIntent> {
+  if (frozen.current !== null && frozen.current !== expected.command)
+    return "conflict";
+  const result = persistLifecycleIntent(storage, key, expected);
+  if (result === "stored") frozen.current = expected.command;
+  return result;
+}

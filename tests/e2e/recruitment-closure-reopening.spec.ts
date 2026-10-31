@@ -483,11 +483,15 @@ test("DEC057 unavailable durable storage refuses POST; later committed lost resp
   await expect(page.getByRole("alert")).toContainText("Nie wysłano operacji.");
   expect(confirms).toHaveLength(0);
   expect(await lifecycleRows(c)).toHaveLength(0);
-  await page.getByRole("button", { name: "Anuluj", exact: true }).click();
   await page
-    .getByRole("button", { name: "Potwierdź porzucenie", exact: true })
+    .getByRole("button", { name: "Wróć do danych", exact: true })
     .click();
-  await expect(closeTrigger(page)).toBeVisible();
+  await page
+    .getByLabel("Wynik zakończenia", { exact: true })
+    .selectOption({ label: "Rezygnacja użytkownika" });
+  await page
+    .getByLabel("Data zdarzenia (opcjonalnie)", { exact: true })
+    .fill("2001-02-03");
   await page.evaluate(() => {
     Storage.prototype.setItem = Reflect.get(
       window,
@@ -495,10 +499,30 @@ test("DEC057 unavailable durable storage refuses POST; later committed lost resp
     ) as Storage["setItem"];
   });
   deliver = true;
-  await openClose(page);
-  await confirm(page);
+  await previewButton(page).click();
+  await expect(
+    page.getByRole("heading", { name: "Podgląd zmian", exact: true }),
+  ).toBeVisible();
+  const consent = page.getByRole("checkbox", {
+    name: "Potwierdzam zakończenie sprawy i wskazany wynik.",
+    exact: true,
+  });
+  await expect(consent).not.toBeChecked();
+  await page
+    .getByRole("button", { name: "Zatwierdź zakończenie", exact: true })
+    .click();
+  await expect(page.getByRole("alert")).toBeVisible();
+  expect(confirms).toHaveLength(0);
+  await consent.check();
+  await page
+    .getByRole("button", { name: "Zatwierdź zakończenie", exact: true })
+    .click();
   await expect(page.getByRole("alert")).toBeVisible();
   expect(confirms).toHaveLength(1);
+  expect(confirms[0]).toMatchObject({
+    outcome: "Rezygnacja użytkownika",
+    occurredOn: "2001-02-03",
+  });
   await expect.poll(async () => (await lifecycleRows(c)).length).toBe(1);
   const pending = await page.evaluate(
     (caseId) =>

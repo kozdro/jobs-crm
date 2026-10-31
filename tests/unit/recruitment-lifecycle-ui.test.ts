@@ -7,6 +7,7 @@ import {
   lifecycleResultMatches,
   parseLifecycleIntent,
   persistLifecycleIntent,
+  persistAndFreezeLifecycleIntent,
 } from "@/components/recruitment/lifecycle-intent";
 import {
   LifecycleActions,
@@ -116,6 +117,83 @@ describe("Lifecycle intent identity and uncertain result recovery", () => {
     expect(persistLifecycleIntent(working, "key", saved)).toBe("stored");
     expect(parseLifecycleIntent(raw, ownerId, caseId)).toEqual(saved);
     expect(persistLifecycleIntent(working, "key", saved)).toBe("stored");
+  });
+  it("does not freeze a refused unsent candidate, so edited and newly confirmed data become the only frozen command", () => {
+    const frozen: { current: ConfirmLifecycleInput | null } = { current: null };
+    const disabledStorage = {
+      getItem: () => null,
+      setItem: () => {
+        throw new Error("disabled");
+      },
+    };
+    expect(
+      persistAndFreezeLifecycleIntent(
+        disabledStorage,
+        "key",
+        { ...ids, command },
+        frozen,
+      ),
+    ).toBe("unavailable");
+    expect(frozen.current).toBeNull();
+    const newlyConfirmed: ConfirmLifecycleInput = {
+      ...command,
+      requestId: closureId,
+      outcome: "Odmowa firmy",
+      occurredOn: "2000-01-01",
+      expectedCaseRevision: 4,
+    };
+    let raw: string | null = null;
+    const workingStorage = {
+      getItem: () => raw,
+      setItem: (_key: string, value: string) => {
+        raw = value;
+      },
+    };
+    expect(
+      persistAndFreezeLifecycleIntent(
+        workingStorage,
+        "key",
+        { ...ids, requestId: closureId, command: newlyConfirmed },
+        frozen,
+      ),
+    ).toBe("stored");
+    expect(frozen.current).toBe(newlyConfirmed);
+    expect(parseLifecycleIntent(raw, ownerId, caseId)?.command).toEqual(
+      newlyConfirmed,
+    );
+    expect(frozen.current?.outcome).not.toBe(command.outcome);
+  });
+  it("retains an existing uncertain frozen command when persistence fails or another candidate is offered", () => {
+    const frozen = { current: command };
+    const disabledStorage = {
+      getItem: () => null,
+      setItem: () => {
+        throw new Error("disabled");
+      },
+    };
+    expect(
+      persistAndFreezeLifecycleIntent(
+        disabledStorage,
+        "key",
+        { ...ids, command },
+        frozen,
+      ),
+    ).toBe("unavailable");
+    expect(frozen.current).toBe(command);
+    const changed = {
+      ...command,
+      requestId: closureId,
+      outcome: "Odmowa firmy" as const,
+    };
+    expect(
+      persistAndFreezeLifecycleIntent(
+        disabledStorage,
+        "key",
+        { ...ids, requestId: closureId, command: changed },
+        frozen,
+      ),
+    ).toBe("conflict");
+    expect(frozen.current).toBe(command);
   });
   it("does not overwrite a newer pending command when an older retry tries to persist", () => {
     const newer = JSON.stringify({

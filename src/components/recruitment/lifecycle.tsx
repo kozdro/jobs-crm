@@ -30,7 +30,7 @@ import {
   lifecycleIntentStorageKey,
   lifecycleResultMatches,
   parseLifecycleIntent,
-  persistLifecycleIntent,
+  persistAndFreezeLifecycleIntent,
   type LifecycleIntent,
 } from "./lifecycle-intent";
 
@@ -271,15 +271,15 @@ export function LifecycleForm({
         expectedClosureRevision: preview.closureRevision,
       };
     }
-    frozen.current = command;
-    let persisted: ReturnType<typeof persistLifecycleIntent> = "unavailable";
+    let persisted: ReturnType<typeof persistAndFreezeLifecycleIntent> =
+      "unavailable";
     try {
-      persisted = persistLifecycleIntent(sessionStorage, storageKey(caseId), {
-        ownerId: userId,
-        caseId,
-        requestId: command.requestId,
-        command,
-      });
+      persisted = persistAndFreezeLifecycleIntent(
+        sessionStorage,
+        storageKey(caseId),
+        { ownerId: userId, caseId, requestId: command.requestId, command },
+        frozen,
+      );
     } catch {
       // Access to sessionStorage itself may throw before the helper is entered.
     }
