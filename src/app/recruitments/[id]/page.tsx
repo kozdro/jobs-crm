@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { WorkspaceReturnLink } from "@/components/recruitment/workspace-return-link";
 import { RelationsPanel } from "@/components/companies-contacts/relations";
 import { notFound, redirect } from "next/navigation";
 import { Workspace } from "@/components/recruitment/workspace";
@@ -12,6 +12,7 @@ import {
   getServerClient,
 } from "@/modules/identity/infrastructure/server";
 import { getRecruitmentCase } from "@/modules/recruitment/application/cases";
+import { uuidPattern } from "@/modules/recruitment/domain/recruitment-case";
 export const dynamic = "force-dynamic";
 
 export default async function RecruitmentDetailPage({
@@ -19,7 +20,10 @@ export default async function RecruitmentDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ historyPage?: string | string[] }>;
+  searchParams: Promise<{
+    historyPage?: string | string[];
+    workspaceReturn?: string | string[];
+  }>;
 }) {
   const user = await getTrustedUser();
   if (!user) redirect("/login");
@@ -38,6 +42,11 @@ export default async function RecruitmentDetailPage({
   }
   if (!item) notFound();
   const query = await searchParams;
+  const workspaceReturnToken =
+    typeof query.workspaceReturn === "string" &&
+    uuidPattern.test(query.workspaceReturn)
+      ? query.workspaceReturn
+      : undefined;
   const rawPage = query.historyPage;
   const historyPage =
     typeof rawPage === "string" && /^[1-9][0-9]{0,5}$/.test(rawPage)
@@ -57,12 +66,7 @@ export default async function RecruitmentDetailPage({
 
   return (
     <Workspace userId={user.id} title={item.title}>
-      <Link
-        href="/recruitments"
-        className="ui-link mb-5 inline-flex min-h-11 items-center text-sm"
-      >
-        Wróć do listy spraw
-      </Link>
+      <WorkspaceReturnLink userId={user.id} token={workspaceReturnToken} />
       <section className="min-w-0" aria-label="Zapisane dane sprawy">
         <CaseContent item={item} />
         <div className="mt-5">
@@ -90,6 +94,7 @@ export default async function RecruitmentDetailPage({
           userId={user.id}
           caseId={item.id}
           result={history}
+          workspaceReturnToken={workspaceReturnToken}
         />
       </section>
     </Workspace>

@@ -1,0 +1,5 @@
+Error: ERR_PNPM_VERIFY_DEPS_BEFORE_RUN
+
+  × The workspace structure has changed since last install
+  help: Run "pnpm install"
+

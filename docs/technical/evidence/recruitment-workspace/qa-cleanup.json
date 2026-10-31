@@ -1,0 +1,967 @@
+{
+  "candidate": "0564b4c2326dbfb3288bb12441f6010047fc1ad1",
+  "beforeCount": 44,
+  "preservedCount": 44,
+  "afterCount": 44,
+  "allPreExistingIdentitiesImagesNamesPortsUnchanged": true,
+  "ownedRemaining": [],
+  "ownedProjects": [
+    "jobs-crm-recruitment-f643f5-b4ece1ac54fb",
+    "jobs-crm-recruitment-09504e-f52c015a982e",
+    "jobs-crm-recruitment-364c51-a5be0b2fd3f4"
+  ],
+  "baseline": [
+    {
+      "id": "23dea521c11d2cbbef45518d60f226f897d7f5c3ed3d1e3378da02a60d7e8a87",
+      "name": "/supabase_rest_jobs-crm-recruitment-38a08c-af756820980c",
+      "image": "sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc",
+      "ports": {}
+    },
+    {
+      "id": "70a8b7965a7f7bdd62512298749e09bb575c361745d52675f5e00908abca33c1",
+      "name": "/supabase_inbucket_jobs-crm-recruitment-38a08c-af756820980c",
+      "image": "sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed10d",
+      "ports": {
+        "8025/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56924"
+          }
+        ]
+      }
+    },
+    {
+      "id": "5f17bbf0e3bd4fc32177106b293814dbeb207981105300071b7c4c8dd893b6f8",
+      "name": "/supabase_auth_jobs-crm-recruitment-38a08c-af756820980c",
+      "image": "sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b",
+      "ports": {}
+    },
+    {
+      "id": "5fc03b2a1ce9f6bd9add882c5fd666a3d9e3824f697519c6ce71915d12ccd92f",
+      "name": "/supabase_kong_jobs-crm-recruitment-38a08c-af756820980c",
+      "image": "sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d",
+      "ports": {
+        "8000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56921"
+          }
+        ]
+      }
+    },
+    {
+      "id": "456f76f6f2d4b4ffe6ae82e65c50cacef026334d0edbcbf0e98c95dd3bcb0b8d",
+      "name": "/supabase_db_jobs-crm-recruitment-38a08c-af756820980c",
+      "image": "sha256:c141fd17ac6a76c4323e90b3aee8ff1a23d2e89e547c2b963cfadc309c079cc2",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56922"
+          }
+        ]
+      }
+    },
+    {
+      "id": "da5325c98d9cee0cb058474722cc2a1357725555389069711dbcee156e50a57e",
+      "name": "/supabase_rest_jobs-crm-f3-run-d6932e68-e1b218676e67",
+      "image": "sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc",
+      "ports": {}
+    },
+    {
+      "id": "ef881472a8044d1723c91a5a57ccd7ec8e1c3c03b15012c4c3e5841512ab3af8",
+      "name": "/supabase_inbucket_jobs-crm-f3-run-d6932e68-e1b218676e67",
+      "image": "sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed10d",
+      "ports": {
+        "8025/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56524"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ddadc1c344223bb9a51677834d71c7a09ccf3c7424b1a291dee05dc248c44081",
+      "name": "/supabase_auth_jobs-crm-f3-run-d6932e68-e1b218676e67",
+      "image": "sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b",
+      "ports": {}
+    },
+    {
+      "id": "be25b5c16722c56911946cbec076e3e574a26340335b237531d7638258c899d9",
+      "name": "/supabase_kong_jobs-crm-f3-run-d6932e68-e1b218676e67",
+      "image": "sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d",
+      "ports": {
+        "8000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56521"
+          }
+        ]
+      }
+    },
+    {
+      "id": "9e18860d4abbe0236195e2444cb66fb073b4793d9d4ab2118ebe2817bea48f8a",
+      "name": "/supabase_db_jobs-crm-f3-run-d6932e68-e1b218676e67",
+      "image": "sha256:c141fd17ac6a76c4323e90b3aee8ff1a23d2e89e547c2b963cfadc309c079cc2",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56522"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6b9ff112bbf8465ca894a6f88880dfd82e5a02a7822665e8e5620b676aa0b9e9",
+      "name": "/supabase_rest_jobs-crm-recruitment-358f18-425e516530e5",
+      "image": "sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc",
+      "ports": {}
+    },
+    {
+      "id": "0bc2d3eb53513e5be3133e0133ec788657aca3c7a6ab5f8535ab9172e85af4ad",
+      "name": "/supabase_inbucket_jobs-crm-recruitment-358f18-425e516530e5",
+      "image": "sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed10d",
+      "ports": {
+        "8025/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56824"
+          }
+        ]
+      }
+    },
+    {
+      "id": "17e1e3c8921956c7700d0c3ad4bc804425c5c57e2d35de7dda27458c50f7e172",
+      "name": "/supabase_auth_jobs-crm-recruitment-358f18-425e516530e5",
+      "image": "sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b",
+      "ports": {}
+    },
+    {
+      "id": "d35c4667e49f90b17a95cda50b246bf04b4ac15eb82009fa8cbe003b707c1a69",
+      "name": "/supabase_kong_jobs-crm-recruitment-358f18-425e516530e5",
+      "image": "sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d",
+      "ports": {
+        "8000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56821"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6d76a18257dc2902bb9c2cbaaffcc141fcd800f9b14bf86902d4e61096d268c8",
+      "name": "/supabase_db_jobs-crm-recruitment-358f18-425e516530e5",
+      "image": "sha256:c141fd17ac6a76c4323e90b3aee8ff1a23d2e89e547c2b963cfadc309c079cc2",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56822"
+          }
+        ]
+      }
+    },
+    {
+      "id": "7c42a0b037584ee05d3cb55fe9a3bf19bea9d537303664efc73713d9627616bc",
+      "name": "/supabase_studio_jobs-crm-dev-ae6ae7601190",
+      "image": "sha256:7ffd263c9e13b254f2c97b716ff9bccf404b29cbe7886e6652a776b066a9840f",
+      "ports": {
+        "3000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56723"
+          }
+        ]
+      }
+    },
+    {
+      "id": "b115f078911cbff94898af728dbb1b32ae616df9fc62debe92d39fd08dd0ade8",
+      "name": "/supabase_pg_meta_jobs-crm-dev-ae6ae7601190",
+      "image": "sha256:145325b7e39f8ef4931d6e8cfd3f6f4d655de09d72a2ccc96d9513542c2202bd",
+      "ports": {}
+    },
+    {
+      "id": "3670158e9e9a58ccc9f21485ac0af36ebe7958e19e72ab561a3294cc8d049820",
+      "name": "/supabase_rest_jobs-crm-dev-ae6ae7601190",
+      "image": "sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc",
+      "ports": {}
+    },
+    {
+      "id": "7cc8ce93c50ec0479e7e8b7b2e85d2be364e5f04d0e8b249fb845f61050ade9f",
+      "name": "/supabase_inbucket_jobs-crm-dev-ae6ae7601190",
+      "image": "sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed10d",
+      "ports": {
+        "8025/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56724"
+          }
+        ]
+      }
+    },
+    {
+      "id": "2c863c16be26ffd75f4cea4f8800402f253e0af1cc40c89957cbb90ed01d0cfd",
+      "name": "/supabase_auth_jobs-crm-dev-ae6ae7601190",
+      "image": "sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b",
+      "ports": {}
+    },
+    {
+      "id": "120d6af741a3181d62300da2ba4a61fb39016339d1b2c7c18688edce8fee16d3",
+      "name": "/supabase_kong_jobs-crm-dev-ae6ae7601190",
+      "image": "sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d",
+      "ports": {
+        "8000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56721"
+          }
+        ]
+      }
+    },
+    {
+      "id": "3a13056da73ac5f20f607553211520d6f1420cee6254f3dd1fa08fcf6971ac8e",
+      "name": "/supabase_db_jobs-crm-dev-ae6ae7601190",
+      "image": "sha256:c141fd17ac6a76c4323e90b3aee8ff1a23d2e89e547c2b963cfadc309c079cc2",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56722"
+          }
+        ]
+      }
+    },
+    {
+      "id": "f1f9d064dbe457fe9ee7c9ce950c576f708399bd1cb3a65f8d5d3ec97b0f4206",
+      "name": "/supabase_studio_jobs-crm-dev-2a1458fa86f5",
+      "image": "sha256:7ffd263c9e13b254f2c97b716ff9bccf404b29cbe7886e6652a776b066a9840f",
+      "ports": {
+        "3000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56723"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6b275ddc516c1331abf7e6caa4d4d92d189235987b3ba138e707d31f04f2d8f4",
+      "name": "/supabase_pg_meta_jobs-crm-dev-2a1458fa86f5",
+      "image": "sha256:145325b7e39f8ef4931d6e8cfd3f6f4d655de09d72a2ccc96d9513542c2202bd",
+      "ports": {}
+    },
+    {
+      "id": "c845323740d0b6ef25c51ed6aa687de75510db15195110dfd302083644072892",
+      "name": "/supabase_rest_jobs-crm-dev-2a1458fa86f5",
+      "image": "sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc",
+      "ports": {}
+    },
+    {
+      "id": "248ce46b7db45ad3ac71207776e2c821c5fab91639cefee5a9dbaaab4e203588",
+      "name": "/supabase_inbucket_jobs-crm-dev-2a1458fa86f5",
+      "image": "sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed10d",
+      "ports": {
+        "8025/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56724"
+          }
+        ]
+      }
+    },
+    {
+      "id": "a6c35a7de256341380b89769924d7b5bc56a90b6cb00daf02799fedd8358cc90",
+      "name": "/supabase_auth_jobs-crm-dev-2a1458fa86f5",
+      "image": "sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b",
+      "ports": {}
+    },
+    {
+      "id": "532c15928a0406a2338c345ceca0fac6d9a893ad5001208afd36ca768d5a04c5",
+      "name": "/supabase_kong_jobs-crm-dev-2a1458fa86f5",
+      "image": "sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d",
+      "ports": {
+        "8000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56721"
+          }
+        ]
+      }
+    },
+    {
+      "id": "0c58af91fb866eabed3cac757b64c5bba729b3943c064c2da9dfe43ac2754ab6",
+      "name": "/supabase_db_jobs-crm-dev-2a1458fa86f5",
+      "image": "sha256:c141fd17ac6a76c4323e90b3aee8ff1a23d2e89e547c2b963cfadc309c079cc2",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56722"
+          }
+        ]
+      }
+    },
+    {
+      "id": "cedb58262232bbd872ada25bcdb6c66cb1ebca444c5f09e07e527df83038152d",
+      "name": "/supabase_rest_jobs-crm-recruitment-74d70c-4041e76c6317",
+      "image": "sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc",
+      "ports": {}
+    },
+    {
+      "id": "5288fddd9ef152e563e04e116a72721bfef857975a1b3a555694b4fd6caafc20",
+      "name": "/supabase_inbucket_jobs-crm-recruitment-74d70c-4041e76c6317",
+      "image": "sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed10d",
+      "ports": {
+        "8025/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56624"
+          }
+        ]
+      }
+    },
+    {
+      "id": "096d8575f32f51fa1600493752862a2571eb4056cae6e8cd0e6fb50df6a70fb0",
+      "name": "/supabase_auth_jobs-crm-recruitment-74d70c-4041e76c6317",
+      "image": "sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b",
+      "ports": {}
+    },
+    {
+      "id": "76cf881c3ca7c5573a2c56f2db34683e0ad7deec300ab36594a7afba780bf3fe",
+      "name": "/supabase_kong_jobs-crm-recruitment-74d70c-4041e76c6317",
+      "image": "sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d",
+      "ports": {
+        "8000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56621"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ca254a4a153f12f92c7135cebcc87ec5f4c28c53753f3c9271d3b28fbd1daf77",
+      "name": "/supabase_db_jobs-crm-recruitment-74d70c-4041e76c6317",
+      "image": "sha256:c141fd17ac6a76c4323e90b3aee8ff1a23d2e89e547c2b963cfadc309c079cc2",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56622"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1771e3747cd1509e422407f71a3be85207a2741aab1265c95b7922e2fe5204d8",
+      "name": "/bluvv-discovery-v21-ae42cd90-a66c-4ebe-a6ae-bb832050354f",
+      "image": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "2b3368f37f1197caf9119775ece69c041d35efbc129f626baa552da3a449b902",
+      "name": "/bluvv-lineage-legacy-41713c05-1c34-4eca-8425-616fceba3cd5",
+      "image": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "f15dbf20ead6c4aedd2f3ab23130cc04f1ded832346b65dbbb8c0f4bf4dfef5f",
+      "name": "/bluvv-lineage-clean-0fe0db48-1471-4150-b4d2-c404da21cb43",
+      "image": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "86f136b50b8fda1e250f0216f75f6deb4b2cfd319173da3b2bf80711e7e64569",
+      "name": "/bluvv-search-perf-8e4dc193-6564-4ae7-8e04-ae3fc4ebb993",
+      "image": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "6bfc8e98cdf0fa8fdb5c899be160684c0af3c6ae82a4f521b895c7d6cd89205b",
+      "name": "/bluvv-legacy-compat-ae0c69fb-6c7f-47df-8393-b00845a86d03",
+      "image": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "e325b4c38ce7335e74074b8b482039ff733559c1fd6d0c28140327e39d70b2db",
+      "name": "/bluvv-content-qa-23a4350c-1fd8-4978-8f0e-a63651f79318",
+      "image": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "20468729bf6d693c2aa8f77e1dfc44b784f5286151b0af61eb0b1aad5b910417",
+      "name": "/bluvv-legacy-compat-9a1399bd-e216-4db1-bc67-c7e475f6c4cd",
+      "image": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "ccc76330ad11dac09a6095ba3fa7b49ff3affd70f94d571f722f6a9b7b4cba74",
+      "name": "/bluvv-legacy-compat-bd0578dd-3ee7-4b07-b791-feb0332aba9f",
+      "image": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "c0323bcc00e5d9e6a6dcf0060c0299a7c5a19f90ddedaa79d99aa50eba7af8f4",
+      "name": "/bluvv-legacy-300-89230e77-cf60-47ed-a2d4-c300c67d80f0",
+      "image": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "fba6a89005a7863dd45fd7170cfded7735688c8466f60740563f2ff976bcc09e",
+      "name": "/bluvv-local-postgres-postgres-1",
+      "image": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "5432"
+          }
+        ]
+      }
+    }
+  ],
+  "after": [
+    {
+      "id": "23dea521c11d2cbbef45518d60f226f897d7f5c3ed3d1e3378da02a60d7e8a87",
+      "name": "/supabase_rest_jobs-crm-recruitment-38a08c-af756820980c",
+      "image": "sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc",
+      "ports": {}
+    },
+    {
+      "id": "70a8b7965a7f7bdd62512298749e09bb575c361745d52675f5e00908abca33c1",
+      "name": "/supabase_inbucket_jobs-crm-recruitment-38a08c-af756820980c",
+      "image": "sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed10d",
+      "ports": {
+        "8025/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56924"
+          }
+        ]
+      }
+    },
+    {
+      "id": "5f17bbf0e3bd4fc32177106b293814dbeb207981105300071b7c4c8dd893b6f8",
+      "name": "/supabase_auth_jobs-crm-recruitment-38a08c-af756820980c",
+      "image": "sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b",
+      "ports": {}
+    },
+    {
+      "id": "5fc03b2a1ce9f6bd9add882c5fd666a3d9e3824f697519c6ce71915d12ccd92f",
+      "name": "/supabase_kong_jobs-crm-recruitment-38a08c-af756820980c",
+      "image": "sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d",
+      "ports": {
+        "8000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56921"
+          }
+        ]
+      }
+    },
+    {
+      "id": "456f76f6f2d4b4ffe6ae82e65c50cacef026334d0edbcbf0e98c95dd3bcb0b8d",
+      "name": "/supabase_db_jobs-crm-recruitment-38a08c-af756820980c",
+      "image": "sha256:c141fd17ac6a76c4323e90b3aee8ff1a23d2e89e547c2b963cfadc309c079cc2",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56922"
+          }
+        ]
+      }
+    },
+    {
+      "id": "da5325c98d9cee0cb058474722cc2a1357725555389069711dbcee156e50a57e",
+      "name": "/supabase_rest_jobs-crm-f3-run-d6932e68-e1b218676e67",
+      "image": "sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc",
+      "ports": {}
+    },
+    {
+      "id": "ef881472a8044d1723c91a5a57ccd7ec8e1c3c03b15012c4c3e5841512ab3af8",
+      "name": "/supabase_inbucket_jobs-crm-f3-run-d6932e68-e1b218676e67",
+      "image": "sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed10d",
+      "ports": {
+        "8025/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56524"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ddadc1c344223bb9a51677834d71c7a09ccf3c7424b1a291dee05dc248c44081",
+      "name": "/supabase_auth_jobs-crm-f3-run-d6932e68-e1b218676e67",
+      "image": "sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b",
+      "ports": {}
+    },
+    {
+      "id": "be25b5c16722c56911946cbec076e3e574a26340335b237531d7638258c899d9",
+      "name": "/supabase_kong_jobs-crm-f3-run-d6932e68-e1b218676e67",
+      "image": "sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d",
+      "ports": {
+        "8000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56521"
+          }
+        ]
+      }
+    },
+    {
+      "id": "9e18860d4abbe0236195e2444cb66fb073b4793d9d4ab2118ebe2817bea48f8a",
+      "name": "/supabase_db_jobs-crm-f3-run-d6932e68-e1b218676e67",
+      "image": "sha256:c141fd17ac6a76c4323e90b3aee8ff1a23d2e89e547c2b963cfadc309c079cc2",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56522"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6b9ff112bbf8465ca894a6f88880dfd82e5a02a7822665e8e5620b676aa0b9e9",
+      "name": "/supabase_rest_jobs-crm-recruitment-358f18-425e516530e5",
+      "image": "sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc",
+      "ports": {}
+    },
+    {
+      "id": "0bc2d3eb53513e5be3133e0133ec788657aca3c7a6ab5f8535ab9172e85af4ad",
+      "name": "/supabase_inbucket_jobs-crm-recruitment-358f18-425e516530e5",
+      "image": "sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed10d",
+      "ports": {
+        "8025/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56824"
+          }
+        ]
+      }
+    },
+    {
+      "id": "17e1e3c8921956c7700d0c3ad4bc804425c5c57e2d35de7dda27458c50f7e172",
+      "name": "/supabase_auth_jobs-crm-recruitment-358f18-425e516530e5",
+      "image": "sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b",
+      "ports": {}
+    },
+    {
+      "id": "d35c4667e49f90b17a95cda50b246bf04b4ac15eb82009fa8cbe003b707c1a69",
+      "name": "/supabase_kong_jobs-crm-recruitment-358f18-425e516530e5",
+      "image": "sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d",
+      "ports": {
+        "8000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56821"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6d76a18257dc2902bb9c2cbaaffcc141fcd800f9b14bf86902d4e61096d268c8",
+      "name": "/supabase_db_jobs-crm-recruitment-358f18-425e516530e5",
+      "image": "sha256:c141fd17ac6a76c4323e90b3aee8ff1a23d2e89e547c2b963cfadc309c079cc2",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56822"
+          }
+        ]
+      }
+    },
+    {
+      "id": "7c42a0b037584ee05d3cb55fe9a3bf19bea9d537303664efc73713d9627616bc",
+      "name": "/supabase_studio_jobs-crm-dev-ae6ae7601190",
+      "image": "sha256:7ffd263c9e13b254f2c97b716ff9bccf404b29cbe7886e6652a776b066a9840f",
+      "ports": {
+        "3000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56723"
+          }
+        ]
+      }
+    },
+    {
+      "id": "b115f078911cbff94898af728dbb1b32ae616df9fc62debe92d39fd08dd0ade8",
+      "name": "/supabase_pg_meta_jobs-crm-dev-ae6ae7601190",
+      "image": "sha256:145325b7e39f8ef4931d6e8cfd3f6f4d655de09d72a2ccc96d9513542c2202bd",
+      "ports": {}
+    },
+    {
+      "id": "3670158e9e9a58ccc9f21485ac0af36ebe7958e19e72ab561a3294cc8d049820",
+      "name": "/supabase_rest_jobs-crm-dev-ae6ae7601190",
+      "image": "sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc",
+      "ports": {}
+    },
+    {
+      "id": "7cc8ce93c50ec0479e7e8b7b2e85d2be364e5f04d0e8b249fb845f61050ade9f",
+      "name": "/supabase_inbucket_jobs-crm-dev-ae6ae7601190",
+      "image": "sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed10d",
+      "ports": {
+        "8025/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56724"
+          }
+        ]
+      }
+    },
+    {
+      "id": "2c863c16be26ffd75f4cea4f8800402f253e0af1cc40c89957cbb90ed01d0cfd",
+      "name": "/supabase_auth_jobs-crm-dev-ae6ae7601190",
+      "image": "sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b",
+      "ports": {}
+    },
+    {
+      "id": "120d6af741a3181d62300da2ba4a61fb39016339d1b2c7c18688edce8fee16d3",
+      "name": "/supabase_kong_jobs-crm-dev-ae6ae7601190",
+      "image": "sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d",
+      "ports": {
+        "8000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56721"
+          }
+        ]
+      }
+    },
+    {
+      "id": "3a13056da73ac5f20f607553211520d6f1420cee6254f3dd1fa08fcf6971ac8e",
+      "name": "/supabase_db_jobs-crm-dev-ae6ae7601190",
+      "image": "sha256:c141fd17ac6a76c4323e90b3aee8ff1a23d2e89e547c2b963cfadc309c079cc2",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56722"
+          }
+        ]
+      }
+    },
+    {
+      "id": "f1f9d064dbe457fe9ee7c9ce950c576f708399bd1cb3a65f8d5d3ec97b0f4206",
+      "name": "/supabase_studio_jobs-crm-dev-2a1458fa86f5",
+      "image": "sha256:7ffd263c9e13b254f2c97b716ff9bccf404b29cbe7886e6652a776b066a9840f",
+      "ports": {
+        "3000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56723"
+          }
+        ]
+      }
+    },
+    {
+      "id": "6b275ddc516c1331abf7e6caa4d4d92d189235987b3ba138e707d31f04f2d8f4",
+      "name": "/supabase_pg_meta_jobs-crm-dev-2a1458fa86f5",
+      "image": "sha256:145325b7e39f8ef4931d6e8cfd3f6f4d655de09d72a2ccc96d9513542c2202bd",
+      "ports": {}
+    },
+    {
+      "id": "c845323740d0b6ef25c51ed6aa687de75510db15195110dfd302083644072892",
+      "name": "/supabase_rest_jobs-crm-dev-2a1458fa86f5",
+      "image": "sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc",
+      "ports": {}
+    },
+    {
+      "id": "248ce46b7db45ad3ac71207776e2c821c5fab91639cefee5a9dbaaab4e203588",
+      "name": "/supabase_inbucket_jobs-crm-dev-2a1458fa86f5",
+      "image": "sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed10d",
+      "ports": {
+        "8025/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56724"
+          }
+        ]
+      }
+    },
+    {
+      "id": "a6c35a7de256341380b89769924d7b5bc56a90b6cb00daf02799fedd8358cc90",
+      "name": "/supabase_auth_jobs-crm-dev-2a1458fa86f5",
+      "image": "sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b",
+      "ports": {}
+    },
+    {
+      "id": "532c15928a0406a2338c345ceca0fac6d9a893ad5001208afd36ca768d5a04c5",
+      "name": "/supabase_kong_jobs-crm-dev-2a1458fa86f5",
+      "image": "sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d",
+      "ports": {
+        "8000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56721"
+          }
+        ]
+      }
+    },
+    {
+      "id": "0c58af91fb866eabed3cac757b64c5bba729b3943c064c2da9dfe43ac2754ab6",
+      "name": "/supabase_db_jobs-crm-dev-2a1458fa86f5",
+      "image": "sha256:c141fd17ac6a76c4323e90b3aee8ff1a23d2e89e547c2b963cfadc309c079cc2",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56722"
+          }
+        ]
+      }
+    },
+    {
+      "id": "cedb58262232bbd872ada25bcdb6c66cb1ebca444c5f09e07e527df83038152d",
+      "name": "/supabase_rest_jobs-crm-recruitment-74d70c-4041e76c6317",
+      "image": "sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc",
+      "ports": {}
+    },
+    {
+      "id": "5288fddd9ef152e563e04e116a72721bfef857975a1b3a555694b4fd6caafc20",
+      "name": "/supabase_inbucket_jobs-crm-recruitment-74d70c-4041e76c6317",
+      "image": "sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed10d",
+      "ports": {
+        "8025/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56624"
+          }
+        ]
+      }
+    },
+    {
+      "id": "096d8575f32f51fa1600493752862a2571eb4056cae6e8cd0e6fb50df6a70fb0",
+      "name": "/supabase_auth_jobs-crm-recruitment-74d70c-4041e76c6317",
+      "image": "sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b",
+      "ports": {}
+    },
+    {
+      "id": "76cf881c3ca7c5573a2c56f2db34683e0ad7deec300ab36594a7afba780bf3fe",
+      "name": "/supabase_kong_jobs-crm-recruitment-74d70c-4041e76c6317",
+      "image": "sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d",
+      "ports": {
+        "8000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56621"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ca254a4a153f12f92c7135cebcc87ec5f4c28c53753f3c9271d3b28fbd1daf77",
+      "name": "/supabase_db_jobs-crm-recruitment-74d70c-4041e76c6317",
+      "image": "sha256:c141fd17ac6a76c4323e90b3aee8ff1a23d2e89e547c2b963cfadc309c079cc2",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "56622"
+          }
+        ]
+      }
+    },
+    {
+      "id": "1771e3747cd1509e422407f71a3be85207a2741aab1265c95b7922e2fe5204d8",
+      "name": "/bluvv-discovery-v21-ae42cd90-a66c-4ebe-a6ae-bb832050354f",
+      "image": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "2b3368f37f1197caf9119775ece69c041d35efbc129f626baa552da3a449b902",
+      "name": "/bluvv-lineage-legacy-41713c05-1c34-4eca-8425-616fceba3cd5",
+      "image": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "f15dbf20ead6c4aedd2f3ab23130cc04f1ded832346b65dbbb8c0f4bf4dfef5f",
+      "name": "/bluvv-lineage-clean-0fe0db48-1471-4150-b4d2-c404da21cb43",
+      "image": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "86f136b50b8fda1e250f0216f75f6deb4b2cfd319173da3b2bf80711e7e64569",
+      "name": "/bluvv-search-perf-8e4dc193-6564-4ae7-8e04-ae3fc4ebb993",
+      "image": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "6bfc8e98cdf0fa8fdb5c899be160684c0af3c6ae82a4f521b895c7d6cd89205b",
+      "name": "/bluvv-legacy-compat-ae0c69fb-6c7f-47df-8393-b00845a86d03",
+      "image": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "e325b4c38ce7335e74074b8b482039ff733559c1fd6d0c28140327e39d70b2db",
+      "name": "/bluvv-content-qa-23a4350c-1fd8-4978-8f0e-a63651f79318",
+      "image": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "20468729bf6d693c2aa8f77e1dfc44b784f5286151b0af61eb0b1aad5b910417",
+      "name": "/bluvv-legacy-compat-9a1399bd-e216-4db1-bc67-c7e475f6c4cd",
+      "image": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "ccc76330ad11dac09a6095ba3fa7b49ff3affd70f94d571f722f6a9b7b4cba74",
+      "name": "/bluvv-legacy-compat-bd0578dd-3ee7-4b07-b791-feb0332aba9f",
+      "image": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "c0323bcc00e5d9e6a6dcf0060c0299a7c5a19f90ddedaa79d99aa50eba7af8f4",
+      "name": "/bluvv-legacy-300-89230e77-cf60-47ed-a2d4-c300c67d80f0",
+      "image": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "fba6a89005a7863dd45fd7170cfded7735688c8466f60740563f2ff976bcc09e",
+      "name": "/bluvv-local-postgres-postgres-1",
+      "image": "sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "5432"
+          }
+        ]
+      }
+    }
+  ],
+  "sourceRuntimeVerifiedAfterRun": 231,
+  "persistentDevMutated": false
+}

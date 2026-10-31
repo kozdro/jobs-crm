@@ -28,3 +28,7 @@ Nie zapisujemy własnych trwałych konfiguracji filtrów w MVP. Dashboard nie za
 ## Powiązania i ryzyka
 
 `DEC-019/DEC-020/DEC-049`, `BR-003–008/011`, `FR-RW-*`, `AC-RW-*`, `UC-001/UC-005/UC-012`. UX: `UX-002–005`. Powiązania z Lifecycle i History. **OPEN:** `OPEN-017/OPEN-018/OPEN-028/OPEN-029/OPEN-034` (filtry, zachowanie DnD, responsywność).
+
+## Pierwszy read-only Workspace — DEC-059
+
+APPROVED 1A/2A: [kontrakt](../technical/recruitment-workspace-analysis.md). Kanban/lista, filtry status/bezpośrednia organizacja/osoba, czas dodania asc/desc, presety i drawer read-only. Pełność przed paginacją, niezależne strony kolumn, M:N i powrót z kontekstem są warunkami akceptacji. Bez DnD/reorder, nowych komend lifecycle i edytora notatki w podglądzie. Operacyjny drawer opisany wyżej pozostaje szerszym docelowym zakresem.

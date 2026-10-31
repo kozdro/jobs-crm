@@ -1,0 +1,12 @@
+Recruitment production-build: {"exit":1,"bytes":1500,"sha256":"3c82a0994ebb71295d6461e8ccc5a86d1014c0bb202cd48f24e4415df37be97b","counts":{},"observations":[]}
+Recruitment target retained for explicit inspection/cleanup: workspace-r1
+file:///private/tmp/jobs-crm-workspace-qa/scripts/recruitment/runner.ts:104
+    throw new Error(
+          ^
+
+Error: Recruitment stage production-build exited 1 (raw output withheld)
+    at run (file:///private/tmp/jobs-crm-workspace-qa/scripts/recruitment/runner.ts:104:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///private/tmp/jobs-crm-workspace-qa/scripts/recruitment/runner.ts:174:3
+
+Node.js v24.22.2

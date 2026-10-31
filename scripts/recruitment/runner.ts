@@ -270,6 +270,7 @@ try {
       "tests/integration/recruitment/history-corrections.test.ts",
       "tests/integration/recruitment/closure-reopening.test.ts",
       "tests/integration/recruitment/companies-contacts.test.ts",
+      "tests/integration/recruitment/workspace.test.ts",
     ],
     env,
     "business-integration",
