@@ -856,7 +856,7 @@ test("DEC058 uncertain relation intent survives independent profile edit save an
 test("DEC058 new private routes refresh expired SDK cookies on SSR, protect HTML/RSC cache and logout", async ({
   browser,
 }) => {
-  test.setTimeout(120000);
+  test.setTimeout(420000);
   const org = await profile("organization"),
     person = await profile();
   const contexts = await Promise.all([
@@ -869,6 +869,7 @@ test("DEC058 new private routes refresh expired SDK cookies on SSR, protect HTML
     for (const context of contexts) {
       const page = await context.newPage();
       await login(page);
+      await page.close(); // Stop browser auto-refresh before taking the SSR fixture.
       const cookies = (await context.cookies()).filter((c) =>
         /^sb-.+-auth-token(?:\.\d+)?$/.test(c.name),
       );
@@ -885,25 +886,37 @@ test("DEC058 new private routes refresh expired SDK cookies on SSR, protect HTML
         const decoded = encoded.startsWith("base64-")
           ? Buffer.from(encoded.slice(7), "base64url").toString()
           : encoded;
-        expiry = (JSON.parse(decoded) as { expires_at: number }).expires_at;
+        const session = JSON.parse(decoded) as {
+          expires_at: number;
+          access_token: string;
+        };
+        const claims = JSON.parse(
+          Buffer.from(
+            session.access_token.split(".")[1],
+            "base64url",
+          ).toString(),
+        ) as { exp: number };
+        expiry = Math.max(session.expires_at, claims.exp);
       } catch {
         throw new Error(
           "Synthetic expiry could not be inspected; session material withheld",
         );
       }
-      expect(expiry * 1000 - Date.now()).toBeLessThan(120000);
+      expect(Number.isFinite(expiry)).toBe(true);
+      expect(expiry * 1000 - Date.now()).toBeGreaterThan(250000);
+      expect(expiry * 1000 - Date.now()).toBeLessThanOrEqual(305000);
       expiries.push(expiry);
-      await page.close();
     }
-    const deadline = Math.max(...expiries) * 1000 + 1500;
+    const deadline = Math.max(...expiries) * 1000 + 2000;
     while (Date.now() < deadline)
       await new Promise((resolve) =>
         setTimeout(resolve, Math.min(1000, deadline - Date.now())),
       );
     for (const [index, context] of contexts.entries()) {
-      const first = await context.request.get(
-        `${target.appOrigin}${index === 0 ? "/companies" : `/contacts/${person.id}`}`,
-      );
+      expect(Date.now()).toBeGreaterThan(expiries[index] * 1000);
+      const requested = `${target.appOrigin}${index === 0 ? "/companies" : `/contacts/${person.id}`}`;
+      const first = await context.request.get(requested, { maxRedirects: 0 });
+      expect(first.url()).toBe(requested);
       expect(first.status()).toBe(200);
       expect(first.headers()["cache-control"]).toContain("no-store");
       expect(first.headers()["set-cookie"]).toBeTruthy();
@@ -923,13 +936,16 @@ test("DEC058 new private routes refresh expired SDK cookies on SSR, protect HTML
         `/companies/${org.id}`,
         `/contacts/${person.id}`,
       ]) {
-        const html = await context.request.get(`${target.appOrigin}${path}`);
+        const html = await context.request.get(`${target.appOrigin}${path}`, {
+          maxRedirects: 0,
+        });
+        expect(html.url()).toBe(`${target.appOrigin}${path}`);
         expect(html.status()).toBe(200);
         expect(html.headers()["cache-control"]).toContain("private");
         expect(html.headers()["cache-control"]).toContain("no-store");
         const rsc = await context.request.get(
           `${target.appOrigin}${path}?_rsc=synthetic-cc`,
-          { headers: { RSC: "1" } },
+          { headers: { RSC: "1" }, maxRedirects: 0 },
         );
         expect(rsc.status()).toBe(200);
         expect(rsc.headers()["cache-control"]).toContain("no-store");
