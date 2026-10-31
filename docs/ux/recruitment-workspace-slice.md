@@ -12,3 +12,7 @@
 - Visual Language: istniejące mineralne tło, powierzchnie i semantyczne tokeny, petrol, natywne etykiety, zawijanie długich danych. Brak nowych palet/KPI. Kontrolki minimum 44px dla głównych akcji, widoczny focus. Tablica przewija się w swoim obszarze; nie powoduje poziomego overflow całej strony. Lista pozostaje dostępna dla wąskich ekranów.
 
 Weryfikacja: docelowo 1440/1024/768/375, 320 reflow i 200% tekstu, klawiatura, overlay/focus i restore; rzeczywisty wynik w raporcie QA. Dokument nie stanowi dowodu wykonania testów.
+
+## Techniczny powrót i Auth
+
+Nietrwały owner-scoped kontekst jest przenoszony pojedynczym UUID `workspaceResume` w query, bez treści spraw/profili. Istniejący klient Auth usuwa fragmenty URL przed inicjalizacją sesji; powrót nie wykorzystuje więc fragmentu i nie zmienia tej ochrony. Nonce musi pasować do rzeczywiście zapamiętanego kontekstu tego samego właściciela i poprzedniej destynacji. Zduplikowany/nieprawidłowy parametr, cudzy właściciel lub brak pamięci nie tworzą kontekstu. Po przywróceniu query wraca do poprzedniej postaci; w istniejącym history.state zostaje wyłącznie techniczny nonce dla browser Back. Paginacja historii zachowuje zwalidowany `workspaceReturn` w detalu.

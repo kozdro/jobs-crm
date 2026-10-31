@@ -20,6 +20,7 @@ import {
   clearWorkspaceNavigation,
   findWorkspaceNavigation,
   rememberWorkspaceNavigation,
+  workspaceResumeToken,
 } from "./workspace-navigation";
 
 type Status = RecruitmentCase["status"];
@@ -381,15 +382,19 @@ export function RecruitmentWorkspace({
   }, [userId]);
   useEffect(() => {
     if (!data) return;
-    const hash = window.location.hash;
-    const token = hash.startsWith("#workspace-return=")
-      ? hash.slice(18)
-      : window.history.state?.workspaceReturnToken;
+    const destination = new URL(window.location.href);
+    const resume = workspaceResumeToken(destination.searchParams);
+    if (destination.searchParams.has("workspaceResume") && !resume) return;
+    const token = resume ?? window.history.state?.workspaceReturnToken;
+    destination.searchParams.delete("workspaceResume");
     if (typeof token !== "string") return;
     const previous = findWorkspaceNavigation(userId, token);
+    if (!previous) return;
+    const previousURL = new URL(previous.href, window.location.origin);
     if (
-      !previous ||
-      previous.href !== window.location.pathname + window.location.search
+      previousURL.pathname !== destination.pathname ||
+      previousURL.searchParams.toString() !==
+        destination.searchParams.toString()
     )
       return;
     // Route focus/scroll handling and the session boundary can settle on different
@@ -461,8 +466,12 @@ export function RecruitmentWorkspace({
       if (stableFrames >= 8) {
         observer.disconnect();
         resize.disconnect();
-        if (hash)
-          window.history.replaceState(window.history.state, "", previous!.href);
+        if (resume)
+          window.history.replaceState(
+            { ...window.history.state, workspaceReturnToken: token },
+            "",
+            previous!.href,
+          );
       } else frame = requestAnimationFrame(restoreFrame);
     }
     function startWhenVisible() {
@@ -495,14 +504,18 @@ export function RecruitmentWorkspace({
     setSelectedId(id);
   }
   function remember(token: string) {
+    const destination = new URL(window.location.href);
+    destination.searchParams.delete("workspaceResume");
+    const href = destination.pathname + destination.search;
     window.history.replaceState(
       { ...window.history.state, workspaceReturnToken: token },
       "",
+      href,
     );
     rememberWorkspaceNavigation({
       token,
       userId,
-      href: window.location.pathname + window.location.search,
+      href,
       scrollY: window.scrollY,
       boardScroll: board.current?.scrollLeft ?? 0,
       columns: Object.fromEntries(

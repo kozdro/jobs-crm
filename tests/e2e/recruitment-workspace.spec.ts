@@ -165,6 +165,7 @@ async function chooseOrganization(page: Page) {
     await page
       .getByRole("button", { name: "Pokaż dalsze organizacje", exact: true })
       .click();
+    await expect(selector).toHaveAttribute("aria-busy", "false");
   }
   await expect(
     selector.locator(`option[value="${organization.id}"]`),
@@ -229,7 +230,7 @@ test("DEC059 default board/list filters operate on complete data, presets and co
   await expect(rows).toHaveCount(1);
   await expect(rows.first()).toContainText(cases[0].title);
   await page
-    .getByLabel("Osoba kontaktowa", { exact: true })
+    .getByRole("combobox", { name: "Osoba kontaktowa", exact: true })
     .selectOption(person.id);
   await expect(rows).toHaveCount(1);
   await page
@@ -357,12 +358,42 @@ test("DEC059 history pagination preserves workspace token, board/column scroll a
   await page.getByRole("button", { name: cases[1].title, exact: true }).click();
   await expect(drawer(page)).toContainText("Ocena techniczna");
   const href = page.url();
+  let departure: { board: number; column: number } | null = null;
+  page.on("console", (message) => {
+    if (message.text().startsWith("qa-workspace-departure:"))
+      departure = JSON.parse(
+        message.text().slice("qa-workspace-departure:".length),
+      ) as { board: number; column: number };
+  });
+  await page.evaluate(() => {
+    document.addEventListener(
+      "click",
+      (event) => {
+        if (
+          (event.target as Element)
+            .closest("a")
+            ?.textContent?.includes("Otwórz pełną stronę")
+        )
+          console.info(
+            `qa-workspace-departure:${JSON.stringify({ board: document.querySelector('[aria-label="Przewijanie tablicy"]')?.scrollLeft, column: document.querySelector('[aria-label="Sprawy: Zapisane"]')?.scrollTop })}`,
+          );
+      },
+      { capture: true },
+    );
+  });
   await drawer(page)
     .getByRole("link", { name: "Otwórz pełną stronę", exact: true })
     .click();
   await expect(page).toHaveURL(/\/recruitments\/[a-f0-9-]+\?workspaceReturn=/);
   const token = new URL(page.url()).searchParams.get("workspaceReturn");
   expect(token).toBeTruthy();
+  expect(departure).not.toBeNull();
+  const expectedDeparture = departure as unknown as {
+    board: number;
+    column: number;
+  };
+  expect(expectedDeparture.board).toBeGreaterThan(0);
+  expect(expectedDeparture.column).toBeGreaterThan(0);
   await page
     .getByRole("link", { name: "Następna strona historii", exact: true })
     .click();
@@ -378,10 +409,10 @@ test("DEC059 history pagination preserves workspace token, board/column scroll a
   await expect(drawer(page)).toHaveCount(0);
   await expect
     .poll(() => scroller.evaluate((e) => e.scrollLeft))
-    .toBe(before.board);
+    .toBe(expectedDeparture.board);
   await expect
     .poll(() => saved.evaluate((e) => e.scrollTop))
-    .toBe(before.column);
+    .toBe(expectedDeparture.column);
   await scroller.evaluate((element) => {
     element.scrollLeft = 0;
   });

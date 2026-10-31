@@ -16,6 +16,7 @@ import {
   findWorkspaceNavigation,
   clearWorkspaceNavigation,
   workspaceReturnHref,
+  workspaceResumeToken,
 } from "@/components/recruitment/workspace-navigation";
 
 afterEach(clearWorkspaceNavigation);
@@ -56,7 +57,7 @@ describe("read-only Workspace presentation and navigation contracts", () => {
   });
   it("retains only real owner-scoped return context and cannot manufacture context for direct/cross-owner links", () => {
     const value = {
-      token: "return-token",
+      token: "329a053d-3e8e-4bc7-85fa-921401284c75",
       userId: "owner-a",
       href: "/recruitments?view=list&page=3",
       scrollY: 180,
@@ -64,17 +65,51 @@ describe("read-only Workspace presentation and navigation contracts", () => {
       columns: { Zapisane: 56 },
     };
     rememberWorkspaceNavigation(value);
-    expect(findWorkspaceNavigation("owner-a", "return-token")).toEqual(value);
-    expect(workspaceReturnHref("owner-a", "return-token")).toBe(
-      "/recruitments?view=list&page=3#workspace-return=return-token",
+    expect(
+      findWorkspaceNavigation(
+        "owner-a",
+        "329a053d-3e8e-4bc7-85fa-921401284c75",
+      ),
+    ).toEqual(value);
+    expect(
+      workspaceReturnHref("owner-a", "329a053d-3e8e-4bc7-85fa-921401284c75"),
+    ).toBe(
+      "/recruitments?view=list&page=3&workspaceResume=329a053d-3e8e-4bc7-85fa-921401284c75",
     );
-    expect(workspaceReturnHref("owner-b", "return-token")).toBe(
-      "/recruitments",
-    );
+    expect(
+      workspaceReturnHref("owner-b", "329a053d-3e8e-4bc7-85fa-921401284c75"),
+    ).toBe("/recruitments");
     expect(workspaceReturnHref("owner-a", "forged")).toBe("/recruitments");
+    expect(
+      workspaceReturnHref("owner-a", "329a053d-3e8e-4bc7-85fa-921401284c76"),
+    ).toBe("/recruitments");
     expect(workspaceReturnHref("owner-a")).toBe("/recruitments");
     clearWorkspaceNavigation();
     expect(findWorkspaceNavigation("owner-a")).toBeNull();
+  });
+  it("accepts exactly one well-formed technical resume nonce", () => {
+    const token = "329a053d-3e8e-4bc7-85fa-921401284c75";
+    expect(
+      workspaceResumeToken(new URLSearchParams({ workspaceResume: token })),
+    ).toBe(token);
+    expect(workspaceResumeToken(new URLSearchParams())).toBeNull();
+    expect(
+      workspaceResumeToken(
+        new URLSearchParams({ workspaceResume: "https://example.invalid" }),
+      ),
+    ).toBeNull();
+    expect(
+      workspaceResumeToken(
+        new URLSearchParams(
+          `workspaceResume=${token}&workspaceResume=${token}`,
+        ),
+      ),
+    ).toBeNull();
+    expect(
+      workspaceResumeToken(
+        new URLSearchParams(`workspaceResume=${token}&workspaceResume=forged`),
+      ),
+    ).toBeNull();
   });
   it("escapes case and M:N labels, shows roles and a truthful fragment without mutation controls", () => {
     const item: WorkspaceCase = {
