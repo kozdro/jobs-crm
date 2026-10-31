@@ -1,0 +1,9 @@
+{
+  "target": "lifecycle-3c-r2",
+  "totalCases": 1408,
+  "responseStatus": 206,
+  "contentRange": "0-999/1408",
+  "rowCount": 1000,
+  "assertion": "existing rows() expects status200 before Cross-owner list leak assertion",
+  "rlsRestored": true
+}

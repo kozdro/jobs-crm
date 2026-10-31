@@ -1,0 +1,53 @@
+[
+  {
+    "role": "backend-reviewer",
+    "session": "01a19247-fa1e-7d63-b611-b2f59fb4cac5",
+    "candidate": "ecf3e8f3220d133cca76ac3c3f9913466722cd78",
+    "base": "8dee66bcfefc91876e7651743a9f777255ac002a",
+    "status": "PASS",
+    "method": "independent read-only parent via harness/scripts/review.py, generic subagent + canonical role",
+    "receipt": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "633cd59977dabd1164cb6243ce8eef4c14d53895ae2fba2d09374da813f1ce16",
+      "candidateAfter": "633cd59977dabd1164cb6243ce8eef4c14d53895ae2fba2d09374da813f1ce16"
+    },
+    "report": "**PASS — statyczny backend review.** Reviewer nie zgłosił potwierdzonych findings P0/P1/P2/P3.\n\nUruchomiono dokładnie jednego natywnego subagenta: `/root/backend_reviewer`, wariant **generic subagent + canonical role**, nie typed profile. Zastosowano `review-change`; model/reasoning: inherited **NOT EXPOSED**.\n\n- Baza: `8dee66bcfefc91876e7651743a9f777255ac002a`.\n- Kandydat: `ecf3e8f3220d133cca76ac3c3f9913466722cd78`.\n- Oceniono migrację, schema/metadata, projekcję, stare i nowe komendy, cykle, korekty/void, retry/ABA, INVOKER/RLS, testy oraz zgodność API z UI względem DEC-056/057, AC3C i powiązanych BR.\n- Po review HEAD pozostał bez zmian, checkout czysty. Nie zmieniono plików ani nie uruchomiono testów.\n\n**NOT RUN:** testy i runtime. Przekazane wyniki nie stanowią wykonania przez reviewera. Finalny rerun na kandydacie, integration/browser i osobny security review pozostają otwartymi bramkami.\n\nLuka pokrycia: test upgrade obejmuje legacy `applied_case_revision=NULL` i close/reopen/close, ale nie korektę starego zakończenia na „Nie aplikowano” dla takiej aplikacji. To brak testu, nie potwierdzony defekt.\n\nPełny TC-012 z Task/CalendarEvent oraz Global Search pozostają poza ocenionym zakresem. **PASS dotyczy wyłącznie review statycznego; nie zamyka weryfikacji slice’a.**",
+    "testsExecutedByReviewer": false
+  },
+  {
+    "role": "frontend-reviewer",
+    "session": "01a19247-fa1e-7b73-ab61-30fb8f44fff1",
+    "candidate": "ecf3e8f3220d133cca76ac3c3f9913466722cd78",
+    "base": "8dee66bcfefc91876e7651743a9f777255ac002a",
+    "status": "FAIL",
+    "method": "independent read-only parent via harness/scripts/review.py, generic subagent + canonical role",
+    "receipt": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "633cd59977dabd1164cb6243ce8eef4c14d53895ae2fba2d09374da813f1ce16",
+      "candidateAfter": "633cd59977dabd1164cb6243ce8eef4c14d53895ae2fba2d09374da813f1ce16"
+    },
+    "report": "**FAIL — dwa findings P2; nie znaleziono P0/P1.**\n\n1. **P2 — utrata zamiaru po niepewnym zapisie.**  \n   [lifecycle.tsx:648](/private/tmp/jobs-crm-3c-review-r1/src/components/recruitment/lifecycle.tsx:648)  \n   Gdy `sessionStorage.setItem` rzuci wyjątek, odpowiedź confirm zaginie, a użytkownik potwierdzi porzucenie formularza, odmontowanie usuwa jedyną kopię komendy i requestId. Recovery pozwala wtedy rozpocząć nowy zamiar mimo nierozstrzygniętego poprzedniego zapisu.  \n   **Podstawa:** AC-LC-014-05, DEC-057.  \n   **Rekomendacja:** zachować zamiar powiązany z owner/case poza formularzem albo zablokować porzucenie do rozstrzygnięcia. QA powinno sprawdzić wyjątek storage + utratę odpowiedzi + zamknięcie.\n\n2. **P2 — błędna asercja testu paginowanej historii.**  \n   [recruitment-closure-reopening.spec.ts:440](/private/tmp/jobs-crm-3c-review-r1/tests/e2e/recruitment-closure-reopening.spec.ts:440)  \n   Test oczekuje `Nieznana data`, podczas gdy UI renderuje `Data zdarzenia nieznana`. Asercja zawiedzie również przy poprawnym wyświetleniu historii.  \n   **Podstawa:** AC-HE-001-01, AC-HE-002-06, plan QA DEC-057.  \n   **Rekomendacja:** dopasować asercję do właściwej nazwy nagłówka i ponowić test przez QA.\n\nUruchomiono dokładnie jednego **generic subagent + canonical role `frontend-reviewer`**, stosującego `review-change`. Model/reasoning: **inherited NOT EXPOSED**. Oceniono frontend i testy względem kontraktu 3C, DEC-057, historycznego DEC-056 oraz odpowiednich AC/BR.\n\nBaza: `8dee66bcfefc91876e7651743a9f777255ac002a`. Kandydat: `ecf3e8f3220d133cca76ac3c3f9913466722cd78`; HEAD po review pozostał ten sam.\n\n**NOT RUN:** wszystkie testy, runtime przeglądarki, StrictMode/remount/late responses, technologie asystujące i rzeczywiste małe ekrany. Ocena była statyczna; dostarczone wyniki autora/QA nie są wynikami tej sesji. Nie zmieniono plików ani nie delegowano dalej. Oba P2 wymagają rozstrzygnięcia autora, weryfikacji QA i ponownego review zmienionego zakresu.",
+    "testsExecutedByReviewer": false
+  },
+  {
+    "role": "security-reviewer",
+    "session": "01a19247-fa1e-7993-92af-27c41364cb5e",
+    "candidate": "ecf3e8f3220d133cca76ac3c3f9913466722cd78",
+    "base": "8dee66bcfefc91876e7651743a9f777255ac002a",
+    "status": "PASS",
+    "method": "independent read-only parent via harness/scripts/review.py, generic subagent + canonical role",
+    "receipt": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "633cd59977dabd1164cb6243ce8eef4c14d53895ae2fba2d09374da813f1ce16",
+      "candidateAfter": "633cd59977dabd1164cb6243ce8eef4c14d53895ae2fba2d09374da813f1ce16"
+    },
+    "report": "**PASS — niezależny security review statyczny. Brak potwierdzonych findings P0/P1/P2/P3.**\n\nOceniony diff: `8dee66bcfefc91876e7651743a9f777255ac002a..ecf3e8f3220d133cca76ac3c3f9913466722cd78`.\n\nUruchomiono dokładnie jednego **generic subagent + canonical role** `security-reviewer`, zastosowano `review-change`. Model/reasoning: inherited, **NOT EXPOSED**.\n\nSprawdzono SQL i triggery, RLS A/B/anon, relacje, granty PUBLIC/anon, alias active projection, direct DML, zaufane snapshoty/aktor/czas/cykl, BFF Origin/cookies/cache, walidację i redakcję oraz recovery. Podstawa: DEC-057, historyczny DEC-056, AC3C, AC-AD-002 i ADR-0012.\n\nOgraniczenia:\n\n- [Test direct-forgery](/private/tmp/jobs-crm-3c-review-r1/tests/integration/recruitment/closure-reopening.test.ts:674) łączy kilka niedozwolonych pól; odmowa nie dowodzi ochrony każdego osobno.\n- ACL aliasu i triggerów oceniono statycznie, bez kontroli katalogu działającej bazy.\n- **NOT RUN:** testy, migracje i browser/runtime. Dostarczone wyniki QA nie stanowią własnej weryfikacji ani finalnego rerun tego kandydata.\n- Pełne TC-012, Search i niezmieniona infrastruktura Storage pozostają poza pokryciem.\n\nNie zmieniono plików; HEAD pozostał niezmieniony, diff roboczy i staged są czyste. PASS dotyczy wyłącznie review statycznego — oczekujące bramki runtime pozostają otwarte.",
+    "testsExecutedByReviewer": false
+  }
+]

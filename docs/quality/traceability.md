@@ -254,6 +254,8 @@ APPROVED podzakres DEC-056, testy i review nie wynikają ze statusu decyzji. Rap
 
 ## Lifecycle 3C — DEC-057
 
+Wyniki: [raport](../technical/recruitment-lifecycle-3c-report.md), [QA](../technical/recruitment-lifecycle-3c-qa.md). Lokalne 291+87 unit, 83/83 integracje, 73/73 HTTPS browser PASS na produkcie 33c/testach 252; niezależne review PASS w opisanych niezmienionych zakresach. Pełne TC-012 i Search poza pokryciem. Bez merge/deploymentu.
+
 | FR | AC | Scenariusz / granica |
 |---|---|---|
 | FR-LC-016 | AC-LC-016/-01/-02/-03/-04 | podzakres UC/TC-012: wynik, potwierdzenie oferty, aplikacje w cyklu |

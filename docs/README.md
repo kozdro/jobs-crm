@@ -71,4 +71,6 @@ Po potwierdzonym merge PR #16: [analiza OPEN-004/020, propozycja minimalnego sli
 
 ## Recruitment Lifecycle 3C — 2026-10-31
 
+Wykonanie: [raport](technical/recruitment-lifecycle-3c-report.md) i [QA](technical/recruitment-lifecycle-3c-qa.md), lokalnie PASS: 291+87 unit, 83/83 integracje, 73/73 HTTPS browser oraz niezależne backend/frontend/security review. Pełny TC-012, Global Search i publiczny release pozostają poza pokryciem. Hosted CI osobno dla dokładnego PR head.
+
 [DEC-057](decisions/product-decisions.md), [kontrakt, analiza wpływu i plan](technical/recruitment-lifecycle-3c.md): zatwierdzone 1A/2A/3A/4A i pełne wykonanie z osobnym PR, bez merge/deploymentu. Wyniki z cyklu, zachowane zakończenia i audyt, lokalny zakres bez zadań/kalendarza; BR-011 zachowana.

@@ -1,0 +1,11 @@
+{
+  "candidate": "25205782911f2bc22adda1f2b3d7c61048bd4d5c",
+  "evidence": [
+    {
+      "map": "/var/folders/w2/3rw_38750zd_3jvcpl_nb_jm0000gp/T/playwright-transform-cache-502/fc/fc8b46f23f_089a7c1_recruitmentclosurereopeningspec.map",
+      "source": "recruitment-closure-reopening.spec.ts",
+      "executedSourceSha256": "eaed778168b9d01af6f06fd00983883391fca6251e5bc6fcc89f7a66a000a1d3",
+      "matchesCanonical": true
+    }
+  ]
+}

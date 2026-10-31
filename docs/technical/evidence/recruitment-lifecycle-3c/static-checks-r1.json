@@ -1,0 +1,61 @@
+[
+  {
+    "command": "pnpm test:unit",
+    "status": "PASS",
+    "exitCode": 0,
+    "candidate": "ecf3e8f3220d133cca76ac3c3f9913466722cd78",
+    "node": "24.22.2",
+    "pnpm": "12.16.1",
+    "output": "$ vitest run && node --test scripts/db/*.test.ts scripts/auth/*.test.ts scripts/recruitment/*.test.ts scripts/local-dev/*.test.ts\n\n RUN  v5.0.5 /private/tmp/jobs-crm-lifecycle-3c\n\n\n Test Files  20 passed (20)\n      Tests  287 passed (287)\n   Start at  15:06:24\n   Duration  1.26s (import 66%, transform 19%, tests 14%, worker 2%)\n\n✔ interrupted db-only startup plans exact owned resources without requiring Auth/API/mail (1.180916ms)\n✔ network-only startup and repeated cleanup with all resources absent are accepted (0.777458ms)\n✔ stopped or not-yet-started owned container may have no effective network/ports (0.116833ms)\n✔ partial inventory must match every recorded immutable container identity (0.334583ms)\n✔ foreign labels, extra networks, unsafe binds and unexpected ports never produce a deletion plan (0.185459ms)\n✔ similar volume names or missing ownership labels cannot authorize volume removal (0.139208ms)\n✔ unowned network, wildcard binding or foreign endpoint blocks entire cleanup plan (0.120625ms)\n✔ ordinary build/server logs and exact publishable anon key produce only bounded summaries (1.303334ms)\n✔ session JWT fragmented across process chunks fails without reflecting its value (0.23875ms)\n✔ private server credentials, serialized refresh token and synthetic passwords fail closed (0.252583ms)\n✔ oversized logs cannot silently truncate away a secret after the bounded capture limit (0.085084ms)\n✔ browser artifact private-value scan rejects secret bytes and allows public SDK code (0.114917ms)\n✔ TAP and Playwright counts plus whitelisted observation values are retained safely (3.837959ms)\n✔ structured observations cannot smuggle unknown credential or arbitrary text fields (0.178167ms)\n✔ zero or partial reporter evidence cannot give successful Auth measurement acceptance (0.226541ms)\n✔ native no-store exclusion requires its actual CDP reason and cannot claim the restore handler passed (0.534875ms)\n✔ cleanup ignores evidence and keeps every manifest-bearing target for validation (30.053834ms)\n✔ cleanup attempts later targets after earlier failure and fails with redacted aggregate (0.516292ms)\n✔ actual Docker CLI serialization for all four pinned services and Auth-only bootstrap (337.807208ms)\n✔ unnamed bootstrap contract denies other image/command/identity/lifetime/ports (1.219708ms)\n✔ actual Docker run lifecycle receives wait headers before start and finishes owned Auth bootstrap (135.411042ms)\n✔ actual Docker cold pulls match the pinned Supabase service fallback sources (1366.701375ms)\n✔ guard explicitly rewrites blank IP before Docker container create (0.937792ms)\n✔ guard refuses unowned create (0.203875ms)\n✔ guard refuses explicit wildcard bind (0.142584ms)\n✔ guard refuses wrong port and host binds (0.155834ms)\n✔ guard refuses privileged and foreign network modes (0.177125ms)\n✔ guard rejects hostbind traversal and additional networks/volume sharing (0.2665ms)\n✔ guard rejects case aliases handled case-insensitively by Docker Go decoder (2.220708ms)\n✔ guard rejects non-ASCII object keys before Docker Unicode case folding (0.569375ms)\n✔ real Docker CLI empty optional arrays are allowed; nonempty devices/caps remain denied (0.216ms)\n✔ private services have no published ports added (0.336625ms)\n✔ real Unix transport rewrites request and forwards streaming response without logs (74.439125ms)\n✔ guard diagnostics contain only method and canonical route without query or IDs (3.111541ms)\n✔ exec privilege aliases and sensitive reads enforce exact owned-container scope (38.605542ms)\n✔ guard close destroys an original Docker stream after its downstream client aborts (126.276584ms)\n✔ client abort and guard close during delayed ownership cannot create a late Docker upgrade socket (113.575083ms)\n✔ F3 opt-in port profile permits only its exact loopback mail/API/DB ports (0.917209ms)\n✔ FQA10 manifest accepts exact owned target (0.592083ms)\n✔ FQA10 wrong project/path/owner/port/config hash refused (0.255416ms)\n✔ FQA10 only exact loopback PostgreSQL endpoint accepted (0.20325ms)\n✔ FQA10 DB identity and patched PostgreSQL17 enforced (0.124292ms)\n✔ FQA10 immutable container IDs and image IDs enforced (0.164333ms)\n✔ FQA10 effective wildcard rejected despite loopback requested/default network (0.212167ms)\n✔ FQA10 wrong actual mapped DB/API port rejected (0.0915ms)\n✔ empty public bootstrap cannot expose objects or user CREATE (0.091959ms)\n✔ ambiguous Docker environment refuses before invoking any Docker command (181.559916ms)\n✔ remote context is refused after local metadata lookup and before daemon info (547.748542ms)\n✔ all daemon inspection commands use the verified Unix host with context cleared (426.876875ms)\n✔ QA: DEV ports are disjoint from F2/F3/Recruitment test target ports (0.569625ms)\n✔ QA: exact manifest accepts only matching checkout/config/target identity (0.739458ms)\n✔ QA: reset requires exact target and explains data loss (0.265791ms)\n✔ QA: valid inventory generates only exact owned cleanup targets (0.9985ms)\n✔ QA: foreign identities, images, endpoints, volumes and attachments refuse full plan (0.653083ms)\n✔ QA: missing services refuse reuse rather than creating an empty replacement (0.116625ms)\n✔ QA: complete target must retain actual PostgreSQL data volume mount (0.110917ms)\n✔ QA: partial cleanup also refuses host binds and initial startup refuses unpinned images (0.2165ms)\n✔ QA: complete target must publish required service endpoints (0.290833ms)\n✔ QA: DEV profile enables Studio/mail without changing test profiles (64.39175ms)\n✔ QA: occupied loopback port refuses without touching the listener (13.84575ms)\n✔ QA: missing Docker and remote daemon produce bounded actionable failures (348.496125ms)\n✔ QA: CLI version guard rejects an incompatible process before touching Docker (426.253625ms)\n✔ Local DEV migrations reject cloud, CI and alternate endpoints before connecting (1.118083ms)\n✔ fresh bootstrap and checkpoint-bound approved prefix/full histories are accepted (0.357417ms)\n✔ nonempty ledger never silently adopts missing or changed schema checkpoint (0.211625ms)\n✔ deleted, reordered, modified and ahead history cannot be repaired automatically (0.2155ms)\n✔ development logs withhold auth callback query, tokens and passwords (0.6645ms)\n✔ reset requires explicit exact project ID (0.297833ms)\n✔ private Supabase env stays explicitly empty so Next dotenv cannot refill it (0.484417ms)\n✔ diagnostic writes and appends never follow symlinks (11.297667ms)\n✔ control endpoint requires private owned directory and an actual private socket (18.457834ms)\n✔ partial reset accepts only exact pinned AutoRemove gotrue migrate bootstrap (3.670292ms)\n✔ pinned Studio snippets bind becomes an owned persistent volume without host access (1.115666ms)\n✔ Studio mapping refuses other host paths, modes, destinations, images and services (1.537834ms)\n✔ interrupted db-only startup plans exact owned resources without requiring Auth/API/mail (1.180083ms)\n✔ network-only startup and repeated cleanup with all resources absent are accepted (0.135333ms)\n✔ stopped or not-yet-started owned container may have no effective network/ports (0.0955ms)\n✔ partial inventory must match every recorded immutable container identity (0.314708ms)\n✔ foreign labels, extra networks, unsafe binds and unexpected ports never produce a deletion plan (0.296875ms)\n✔ similar volume names or missing ownership labels cannot authorize volume removal (0.281ms)\n✔ unowned network, wildcard binding or foreign endpoint blocks entire cleanup plan (0.601208ms)\n✔ project names stay within CLI limit even for the longest allowed target ID (1.604542ms)\n✔ oversized pre-start failure receipts are eligible only for guarded retirement (1.016833ms)\n✔ product manifest binds exact profile, owner, target and checkpoint (1.014042ms)\n✔ fresh, upgrade prefix and exact repeated migration histories are allowed (0.239958ms)\n✔ deleted, reordered, altered or ahead ledgers and changed migration sources are refused (5.264292ms)\n✔ new product Docker profile allows only its own ports/network, preserving F2/F3 isolation (0.493875ms)\nℹ tests 87\nℹ suites 0\nℹ pass 87\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1994.014208\n"
+  },
+  {
+    "command": "pnpm typecheck",
+    "status": "PASS",
+    "exitCode": 0,
+    "candidate": null,
+    "node": "24.22.2",
+    "pnpm": "12.16.1",
+    "output": "$ next typegen && tsc --noEmit && tsc -p tsconfig.f2.json\nGenerating route types...\n✓ Types generated successfully\n",
+    "scope": "initial working tree before final freeze; final exact-SHA verification reported separately"
+  },
+  {
+    "command": "pnpm lint",
+    "status": "PASS",
+    "exitCode": 0,
+    "candidate": null,
+    "node": "24.22.2",
+    "pnpm": "12.16.1",
+    "output": "$ eslint . --max-warnings=0\n",
+    "scope": "initial working tree before final freeze; final exact-SHA verification reported separately"
+  },
+  {
+    "command": "pnpm format:check",
+    "status": "PASS",
+    "exitCode": 0,
+    "candidate": null,
+    "node": "24.22.2",
+    "pnpm": "12.16.1",
+    "output": "$ prettier --check src tests scripts experiments db *.ts *.mjs package.json components.json pnpm-workspace.yaml .prettierrc.json .github/workflows/app-ci.yml\nChecking formatting...\nAll matched files use Prettier code style!\n",
+    "scope": "initial working tree before final freeze; final exact-SHA verification reported separately"
+  },
+  {
+    "command": "pnpm test:boundaries",
+    "status": "PASS",
+    "exitCode": 0,
+    "candidate": null,
+    "node": "24.22.2",
+    "pnpm": "12.16.1",
+    "output": "$ node scripts/test-boundaries.mjs\nPASS FQA-06 snapshot excludes private, secrets, env and local F2/F3/product/DEV state.\nPASS FQA-02 strict typecheck sensitivity: rejected with expected diagnostic.\nPASS FQA-03 ESLint sensitivity: rejected with expected diagnostic.\nPASS FQA-03 Prettier sensitivity: rejected with expected diagnostic.\nPASS FQA-03 forbidden UI import sensitivity: rejected with expected diagnostic.\nPASS FQA-04 unauthorized public environment read: rejected with expected diagnostic.\nPASS FQA-04 server-only boundary: rejected with expected diagnostic.\n",
+    "scope": "initial working tree before final freeze; final exact-SHA verification reported separately"
+  },
+  {
+    "command": "pnpm test:canary",
+    "status": "PASS",
+    "exitCode": 0,
+    "candidate": null,
+    "node": "24.22.2",
+    "pnpm": "12.16.1",
+    "output": "$ node scripts/test-canary.mjs\nPASS FQA-06 browser assets, generated HTML/RSC/segments and scanner positive control.\nPASS FQA-06 production HTML, RSC, DOM and captured process/browser logs.\nPASS FQA-05/06 invalid env build rejects without disclosing its value.\n",
+    "scope": "initial working tree before final freeze; final exact-SHA verification reported separately"
+  }
+]

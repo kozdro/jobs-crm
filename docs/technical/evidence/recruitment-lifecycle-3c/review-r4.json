@@ -1,0 +1,16 @@
+{
+  "role": "frontend-reviewer",
+  "session": "01a19255-5bf2-7731-8b58-c8cc981f2abf",
+  "candidate": "25205782911f2bc22adda1f2b3d7c61048bd4d5c",
+  "previous": "33c858c88560ed7ccd9cdfe96d2539d255169446",
+  "status": "PASS",
+  "receipt": {
+    "reviewExecution": "COMPLETED",
+    "exitCode": 0,
+    "changedFiles": [],
+    "candidateBefore": "640b55568d7a61bf06578f6af8751691ac232fbf5feecb0965fb6a29a8d5be6e",
+    "candidateAfter": "640b55568d7a61bf06578f6af8751691ac232fbf5feecb0965fb6a29a8d5be6e"
+  },
+  "report": "**PASS \u2014 statyczny frontend review delty** `33c858c..2520578`. Brak nowych findings P0\u2013P3.\n\nDok\u0142adnie jeden subagent `/root/frontend_reviewer` wykona\u0142 review jako **generic subagent + canonical role**, po odczycie wymaganych instrukcji i `review-change`.\n\nJedyny zmieniony plik to `tests/e2e/recruitment-closure-reopening.spec.ts`. Zaw\u0119\u017cenie pi\u0119ciu locator\u00f3w `alert` do `main` jest zgodne ze struktur\u0105 UI i nie os\u0142abia asercji. Zachowano kontrol\u0119 komunikat\u00f3w, liczby POST, nowej zgody i payloadu, rzeczywistego zapisu przy utracie odpowiedzi oraz recovery z dok\u0142adnie jednym wpisem.\n\nWcze\u015bniejsze frontend/security PASS i zamkni\u0119cie trzech P2 na `33c` oraz backend PASS przyj\u0119to jako przekazane pokrycie; nie powtarzano pe\u0142nego review produktu.\n\n**Runtime: NOT RUN.** Nie uruchamiano test\u00f3w ani nie zmieniano plik\u00f3w. r6 nadal ma wynik browser FAIL 1/73; r7 pozostaje niepotwierdzony. Ten PASS dotyczy wy\u0142\u0105cznie statycznej oceny delty testu.",
+  "testsExecutedByReviewer": false
+}

@@ -1,0 +1,34 @@
+[
+  {
+    "role": "frontend-reviewer",
+    "session": "01a19251-dfb3-7c50-832d-b11629d5de75",
+    "candidate": "33c858c88560ed7ccd9cdfe96d2539d255169446",
+    "previous": "91fcbee446b0761801aef3a538b023d76bf29e06",
+    "status": "PASS",
+    "receipt": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "b1ffa4447ff3a746fb5619b72b49a5c98f367280b486b239b1c08d2b825eed0a",
+      "candidateAfter": "b1ffa4447ff3a746fb5619b72b49a5c98f367280b486b239b1c08d2b825eed0a"
+    },
+    "report": "**PASS — statyczny frontend re-review3C** kandydata `33c858c88560ed7ccd9cdfe96d2539d255169446`, diff `91fcbee..33c858c` oraz otaczający mechanizm lifecycle/intent/recovery/QA. Brak nowych potwierdzonych findings P0–P3.\n\nUruchomiono dokładnie jednego **generic subagent + canonical role `frontend-reviewer`**, bez typed profile i dalszej delegacji. Reviewer odczytał wymagane instrukcje oraz skill `review-change`. Nie zmieniono plików ani nie uruchomiono testów.\n\n| Poprzedni P2 | Status | Podstawa |\n|---|---|---|\n| R1: storage failure + utracona odpowiedź + porzucenie | **CLOSED** | Confirm POST wymaga skutecznego persistence; porzucenie zachowuje intent do recovery. |\n| R1: błędna asercja etykiety unknown | **CLOSED** | Test oczekuje renderowanego tekstu „Data zdarzenia nieznana”. |\n| R2: odmowa storage zostawia frozen command i umożliwia stary payload | **CLOSED** | Frozen powstaje dopiero po dokładnym zapisie i readback; odmowa nowego zamiaru pozostawia `null`, istniejący uncertain pozostaje zachowany. |\n\nKluczowe miejsca: [lifecycle-intent.ts:218](/private/tmp/jobs-crm-3c-review-r3/src/components/recruitment/lifecycle-intent.ts:218), [lifecycle.tsx:255](/private/tmp/jobs-crm-3c-review-r3/src/components/recruitment/lifecycle.tsx:255).\n\n[Test przeglądarkowy:448](/private/tmp/jobs-crm-3c-review-r3/tests/e2e/recruitment-closure-reopening.spec.ts:448) rzeczywiście sprawdza:\n\n- zmianę outcome i dnia po odmowie storage;\n- niezaznaczoną ponowną zgodę i zero confirm POST;\n- po zaznaczeniu zgody — rzeczywisty payload z **nowymi wartościami**;\n- commit przez `route.fetch()`, utratę odpowiedzi, blokadę nowego zamiaru i recovery po reload z jednym rekordem.\n\nOcena opiera się na zatwierdzonym DEC-057, szczególnie AC-LC-014-05 i kontrakcie preview/confirm/recovery. Nie wprowadza nowych reguł ani rozstrzygnięć OPEN.\n\n**Runtime: NOT RUN w tej sesji.** Przekazane focused unit 20/20 i owned lint/tsc PASS pozostają dowodami zewnętrznymi. R5 integration **FAIL 81/83** nie otrzymuje waiver; r4 sprzed poprawki nie potwierdza finalnego kandydata. Final r6 oraz finalne statics nadal wymagają wyników dla dokładnego SHA. Statyczny PASS nie zamyka całego zadania ani osobnych bramek backend/security.",
+    "testsExecutedByReviewer": false
+  },
+  {
+    "role": "security-reviewer",
+    "session": "01a19251-dfb3-7cc0-a196-1f1895836262",
+    "candidate": "33c858c88560ed7ccd9cdfe96d2539d255169446",
+    "previous": "91fcbee446b0761801aef3a538b023d76bf29e06",
+    "status": "PASS",
+    "receipt": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "b1ffa4447ff3a746fb5619b72b49a5c98f367280b486b239b1c08d2b825eed0a",
+      "candidateAfter": "b1ffa4447ff3a746fb5619b72b49a5c98f367280b486b239b1c08d2b825eed0a"
+    },
+    "report": "**PASS — statyczny security re-review** kandydata `33c858c88560ed7ccd9cdfe96d2539d255169446`, diff `91fcbee..33c858c` oraz otaczającego lifecycle/intent/recovery/QA. **Brak nowych findings P0–P3.**\n\nUruchomiono dokładnie jednego **generic subagent + canonical role `security-reviewer`**, bez typed profile. Reviewer niezależny od autorów. Odczytano wymagane instrukcje i skill `review-change`. Bez zmian plików i uruchamiania testów; końcowy status Git czysty.\n\n| Poprzednie P2 | Status i uzasadnienie |\n|---|---|\n| R1: storage failure, utracona odpowiedź, porzucenie | **CLOSED statycznie.** POST wymaga skutecznego persistence/readback; uncertain intent pozostaje do recovery po porzuceniu. |\n| R1: błędny tekst asercji unknown | **CLOSED.** [Asercja](/private/tmp/jobs-crm-3c-review-r3/tests/e2e/recruitment-closure-reopening.spec.ts:445) odpowiada tekstowi UI „Data zdarzenia nieznana”. |\n| R2 frontend/security: frozen command po odmowie storage wysyłał stary payload | **CLOSED statycznie.** [Helper](/private/tmp/jobs-crm-3c-review-r3/src/components/recruitment/lifecycle-intent.ts:212) zamraża dopiero po dokładnym zapisie i readbacku owner/case/request/command. Zachowuje istniejący uncertain command. [Save](/private/tmp/jobs-crm-3c-review-r3/src/components/recruitment/lifecycle.tsx:253) wymaga aktualnego draftu, rewizji i zgody dla nowej komendy. |\n\n[Test przeglądarkowy](/private/tmp/jobs-crm-3c-review-r3/tests/e2e/recruitment-closure-reopening.spec.ts:448) rzeczywiście sprawdza **nowy wynik i datę**, odznaczoną zgodę i zero confirm POST, a następnie nową zgodę, właściwy payload, realny commit z abortem odpowiedzi, blokadę po porzuceniu i recovery po reloadzie z jednym rekordem. GET recovery wynika z odczytanego handlera; test nie asertuje osobno metody GET.\n\nPodstawa: DEC-057 APPROVED, FR/AC-LC-016/017/019, HE-001–003, AD-002, BR-030 i ADR-0012. Backend/DB bez zmian w ocenianym diffie.\n\n**Runtime: NOT RUN przez reviewerów.** Unit 20/20 i lint/tsc PASS to przekazane dowody autora/QA. R4 dotyczy wcześniejszego kandydata; R5 pozostaje FAIL bez waivera. Finalny R6 na `33c858c` nadal **NOT YET PASS** — finalna weryfikacja i całość DoD pozostają otwarte.",
+    "testsExecutedByReviewer": false
+  }
+]
