@@ -101,7 +101,7 @@ export function isHistoryPreview(value: unknown): value is HistoryPreview {
     (row.eventRevision as number) >= 0 &&
     validValues(row.before) &&
     validValues(row.after) &&
-    ["Zapisane", "Kontakt rozpoczęty", "W rekrutacji"].includes(
+    ["Zapisane", "Kontakt rozpoczęty", "W rekrutacji", "Zakończone"].includes(
       row.status as string,
     ) &&
     (row.currentStage === null || typeof row.currentStage === "string") &&
@@ -128,7 +128,7 @@ export function isHistoryRevision(value: unknown): value is HistoryRevision {
     Number.isFinite(Date.parse(row.recorded_at)) &&
     validValues(row.before) &&
     validValues(row.after) &&
-    ["Zapisane", "Kontakt rozpoczęty", "W rekrutacji"].includes(
+    ["Zapisane", "Kontakt rozpoczęty", "W rekrutacji", "Zakończone"].includes(
       row.status as string,
     ) &&
     (row.current_stage === null || typeof row.current_stage === "string")

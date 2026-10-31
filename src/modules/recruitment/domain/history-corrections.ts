@@ -12,7 +12,7 @@ export type HistoryPreview = {
   eventRevision: number;
   before: HistoryValues;
   after: HistoryValues;
-  status: "Zapisane" | "Kontakt rozpoczęty" | "W rekrutacji";
+  status: "Zapisane" | "Kontakt rozpoczęty" | "W rekrutacji" | "Zakończone";
   currentStage: string | null;
   blockedBy: string[];
 };

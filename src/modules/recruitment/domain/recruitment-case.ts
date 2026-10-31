@@ -11,7 +11,7 @@ export type RecruitmentCase = {
   title: string;
   description: string | null;
   source_url: string | null;
-  status: "Zapisane" | "Kontakt rozpoczęty" | "W rekrutacji";
+  status: "Zapisane" | "Kontakt rozpoczęty" | "W rekrutacji" | "Zakończone";
   current_stage: string | null;
   stage_version: number;
   created_at: string;

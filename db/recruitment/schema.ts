@@ -1,6 +1,7 @@
 /** Product model approved by DEC-052/054/055. Auth remains Supabase-owned. */
 import { sql } from "drizzle-orm";
 import {
+  boolean,
   check,
   date,
   foreignKey,
@@ -69,7 +70,7 @@ export const recruitmentCase = pgTable(
     ),
     check(
       "recruitment_case_3b_status_stage",
-      sql`(${table.status} IN ('Zapisane', 'Kontakt rozpoczęty') AND ${table.currentStage} IS NULL AND ${table.stageVersion} >= 0) OR (${table.status} = 'W rekrutacji' AND ${table.currentStage} IS NOT NULL AND char_length(${table.currentStage}) BETWEEN 1 AND 160 AND ${table.currentStage} = public.recruitment_trim(${table.currentStage}) AND ${table.stageVersion} >= 1)`,
+      sql`(${table.status} IN ('Zapisane', 'Kontakt rozpoczęty', 'Zakończone') AND ${table.currentStage} IS NULL AND ${table.stageVersion} >= 0) OR (${table.status} = 'W rekrutacji' AND ${table.currentStage} IS NOT NULL AND char_length(${table.currentStage}) BETWEEN 1 AND 160 AND ${table.currentStage} = public.recruitment_trim(${table.currentStage}) AND ${table.stageVersion} >= 1)`,
     ),
   ],
 ).enableRLS();
@@ -175,6 +176,111 @@ export const recruitmentCaseEventRevision = pgTable(
     check(
       "recruitment_revision_versions_valid",
       sql`${table.expectedCaseRevision} >= 0 AND ${table.expectedEventRevision} >= 0 AND ${table.revision} = ${table.expectedEventRevision} + 1`,
+    ),
+  ],
+).enableRLS();
+
+/** DEC-057: immutable lifecycle commands and original closure snapshots. */
+export const recruitmentCaseLifecycle = pgTable(
+  "recruitment_case_lifecycle",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    requestId: uuid("request_id").notNull(),
+    caseId: uuid("case_id").notNull(),
+    kind: text("kind").notNull(),
+    outcome: text("outcome"),
+    occurredOn: date("occurred_on", { mode: "string" }),
+    offerConfirmed: boolean("offer_confirmed").notNull(),
+    expectedCaseRevision: integer("expected_case_revision").notNull(),
+    cycle: integer("cycle").notNull(),
+    previousStatus: text("previous_status").notNull(),
+    previousStage: text("previous_stage"),
+    resultingStatus: text("resulting_status").notNull(),
+    resultingStage: text("resulting_stage"),
+    recordedAt: timestamp("recorded_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    unique("recruitment_lifecycle_owner_request_unique").on(
+      t.ownerId,
+      t.requestId,
+    ),
+    unique("recruitment_lifecycle_case_cycle_kind_unique").on(
+      t.caseId,
+      t.cycle,
+      t.kind,
+    ),
+    foreignKey({
+      name: "recruitment_lifecycle_owned_case_fk",
+      columns: [t.ownerId, t.caseId],
+      foreignColumns: [recruitmentCase.ownerId, recruitmentCase.id],
+    }).onDelete("no action"),
+    check(
+      "recruitment_lifecycle_kind_valid",
+      sql`${t.kind} IN ('close','reopen')`,
+    ),
+    check(
+      "recruitment_lifecycle_cycle_valid",
+      sql`${t.cycle} >= 0 AND ${t.expectedCaseRevision} >= 0`,
+    ),
+    index("recruitment_lifecycle_timeline_idx").on(
+      t.ownerId,
+      t.caseId,
+      t.occurredOn.desc().nullsLast(),
+      t.recordedAt.desc(),
+      t.id.desc(),
+    ),
+  ],
+).enableRLS();
+
+export const recruitmentClosureRevision = pgTable(
+  "recruitment_closure_revision",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    requestId: uuid("request_id").notNull(),
+    caseId: uuid("case_id").notNull(),
+    closureId: uuid("closure_id").notNull(),
+    outcome: text("outcome").notNull(),
+    occurredOn: date("occurred_on", { mode: "string" }),
+    offerConfirmed: boolean("offer_confirmed").notNull(),
+    expectedCaseRevision: integer("expected_case_revision").notNull(),
+    expectedClosureRevision: integer("expected_closure_revision").notNull(),
+    revision: integer("revision").notNull(),
+    beforeValues: jsonb("before_values").notNull(),
+    afterValues: jsonb("after_values").notNull(),
+    recordedAt: timestamp("recorded_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    unique("recruitment_closure_revision_owner_request_unique").on(
+      t.ownerId,
+      t.requestId,
+    ),
+    unique("recruitment_closure_revision_version_unique").on(
+      t.closureId,
+      t.revision,
+    ),
+    foreignKey({
+      name: "recruitment_closure_revision_owned_case_fk",
+      columns: [t.ownerId, t.caseId],
+      foreignColumns: [recruitmentCase.ownerId, recruitmentCase.id],
+    }).onDelete("no action"),
+    foreignKey({
+      name: "recruitment_closure_revision_closure_fk",
+      columns: [t.closureId],
+      foreignColumns: [recruitmentCaseLifecycle.id],
+    }).onDelete("no action"),
+    check(
+      "recruitment_closure_revision_version_valid",
+      sql`${t.expectedCaseRevision} >= 0 AND ${t.expectedClosureRevision} >= 0 AND ${t.revision} = ${t.expectedClosureRevision} + 1`,
     ),
   ],
 ).enableRLS();

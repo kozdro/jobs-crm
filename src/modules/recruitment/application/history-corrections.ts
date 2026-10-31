@@ -33,9 +33,12 @@ export function readHistoryValues(value: unknown): HistoryValues {
   };
 }
 function validStatus(value: unknown) {
-  return ["Zapisane", "Kontakt rozpoczęty", "W rekrutacji"].includes(
-    value as string,
-  );
+  return [
+    "Zapisane",
+    "Kontakt rozpoczęty",
+    "W rekrutacji",
+    "Zakończone",
+  ].includes(value as string);
 }
 function validRevision(value: unknown) {
   return Number.isSafeInteger(value) && (value as number) >= 0;

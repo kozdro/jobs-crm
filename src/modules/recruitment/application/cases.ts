@@ -33,7 +33,8 @@ function readCase(value: unknown): RecruitmentCase {
     !(row.source_url === null || typeof row.source_url === "string") ||
     (row.status !== "Zapisane" &&
       row.status !== "Kontakt rozpoczęty" &&
-      row.status !== "W rekrutacji") ||
+      row.status !== "W rekrutacji" &&
+      row.status !== "Zakończone") ||
     !Number.isSafeInteger(row.stage_version) ||
     (row.stage_version as number) < 0 ||
     (row.status === "W rekrutacji"

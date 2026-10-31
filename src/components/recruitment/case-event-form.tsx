@@ -416,8 +416,9 @@ function EventSession({
         Działania w sprawie
       </h2>
       <p className="mt-2 text-sm leading-6 text-muted-foreground">
-        Odnotuj fakt, który już miał miejsce. Rejestracja nie wysyła wiadomości
-        ani aplikacji.
+        {status === "Zakończone"
+          ? "Sprawa jest zakończona. Wznów ją świadomie przed rejestracją nowych faktów. Wcześniejsze wpisy można nadal korygować w historii."
+          : "Odnotuj fakt, który już miał miejsce. Rejestracja nie wysyła wiadomości ani aplikacji."}
       </p>
       <div
         role="status"
@@ -429,7 +430,7 @@ function EventSession({
       >
         {success ? "Zdarzenie zostało zapisane." : ""}
       </div>
-      {!kind && !uncertainId && (
+      {!kind && !uncertainId && status !== "Zakończone" && (
         <div className="mt-4 flex flex-wrap gap-3">
           <button
             ref={applicationTrigger}

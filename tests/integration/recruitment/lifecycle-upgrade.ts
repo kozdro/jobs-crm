@@ -54,7 +54,7 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
     };
     assert.equal(
       journal.entries.length,
-      10,
+      11,
       "Upgrade test must cover the exact current migration history",
     );
     for (const entry of journal.entries.slice(0, 7)) await apply(entry.tag);
@@ -218,6 +218,87 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
       "W rekrutacji",
       "An upgraded existing case accepts the real lifecycle transaction",
     );
+    const before3cCase =
+      await upgrade`select * from public.recruitment_case where id=${caseId}::uuid`;
+    const before3cFacts =
+      await upgrade`select * from public.recruitment_case_event where case_id=${caseId}::uuid order by recorded_at,id`;
+    const before3cAudit =
+      await upgrade`select * from public.recruitment_case_event_revision where case_id=${caseId}::uuid order by recorded_at,id`;
+    await apply(journal.entries[10].tag);
+    assert.deepEqual(
+      (
+        await upgrade`select * from public.recruitment_case where id=${caseId}::uuid`
+      ).map((row) => ({ ...row })),
+      before3cCase.map((row) => ({ ...row })),
+      "3C upgrade preserves existing status, stage and revisions",
+    );
+    assert.deepEqual(
+      (
+        await upgrade`select * from public.recruitment_case_event where case_id=${caseId}::uuid order by recorded_at,id`
+      ).map((row) => ({ ...row })),
+      before3cFacts.map((row) => ({ ...row })),
+      "3C upgrade preserves immutable legacy fact payloads",
+    );
+    assert.deepEqual(
+      (
+        await upgrade`select * from public.recruitment_case_event_revision where case_id=${caseId}::uuid order by recorded_at,id`
+      ).map((row) => ({ ...row })),
+      before3cAudit.map((row) => ({ ...row })),
+      "3C upgrade preserves prior correction audit",
+    );
+    const [empty] =
+      await upgrade`select count(*)::int n from public.recruitment_case_lifecycle`;
+    assert.equal(
+      empty.n,
+      0,
+      "3C upgrade invents no historical closures or cycles",
+    );
+    await upgrade.begin(async (tx) => {
+      await tx.unsafe("set local role authenticated");
+      await tx.unsafe("select set_config('request.jwt.claim.sub',$1,true)", [
+        owner,
+      ]);
+      const [closing] = await tx.unsafe(
+        "select public.preview_recruitment_case_lifecycle($1::uuid,'close',null,'Odmowa firmy',null,false) result",
+        [caseId],
+      );
+      const [closed] = await tx.unsafe(
+        "select public.confirm_recruitment_case_lifecycle($1::uuid,$2::uuid,'close',$3::integer,0,null,'Odmowa firmy',null,false) result",
+        [randomUUID(), caseId, closing.result.caseRevision],
+      );
+      assert.equal(closed.result.kind, "created");
+      const [resuming] = await tx.unsafe(
+        "select public.preview_recruitment_case_lifecycle($1::uuid,'reopen',null,null,null,false) result",
+        [caseId],
+      );
+      assert.equal(
+        resuming.result.status,
+        "W rekrutacji",
+        "Legacy invitation remains a valid continuation basis",
+      );
+      assert.equal(resuming.result.currentStage, "After upgrade");
+      const [resumed] = await tx.unsafe(
+        "select public.confirm_recruitment_case_lifecycle($1::uuid,$2::uuid,'reopen',$3::integer,0,null,null,null,false) result",
+        [randomUUID(), caseId, resuming.result.caseRevision],
+      );
+      assert.equal(resumed.result.kind, "created");
+      const [nextCycle] = await tx.unsafe(
+        "select public.preview_recruitment_case_lifecycle($1::uuid,'close',null,'Nie aplikowano',null,false) result",
+        [caseId],
+      );
+      const [secondClose] = await tx.unsafe(
+        "select public.confirm_recruitment_case_lifecycle($1::uuid,$2::uuid,'close',$3::integer,0,null,'Nie aplikowano',null,false) result",
+        [randomUUID(), caseId, nextCycle.result.caseRevision],
+      );
+      assert.equal(
+        secondClose.result.kind,
+        "created",
+        "Legacy initial-cycle application does not block Not applied in the new cycle",
+      );
+    });
+    const [three] =
+      await upgrade`select count(*)::int n from public.recruitment_case_lifecycle where case_id=${caseId}::uuid`;
+    assert.equal(three.n, 3, "Two closures and one reopening remain distinct");
   } finally {
     if (upgrade) await upgrade.end();
     if (created) await admin`drop database ${admin(database)}`;

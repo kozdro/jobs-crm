@@ -12,7 +12,7 @@ const eventColumns =
   "id,case_id,kind,direction,occurred_on,recorded_at,stage_name,previous_stage,expected_stage_version";
 export const caseEventPageSize = 25;
 
-function readEvent(value: unknown): CaseEvent {
+export function readEvent(value: unknown): CaseEvent {
   if (!value || typeof value !== "object")
     throw new CaseRepositoryError("unavailable");
   const row = value as Record<string, unknown>;
