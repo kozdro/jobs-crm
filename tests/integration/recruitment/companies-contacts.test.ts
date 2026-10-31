@@ -807,7 +807,7 @@ test(
             p_occurred_on: null,
           }),
         );
-        const preview = ok<{ caseRevision: number }>(
+        const preview = ok<{ caseRevision: number; closureRevision: number }>(
           await api("/rest/v1/rpc/preview_recruitment_case_lifecycle", "POST", {
             p_case_id: c,
             p_operation: "close",
@@ -823,7 +823,7 @@ test(
             p_case_id: c,
             p_operation: "close",
             p_expected_case_revision: preview.caseRevision,
-            p_expected_closure_revision: null,
+            p_expected_closure_revision: preview.closureRevision,
             p_closure_id: null,
             p_outcome: "Inny",
             p_occurred_on: null,

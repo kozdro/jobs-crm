@@ -1,6 +1,6 @@
 # Companies & Contacts — raport wykonania
 
-**Data:** 2026-10-31. **Decyzja:** DEC-058, PO zatwierdził 1A/2A/3A i pełną implementację oraz osobny PR; bez merge/deploymentu. **Stan:** wykonanie w toku, nie jest raportem PASS.
+**Data:** 2026-10-31. **Decyzja:** DEC-058, PO zatwierdził 1A/2A/3A i pełną implementację oraz osobny PR; bez merge/deploymentu. **Stan:** kandydat implementacji `8d8323c6b0d24b6beb970431c6ce47574c332e53`; runtime/review w toku.
 
 ## Zakres i podstawa
 
@@ -16,8 +16,10 @@ Baza `fa66fc7badde0f224a316cccea8a242e71e3bdb1`, gałąź `feat/companies-contac
 
 | Kontrola | Wynik |
 |---|---|
-| Unit / typecheck / lint / format | NOT RUN — kandydat w budowie |
-| Boundaries / canary | NOT RUN |
+| Unit | PASS 326 aplikacyjnych + 87 skryptowych; zero skips |
+| Typecheck / lint | PASS |
+| Format | PASS — finalna kontrola Prettier |
+| Boundaries / canary | PASS: natural exit 0; pozytywne kontrole wykrywają naruszenia |
 | Real Auth/JWT/Data API/RLS, migracja/upgrade | NOT RUN |
 | Production HTTPS browser / regresje | NOT RUN |
 | Niezależny backend/frontend/security review implementacji | NOT RUN |
@@ -30,3 +32,11 @@ Node 24.22.2 / pnpm12.16.1. Shell Node i faktyczny pnpm Node różniły się; u�
 AC-CC-007/009/010 i pełne TC-019/025/034 nie są wykonaniem tego slice'a. Brak korespondencji, event participants/historii osoby, importu, merge, Global Search, hard delete/archiwizacji/restore i publicznego udostępnienia. OPEN-002/005/024 rozstrzygnięte tylko dla DEC-058; historyczne uczestnictwo OPEN-030, retencja/privacy/publiczne Auth/OPS i pozostałe bramki nadal obowiązują. Urządzenia fizyczne/AT, live OAuth, pełny WCAG audit i publiczne użycie pozostają NOT RUN.
 
 PR, exact SHA, wyniki testów i findings zostaną uzupełnione na podstawie rzeczywistych dowodów.
+
+## Kontrole statyczne i unit — dowody lokalne
+
+Wykonano z prefiksem Node24.22.2 i `pnpm --config.verifyDepsBeforeRun=error`: `test:unit`, `typecheck`, `lint`, `test:boundaries`, `test:canary`. Logi lokalne nietrwałe `/tmp/jobs-crm-cc-unit-r4.log`, `-typecheck-r4.log`, `-lint-r4.log`, `-boundaries.log`, `-canary.log`. Błędy wcześniejszych prób zachowane: r1 test nawigacji oczekiwał starych5 niedostępnych modułów; r2 lokalny test oczekiwał11 zamiast12 migracji; typecheck wymagał typów w nowych testach QA; ESLint refs naprawiony przez frontend bez wyłączenia reguły; format r4 uruchomiono w trakcie końcowego zapisu speca QA i wskazał jego format. Poprawki zachowują jawne asercje dostępnych modułów i przyjętych prefiksów ledgeru.
+
+Review backend/frontend/security uruchomiono na oddzielnym detached worktree `/tmp/jobs-crm-cc-review`, dokładnie commit8d8323c; trzy rodzice read-only przez kanoniczny wrapper. Autorzy nie zmieniają ocenianego kandydata; nowe wyniki QA/dokumenty w głównym checkout nie zmieniają snapshotu review.
+
+Pierwszy pełny runtime: build PASS, integracje102/104 FAIL (jedna błędna asercja wejścia fixture i jej suite parent). Nowy test zamkniętej sprawy wysyłał `null` zamiast `preview.closureRevision=0` do starego API3C; poprawiono wyłącznie fixture, bez zmiany produktu/migracji. Browser pierwszej próby NOT RUN — runner poprawnie przerwał po integracji. QA zachowuje nieudane próby i dowody oddzielnie od końcowego wyniku.
