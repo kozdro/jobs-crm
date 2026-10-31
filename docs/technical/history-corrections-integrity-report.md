@@ -30,8 +30,8 @@ Wszystkie przez `python3 harness/scripts/review.py codex <role> --timeout 900`, 
 
 | Rola / sesja | Wynik i dalsza praca |
 |---|---|
-| Backend / 01a191f5-5784-7802-bc76-862fb133fdfb | FAIL1P2: stary stage-change po void zaproszenia dostaje invalid przed stale. Autor przeniósł kontrolę wersji przed status; QA dodaje regresję i wyścig. Luki dowodów upgrade/new command i rollback po AFTER trigger uzupełniane. |
-| Frontend / 01a191f5-5768-78c1-967c-8ad178686870 | FAIL2P2: niewidoczny aktywny edytor po paginacji; niedostarczony POST+reload traci payload i blokuje recovery. Autor poprawia paginację i zachowuje zamrożony owner-bound zamiar w sessionStorage do identycznego retry. QA dodaje oba przypadki. |
+| Backend / 01a191f5-5784-7802-bc76-862fb133fdfb | FAIL 1 P2: stary stage-change po void zaproszenia dostaje invalid przed stale. Autor przeniósł kontrolę wersji przed status; QA dodaje regresję i wyścig. Luki dowodów upgrade/new command i rollback po AFTER trigger uzupełniane. |
+| Frontend / 01a191f5-5768-78c1-967c-8ad178686870 | FAIL 2 P2: niewidoczny aktywny edytor po paginacji; niedostarczony POST+reload traci payload i blokuje recovery. Autor poprawia paginację i zachowuje zamrożony owner-bound zamiar w sessionStorage do identycznego retry. QA dodaje oba przypadki. |
 | Security / 01a191f5-5770-7690-9a6b-f9a6d08a9a6e | PASS statyczny bez findings; luka jawnego testu sztucznie zagnieżdżonego triggera przekazana QA. Finalny runtime i review poprawionego zakresu wymagane osobno. |
 
 Nie zamykamy findings pierwszego kandydata na podstawie samego opisu poprawki; wymagane ponowienie review i dowody QA.
@@ -40,7 +40,7 @@ Nie zamykamy findings pierwszego kandydata na podstawie samego opisu poprawki; w
 
 Root full gates: **256app unit +87script PASS**, typecheck/lint/format PASS (`*-r4.log`). QA r4 natural exit0: buildPASS, **66/66 integracyjnych +59/59 HTTPS Chromium PASS**, bez fail/skip. Produkt/db/test117/117 SHA256 porównano także przez git show z `fe6f07d4718faae9f3b6cb9b2a7dd5cbb56d1f70`. Dowody `/private/tmp/jobs-crm-history-qa-evidence/{full-r4.log,evidence-r4.json,full-r4-manifest.json,full-r4-candidate-proof.json,r4-browser/}`. Własny target posprzątany guardem;44/44 wcześniejszych kontenerów zachowane, brak pozostałych własnych kontenerów. Root obejrzał375/1440 focused-preview PNG; checkbox jest widoczny, Tab dochodzi w1kroku, kontrolka nie przecina skip-linka, innerWidth=scrollWidth; dowód `focused-preview-proof-r4.json`.
 
-Re-review osobnych read-only rodziców: backend sesja01a191fb-90cf-7ae0-96b7-bf3c54a55276 **PASS**, poprzedniP2 CLOSED i nowe testy zamykają wskazane luki kodu testów; security01a191fb-90cf-72b1-9b13-3873f6e8e88f **PASS** bez findings; frontend01a191fb-90cf-7282-bfe7-f80a0ef8012c **FAIL1nowyP2**, oba wcześniejszeP2 CLOSED. Nowy finding: stara odpowiedź po await JSONbody i remount mogła usunąć nowszy pending zamiar. Wszystkie wrappery exit0/changedFiles[], fingerprintBefore=After `21faed05f12e25e8abc448f2703a3b5a1a2377d64bc54016a47bd6e66862f467`. Dowody `/private/tmp/jobs-crm-history-review-r2/`. Review statyczne, nie wykonanie testów; pozytywne wyniki runtime pochodzą od QA.
+Re-review osobnych read-only rodziców: backend sesja01a191fb-90cf-7ae0-96b7-bf3c54a55276 **PASS**, poprzedniP2 CLOSED i nowe testy zamykają wskazane luki kodu testów; security01a191fb-90cf-72b1-9b13-3873f6e8e88f **PASS** bez findings; frontend01a191fb-90cf-7282-bfe7-f80a0ef8012c **FAIL 1 nowy P2**, oba wcześniejszeP2 CLOSED. Nowy finding: stara odpowiedź po await JSONbody i remount mogła usunąć nowszy pending zamiar. Wszystkie wrappery exit 0/changedFiles[], fingerprintBefore=After `21faed05f12e25e8abc448f2703a3b5a1a2377d64bc54016a47bd6e66862f467`. Dowody `/private/tmp/jobs-crm-history-review-r2/`. Review statyczne, nie wykonanie testów; pozytywne wyniki runtime pochodzą od QA.
 
 Autor dodał lifetime epoch guards po fetch i JSON oraz w catch/finally/focus dla wszystkich async ścieżek, identity-matched cleanup storage (owner/case/event/request), brak dispatch globalnego potwierdzenia po wygaśnięciu lub niezgodności. QA dodaje deterministyczny test: rzeczywistyGETA, opóźnione wyłącznie JSONbody, Next Link remount historii, recoveryA, niedostarczonyB, późnyAbody → B nadal zachowany → reload i identyczny retryB dokładnie raz. Nie fabrykuje się odpowiedzi biznesowej ani Auth. Nowy unit helpera obejmuje zachowanie nowszego zamiaru. R5 runtime i ostatnie frontend/security re-review wymagane osobno przed końcowym PASS.
 
@@ -50,13 +50,13 @@ Finalny kandydat produktu i testów: `9afd75048f78fcc1508b6ee15404c2412e9834b9`.
 
 | Kontrola | Wynik / dowód |
 |---|---|
-| Full unit | **PASS257 aplikacyjnych +87 skryptowych**, `pnpm test:unit`, `/private/tmp/jobs-crm-history-test-unit-r5.log` |
+| Full unit | **PASS 257 aplikacyjnych +87 skryptowych**, `pnpm test:unit`, `/private/tmp/jobs-crm-history-test-unit-r5.log` |
 | Typecheck / lint / format | **PASS**, `pnpm typecheck`, `pnpm lint`, `pnpm format:check`; logi `*-r5.log` i `format-check-r5-final.log` |
 | Boundaries / canary | **PASS** lokalnie w opisanym wcześniejszym snapshotcie; finalny hosted CI osobno. |
-| Production build i realna integracja | **PASS**, runtime r5 naturalexit0, **66/66**; rollback po AFTER, upgrade/nowe komendy starych danych, realne Auth/Data API/RLS A/B/anon i wyścigi. |
-| Pełny HTTPS Chromium | **PASS60/60**,0fail/skip, także delayedJSON/remount i niedostarczony POST/reload/same-intent retry, stale, paginacja, audyt/void i stare regresje. |
-| Tożsamość runtime | **PASS117/117** src/db/tests SHA256 także przeciw gitshow9afd750; finalne formatowanie nowego testu (tylko whitespace) skopiowano przed kolekcją testów przez worker, odnotowane w manifeście. Cztery jawne adaptery portów pozostają wyłącznie runtime. |
-| Cleanup i zachowanie innych zasobów | **PASS** guarded cleanup własnego targetu;44/44preexisting kontenery zachowane,0własnych pozostało. Źródłowe2pliki analizy bez zmian SHA256. |
+| Production build i realna integracja | **PASS**, runtime r5 natural exit 0, **66/66**; rollback po AFTER, upgrade/nowe komendy starych danych, realne Auth/Data API/RLS A/B/anon i wyścigi. |
+| Pełny HTTPS Chromium | **PASS 60/60**,0fail/skip, także delayedJSON/remount i niedostarczony POST/reload/same-intent retry, stale, paginacja, audyt/void i stare regresje. |
+| Tożsamość runtime | **PASS 117/117** src/db/tests SHA256 także przeciw gitshow9afd750; finalne formatowanie nowego testu (tylko whitespace) skopiowano przed kolekcją testów przez worker, odnotowane w manifeście. Cztery jawne adaptery portów pozostają wyłącznie runtime. |
+| Cleanup i zachowanie innych zasobów | **PASS** guarded cleanup własnego targetu;44/44 preexisting kontenery zachowane,0 własnych pozostało. Źródłowe2pliki analizy bez zmian SHA256. |
 
 Końcowe dowody: `/private/tmp/jobs-crm-history-qa-evidence/{full-r5.log,evidence-r5.json,full-r5-manifest.json,full-r5-candidate-proof.json,r5-browser/}`; [QA](history-corrections-integrity-qa.md). Root obejrzał focused375/1440 obrazy z poprzedniego pełnego przebiegu tego samego layoutu; nowy patch wyłącznie async lifetime/cleanup + regresja, bez zmiany wyglądu.
 
@@ -65,3 +65,7 @@ Finalne niezależne frontend review sesja01a19202-5928-72b1-9474-369707f95817 **
 **Ograniczenia / NOT RUN:** fizyczne urządzenia i technologie asystujące, pełny audyt WCAG, live OAuth, syntetyczna próba obejścia przez sztucznie zagnieżdżony trigger (brak potwierdzonej dostępnej użytkownikowi ścieżki w static security review), publiczny release. Realne równoległe requesty nie dowodzą wszystkich możliwych przeplotów. Recovery przechowuje zamrożony payload w owner/case-bound sessionStorage do bezpiecznego identycznego retry; dane nie są sekretami ani nowymi polami produktu, nie trafiają do repo/logów. Starszy/nieprawidłowy bound marker bez poprawnego payloadu dopuszcza wyłącznie odczyt recovery, bez ryzykownego nowego zamiaru.
 
 Pozostałe OPEN i odłożony zakres według DEC-056/analizy: pełny lifecycle/niezależny PATCH, retencja i fizyczna kasacja/restore, inne rodzaje historii/notatki, kalendarz/globalne etapy, import/Search i publiczne Auth/privacy/OPS. **Bez merge i deploymentu**, bez mutacji persistent DEV. Zgoda PO obejmuje publikację osobnego PR; hosted CI pozostaje odrębnym wynikiem exact HEAD, raportowanym w opisie PR po zakończeniu.
+
+Dodatkowy dowód tożsamości wykonania r5: `r5-playwright-executed-source-proof.json` porównuje `sourcesContent` rzeczywistego cache transpilation Playwright z finalnym sformatowanym testem, SHA256 `7a99c1216c7a7a6a61e655512e9baeb252ac085377feef367614df02d36daf5b`. Nie polega wyłącznie na czasie startu procesów.
+
+Publikacja: [PR #17](https://github.com/kozdro/jobs-crm/pull/17), otwarty bez merge/deploymentu. Hosted CI exact final SHA jest potwierdzane w opisie PR po zakończeniu.
