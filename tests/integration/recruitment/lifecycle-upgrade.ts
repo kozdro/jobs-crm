@@ -385,30 +385,13 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
         owner,
       ]);
       const [createdProfile] = await tx.unsafe(
-        "select public.execute_catalog_command($1::uuid,$2::jsonb) result",
-        [
-          randomUUID(),
-          JSON.stringify({
-            operation: "create-profile",
-            profileType: "contact",
-            name: "Synthetic pre-0012 contact",
-            email: null,
-          }),
-        ],
+        "select public.execute_catalog_command($1::uuid,jsonb_build_object('operation','create-profile','profileType','contact','name','Synthetic pre-0012 contact','email',NULL)) result",
+        [randomUUID()],
       );
       assert.equal(createdProfile.result.kind, "saved");
       const [createdRelation] = await tx.unsafe(
-        "select public.execute_catalog_command($1::uuid,$2::jsonb) result",
-        [
-          randomUUID(),
-          JSON.stringify({
-            operation: "attach",
-            relationType: "case-contact",
-            leftId: caseId,
-            rightId: createdProfile.result.profile.id,
-            role: null,
-          }),
-        ],
+        "select public.execute_catalog_command($1::uuid,jsonb_build_object('operation','attach','relationType','case-contact','leftId',$2::text,'rightId',$3::text,'role',NULL)) result",
+        [randomUUID(), caseId, createdProfile.result.profile.id],
       );
       assert.equal(createdRelation.result.kind, "saved");
     });
