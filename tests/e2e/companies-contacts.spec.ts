@@ -944,10 +944,14 @@ test("DEC058 new private routes refresh expired SDK cookies on SSR, protect HTML
         expect(html.headers()["cache-control"]).toContain("private");
         expect(html.headers()["cache-control"]).toContain("no-store");
         const rsc = await context.request.get(
-          `${target.appOrigin}${path}?_rsc=synthetic-cc`,
+          // Next16 validates this internal cache key against Flight headers.
+          // With only RSC:1 and no router state/prefetch headers the key is empty.
+          `${target.appOrigin}${path}?_rsc`,
           { headers: { RSC: "1" }, maxRedirects: 0 },
         );
         expect(rsc.status()).toBe(200);
+        expect(rsc.headers()["content-type"]).toContain("text/x-component");
+        expect(rsc.headers()["cache-control"]).toContain("private");
         expect(rsc.headers()["cache-control"]).toContain("no-store");
       }
     }
