@@ -54,7 +54,7 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
     };
     assert.equal(
       journal.entries.length,
-      11,
+      12,
       "Upgrade test must cover the exact current migration history",
     );
     for (const entry of journal.entries.slice(0, 7)) await apply(entry.tag);
@@ -345,6 +345,40 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
     const [three] =
       await upgrade`select count(*)::int n from public.recruitment_case_lifecycle where case_id=${caseId}::uuid`;
     assert.equal(three.n, 3, "Two closures and one reopening remain distinct");
+    const oldTables = [
+      "recruitment_case",
+      "recruitment_case_event",
+      "recruitment_case_event_revision",
+      "recruitment_case_lifecycle",
+      "recruitment_closure_revision",
+    ];
+    const snapshot = async () =>
+      Promise.all(
+        oldTables.map((table) =>
+          upgrade!.unsafe(`select * from public.${table} order by id`),
+        ),
+      );
+    const beforeCatalog = await snapshot();
+    await apply(journal.entries[11].tag);
+    assert.deepEqual(
+      await snapshot(),
+      beforeCatalog,
+      "CC migration preserves all previous cases, facts, revisions, closure cycles and identities",
+    );
+    for (const table of [
+      "catalog_profile",
+      "catalog_relation",
+      "catalog_command",
+    ]) {
+      const catalogCounts: { n: number }[] = await upgrade.unsafe(
+        `select count(*)::int n from public.${table}`,
+      );
+      assert.equal(
+        catalogCounts[0].n,
+        0,
+        "CC upgrade must never infer profiles or links from historical facts",
+      );
+    }
   } finally {
     if (upgrade) await upgrade.end();
     if (created) await admin`drop database ${admin(database)}`;

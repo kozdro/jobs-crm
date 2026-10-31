@@ -65,9 +65,13 @@ export function AppShell({
   }, []);
   const currentModule = pathname.startsWith("/recruitments")
     ? "Rekrutacje"
-    : pathname === "/account"
-      ? "Konto"
-      : "Dashboard";
+    : pathname.startsWith("/companies")
+      ? "Firmy"
+      : pathname.startsWith("/contacts")
+        ? "Kontakty"
+        : pathname === "/account"
+          ? "Konto"
+          : "Dashboard";
   return (
     <div className="flex min-h-dvh">
       <a

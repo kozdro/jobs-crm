@@ -51,3 +51,7 @@ BR-007/015/016 i BR-005/006 rozszerza zatwierdzony [kontrakt korekt](../technica
 ## Closure & Reopening 3C — DEC-057
 
 BR-008/010/012: [3C](../technical/recruitment-lifecycle-3c.md) zatwierdza osiem wyników, jawne zakończenie i wznowienie, kolejne odrębne ClosureRecord oraz audytowane korekty wyniku/dnia. Nie aplikowano dotyczy wyłącznie zamykanego cyklu (przynależność komendy, nie dzień faktu). Wznowienie nie nadpisuje wyników, nie dopisuje fikcyjnej aplikacji/zaproszenia i przywraca tylko stan uzasadniony ważnymi faktami. Zakończone bez bieżącego etapu; snapshot kontekstu zachowany. BR-011 nadal obowiązuje: ograniczenie bez otwartych Task/CalendarEvent dotyczy wyłącznie 3C, przyszłe moduły muszą integrować decyzje o każdym elemencie. BR-007/015/016: korekty zakończeń zachowują oryginały i audyt, bez nowych aktywności; korekty starych faktów nie otwierają zamkniętej sprawy.
+
+## Katalog i relacje — DEC-058
+
+BR-001/002/016/018/019/027/028/030 pozostają obowiązujące. [CC 1A/2A/3A](../technical/companies-contacts-analysis.md) dopuszcza jawne opcjonalne relacje i ich audytowaną korektę; samo powiązanie kontaktu nie nadaje udziału w historii. Deduplikacja katalogu ostrzega owner-only po identycznej znormalizowanej nazwie lub e-mailu, pozwala reuse albo świadomy osobny profil; bez automatycznych scaleń lub globalnej unikalności nazw/e-maili. Nowe dopasowanie przy zapisie wymaga ponownego potwierdzenia.

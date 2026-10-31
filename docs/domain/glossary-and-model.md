@@ -87,3 +87,7 @@ Zaproszenie kwalifikujące jest potwierdzonym przez użytkownika faktem zaprosze
 ## Doprecyzowanie 3C — DEC-057
 
 Cykl sprawy: początkowy od utworzenia sprawy, kolejne od jawnego wznowienia. Służy przypisaniu faktycznych aplikacji i konkretnego zakończenia według kolejności zastosowania komend, nie dnia faktu. Nie aplikowano odnosi się do cyklu tego zakończenia. ClosureRecord pozostaje odrębnym zachowanym zakończeniem; korekty wyniku/dnia mają rewizje audytowe zachowujące oryginał. Wznowienie nie nadpisuje dawnych zakończeń, nie jest korektą i nie fabrykuje kontaktu/zaproszenia. Task/CalendarEvent nadal poza lokalnym 3C, BR-011 pozostaje wymagana przy ich przyszłej integracji. [Kontrakt](../technical/recruitment-lifecycle-3c.md).
+
+## Companies & Contacts — DEC-058
+
+[Kontrakt CC](../technical/companies-contacts-analysis.md) zatwierdza nazwę organizacji i nazwę wyświetlaną osoby 1–160 po trim, opcjonalny pojedynczy e-mail osoby do 254 oraz edycję z kontrolą wersji i prywatnym audytem. Relacje M:N Case–Organization z kontekstową rolą pracodawca/agencja (również jawne obie role), Case–Contact i Organization–Contact są opcjonalne. Bieżące powiązanie organizacja–osoba nie potwierdza zatrudnienia ani jego historii. Attach/detach i korekta roli także dla zamkniętej sprawy nie zmieniają statusu, historii i uczestnictwa w faktach. Brak pracodawcy oznacza brak relacji. To nie zatwierdza uczestników źródłowych wydarzeń.

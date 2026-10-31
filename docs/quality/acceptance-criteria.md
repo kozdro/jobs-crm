@@ -317,3 +317,7 @@ AC-AD-002 obejmuje także audyt/rewizje, listę/direct ID/count/relacje/recovery
 | AC-HE-002-06 | Zakończenie/wznowienie i korekta zakończenia zachowują opcjonalny nieprzyszły dzień/unknown oraz odrębny pierwotny czas zapisu. Data nie steruje kolejnością cykli ani bieżącym stanem. | FR-HE-002 |
 
 AC-AD-002 rozszerza się na zakończenia, wznowienia, oryginały i audyt, listy/count/ID/relacje/recovery oraz bezpośredni Data API A/B/anon. AC-HE-001-01 obejmuje nową historię, paginację, błędy nieudające pustego stanu i czytelne oznaczenia korekt. AC-LC-018 i pełny TC-012 pozostają poza wykonaniem lokalnego zakresu bez otwartych Task/CalendarEvent; BR-011 nie jest uchylona. AC-LC-021 częściowe lista/detal bez Global Search.
+
+## Companies & Contacts — operacyjny kontrakt DEC-058
+
+AC-CC-001–006/008/011 i podzakres AC-AD-002 są w zakresie [1A/2A/3A](../technical/companies-contacts-analysis.md). Weryfikacja musi objąć korekty i audyt danych/relacji, semantykę ról, warning/reuse/świadomy osobny profil, idempotencję i wyścigi, paginację list i selektorów, real A/B/anon oraz bezpośredni Data API/RPC. Żadna zmiana katalogu nie zmienia lifecycle ani nie nadaje uczestnictwa w zdarzeniu. AC-CC-007/009/010 pozostają NOT RUN; pozytywne profilowe listy nie są testem historii osoby. Wyniki wykonania osobno od tego kontraktu.

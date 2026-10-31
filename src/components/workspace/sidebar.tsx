@@ -22,8 +22,8 @@ const modules: { name: string; icon: LucideIcon; href?: string }[] = [
   { name: "Zadania", icon: ListTodo },
   { name: "Kalendarz", icon: CalendarDays },
   { name: "Dokumenty", icon: Files },
-  { name: "Firmy", icon: Building2 },
-  { name: "Kontakty", icon: UsersRound },
+  { name: "Firmy", icon: Building2, href: "/companies" },
+  { name: "Kontakty", icon: UsersRound, href: "/contacts" },
 ];
 
 export function SidebarNavigation({

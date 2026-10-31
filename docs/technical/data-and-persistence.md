@@ -53,3 +53,7 @@ Rozszerzenie istniejącej sprawy i append-only faktów o kwalifikujące zaprosze
 ## DATA-01 — History Corrections, DEC-056
 
 Addytywne rozszerzenie historii 3A/3B o immutable oryginały i audyt korekt/terminalnych unieważnień, atomowo uzgodniony stan i monotoniczną współbieżność całej sprawy. Zachować klucze zamiaru i oryginalne wyniki; replay nie stosuje dawnych skutków. [Zatwierdzony kontrakt 1A/2A](history-corrections-integrity-analysis.md). Bez zmiany starych migracji, backfillu faktów i resetu persistent DEV.
+
+## Companies & Contacts — DEC-058
+
+[Zatwierdzony kontrakt CC](companies-contacts-analysis.md) rozszerza DATA-01 o katalog profili i jawne M:N. Pola, role, kardynalności i korekty rozstrzygnięte 1A/2A/3A, bez event_participant. Addytywny ledger produktu i user-scoped Data API/RLS; audyt i rejestr zamiarów chronione przed bezpośrednią manipulacją. Same-owner klucz/payload odtwarza wynik, inny payload konflikt; stary retry nie odtwarza odłączonej relacji. UUID RecruitmentCase i jego historia pozostają nienaruszone.
