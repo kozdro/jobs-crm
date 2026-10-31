@@ -1,5 +1,7 @@
 # Mapa dokumentacji — Jobs CRM
 
+Po potwierdzonym merge PR #19: [Recruitment Workspace - analiza SDD i plan](technical/recruitment-workspace-analysis.md), **APPROVED 1A/2A - DEC-059**. Read-only Workspace, implementacja i osobny PR autoryzowane; bez DnD, merge/deploymentu i persistent DEV. Wyniki w raporcie wykonania.
+
 Następny slice po merge PR #18: [Companies & Contacts — analiza SDD i plan](technical/companies-contacts-analysis.md), **APPROVED 1A/2A/3A — DEC-058**, wykonanie i osobny PR autoryzowane; bez merge/deploymentu.
 
 | Pytanie | Autorytatywny dokument |

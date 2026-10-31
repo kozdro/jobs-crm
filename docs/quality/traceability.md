@@ -282,3 +282,7 @@ Kontrakt i plan: [CC](../technical/companies-contacts-analysis.md). Wyniki wykon
 ### Wykonanie CC — 2026-10-31
 
 [Raport](../technical/companies-contacts-report.md) i [QA](../technical/companies-contacts-qa.md): PASS FR/AC-CC-001–006/008/011 w zatwierdzonym zakresie DEC-058, podzakres AD-002, unit333+87, pełny runner105/105 integration i92/92 browser, natural exit0. Niezależne review domknęło1P1+4P2 i oceniło późniejsze delty. AC-CC-007/009/010, pełne TC-019/025/034 oraz publiczny produkt nadal poza tym dowodem. Hosted CI odrębnie dla exact PR head.
+
+## Recruitment Workspace — DEC-059
+
+FR/AC-RW-001–007/009 i sufiksy RW-005-01, RW-006-01–03, RW-009-01–02 → UC/TC-027 częściowo → [kontrakt](../technical/recruitment-workspace-analysis.md), [UX](../ux/recruitment-workspace-slice.md). BR-003/005/006/007/008/011/015/016/027/028/030 i AD-002 to niezmienniki/regresje. Dedykowane workspace unit/integration/E2E; wyniki osobno. RW-008 poza przyrostem, RW-010 zachowuje istniejący detal, RW-011 tylko wdrożony kontekst.

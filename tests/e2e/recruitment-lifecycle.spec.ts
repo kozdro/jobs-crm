@@ -140,7 +140,7 @@ test("LC005/006/014 HE001/002: three explicit real facts, status list/detail/rel
   await expect(history(page).getByRole("listitem")).toHaveCount(3);
   await page.goto(`${target.appOrigin}/recruitments`);
   const row = page.getByRole("listitem").filter({
-    has: page.getByRole("link", { name: saved.title, exact: true }),
+    has: page.getByRole("button", { name: saved.title, exact: true }),
   });
   await expect(row).toContainText("Kontakt rozpoczęty");
 });

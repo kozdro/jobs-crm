@@ -262,3 +262,7 @@ FR-LC-016/017/019 i HE-001/002/003: [3C](../technical/recruitment-lifecycle-3c.m
 ## Companies & Contacts — zatwierdzony podzakres DEC-058
 
 FR-CC-001–006/008/011 i FR-AD-002: [kontrakt 1A/2A/3A](../technical/companies-contacts-analysis.md) obejmuje prywatne listy/profile/create/edit, nazwy 1–160 po trim i opcjonalny e-mail kontaktu do 254, wersjonowanie/audyt, jawne opcjonalne relacje M:N z kontekstowymi rolami organizacji, attach/detach/korektę roli również dla zakończonych spraw. Deduplikacja owner-only po nazwie/e-mailu wymaga potwierdzenia nowego dopasowania przy zapisie; reuse nie aktualizuje automatycznie profilu. FR-CC-007/009/010 i historyczne uczestnictwo pozostają poza wykonaniem tego przyrostu.
+
+## Workspace DEC-059
+
+PO zatwierdził 1A/2A z [kontraktu](../technical/recruitment-workspace-analysis.md). FR-RW-001–007/009: read-only Kanban/lista/drawer; statusy OR, bezpośrednie aktywne relacje organizacji/osoby AND, filtrowanie przed paginacją, czas dodania asc/desc z remisem ID, presety Wszystkie/Aktywne/Zakończone i odtwarzanie kontekstu. Bez DnD, reorder i nowych komend lifecycle. RW-011 i operacyjny drawer pozostają szerszym zakresem; wyniki osobno.

@@ -694,3 +694,7 @@ Pełny TC-012 z otwartymi zadaniami i przyszłym wydarzeniem NIE JEST wykonywany
 ## Adaptacja Companies & Contacts — DEC-058
 
 Plan QA [CC](../technical/companies-contacts-analysis.md) obejmuje TC-006/008/014 (podzbiór relacji do istniejących spraw), TC-025 (samodzielny kontakt, bez komunikacji) i TC-034 (nowe katalogi/relacje/audyt/metadata, bez dokumentów/Search). TC-019 i dodatnie scenariusze historii osoby poza zakresem. Wymagane negatywne regresje: link osoby nie dziedziczy zdarzeń, afiliacja nie wynika ze wspólnej sprawy, role i zamknięcia nie zmieniają się po attach/detach. Nowe testy wykonuje QA; niniejszy wpis sam nie oznacza PASS.
+
+## UC/TC-027 — podzakres Workspace DEC-059
+
+Kanban/lista → filtry/presety/sort/strony → read-only drawer → istniejący detal → powrót ze stanem i zamkniętym drawerem. Ponad25 spraw w kolumnie/globalnie, profile filtrów poza pierwszą stroną, M:N bez duplikacji/inferencji, OR/AND, remisy sortu, puste dopasowanie vs błąd, wyścig odpowiedzi ID, klawiatura/mobile. Snapshoty lifecycle/closure/relacji bez zmian; B/anon bez danych i metadanych A również po ID. DnD i edycja drawera poza wykonaniem; RW-011/TC-027 bez pełnego pokrycia przyszłych kontekstów. Wyniki osobno.

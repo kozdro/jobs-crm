@@ -403,7 +403,7 @@ test("RW/AD partial: own list/details, indistinguishable B/missing IDs, no priva
     const row = await complete(pa, title);
     await pa.goto(`${target.appOrigin}/recruitments`);
     await expect(
-      pa.getByRole("link", { name: title, exact: true }),
+      pa.getByRole("button", { name: title, exact: true }),
     ).toBeVisible();
     await pb.goto(`${target.appOrigin}/recruitments`);
     await expect(pb.getByText(title, { exact: true })).not.toBeVisible();
@@ -605,28 +605,30 @@ test("Own list limits pages to25 and orders tied technical timestamps by stable 
     right.id.localeCompare(left.id),
   );
   await login(page, owner);
-  await page.goto(`${target.appOrigin}/recruitments`);
+  await page.goto(`${target.appOrigin}/recruitments?view=list`);
   const caseLinks = page
     .getByRole("list", { name: "Sprawy rekrutacyjne", exact: true })
-    .getByRole("heading", { level: 2 })
-    .getByRole("link");
+    .getByRole("heading", { level: 3 })
+    .getByRole("button");
   await expect(caseLinks).toHaveCount(25);
   expect(await caseLinks.allTextContents()).toEqual(
     expected.slice(0, 25).map((row) => row.title),
   );
   await page
-    .getByRole("link", { name: "Następna strona", exact: true })
+    .getByRole("button", { name: "Dalsze wyniki", exact: true })
     .click();
-  await expect(page).toHaveURL(`${target.appOrigin}/recruitments?page=2`);
+  await expect
+    .poll(() => new URL(page.url()).searchParams.get("page"))
+    .toBe("2");
   await expect(caseLinks).toHaveCount(2);
   expect(await caseLinks.allTextContents()).toEqual(
     expected.slice(25).map((row) => row.title),
   );
   await expect(
-    page.getByRole("link", { name: "Następna strona", exact: true }),
+    page.getByRole("button", { name: "Dalsze wyniki", exact: true }),
   ).not.toBeVisible();
   await page
-    .getByRole("link", { name: "Poprzednia strona", exact: true })
+    .getByRole("button", { name: "Poprzednia strona", exact: true })
     .click();
   await expect(caseLinks).toHaveCount(25);
   expect(await caseLinks.allTextContents()).toEqual(

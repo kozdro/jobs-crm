@@ -1,90 +1,59 @@
-import Link from "next/link";
+import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
 import { Workspace } from "@/components/recruitment/workspace";
-import { CaseListItem } from "@/components/recruitment/case-content";
+import { RecruitmentWorkspace } from "@/components/recruitment/recruitment-workspace";
 import {
   getTrustedUser,
   getServerClient,
 } from "@/modules/identity/infrastructure/server";
-import { listRecruitmentCases } from "@/modules/recruitment/application/cases";
+import { loadWorkspace } from "@/modules/recruitment/application/workspace-read";
+import {
+  defaultWorkspaceQuery,
+  parseWorkspaceQuery,
+  type WorkspaceData,
+} from "@/modules/recruitment/domain/workspace";
 export const dynamic = "force-dynamic";
 
 export default async function RecruitmentListPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string | string[] }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const user = await getTrustedUser();
   if (!user) redirect("/login");
-  const query = await searchParams;
-  const raw = query.page;
-  const page =
-    typeof raw === "string" && /^[1-9][0-9]{0,5}$/.test(raw) ? Number(raw) : 1;
-  let result: Awaited<ReturnType<typeof listRecruitmentCases>> | null = null;
+  const values = await searchParams;
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(values)) {
+    if (Array.isArray(value))
+      for (const item of value) params.append(key, item);
+    else if (value !== undefined) params.set(key, value);
+  }
+  let query = defaultWorkspaceQuery();
+  let invalidQuery = false;
   try {
-    result = await listRecruitmentCases(await getServerClient(), page);
+    query = parseWorkspaceQuery(params);
   } catch {
-    /* Render a neutral error, never an empty success. */
+    invalidQuery = true;
+  }
+  let data: WorkspaceData | null = null;
+  try {
+    data = await loadWorkspace(await getServerClient(), query);
+  } catch {
+    /* A failed read is not an empty collection. */
   }
   return (
     <Workspace
       userId={user.id}
       title="Rekrutacje"
-      description="Twoje zapisane sprawy, od najnowszej."
+      description="Przeglądaj sprawy i ich kontekst. Zmiany wykonasz na pełnej stronie sprawy."
     >
-      {!result ? (
-        <p
-          role="alert"
-          className="rounded-lg border border-destructive bg-destructive-surface p-5 text-sm text-destructive"
-        >
-          Nie udało się pobrać spraw. Odśwież stronę i spróbuj ponownie.
-        </p>
-      ) : (
-        <>
-          {result.cases.length === 0 ? (
-            <section className="ui-panel p-6 sm:p-9">
-              <h2 className="text-lg font-semibold">
-                {page === 1
-                  ? "Nie masz jeszcze spraw"
-                  : "Brak spraw na tej stronie"}
-              </h2>
-              <p className="mt-2 text-sm text-muted-foreground">
-                {page === 1
-                  ? "Wybierz „Dodaj”, aby zapisać pierwszą sprawę."
-                  : "Wróć do poprzedniej strony lub początku listy."}
-              </p>
-            </section>
-          ) : (
-            <ul aria-label="Sprawy rekrutacyjne" className="ui-panel">
-              {result.cases.map((item) => (
-                <CaseListItem key={item.id} item={item} />
-              ))}
-            </ul>
-          )}
-          <nav
-            aria-label="Strony listy spraw"
-            className="mt-5 flex flex-wrap items-center gap-5 text-sm text-muted-foreground"
-          >
-            {page > 1 && (
-              <Link
-                href={`/recruitments?page=${page - 1}`}
-                className="ui-link inline-flex min-h-11 items-center"
-              >
-                Poprzednia strona
-              </Link>
-            )}
-            <span>Strona {page}</span>
-            {result.hasMore && (
-              <Link
-                href={`/recruitments?page=${page + 1}`}
-                className="ui-link inline-flex min-h-11 items-center"
-              >
-                Następna strona
-              </Link>
-            )}
-          </nav>
-        </>
-      )}
+      <RecruitmentWorkspace
+        key={`${user.id}:${randomUUID()}`}
+        userId={user.id}
+        initialQuery={query}
+        initialData={data}
+        invalidQuery={invalidQuery}
+      />
     </Workspace>
   );
 }
