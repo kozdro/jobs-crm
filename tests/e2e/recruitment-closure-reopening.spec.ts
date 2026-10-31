@@ -479,8 +479,10 @@ test("DEC057 unavailable durable storage refuses POST; later committed lost resp
   });
   await openClose(page);
   await confirm(page);
-  await expect(page.getByRole("alert")).toBeVisible();
-  await expect(page.getByRole("alert")).toContainText("Nie wysłano operacji.");
+  await expect(page.getByRole("main").getByRole("alert")).toBeVisible();
+  await expect(page.getByRole("main").getByRole("alert")).toContainText(
+    "Nie wysłano operacji.",
+  );
   expect(confirms).toHaveLength(0);
   expect(await lifecycleRows(c)).toHaveLength(0);
   await page
@@ -511,13 +513,13 @@ test("DEC057 unavailable durable storage refuses POST; later committed lost resp
   await page
     .getByRole("button", { name: "Zatwierdź zakończenie", exact: true })
     .click();
-  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(page.getByRole("main").getByRole("alert")).toBeVisible();
   expect(confirms).toHaveLength(0);
   await consent.check();
   await page
     .getByRole("button", { name: "Zatwierdź zakończenie", exact: true })
     .click();
-  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(page.getByRole("main").getByRole("alert")).toBeVisible();
   expect(confirms).toHaveLength(1);
   expect(confirms[0]).toMatchObject({
     outcome: "Rezygnacja użytkownika",
@@ -540,7 +542,9 @@ test("DEC057 unavailable durable storage refuses POST; later committed lost resp
     .getByRole("button", { name: "Potwierdź porzucenie", exact: true })
     .click();
   await page.getByRole("button", { name: /^(Zakończ|Wznów) sprawę$/ }).click();
-  await expect(page.getByRole("alert")).toContainText("Najpierw sprawdź wynik");
+  await expect(page.getByRole("main").getByRole("alert")).toContainText(
+    "Najpierw sprawdź wynik",
+  );
   expect(confirms).toHaveLength(1);
   await page.unroute("**/recruitments/lifecycle-commands");
   await page.reload();
