@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "cleanupExit": 0,
+  "removedTargets": [
+    "lifecycle-3c-r1",
+    "lifecycle-3c-r2",
+    "lifecycle-3c-r3"
+  ],
+  "originalCount": 28,
+  "finalCount": 28,
+  "missingOriginal": [],
+  "changedOriginal": [],
+  "beforeInventorySha256": "2a49f6c1b10c5449411950ef1e74f81aac190486a6e37bf769ec9061704c818f",
+  "afterInventorySha256": "2a49f6c1b10c5449411950ef1e74f81aac190486a6e37bf769ec9061704c818f",
+  "sameInventoryIgnoringOrder": true
+}

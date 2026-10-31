@@ -1,0 +1,4 @@
+Recruitment production-build: {"exit":0,"bytes":1052,"sha256":"613759a160dd1b2f6d37ab09eb09d47be11007e5b24b467e2d7ce499486b33bd","counts":{},"observations":[]}
+Recruitment business-integration: {"exit":0,"bytes":10132,"sha256":"b26a2ddd0a2e43502ee60e88e6e259c9bdb1ff057810750c0ee3cdfe67fe8c77","counts":{"tests":83,"passed":83,"failed":0,"cancelled":0,"skipped":0},"observations":[]}
+Recruitment business-HTTPS-browser: {"exit":0,"bytes":12059,"sha256":"b9d43bb8b1428f1264d3954aba2ac51b253ba3099e92828f496d5d7959501cf5","counts":{"passed":73},"observations":[]}
+Recruitment target retained for explicit inspection/cleanup: lifecycle-3c-r3

@@ -29,3 +29,7 @@ Organizować kolejne działania i przypomnienia dotyczące spraw lub pracy ogól
 ## OPEN
 
 `OPEN-008/OPEN-009/OPEN-029/OPEN-040` — wartości progów, preferencje, dokładne statusy i efekty rozwiązania zadań; kanał e-mail wymaga także Technical Discovery/security.
+
+## Recruitment Lifecycle 3C — DEC-057
+
+[Zatwierdzony kontrakt i plan](../technical/recruitment-lifecycle-3c.md): jawne zakończenie z wynikiem, wznowienie kontynuacji i kolejne odrębne zakończenia. Nie aplikowano dotyczy cyklu konkretnego zakończenia. Audytowane korekty wyniku/dnia zachowują oryginały bez fikcyjnych zdarzeń. Zakończone bez bieżącego etapu, snapshot zachowany; wznowienie ma preview ważnej podstawy. Korekta 3A/3B nie otwiera sprawy. UI: wymagany wynik bez domyślnego, świadome potwierdzenie oferty, opcjonalny dzień/unknown, cancel bez skutków, konflikt wymaga nowego podglądu, odzyskanie identycznego zamiaru, audyt przy zakończeniu. Tylko lokalny zakres bez otwartych Task/CalendarEvent; BR-011 pozostaje wymagana dla przyszłych modułów. Pełny TC-012/Global Search i publiczne bramki poza pokryciem. Addytywny ledger, bez resetu persistent DEV. Implementacja i osobny PR autoryzowane, bez merge/deploymentu; wyniki weryfikacji raportowane osobno.

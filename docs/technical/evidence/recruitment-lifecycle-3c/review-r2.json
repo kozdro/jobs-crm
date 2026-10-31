@@ -1,0 +1,50 @@
+[
+  {
+    "role": "backend-reviewer",
+    "session": "01a1924e-09b6-7301-8870-0e63cf9dd1dc",
+    "candidate": "91fcbee446b0761801aef3a538b023d76bf29e06",
+    "previous": "ecf3e8f3220d133cca76ac3c3f9913466722cd78",
+    "status": "PASS",
+    "receipt": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "062441b1bd395d815aa505aee3f5b2134e70382e093c7a430c7912bb375cbfc9",
+      "candidateAfter": "062441b1bd395d815aa505aee3f5b2134e70382e093c7a430c7912bb375cbfc9"
+    },
+    "report": "**PASS — statyczny backend re-review. Brak nowych findings P0/P1/P2/P3. Runtime: NOT RUN.**\n\nUruchomiono dokładnie jednego natywnego subagenta: **generic subagent + canonical role `backend-reviewer`**, bez typed profile. Odczytano AGENTS.md, workflow, rolę i zastosowano `review-change`.\n\nOceniono `ecf3e8f..91fcbee446b0761801aef3a538b023d76bf29e06` oraz otaczające kontrakty DEC-057.\n\n- Backend/SQL nie zmieniły się od poprzedniego PASS.\n- Rozszerzenia QA zachowują wcześniejsze pokrycie. Per-column spoof sprawdza brak częściowych zapisów; pozytywny INSERT i replay wykluczają pozorny sukces przez zablokowanie wszystkich insertów.\n- Test legacy `NULL` prawidłowo rozróżnia stare zakończenie i późniejszy cykl.\n- Zmiana frontendu wymaga zapisania i odczytania dokładnego zamiaru przed confirm POST; błąd storage blokuje POST, a inny pending nie jest nadpisywany.\n\nPoprzednie findings:\n\n| Finding | Status |\n|---|---|\n| P2: storage throw → utrata zamiaru po abandon | **CLOSED statycznie** |\n| P2: błędne oczekiwanie tekstu E2E | **CLOSED statycznie** |\n\nDodane regresje wymagają potwierdzenia wykonania na finalnym kandydacie. Wcześniejszy browser FAIL nie staje się PASS przez sam review; finalne dowody r5 pozostają warunkiem zamknięcia.\n\nNie uruchomiono testów ani nie zmodyfikowano plików. Końcowy HEAD jest zgodny z kandydatem, working tree czyste. Ocena nie zastępuje frontend/security review.",
+    "testsExecutedByReviewer": false
+  },
+  {
+    "role": "frontend-reviewer",
+    "session": "01a1924e-09b6-79f2-a5d6-27a90ae027a9",
+    "candidate": "91fcbee446b0761801aef3a538b023d76bf29e06",
+    "previous": "ecf3e8f3220d133cca76ac3c3f9913466722cd78",
+    "status": "FAIL",
+    "receipt": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "062441b1bd395d815aa505aee3f5b2134e70382e093c7a430c7912bb375cbfc9",
+      "candidateAfter": "062441b1bd395d815aa505aee3f5b2134e70382e093c7a430c7912bb375cbfc9"
+    },
+    "report": "**FAIL — oba poprzednie P2 zamknięte statycznie, wykryto jedno nowe P2.**\n\nOceniono `ecf3e8f..91fcbee446b0761801aef3a538b023d76bf29e06` i otaczające kontrakty, stosując `review-change`. Uruchomiono dokładnie jednego **generic subagent + canonical role `frontend-reviewer`**; zaczekano na findings. Bez zmian plików i bez uruchamiania testów.\n\n**Nowe finding**\n\n**P2 | [lifecycle.tsx:274](/private/tmp/jobs-crm-3c-review-r2/src/components/recruitment/lifecycle.tsx:274)** — po odmowie storage pozostaje `frozen.current`. „Wróć do danych” resetuje preview i potwierdzenie, ale nie frozen command. Użytkownik może zmienić wynik/dzień i pobrać nowy podgląd. Po przywróceniu storage kolejny zapis wysyła **poprzedni payload**, pomijając ponowną kontrolę `confirmed`.\n\nSkutek: zapis danych innych niż pokazane w nowym podglądzie, możliwy bez ponownego potwierdzenia. Podstawa: DEC-057, jawny preview/confirm, FR-LC-016/017/019, AC-LC-014-05. Zalecenie: zapewnić spójne odmrożenie niewysłanego zamiaru albo pozostawić wyłącznie jawny retry starego payloadu; dodać regresję obejmującą powrót, edycję i ponowne potwierdzenie.\n\n**Poprzednie findings**\n\n- **CLOSED:** storage throw/lost response/abandon. Gate wymaga zapisu i dokładnego odczytu zamiaru przed POST, odmawia nadpisania innego pending. Helper unit i nowy E2E pokrywają pierwotną ścieżkę.\n- **CLOSED statycznie:** asercja używa teraz „Data zdarzenia nieznana”, zgodnie z UI.\n\nNowy browser regression poprawnie sprawdza zero POST przy storage throw, następnie rzeczywisty commit z utraconą odpowiedzią, abandon i recovery po reload. Nie obejmuje nowego P2. Sprawdzono również markery read-only/retry, ochronę nowszego pending oraz obsługę późnych odpowiedzi i remount.\n\n**Status:** statyczny przegląd wykonany; frontend **FAIL**. Testy, build, lint i typecheck w tej sesji **NOT RUN**. Przekazane wyniki zewnętrzne nie zamykają finalnego runtime ani oczekującego r5. TaskCalendar, Global Search i pełny TC-012 pozostają poza zakresem.",
+    "testsExecutedByReviewer": false
+  },
+  {
+    "role": "security-reviewer",
+    "session": "01a1924e-09b6-7e43-b47e-765ae3fff41d",
+    "candidate": "91fcbee446b0761801aef3a538b023d76bf29e06",
+    "previous": "ecf3e8f3220d133cca76ac3c3f9913466722cd78",
+    "status": "FAIL",
+    "receipt": {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "062441b1bd395d815aa505aee3f5b2134e70382e093c7a430c7912bb375cbfc9",
+      "candidateAfter": "062441b1bd395d815aa505aee3f5b2134e70382e093c7a430c7912bb375cbfc9"
+    },
+    "report": "**FAIL — nowe finding P2** dla `91fcbee446b0761801aef3a538b023d76bf29e06`, diff `ecf3e8f..91fcbee`.\n\n**P2 — stara komenda może zostać wysłana mimo zmienionego podglądu i braku ponownego potwierdzenia.**  \nLokalizacja: [lifecycle.tsx:274](/private/tmp/jobs-crm-3c-review-r2/src/components/recruitment/lifecycle.tsx:274), powiązane linie 255–273, 286–292 i 589–593.\n\n- **Trigger:** potwierdź wynik A → storage rzuca, zero POST → „Wróć do danych” → zmień wynik na B → pobierz podgląd B → przywróć storage → kliknij zatwierdzenie.\n- **Skutek:** `frozen.current` nadal zawiera A. `save()` pomija walidację nowego draftu i `confirmed`, wysyłając A nawet przy niezaznaczonym checkboxie.\n- **Podstawa:** DEC-057, AC-LC-014-05 i kontrakt jawnego preview/confirm.\n- **Rekomendacja:** rozdzielić odmowę przed POST od niepewnego wyniku wysłanej operacji. Edycja po gwarantowanym zero POST musi unieważniać starą komendę i wymagać aktualnego potwierdzenia. Dodać regresję tej ścieżki; obecny test odmontowuje formularz, więc jej nie obejmuje.\n\nPoprzednie findings:\n\n| Finding | Status |\n|---|---|\n| Storage throw pozwalał wysłać operację bez trwałego zamiaru | **CLOSED statycznie** |\n| Błędna asercja tekstu nieznanej daty | **CLOSED statycznie** |\n\n**PASS statycznie:** dokładny readback owner/case/request/command przed POST, ochrona innego pending, osobne próby spoofingu kolumn z kontrolą braku mutacji, pozytywny INSERT/replay oraz rozróżnienie legacy NULL między cyklami. SQL/backend nie zmienił się w delcie; granice ADR-0012 zachowane.\n\nUruchomiono dokładnie jednego natywnego subagenta: **generic subagent + canonical role `security-reviewer`**, bez typed profile. Odczytał wymagane instrukcje i zwrócił findings; niezależnie potwierdził powyższy P2.\n\n**NOT RUN:** wszystkie testy w tej sesji. Wyniki wcześniejszych runnerów nie potwierdzają końcowego runtime kandydata; r5 pozostaje niezweryfikowany. Task/Calendar, Search i pełny TC-012 poza zakresem. Nie zmieniono plików.",
+    "testsExecutedByReviewer": false
+  }
+]

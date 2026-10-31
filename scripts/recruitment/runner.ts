@@ -268,6 +268,7 @@ try {
       "tests/integration/recruitment/lifecycle.test.ts",
       "tests/integration/recruitment/stages.test.ts",
       "tests/integration/recruitment/history-corrections.test.ts",
+      "tests/integration/recruitment/closure-reopening.test.ts",
     ],
     env,
     "business-integration",

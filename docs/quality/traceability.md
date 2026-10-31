@@ -251,3 +251,19 @@ Wyniki poszczególnych komend, screenshoty, kandydat i ograniczenia są w raporc
 | FR-AD-002 | AC-AD-002 | owner A/B/anon, audit/ID/count/relacje/Data API/recovery |
 
 APPROVED podzakres DEC-056, testy i review nie wynikają ze statusu decyzji. Raport wykonania: [History Corrections & Integrity](../technical/history-corrections-integrity-report.md).
+
+## Lifecycle 3C — DEC-057
+
+Wyniki: [raport](../technical/recruitment-lifecycle-3c-report.md), [QA](../technical/recruitment-lifecycle-3c-qa.md). Lokalne 291+87 unit, 83/83 integracje, 73/73 HTTPS browser PASS na produkcie 33c/testach 252; niezależne review PASS w opisanych niezmienionych zakresach. Pełne TC-012 i Search poza pokryciem. Bez merge/deploymentu.
+
+| FR | AC | Scenariusz / granica |
+|---|---|---|
+| FR-LC-016 | AC-LC-016/-01/-02/-03/-04 | podzakres UC/TC-012: wynik, potwierdzenie oferty, aplikacje w cyklu |
+| FR-LC-017/019 | AC-LC-017/-01/-02/-03, LC-019/-01/-02/-03 | UC/TC-013: close/reopen/close, audyt zakończeń, oryginalne snapshoty |
+| FR-LC-015/014 | AC-LC-015-04, LC-014-05 | regresje DEC-056, bariera zamknięcia, concurrency/replay/recovery |
+| FR-HE-001/002/003 | AC-HE-001-01, HE-002-06, HE-003-04 | historia/unknown/day/registration, rewizje bez nowej aktywności |
+| FR-AD-002 | AC-AD-002 | A/B/anon list/ID/count/relacje/audyt/recovery/Data API |
+| FR-LC-018/TN-011 | AC-LC-018, AC-TN-011 | pełny TC-012 NOT RUN: 3C wyłącznie bez otwartych Task/CalendarEvent; BR-011 zachowana |
+| FR-LC-021 | AC-LC-021 częściowo | lista/detal; Global Search poza zakresem |
+
+[Kontrakt i plan](../technical/recruitment-lifecycle-3c.md). Zatwierdzenie nie jest dowodem testów; wyniki osobno.

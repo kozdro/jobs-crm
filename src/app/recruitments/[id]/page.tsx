@@ -3,7 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { Workspace } from "@/components/recruitment/workspace";
 import { CaseEventForm } from "@/components/recruitment/case-event-form";
 import { CaseHistory } from "@/components/recruitment/case-history";
-import { listRecruitmentCaseEvents } from "@/modules/recruitment/application/case-events";
+import { listRecruitmentTimeline } from "@/modules/recruitment/application/lifecycle";
+import { LifecycleActions } from "@/components/recruitment/lifecycle";
 import { CaseContent } from "@/components/recruitment/case-content";
 import {
   getTrustedUser,
@@ -41,10 +42,10 @@ export default async function RecruitmentDetailPage({
     typeof rawPage === "string" && /^[1-9][0-9]{0,5}$/.test(rawPage)
       ? Number(rawPage)
       : 1;
-  let history: Awaited<ReturnType<typeof listRecruitmentCaseEvents>> | null =
+  let history: Awaited<ReturnType<typeof listRecruitmentTimeline>> | null =
     null;
   try {
-    history = await listRecruitmentCaseEvents(
+    history = await listRecruitmentTimeline(
       await getServerClient(),
       id,
       historyPage,
@@ -63,6 +64,12 @@ export default async function RecruitmentDetailPage({
       </Link>
       <section className="min-w-0" aria-label="Zapisane dane sprawy">
         <CaseContent item={item} />
+        <LifecycleActions
+          key={`${user.id}:${item.id}`}
+          userId={user.id}
+          caseId={item.id}
+          status={item.status}
+        />
         <CaseEventForm
           userId={user.id}
           caseId={item.id}

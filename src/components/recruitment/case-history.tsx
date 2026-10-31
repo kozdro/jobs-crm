@@ -2,6 +2,12 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
+import type { TimelineItem } from "@/modules/recruitment/application/lifecycle";
+import { LifecycleHistoryEntry } from "./lifecycle";
+import {
+  lifecycleIntentStorageKey,
+  parseLifecycleIntent,
+} from "./lifecycle-intent";
 import {
   HistoryAudit,
   HistoryCorrections,
@@ -27,7 +33,16 @@ export function caseEventLabel(event: Pick<CaseEvent, "kind" | "direction">) {
     ? "Kontakt przychodzący"
     : "Kontakt wychodzący";
 }
-type Editing = { id: string; operation: "correct" | "void" } | null;
+type Editing = {
+  id: string;
+  operation: "correct" | "void" | "correct-closure";
+} | null;
+type HistoryResult =
+  | { events: CaseEvent[]; page: number; hasMore: boolean }
+  | { entries: TimelineItem[]; page: number; hasMore: boolean };
+function timelineDay(item: TimelineItem) {
+  return item.type === "fact" ? item.fact.occurred_on : item.entry.occurred_on;
+}
 type EditControls = { active: Editing; select: (event: Editing) => void };
 function HistoryEntry({
   event,
@@ -36,7 +51,10 @@ function HistoryEntry({
   active,
   select,
 }: { event: CaseEvent; userId?: string; caseId: string } & EditControls) {
-  const editing = active?.id === event.id ? active.operation : null;
+  const editing =
+    active?.id === event.id && active.operation !== "correct-closure"
+      ? active.operation
+      : null;
   const correctionTrigger = useRef<HTMLButtonElement>(null);
   const voidTrigger = useRef<HTMLButtonElement>(null);
   const returnTarget = useRef<"correct" | "void">("correct");
@@ -164,19 +182,37 @@ function HistoryEntries({
   caseId,
   active,
   select,
-}: { events: CaseEvent[]; userId?: string; caseId: string } & EditControls) {
+}: { events: TimelineItem[]; userId?: string; caseId: string } & EditControls) {
   return (
     <ol className="mt-3 divide-y divide-border">
-      {events.map((event) => (
-        <HistoryEntry
-          key={`${userId}:${event.id}`}
-          event={event}
-          userId={userId}
-          caseId={caseId}
-          active={active}
-          select={select}
-        />
-      ))}
+      {events.map((item) =>
+        item.type === "fact" ? (
+          <HistoryEntry
+            key={`${userId}:${item.fact.id}`}
+            event={item.fact}
+            userId={userId}
+            caseId={caseId}
+            active={active}
+            select={select}
+          />
+        ) : (
+          <LifecycleHistoryEntry
+            key={`${userId}:${item.entry.id}`}
+            entry={item.entry}
+            userId={userId}
+            caseId={caseId}
+            editing={
+              active?.id === item.entry.id &&
+              active.operation === "correct-closure"
+            }
+            disabled={Boolean(active)}
+            onEdit={() =>
+              select({ id: item.entry.id, operation: "correct-closure" })
+            }
+            onClose={() => select(null)}
+          />
+        ),
+      )}
     </ol>
   );
 }
@@ -187,7 +223,7 @@ export function CaseHistory({
 }: {
   caseId: string;
   userId?: string;
-  result: { events: CaseEvent[]; page: number; hasMore: boolean } | null;
+  result: HistoryResult | null;
 }) {
   const [active, setActive] = useState<Editing>(null);
   const [locked, setLocked] = useState(false);
@@ -197,6 +233,11 @@ export function CaseHistory({
         if (
           parseHistoryIntent(
             sessionStorage.getItem(`${historyIntentStorageKey}.${caseId}`),
+            userId,
+            caseId,
+          ) ||
+          parseLifecycleIntent(
+            sessionStorage.getItem(`${lifecycleIntentStorageKey}.${caseId}`),
             userId,
             caseId,
           )
@@ -211,10 +252,13 @@ export function CaseHistory({
     setLocked(false);
     setActive(value);
   }
-  const dated =
-    result?.events.filter((event) => event.occurred_on !== null) ?? [];
-  const undated =
-    result?.events.filter((event) => event.occurred_on === null) ?? [];
+  const entries: TimelineItem[] = result
+    ? "entries" in result
+      ? result.entries
+      : result.events.map((fact) => ({ type: "fact", fact }))
+    : [];
+  const dated = entries.filter((item) => timelineDay(item) !== null);
+  const undated = entries.filter((item) => timelineDay(item) === null);
   return (
     <section
       className="ui-panel mt-5 min-w-0 p-5 sm:p-6"
@@ -237,8 +281,8 @@ export function CaseHistory({
       )}
       {locked && (
         <p role="alert" className="mt-3 text-sm text-destructive">
-          Najpierw sprawdź wynik poprzedniej korekty. Nie rozpoczęto nowej
-          zmiany.
+          Najpierw sprawdź wynik poprzedniej zmiany. Nie rozpoczęto nowej
+          operacji.
         </p>
       )}
       {!result ? (
@@ -247,7 +291,7 @@ export function CaseHistory({
         </p>
       ) : (
         <>
-          {result.events.length === 0 ? (
+          {entries.length === 0 ? (
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
               {result.page === 1
                 ? "Nie zarejestrowano jeszcze zdarzeń biznesowych. Samo zapisanie sprawy nie oznacza aplikowania ani kontaktu."

@@ -38,3 +38,7 @@ Kolejność pierwszeństwa i zasady rozwiązywania konfliktów opisuje [standard
 - `DEFERRED`: świadomie poza pierwszym wydaniem lub na późniejszym etapie.
 
 Technical Discovery 1.1–1.40 zakończono (historia zachowana; [rebaseline Auth/SSR 2026-10-29 — ADR-0012](docs/decisions/adr/0012-supabase-native-auth-sessions-rls.md)), a etap prototypu pominięto decyzją właściciela. [Architektura i decyzje techniczne](docs/technical/README.md), [ADR](docs/decisions/adr/README.md), [plan implementacji](docs/technical/implementation-plan.md). **Nie stanowi to zezwolenia na implementowanie niewyjaśnionych wymagań**. Szczegóły: [bramki decyzyjne](docs/decisions/open-questions.md) i [raport audytu](docs/quality/documentation-audit.md).
+
+Recruitment Lifecycle 3C — DEC-057: [zatwierdzony kontrakt i plan](docs/technical/recruitment-lifecycle-3c.md). Closure & Reopening z zachowaniem kolejnych zakończeń i audytem; wykonanie i osobny PR autoryzowane, bez publicznego wdrożenia.
+
+Wyniki 3C: [raport wykonania](docs/technical/recruitment-lifecycle-3c-report.md) i [QA](docs/technical/recruitment-lifecycle-3c-qa.md); lokalnie 291+87 unit, 83/83 integracje, 73/73 HTTPS browser i niezależne review PASS. Bez publicznego wdrożenia.
