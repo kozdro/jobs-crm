@@ -492,8 +492,8 @@ function EventSession({
                     : "Sprawdź poprzedni zapis zdarzenia"}
           </h3>
           <p className="rounded-md border border-warning bg-warning-surface p-3 text-sm leading-6 text-warning">
-            W tym przyroście zapisanych zdarzeń nie można edytować ani usuwać.
-            Sprawdź dane przed potwierdzeniem.
+            Błędny wpis można skorygować lub unieważnić z zachowaniem oryginału
+            i audytu. Sprawdź dane przed potwierdzeniem.
           </p>
           {kind && (
             <>

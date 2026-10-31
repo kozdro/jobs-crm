@@ -39,3 +39,7 @@ Powyższy opis rebaseline pozostaje historią etapu planowania. Późniejsze zle
 ## Lokalny przyrost Lifecycle 3B — 2026-10-30
 
 PO zatwierdził warianty 1A/2A/3A i pełne wykonanie w osobnym PR, bez merge/deploymentu: [DEC-055](../decisions/product-decisions.md), [kontrakt, wpływ i delegacja](recruitment-lifecycle-3b-analysis.md). Baza 94f9628 (merge PR #15), prace izolowane od cudzych zmian oryginalnego worktree. Zaproszenia + W rekrutacji + indywidualne etapy z historią; globalne/default etapy, zamknięcia, wznowienia, korekty i kalendarz pozostają osobnymi zakresami. Publiczne udostępnienie wymaga OPEN-004 i pozostałych zależnych bramek.
+
+## History Corrections & Integrity — DEC-056
+
+PO 2026-10-31 zatwierdził 1A/2A i pełne wykonanie [analizy/planu](history-corrections-integrity-analysis.md), QA, niezależny review i osobny PR. Baza merge PR #16 8729e9e; prace w izolowanym worktree. Bez merge/deploymentu, ingerencji w persistent DEV i cudze zmiany.

@@ -54,7 +54,7 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
     };
     assert.equal(
       journal.entries.length,
-      9,
+      10,
       "Upgrade test must cover the exact current migration history",
     );
     for (const entry of journal.entries.slice(0, 7)) await apply(entry.tag);
@@ -122,6 +122,37 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
       );
       assert.equal(invited.result.kind, "created");
     });
+    const original3bCase =
+      await upgrade`select * from public.recruitment_case where id=${caseId}::uuid`;
+    const original3bFacts =
+      await upgrade`select * from public.recruitment_case_event where case_id=${caseId}::uuid order by recorded_at,id`;
+    await apply(journal.entries[9].tag);
+    const afterIntegrityCase =
+      await upgrade`select * from public.recruitment_case where id=${caseId}::uuid`;
+    const { case_revision, ...casePreserved } = afterIntegrityCase[0];
+    assert.ok(Number.isSafeInteger(case_revision));
+    assert.deepEqual(
+      casePreserved,
+      { ...original3bCase[0] },
+      "Integrity upgrade preserves all existing case fields",
+    );
+    const afterIntegrityFacts =
+      await upgrade`select * from public.recruitment_case_event where case_id=${caseId}::uuid order by recorded_at,id`;
+    assert.deepEqual(
+      afterIntegrityFacts.map(({ applied_case_revision, ...row }) => {
+        assert.equal(applied_case_revision, null);
+        return { ...row };
+      }),
+      original3bFacts.map((row) => ({ ...row })),
+      "Integrity upgrade preserves original 3A/3B facts, timestamps and request keys",
+    );
+    const [revisionCount] =
+      await upgrade`select count(*)::int n from public.recruitment_case_event_revision`;
+    assert.equal(
+      revisionCount.n,
+      0,
+      "Upgrade must not backfill synthetic correction audit",
+    );
     const [continued] =
       await upgrade`select status from public.recruitment_case where id=${caseId}::uuid`;
     assert.equal(

@@ -43,3 +43,7 @@ Reguły nie ustanawiają list domyślnych etapów, wyników zamknięcia, pól fo
 ## Doprecyzowanie lokalnego 3B — DEC-055
 
 BR-005: w autoryzowanym 3B rejestracja zaproszenia i wejście do W rekrutacji są jednym atomowym krokiem; kwalifikację potwierdza użytkownik. BR-006: etap pozostaje odrębny; zmiana etapu w aktywnej rekrutacji zachowuje status i historię, może pomijać pośrednie etapy. Dozwolone kombinacje i walidacje tego podzakresu ustala [DEC-055](../decisions/product-decisions.md); pozostałe OPEN-034 zachowane. BR-015/016: daty i historyczne nazwy nie są nadpisywane ani dopowiadane. Nie dodajemy nowej reguły kwalifikującej aplikację, automatyczne potwierdzenie czy upływ czasu.
+
+## Integralność korekt 3A/3B — DEC-056
+
+BR-007/015/016 i BR-005/006 rozszerza zatwierdzony [kontrakt korekt](../technical/history-corrections-integrity-analysis.md), warianty 1A/2A. Korekta zachowuje oryginał i audyt, nie tworzy aktywności biznesowej. Dzień porządkuje oś, a bieżący etap wynika z pierwotnej kolejności ważnych komend etapowych. Każde ważne przejście wymaga wcześniejszego ważnego zaproszenia. Operacja osierocająca zależność jest odrzucona bez kaskady. Atomowe uzgodnienie statusu/etapu wymaga jawnego podglądu i potwierdzenia, bez dowolnego PATCH. Unieważnienie jest terminalne; nie oznacza anulowania realnego procesu lub spotkania. Snapshot previous_stage pozostaje zapisem pierwotnego kontekstu.

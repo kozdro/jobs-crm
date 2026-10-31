@@ -289,3 +289,16 @@ APPROVED w zakresie DEC-055; stan wykonania osobno w raporcie 3B. Historyczne AC
 | AC-HE-003-03 | UI uprzedza o lokalnym append-only także 3B. Zaproszenie nie tworzy dodatkowego fikcyjnego kontaktu, aplikacji, statusowego wpisu ani odbytego spotkania; sama zmiana etapu nie tworzy zaproszenia. | FR-HE-003 |
 
 AC-HE-001-01 rozszerza się na mieszaną paginowaną historię; AC-AD-002 na sprawę–zaproszenie–etap i listy/direct ID/count/recovery/relacje, z odmową B/anon bez wycieku, także bez BFF. Pełne publiczne AC nadal nie są ukończone.
+
+## AC korekt historii — DEC-056 (APPROVED)
+
+| ID | Kryterium | FR |
+|---|---|---|
+| AC-HE-002-05 | Korekta dnia znany/nieznany zmienia wyłącznie położenie na osi czasu, zachowuje pierwotny czas zapisu i nie zmienia bieżącego stanu; obowiązuje istniejąca walidacja dnia. | FR-HE-002 |
+| AC-HE-003-04 | Korekta direction/nazwy i terminalne unieważnienie zachowują oryginał oraz immutable rewizje z before/after, zaufanym aktorem/czasem; audyt dostępny przy wpisie, bez nowego faktu biznesowego. Rodzaj, case/owner i previous_stage nie są edytowalne; brak hard delete/restore/pola powodu. | FR-HE-003 |
+| AC-LC-015-02 | Preview i potwierdzenie atomowo zapisują korektę/audyt i stan: brak ważnych zaproszeń/przejść daje Kontakt rozpoczęty przy aplikacji/kontakcie, inaczej Zapisane; aktywny stan ma etap z ostatniej ważnej komendy etapowej w pierwotnej kolejności. | FR-LC-015 |
+| AC-LC-015-03 | Każde zachowane przejście ma wcześniejsze ważne zaproszenie. Void zaproszenia osierocający przejście jest odrzucony bez mutacji i kaskady, także gdy później istnieje inne zaproszenie. Późniejsze previous_stage nie są przepisywane. | FR-LC-015 |
+| AC-LC-014-03 | Wszystkie zapisy faktów i korekt respektują monotoniczną kontrolę współbieżności sprawy/wpisu; stale preview nie zapisuje niczego, wymaga ponownego podglądu/potwierdzenia; brak ABA po cofnięciu i ponownym wejściu. | FR-LC-014 |
+| AC-LC-014-04 | Ten sam owner/key/payload replayuje jeden wynik korekty, inny payload konfliktuje. Replay utworzenia po korekcie/void ani replay dawnej korekty po następnej nie przywraca danych/stanu; recovery rozdziela historyczny wynik od aktualnego stanu. | FR-LC-014 |
+
+AC-AD-002 obejmuje także audyt/rewizje, listę/direct ID/count/relacje/recovery i bezpośredni Data API A/B/anon. AC-HE-001-01 obejmuje paginację poprawionej mieszanej historii i czytelne oznaczenie void; błąd odczytu nie jest pustą historią. AC-HE-003-02/-03 zachowane jako historyczne ograniczenia 3A/3B, zastąpione w nowym przyroście wyłącznie przez DEC-056.

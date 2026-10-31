@@ -267,6 +267,7 @@ try {
       "tests/integration/recruitment/recruitment.test.ts",
       "tests/integration/recruitment/lifecycle.test.ts",
       "tests/integration/recruitment/stages.test.ts",
+      "tests/integration/recruitment/history-corrections.test.ts",
     ],
     env,
     "business-integration",

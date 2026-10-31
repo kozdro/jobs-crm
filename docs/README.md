@@ -58,3 +58,7 @@ Wyniki wykonania i ograniczenia 3A: [raport](technical/recruitment-lifecycle-3a-
 
 
 Wyniki 3B i ograniczenia: [raport wykonania](technical/recruitment-lifecycle-3b-report.md), [QA](technical/recruitment-lifecycle-3b-qa.md). Wynik CI jest raportowany dla dokładnego finalnego SHA w PR, niezależnie od lokalnych testów.
+
+## History Corrections & Integrity — 2026-10-31
+
+[Analiza i plan](technical/history-corrections-integrity-analysis.md): warianty 1A/2A APPROVED przez DEC-056, autoryzowane pełne wykonanie i osobny PR, bez merge/deploymentu. OPEN-004/020/034 częściowo rozstrzygnięte. [Raport wykonania](technical/history-corrections-integrity-report.md) rozdziela wyniki od decyzji.

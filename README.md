@@ -4,6 +4,7 @@
 > **Stan na:** 2026-10-30. **Język dokumentacji:** polski.
 > Recruitment Lifecycle 3A (DEC-054): [kontrakt](docs/technical/recruitment-lifecycle-3a.md) i [wyniki weryfikacji](docs/technical/recruitment-lifecycle-3a-report.md); bez publicznego wdrożenia.
 > Recruitment Lifecycle 3B (DEC-055): [zatwierdzony zakres i izolacja](docs/technical/recruitment-lifecycle-3b-analysis.md); zaproszenia i indywidualne etapy, bez publicznego udostępnienia.
+> History Corrections & Integrity (DEC-056): [kontrakt 1A/2A](docs/technical/history-corrections-integrity-analysis.md), [raport wykonania](docs/technical/history-corrections-integrity-report.md); korekty i unieważnienia historii 3A/3B z audytem, bez publicznego udostępnienia.
 > Pierwszy autoryzowany slice create/read jest opisany w [kontrakcie i raporcie](docs/technical/recruitment-case-first-slice.md); pozostałe funkcje biznesowe i infrastruktura produkcyjna pozostają kolejnymi etapami.
 
 Ręczny development: **`pnpm dev:local`** — trwała baza, Auth, Studio i lokalna poczta. [Wymagania, faktyczny Node pnpm, start/stop/reset i adresy](docs/technical/local-development.md).

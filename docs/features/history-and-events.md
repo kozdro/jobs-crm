@@ -44,3 +44,7 @@ Utrzymać jedną, prawdziwą chronologię sprawy oraz cykl życia zaplanowanych 
 ## Historia zaproszeń i etapów — DEC-055
 
 Lokalny 3B rozszerza jedną historię 3A o kwalifikujące zaproszenie oraz jawne przejście etapu. Zachowuje nazwy etapów w chwili faktu (poprzedni/nowy), nie kopiuje technicznej zmiany statusu jako drugiego faktu. Nieznany dzień pozostaje nieznany; data zapisu jest oddzielna. Zapis etapu oznacza jawne ustawienie bieżącego etapu, bez automatycznego replay historii po datach. Odczyt paginowany, unknown date i deterministyczna kolejność zachowane. Append-only obowiązuje lokalnie także 3B; korekty/audyt OPEN-004 nadal blokują publiczne udostępnienie. Nie powstają kalendarz, spotkanie odbyte ani komunikacja.
+
+## Korekty i unieważnienia 3A/3B — DEC-056
+
+Zatwierdzone 1A/2A [kontraktu](../technical/history-corrections-integrity-analysis.md) dodają korektę w obrębie rodzaju i terminalne unieważnienie z zachowaniem audytu. Wpisy pozostają na jednej osi, rewizje w szczegółach; void jest oznaczony. Preview pokazuje różnice i skutek dla statusu/etapu, potwierdzenie zapisuje je atomowo. Zachowane przejście nie może utracić wcześniejszego zaproszenia: odmowa ze wskazaniem zależności, bez kaskady. Dzień nie steruje bieżącym stanem; previous_stage pozostaje oryginalnym snapshotem. Bez kalendarza, notatek, retencji i fizycznego usuwania. OPEN-004/020 częściowo rozstrzygnięte, pozostałe bramki zachowane.

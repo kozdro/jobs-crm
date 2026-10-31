@@ -16,6 +16,13 @@ export type CaseEvent = {
   direction: RecordCaseEventInput["direction"];
   occurred_on: string | null;
   recorded_at: string;
+  revision?: number;
+  voided?: boolean;
+  original?: {
+    occurred_on: string | null;
+    direction: RecordCaseEventInput["direction"];
+    stage_name: string | null;
+  };
   stage_name: string | null;
   previous_stage: string | null;
   expected_stage_version: number | null;
