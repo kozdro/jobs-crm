@@ -480,6 +480,7 @@ test("DEC057 unavailable durable storage refuses POST; later committed lost resp
   await openClose(page);
   await confirm(page);
   await expect(page.getByRole("alert")).toBeVisible();
+  await expect(page.getByRole("alert")).toContainText("Nie wysłano operacji.");
   expect(confirms).toHaveLength(0);
   expect(await lifecycleRows(c)).toHaveLength(0);
   await page.getByRole("button", { name: "Anuluj", exact: true }).click();
