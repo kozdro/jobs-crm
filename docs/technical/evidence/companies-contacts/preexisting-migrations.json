@@ -1,0 +1,60 @@
+{
+  "base": "fa66fc7badde0f224a316cccea8a242e71e3bdb1",
+  "rows": [
+    {
+      "path": "db/recruitment/migrations/0000_recruitment_validation.sql",
+      "sha256": "640ae10d48af84a1468b2a764c8a13ea68eda21bf25a1be8cfbb4361e24573bd",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/0001_recruitment_case.sql",
+      "sha256": "d17053c59a8063e54db97e4c30fda7f05d0e2eb52ff65e07089acf1bf2b159e6",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/0002_recruitment_access_and_create.sql",
+      "sha256": "2ee4db5cc11271c8ba34aacf0dfab86100231111a3446bdea78e2e91e99a747a",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/0003_recruitment_intent_before_warning.sql",
+      "sha256": "a09fe0b3d0596da51e36faf0c2efe63a049daa2b20648100811b79b77ed03347",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/0004_recruitment_url_canonical_boundary.sql",
+      "sha256": "844601688ef784e4f8bba3fb04708833c99bfdd6f20b611b3caa7b1d0f8fe1d2",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/0005_recruitment_url_constraint_revalidation.sql",
+      "sha256": "7bdd45f5b6dd031525fd42cf2ca0b133ccf8c54d57e04b702d810852ba98ab90",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/0006_recruitment_numeric_host_parity.sql",
+      "sha256": "c01abf7026b3117ea5e62e1d17a918b5b15ddb1716a690bf44c4678d1cd34b82",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/0007_recruitment_lifecycle_3a.sql",
+      "sha256": "98b608140bb16d923390b0cfa355ebbc417dd159f1732e8135dbadf9de948924",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/0008_recruitment_lifecycle_3b.sql",
+      "sha256": "60afefbba42c329bfd07a1a552e8b397da6bf725281c58e36fcbf80347f6af18",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/0009_history_corrections_integrity.sql",
+      "sha256": "085d8146b32709cb4c2d8d0a7213f173ba55fa921694d8588fc6f40525fbb583",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/0010_recruitment_lifecycle_3c.sql",
+      "sha256": "64e3063626831448967f0358883afa3e8a110f8e3dd4029f0b9810d238bad9ca",
+      "identical": true
+    }
+  ]
+}

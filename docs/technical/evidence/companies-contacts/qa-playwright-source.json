@@ -1,0 +1,11 @@
+{
+  "candidate": "3666f4b2e87425010b4e81c34f9b7d6e3a9780c2",
+  "evidence": [
+    {
+      "map": "/var/folders/w2/3rw_38750zd_3jvcpl_nb_jm0000gp/T/playwright-transform-cache-502/8b/8bd2017b5e_4af78be_companiescontactsspec.map",
+      "source": "companies-contacts.spec.ts",
+      "executedSourceSha256": "f3ee709a2744c393f85468a02784a88d681052d5e148bbd382ecf0681a309b34",
+      "matchesCanonical": true
+    }
+  ]
+}

@@ -80,3 +80,5 @@ Wykonanie: [raport](technical/recruitment-lifecycle-3c-report.md) i [QA](technic
 ## Companies & Contacts — DEC-058, 2026-10-31
 
 [Kontrakt/plan](technical/companies-contacts-analysis.md), [raport wykonania](technical/companies-contacts-report.md), [QA](technical/companies-contacts-qa.md) i [UX](ux/companies-contacts-slice.md). Zatwierdzone 1A/2A/3A i osobny PR, bez merge/deploymentu. Wyniki wykonania są raportowane oddzielnie od zatwierdzenia.
+
+Wyniki Companies & Contacts: lokalnie PASS333+87unit,105/105integracje,92/92productionHTTPSbrowser, naturalexit0, niezależne review PASS i44/44wcześniejsze zasoby zachowane. Ograniczenia i historyczneFAIL pozostają w raporcie/QA; hostedCI odrębnie dla dokładnego PRhead.

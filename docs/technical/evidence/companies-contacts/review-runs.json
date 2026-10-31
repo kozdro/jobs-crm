@@ -1,0 +1,202 @@
+{
+  "schema": 1,
+  "authorSessions": [
+    "/root",
+    "companies_backend",
+    "companies_frontend",
+    "companies_qa_run"
+  ],
+  "note": "Exit0 establishes launcher completion only; assessment is separately recorded. Runtime results are in QA receipts. Original failures preserved.",
+  "runs": [
+    {
+      "role": "backend-reviewer",
+      "candidate": "8d8323c6b0d24b6beb970431c6ce47574c332e53",
+      "base": "fa66fc7badde0f224a316cccea8a242e71e3bdb1",
+      "assessment": "FAIL",
+      "assessmentScope": "static review, not runtime acceptance",
+      "parentThreadId": "01a19301-fe36-7c03-aeaa-1d0cb1871ded",
+      "launch": "python3 harness/scripts/review.py codex backend-reviewer",
+      "isolation": "separate read-only parent; generic subagent + canonical role",
+      "modelReasoning": "NOT EXPOSED",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "864311dcd27cb58604fab8f19e7049cf188d53a920d8cdc8e8bf369fde6e8fca",
+        "candidateAfter": "864311dcd27cb58604fab8f19e7049cf188d53a920d8cdc8e8bf369fde6e8fca"
+      },
+      "logSha256": "757e48c869358dcec4d0538c4721f97c5476c9022a98b95aa8b661072846a55a"
+    },
+    {
+      "role": "frontend-reviewer",
+      "candidate": "8d8323c6b0d24b6beb970431c6ce47574c332e53",
+      "base": "fa66fc7badde0f224a316cccea8a242e71e3bdb1",
+      "assessment": "FAIL",
+      "assessmentScope": "static review, not runtime acceptance",
+      "parentThreadId": "01a19301-fe36-73e0-90ae-fd59700a77e7",
+      "launch": "python3 harness/scripts/review.py codex frontend-reviewer",
+      "isolation": "separate read-only parent; generic subagent + canonical role",
+      "modelReasoning": "NOT EXPOSED",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "864311dcd27cb58604fab8f19e7049cf188d53a920d8cdc8e8bf369fde6e8fca",
+        "candidateAfter": "864311dcd27cb58604fab8f19e7049cf188d53a920d8cdc8e8bf369fde6e8fca"
+      },
+      "logSha256": "458d944d41100629a2926b998c17518f5167e2c26f90feebe24b559cbe71ceea"
+    },
+    {
+      "role": "security-reviewer",
+      "candidate": "8d8323c6b0d24b6beb970431c6ce47574c332e53",
+      "base": "fa66fc7badde0f224a316cccea8a242e71e3bdb1",
+      "assessment": "FAIL",
+      "assessmentScope": "static review, not runtime acceptance",
+      "parentThreadId": "01a19301-fe36-7992-9e98-4fcf24b281db",
+      "launch": "python3 harness/scripts/review.py codex security-reviewer",
+      "isolation": "separate read-only parent; generic subagent + canonical role",
+      "modelReasoning": "NOT EXPOSED",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "864311dcd27cb58604fab8f19e7049cf188d53a920d8cdc8e8bf369fde6e8fca",
+        "candidateAfter": "864311dcd27cb58604fab8f19e7049cf188d53a920d8cdc8e8bf369fde6e8fca"
+      },
+      "logSha256": "bd76aa7935a155b99219e13831006792218fe92bf5787345a4631576d57d7231"
+    },
+    {
+      "role": "backend-reviewer",
+      "candidate": "5f8d5aa95d9c0da8c4f7ddce6c581ac44cee9d2d",
+      "base": "8d8323c6b0d24b6beb970431c6ce47574c332e53",
+      "assessment": "PASS_STATIC",
+      "assessmentScope": "static review, not runtime acceptance",
+      "parentThreadId": "01a1930a-325a-7721-a2c6-c91647c15ee8",
+      "launch": "python3 harness/scripts/review.py codex backend-reviewer",
+      "isolation": "separate read-only parent; generic subagent + canonical role",
+      "modelReasoning": "NOT EXPOSED",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "85f305a0cd6287f4f3dba8983894cfcc8ca4e81fed206ccfdfdf7d7d46612850",
+        "candidateAfter": "85f305a0cd6287f4f3dba8983894cfcc8ca4e81fed206ccfdfdf7d7d46612850"
+      },
+      "logSha256": "4736b3aaf6ddd6c01c003415dc03f6682f9efe056c975510f4c8246c42591fed"
+    },
+    {
+      "role": "frontend-reviewer",
+      "candidate": "5f8d5aa95d9c0da8c4f7ddce6c581ac44cee9d2d",
+      "base": "8d8323c6b0d24b6beb970431c6ce47574c332e53",
+      "assessment": "PASS_STATIC",
+      "assessmentScope": "static review, not runtime acceptance",
+      "parentThreadId": "01a1930a-325a-7e00-8aec-bb4adc6f1c7f",
+      "launch": "python3 harness/scripts/review.py codex frontend-reviewer",
+      "isolation": "separate read-only parent; generic subagent + canonical role",
+      "modelReasoning": "NOT EXPOSED",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "85f305a0cd6287f4f3dba8983894cfcc8ca4e81fed206ccfdfdf7d7d46612850",
+        "candidateAfter": "85f305a0cd6287f4f3dba8983894cfcc8ca4e81fed206ccfdfdf7d7d46612850"
+      },
+      "logSha256": "68f9ccfe654f7d4142884315aaadb4e438b26c057544e497633646752e06eea4"
+    },
+    {
+      "role": "security-reviewer",
+      "candidate": "5f8d5aa95d9c0da8c4f7ddce6c581ac44cee9d2d",
+      "base": "8d8323c6b0d24b6beb970431c6ce47574c332e53",
+      "assessment": "PASS_STATIC",
+      "assessmentScope": "static review, not runtime acceptance",
+      "parentThreadId": "01a1930a-325a-74c2-b04e-661742e24dfe",
+      "launch": "python3 harness/scripts/review.py codex security-reviewer",
+      "isolation": "separate read-only parent; generic subagent + canonical role",
+      "modelReasoning": "NOT EXPOSED",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "85f305a0cd6287f4f3dba8983894cfcc8ca4e81fed206ccfdfdf7d7d46612850",
+        "candidateAfter": "85f305a0cd6287f4f3dba8983894cfcc8ca4e81fed206ccfdfdf7d7d46612850"
+      },
+      "logSha256": "ec3ff450d484fb5b024e9205d4dd450b89feacd88451a877263feed2cd806352"
+    },
+    {
+      "role": "backend-reviewer",
+      "candidate": "9f9e18cdb1fd3ef801ef6525b56f099893d2cb10",
+      "base": "5f8d5aa95d9c0da8c4f7ddce6c581ac44cee9d2d",
+      "assessment": "PASS_STATIC",
+      "assessmentScope": "static review, not runtime acceptance",
+      "parentThreadId": "01a1930e-736e-78f0-a3c1-67e5dee48828",
+      "launch": "python3 harness/scripts/review.py codex backend-reviewer",
+      "isolation": "separate read-only parent; generic subagent + canonical role",
+      "modelReasoning": "NOT EXPOSED",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "0823dd8db440f775c4ca038ed349967bc63e05d8906e54f951cb63ae6445eaab",
+        "candidateAfter": "0823dd8db440f775c4ca038ed349967bc63e05d8906e54f951cb63ae6445eaab"
+      },
+      "logSha256": "7b5430eba907f25ea7655f4fa66e0b740a70ee4eac39d7302840f8c0459dae8e"
+    },
+    {
+      "role": "frontend-reviewer",
+      "candidate": "d6738f87664607163fa81c4c8f7cb2b94d501924",
+      "base": "9f9e18cdb1fd3ef801ef6525b56f099893d2cb10",
+      "assessment": "PASS_STATIC",
+      "assessmentScope": "static review, not runtime acceptance",
+      "parentThreadId": "01a19314-45e3-7c31-b3f5-476d07eb980e",
+      "launch": "python3 harness/scripts/review.py codex frontend-reviewer",
+      "isolation": "separate read-only parent; generic subagent + canonical role",
+      "modelReasoning": "NOT EXPOSED",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "6b35771156dab723b64d94d949a6e12a9899b90bf75651df8e09faae244fe0d5",
+        "candidateAfter": "6b35771156dab723b64d94d949a6e12a9899b90bf75651df8e09faae244fe0d5"
+      },
+      "logSha256": "f00480ab3a2eb7afd257f16a4eaff5e2885fa704fddca03ca77176137ac759c7"
+    },
+    {
+      "role": "security-reviewer",
+      "candidate": "b25dfb76dbb41ddb09f80737f24f389a99bf6d36",
+      "base": "d6738f87664607163fa81c4c8f7cb2b94d501924",
+      "assessment": "PASS_STATIC",
+      "assessmentScope": "static review, not runtime acceptance",
+      "parentThreadId": "01a1931a-9f2c-7293-80a5-736f90d7c080",
+      "launch": "python3 harness/scripts/review.py codex security-reviewer",
+      "isolation": "separate read-only parent; generic subagent + canonical role",
+      "modelReasoning": "NOT EXPOSED",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "c3991c761c8930847bd5cb25ddd0d70792b66b43de819eb1a17a9a307cc20eb1",
+        "candidateAfter": "c3991c761c8930847bd5cb25ddd0d70792b66b43de819eb1a17a9a307cc20eb1"
+      },
+      "logSha256": "615deffd50ef2b9c1833fc2b266835bd4c4ec03c06638a7b22ce401cd76057bb"
+    },
+    {
+      "role": "security-reviewer",
+      "candidate": "3666f4b2e87425010b4e81c34f9b7d6e3a9780c2",
+      "base": "b25dfb76dbb41ddb09f80737f24f389a99bf6d36",
+      "assessment": "PASS_STATIC",
+      "assessmentScope": "static review, not runtime acceptance",
+      "parentThreadId": "01a19324-5215-7b33-ba48-289550d9e0cf",
+      "launch": "python3 harness/scripts/review.py codex security-reviewer",
+      "isolation": "separate read-only parent; generic subagent + canonical role",
+      "modelReasoning": "NOT EXPOSED",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "cb9bde99ba42e236872d99b558b9a4ccf03b0d035b28c93c4d515d994bf7cff0",
+        "candidateAfter": "cb9bde99ba42e236872d99b558b9a4ccf03b0d035b28c93c4d515d994bf7cff0"
+      },
+      "logSha256": "192a9bc3b0ee1abd1a53c0c070eea2232ebb47d03a7e423eaf29c0495e389b14"
+    }
+  ]
+}

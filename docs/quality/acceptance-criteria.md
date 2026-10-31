@@ -321,3 +321,5 @@ AC-AD-002 rozszerza się na zakończenia, wznowienia, oryginały i audyt, listy/
 ## Companies & Contacts — operacyjny kontrakt DEC-058
 
 AC-CC-001–006/008/011 i podzakres AC-AD-002 są w zakresie [1A/2A/3A](../technical/companies-contacts-analysis.md). Weryfikacja musi objąć korekty i audyt danych/relacji, semantykę ról, warning/reuse/świadomy osobny profil, idempotencję i wyścigi, paginację list i selektorów, real A/B/anon oraz bezpośredni Data API/RPC. Żadna zmiana katalogu nie zmienia lifecycle ani nie nadaje uczestnictwa w zdarzeniu. AC-CC-007/009/010 pozostają NOT RUN; pozytywne profilowe listy nie są testem historii osoby. Wyniki wykonania osobno od tego kontraktu.
+
+Wykonanie DEC-058: [QA](../technical/companies-contacts-qa.md) i [raport](../technical/companies-contacts-report.md) wiążą AC-CC-001–006/008/011 z wykonanymi testami; końcowy runner105/105 integration i92/92 HTTPS browser PASS z natural exit0. Wynik dotyczy tego lokalnego slice'a, nie komunikacji/historii osoby ani całego publicznego MVP.

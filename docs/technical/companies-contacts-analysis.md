@@ -129,3 +129,7 @@ Dwa P3 dotyczyły dopisania testów CSRF/Origin oraz bezpośrednich prób modyfi
 ## Aktualizacja wykonawcza — DEC-058
 
 PO jawnie zatwierdził 1A/2A/3A oraz pełne wykonanie i PR. Historyczne adnotacje PROPOSED/BLOCKED i brak autoryzacji z etapu analizy powyżej opisują wcześniejszy stan; dla wybranych wariantów zostały zastąpione DEC-058. Pozostałe warianty nie są zatwierdzone. Prace na gałęzi `feat/companies-contacts`, baza fa66fc7. Backend owns db/recruitment i src/modules/companies-contacts oraz src/app/catalog/commands; frontend owns nowe strony/komponenty, nawigację i integrację detalu; QA owns tests/integration/recruitment/companies-contacts.test.ts, tests/e2e/companies-contacts.spec.ts oraz runner/config. Orchestrator owns dokumentację. Model/reasoning dziedziczone NOT EXPOSED, role kanoniczne, bez dalszej delegacji.
+
+## Wynik wykonania — 2026-10-31
+
+DEC-058 wykonano: [raport](companies-contacts-report.md) i [QA](companies-contacts-qa.md), lokalnie PASS333+87 unit,105/105 integration,92/92 productionHTTPS browser i natural exit0, niezależne backend/frontend/security review PASS. Historyczne adnotacje planu NOT RUN/BLOCKED powyżej dotyczą wcześniejszej analizy. Publiczne i odłożone zakresy nie są tym wynikiem zatwierdzone ani ukończone. Osobny PR, bez merge/deploymentu.

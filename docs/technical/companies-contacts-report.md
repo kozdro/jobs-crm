@@ -1,60 +1,76 @@
 # Companies & Contacts — raport wykonania
 
-**Data:** 2026-10-31. **Decyzja:** DEC-058, PO zatwierdził 1A/2A/3A i pełną implementację oraz osobny PR; bez merge/deploymentu. **Stan:** kandydat implementacji `8d8323c6b0d24b6beb970431c6ce47574c332e53`; runtime/review w toku.
+**Data:** 2026-10-31. **Decyzja:** DEC-058, zatwierdzone 1A/2A/3A. **Stan:** lokalna implementacja, QA i niezależne review **PASS**, gotowe do owner review w osobnym PR. Autoryzowano pełne wykonanie i osobny PR, **bez merge/deploymentu**.
 
 ## Zakres i podstawa
 
-[Kontrakt](companies-contacts-analysis.md), [QA](companies-contacts-qa.md), [UX](../ux/companies-contacts-slice.md). FR/AC-CC-001–006/008/011, AD-002; BR-001/002/016/018/019/027/028/030; DEC-001/003/042–044/051/058; adaptacje TC-006/008/014/025/034, UX-013/014, ADR-0002/0012. Nowe ADR nie jest wymagane: istniejąca architektura i stack bez zmiany.
+Prywatny centralny katalog firm i kontaktów: tworzenie, odczyt, minimalna korekta danych, wersje i audyt; jawne opcjonalne relacje M:N do istniejących spraw i między organizacją a osobą. Role pracodawcy/agencji są kontekstowe. Attach/detach i korekta roli działają również na zakończonych sprawach. Deduplikacja owner-only wymaga wyboru istniejącego profilu albo świadomej osobnej tożsamości; retry nie powtarza skutków. Listy, selektory, relacje i audyt mają paginację.
 
-Centralny prywatny katalog firm i kontaktów z create/read/edit, wersjonowaniem i audytem. Opcjonalne jawne relacje M:N i kontekstowe role organizacji, również dla zakończonych spraw. Deduplikacja owner-only, reuse lub świadomy osobny profil; retry i wyścigi chronione atomowo. Relacje nie stanowią uczestnictwa osoby w zdarzeniach, nie zmieniają lifecycle, nie scalają profili/spraw.
+**Powiązanie osoby ze sprawą nie nadaje udziału w zdarzeniach.** Zmiany katalogu nie zmieniają statusu, etapu, cyklu, faktów, rewizji ani zakończeń. Bez auto-merge i zapisywania szkiców PII do browser storage/logów.
 
-## Autorzy i własność
+Podstawa: FR/AC-CC-001–006/008/011 i AD-002; BR-001/002/016/018/019/027/028/030; DEC-001/003/042–044/051/058; UC/TC-006/008/014/025/034 w podzakresie; UX-013/014; ADR-0002/0012. [Kontrakt i plan](companies-contacts-analysis.md), [UX](../ux/companies-contacts-slice.md), [szczegółowy QA i historia](companies-contacts-qa.md). Nie zmieniono architektury ani zależności; nowy ADR nie był potrzebny.
 
-Baza `fa66fc7badde0f224a316cccea8a242e71e3bdb1`, gałąź `feat/companies-contacts`. `/root`: decyzje/dokumentacja, koordynacja, kontrole i publikacja; `companies_backend`: DB/domena/application/BFF i unit; `companies_frontend`: UX/UI/nawigacja/integracja detalu i unit; `companies_qa_run`: integracje/browser/runner/config/dowody. Model/reasoning dziedziczone NOT EXPOSED. Niezależni reviewerzy w osobnych rodzicach read-only, nie autorzy ocenianych zmian.
+## Kandydat, autorzy i pliki
 
-## Weryfikacja — stan bieżący
+Baza: merge PR18 `fa66fc7badde0f224a316cccea8a242e71e3bdb1`. Końcowy kandydat aplikacji/testów: **`3666f4b2e87425010b4e81c34f9b7d6e3a9780c2`**, gałąź `feat/companies-contacts`. Późniejsza aktualizacja dokumentacji i bezpiecznych dowodów nie zmienia aplikacji, migracji ani testów. Hosted CI jest sprawdzane oddzielnie dla dokładnego opublikowanego head PR; lokalne wyniki nie są wynikiem CI.
 
-| Kontrola | Wynik |
+- `/root`: decyzje, kontrakt, dokumentacja, kontrole, niezależne handoffy i publikacja.
+- `companies_backend`: Drizzle/schema/migracje, `src/modules/companies-contacts/`, BFF `/catalog/commands`, własne unit.
+- `companies_frontend`: `src/app/companies/`, `src/app/contacts/`, komponenty katalogu, integracja detalu sprawy/nawigacji, bounded proxy matcher i własne unit.
+- `companies_qa_run`: integracje/browser/runner/config, fizyczny upgrade, syntetyczne fixtures i dowody.
+
+Rozłączne zakresy zapisu; model/reasoning dziedziczone **NOT EXPOSED**. Brak dalszej delegacji przez autorów. Zmiany źródeł prawdy obejmują DEC/OPEN/model/BR/FR/AC/scenariusze/traceability; zmiany testów istniejącej nawigacji i liczby migracji zachowują precyzyjne asercje.
+
+## Wykonana weryfikacja
+
+Node **24.22.2**, pnpm **12.16.1**; jawny pin rzeczywistego executable, ponieważ pnpm początkowo wybierał Node26 mimo shell Node24. Syntetyczne dane, lokalny PostgreSQL/Auth/JWT/Data API/RLS, production HTTPS Chromium. Persistent DEV i cloud nietknięte.
+
+| Kontrola | Wynik / dowód |
 |---|---|
-| Unit | PASS 332 aplikacyjnych + 87 skryptowych; zero skips |
-| Typecheck / lint | PASS |
-| Format | PASS — finalna kontrola Prettier |
-| Boundaries / canary | PASS: natural exit 0; pozytywne kontrole wykrywają naruszenia |
-| Real Auth/JWT/Data API/RLS, migracja/upgrade | NOT RUN |
-| Production HTTPS browser / regresje | NOT RUN |
-| Niezależny backend/frontend/security review implementacji | NOT RUN |
-| Hosted CI exact head | NOT RUN — PR jeszcze nie powstał |
+| `pnpm --config.verifyDepsBeforeRun=error test:unit` | **PASS333 aplikacyjne +87 skryptowych**, zero skips na b25dfb7 (późniejsza delta tylko fixture RSC/dokumentacja); `/tmp/jobs-crm-cc-unit-final2.log` |
+| `typecheck`, `lint`, `format:check` | **PASS**; logi `/tmp/jobs-crm-cc-{typecheck,lint}-final.log`, `-format-final3.log`; QA ponowił kontrole po końcowej korekcie fixture RSC |
+| `test:boundaries`, `test:canary` | **PASS** na5f8d5aa, natural exit0 i kontrole czułości; `/tmp/jobs-crm-cc-{boundaries,canary}-final.log` |
+| Ledger produktu i upgrade | **PASS13/13**, stare dane/UUID zachowane; [wszystkie11 migracji sprzed PR18 byte-identical](evidence/companies-contacts/preexisting-migrations.json) |
+| R7 production build | **PASS**, child exit0 |
+| R7 integracje | **PASS105/105**, zero fail/skip/cancel |
+| R7 HTTPS browser | **PASS92/92**, child exit0, bez pominięć |
+| R7 natural exit i cleanup | **PASS natural exit0**, guarded cleanup,44/44 wcześniejszych kontenerów ID/nazwa/image/porty zachowane; zero własnych pozostałości |
+| Niezależne review | **PASS statycznie**, wszystkie1P1+4P2 zamknięte; dodatkowe delty ocenione osobno |
 
-Node 24.22.2 / pnpm12.16.1. Shell Node i faktyczny pnpm Node różniły się; używany jawny prefiks `/Users/kozdro/.volta/tools/image/node/24.22.2/bin` i kontrola executable. Dane syntetyczne, izolowany własny lokalny target. Persistent DEV, stare migracje i cudze zasoby nietknięte. QA opisuje manifest oraz wyniki ochrony zasobów i tożsamości źródeł.
+Ostatnia delta po b25dfb7 zmienia wyłącznie poprawny request fixture RSC; źródła unit i kod aplikacji są identyczne. Końcowy CI sprawdza publikowany exact head ponownie, także dla kontroli boundaries/canary wykonanych lokalnie przed lokalnym CSS.
 
-## Ograniczenia i OPEN
+Pełny entrypoint za `pnpm test:recruitment` wykonano jako `RECRUITMENT_TARGET_ID=companies-cc-r7 node scripts/recruitment/runner.ts` z przypiętym Node i własnym izolowanym targetem. [QA](companies-contacts-qa.md) podaje exact środowisko, komendę, manifest, wyniki i ograniczenia. [Manifest źródeł](evidence/companies-contacts/qa-source-manifest.json) wiąże154/154 src/db/tests canonical/runtime/commit; adapter lokalnych portów566xx→574xx jest oddzielnie jawny, bez osłabienia validation. Dowody transformacji faktycznie wykonanego testu Playwright i rzeczywistego TTL GoTrue nie zastępują testów, lecz potwierdzają ich tożsamość.
 
-AC-CC-007/009/010 i pełne TC-019/025/034 nie są wykonaniem tego slice'a. Brak korespondencji, event participants/historii osoby, importu, merge, Global Search, hard delete/archiwizacji/restore i publicznego udostępnienia. OPEN-002/005/024 rozstrzygnięte tylko dla DEC-058; historyczne uczestnictwo OPEN-030, retencja/privacy/publiczne Auth/OPS i pozostałe bramki nadal obowiązują. Urządzenia fizyczne/AT, live OAuth, pełny WCAG audit i publiczne użycie pozostają NOT RUN.
+Integracje obejmują owner A pozytywnie, B/anon odmowę list/ID/count/dedup/audit/recovery, oba końce relacji i spoof owner także bez BFF przez Data API/RPC. Testy obejmują canonical command-only writes, stale wersje, retry/payload conflict/ABA, rzeczywiste races, rollback i bezpośredni upsert. Browser obejmuje utratę odpowiedzi po commit, niepewne potwierdzenie duplikatu create/edit, zachowanie zamiaru relacji przy refetch profilu, paginację, XSS jako tekst, focus/klawiaturę,4 szerokości oraz rzeczywisty tekst200% przy375px.
 
-PR, exact SHA, wyniki testów i findings zostaną uzupełnione na podstawie rzeczywistych dowodów.
+## Niezależne review i naprawy
 
-## Kontrole statyczne i unit — dowody lokalne
+[Zapis10 niezależnych uruchomień](evidence/companies-contacts/review-runs.json): odrębni rodzice read-only przez `harness/scripts/review.py`, dokładnie jeden generic subagent + canonical role, exit0, changedFiles=[] i identyczne fingerprinty przed/po. Exit launchera nie jest oceną kodu. Pierwotne3 oceny FAIL zachowane, kolejne7 ocen PASS_STATIC nie udają wykonania runtime.
 
-Wykonano z prefiksem Node24.22.2 i `pnpm --config.verifyDepsBeforeRun=error`: `test:unit`, `typecheck`, `lint`, `test:boundaries`, `test:canary`. Logi lokalne nietrwałe `/tmp/jobs-crm-cc-unit-r4.log`, `-typecheck-r4.log`, `-lint-r4.log`, `-boundaries.log`, `-canary.log`. Błędy wcześniejszych prób zachowane: r1 test nawigacji oczekiwał starych5 niedostępnych modułów; r2 lokalny test oczekiwał11 zamiast12 migracji; typecheck wymagał typów w nowych testach QA; ESLint refs naprawiony przez frontend bez wyłączenia reguły; format r4 uruchomiono w trakcie końcowego zapisu speca QA i wskazał jego format. Poprawki zachowują jawne asercje dostępnych modułów i przyjętych prefiksów ledgeru.
+| Finding | Naprawa i dowód zamknięcia |
+|---|---|
+| Backend P1: BEFORE trigger zmieniał projekcję przed pominiętym konfliktem komendy | **0012** odrzuca zużyty owner/request pod owner-lock przed skutkami. Realny JWT probe: stary kod HTTP201 profile1→2/audit1→1; po guarded upgrade HTTP409 profile1→1/audit1→1. Canonical RPC replay zachowany. Bez zmiany zamrożonej0011. |
+| Frontend P2: ponowne potwierdzenie duplikatu po niepewnym zapisie zastępowało klucz | Synchroniczny guard i disabled UI; dokładny zamiar/UUID zachowane do retry/recovery. |
+| Frontend P2: refetch profilu odmontowywał niepewną relację | Potwierdzone dane zachowane tylko dla tego samego owner/query; panel i zamiar pozostają stabilne. |
+| Security P2: nowe strony poza proxy sesji/cache | Matcher companies/contacts/catalog,3 unit proxy, rzeczywiste testy SSR/cookies/cache/logout. |
+| Security P2: opcjonalny raw log różnił się od reprezentacji skanera | Usunięto dodatkowe utrwalanie raw logów. Istniejący scanner i wymagane liczniki zachowane. |
 
-Review backend/frontend/security uruchomiono na oddzielnym detached worktree `/tmp/jobs-crm-cc-review`, dokładnie commit8d8323c; trzy rodzice read-only przez kanoniczny wrapper. Autorzy nie zmieniają ocenianego kandydata; nowe wyniki QA/dokumenty w głównym checkout nie zmieniają snapshotu review.
+Backend zamknął P1 na5f8d5aa i ocenił fixture9f9e18c; frontend zamknął2P2 na5f8d5aa i lokalną poprawkę text200 na d6738f8; security zamknął2P2 na5f8d5aa i ocenił test-only TTL300 na b25dfb7 oraz canonical Flight request na3666f4b. Brak nierozwiązanych findings implementacji. Weryfikacja runtime pozostaje oddzielną bramką.
 
-Pierwszy pełny runtime: build PASS, integracje102/104 FAIL (jedna błędna asercja wejścia fixture i jej suite parent). Nowy test zamkniętej sprawy wysyłał `null` zamiast `preview.closureRevision=0` do starego API3C; poprawiono wyłącznie fixture, bez zmiany produktu/migracji. Browser pierwszej próby NOT RUN — runner poprawnie przerwał po integracji. QA zachowuje nieudane próby i dowody oddzielnie od końcowego wyniku.
+## Zachowane FAIL i ograniczenia diagnozy
 
-## Pierwsza runda niezależnego review — 8d8323c
+| Próba | Faktyczny wynik i dalsze działanie |
+|---|---|
+| R1 / R2 | Integracje102/104 FAIL: nowy fixture close podawał null zamiast preview.closureRevision0; R2 omyłkowo skopiował starą wersję. Browser NOT RUN. Zmieniono fixture, nie produkt/asercje. |
+| R3 | Integracje104/104 PASS, browser85/87 FAIL: stara allowlista2 aktywnych tras i wyścig testu focus z celowym rAF. Jawna allowlista4 tras i oczekiwanie na zamierzony focus zachowują asercje. |
+| R4 | Integracje103/105 FAIL: JSONB fixture był podwójnie kodowany. `jsonb_build_object` z parametrami naprawił wejście; targeted lifecycle18/18 PASS, HTTP CC21/21 PASS. Browser NOT RUN. |
+| R5 | Integracje105/105 PASS, browser90/92 FAIL: rzeczywisty overflow383/375 przy tekście200% oraz odmowa refresh przy synthetic JWT60s. |
+| R6 | Integracje105/105 PASS, browser91/92 FAIL: actual expiry300/SSR/cookies i text200 PASS; ręczny błędny `_rsc` powodował307 normalizacji Next. Canonical pusty klucz i mocniejsze asercje text/x-component/private/no-store bez follow-redirect naprawiają fixture. |
 
-Wszystkie trzy rodzice read-only zakończyły natural exit0, changedFiles=[], fingerprint864311dcd27cb58604fab8f19e7049cf188d53a920d8cdc8e8bf369fde6e8fca przed/po identyczny. Status oceny FAIL, niezależny od pomyślnego wykonania launchera. Logi lokalne `/tmp/jobs-crm-cc-{backend,frontend,security}-reviewer.jsonl` i odpowiadające `-meta.json`.
+Overflow dwóch przycisków poprawiono lokalnym zawijaniem/max-width, bez clippingu lub globalnej zmiany CSS; pomiar po poprawce375/375. Dla TTL60s provider potwierdził `refresh_token_already_used` przy wygasłym JWT; SDK ma margines90s. Zgodnie z [dokumentacją Supabase](https://supabase.com/docs/guides/auth/sessions#what-are-recommended-values-for-access-token-jwt-expiration) nowy **syntetyczny** profil QA używa300s. Test rzeczywiście czeka na `max(exp,expires_at)+2s`, nie fałszuje tokena ani zegara. Nie zmieniono kodu Auth, F3, persistent DEV, cloud ani publicznej polityki TTL. Dokładny pełny przebieg dodatkowych rotacji nie był śledzony; zachowano obserwację dostawcy i porównanie fixture, zamiast uznać stary FAIL za PASS. Szczegółowe bezpieczne receipts i granice dowodów są w [QA](companies-contacts-qa.md).
 
-| Rola | Finding | Stan naprawy |
-|---|---|---|
-| Backend P1 | BEFORE INSERT projekcja przed ON CONFLICT ignore może pozostawić zmianę bez komendy/audytu | Potwierdzony realnym JWT/PostgREST: profiles1→2, audit1→1. Addytywna0012 blokuje zużytyowner/request przed skutkami; QA regresja w toku |
-| Frontend P2 | Potwierdzenie duplikatu po niepewnym wyniku może zastąpić oryginalny klucz | Naprawa i regresja w toku |
-| Frontend P2 | Refetch profilu odmontowuje panel i gubi aktywny zamiar relacji | Naprawa i regresja w toku |
-| Security P2 | Nowe rodziny stron pomijają matcher sesji/cache | Proxy rozszerzone o companies/contacts/catalog;3unit proxy PASS, runtime pending |
-| Security P2 | Dodatkowy surowy log nie jest tą samą reprezentacją co zweryfikowana przez scanner | Dodatkowe utrwalanie logów usunięte; istniejące output.verify/liczniki pozostają |
+## Granice akceptacji
 
-0011 pozostaje byte-identical61836b881f1acbaab4370f85abd9a9087ca01713c9df7103188c34fedc67689c. Poprawka ma osobną0012 i test upgrade; brak resetu lub zmiany ledgeru istniejącego targetu. Reprodukcja P1: `/tmp/jobs-crm-cc-qa-evidence/ignore-duplicates-repro.json`; bez tokenów/PII. Końcowe zamknięcie wymaga pozytywnych regresji i re-review nowego kandydata.
+AC-CC-007/009/010 i pełne TC-019/025/034 są **NOT RUN / poza przyrostem**. Brak komunikacji, historycznego uczestnictwa/historii osoby, importu, merge, Global Search, hard delete/archiwizacji/restore i publicznego udostępnienia. OPEN-002/005/024 rozstrzygnięte tylko dla DEC-058; OPEN-030 i retencja/privacy/Auth/OPS nadal obowiązują dla odłożonych funkcji i release.
 
-Poprawiony kandydat rozszerza ledger o13. migrację0012 (osobna addytywna naprawa P1). Kontrole r5: PASS332 aplikacyjne +87 skryptowe, typecheck i lint; format wymagał wyłącznie wygenerowanych0012snapshot/journal, które sformatowano bez zmiany SQL. Testy proxy obejmują matcher, przekazanie cookies i ochronę no-store. Frontend dodaje synchroniczną blokadę zastąpienia niepewnego zamiaru i zachowanie potwierdzonych danych tylko dla dokładnie tego samego owner/query podczas refetch.
-
-R3 wcześniejszego kandydata: integracje104/104 PASS, browser85/87 FAIL (stary exactnav allowlist oraz wyścig testu focus z zamierzonym requestAnimationFrame). Naprawiono jawne4linki i await zamierzonego focusu przed dalszym Tab; bez osłabienia asercji. Zestaw ten nie obejmował nowych regresji z review i nie stanowi końcowej akceptacji.
+Fizyczne urządzenia/AT, pełny audyt WCAG, rzeczywisty browser zoom, live OAuth i testy pełnego publicznego produktu pozostają NOT RUN. Tekst200% to html font-size32px, nie deklaracja wszystkich rodzajów powiększenia. Testy concurrency nie dowodzą wszystkich możliwych przeplotów. Brak merge/deploymentu; DEV będzie aktualizowany wyłącznie istniejącą guarded ścieżką lokalnego startu, nie resetem.

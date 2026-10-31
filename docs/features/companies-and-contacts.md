@@ -33,3 +33,5 @@ Utrzymać lekką centralną pamięć organizacji i osób, dzieloną między spra
 ## Autoryzowany pierwszy slice — DEC-058, 2026-10-31
 
 PO zatwierdził 1A/2A/3A [kontraktu i planu](../technical/companies-contacts-analysis.md): listy/profile/create/edit, jawne M:N do istniejących spraw i między organizacją/osobą, role kontekstowe, attach/detach i korekta roli, owner-only dedup i prywatny audyt. Powiązania nie zmieniają lifecycle ani uczestnictwa w źródłowych zdarzeniach. AC-CC-001–006/008/011 w zakresie; AC-CC-007/009/010 oraz komunikacja/historia osoby, usuwanie profili, Global Search i publiczne użycie poza przyrostem. Wykonanie i PR autoryzowane, bez merge/deploymentu; wyniki oddzielnie od zatwierdzenia.
+
+Wykonanie i ograniczenia DEC-058: [raport](../technical/companies-contacts-report.md), [QA](../technical/companies-contacts-qa.md). Prywatny katalog i relacje wdrożone lokalnie; testy i niezależne review PASS, bez publicznego udostępnienia.

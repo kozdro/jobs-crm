@@ -1,0 +1,29 @@
+{
+  "inner": 375,
+  "scroll": 383,
+  "visual": 375,
+  "offenders": [
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "label": "Powiąż ze sprawą",
+      "classes": "ui-button ui-button-secondary",
+      "left": 73,
+      "right": 375.5625,
+      "width": 302.5625,
+      "minWidth": "auto",
+      "display": "flex"
+    },
+    {
+      "tag": "BUTTON",
+      "role": null,
+      "label": "Poprzednia strona",
+      "classes": "ui-button ui-button-secondary",
+      "left": 73,
+      "right": 383.265625,
+      "width": 310.265625,
+      "minWidth": "auto",
+      "display": "flex"
+    }
+  ]
+}

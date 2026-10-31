@@ -1,0 +1,42 @@
+{
+  "old0011": {
+    "firstStatus": 200,
+    "ignoredStatus": 201,
+    "before": {
+      "profiles": 1,
+      "commands": 1
+    },
+    "after": {
+      "profiles": 2,
+      "commands": 1
+    },
+    "untrackedProjection": true
+  },
+  "additive0012": {
+    "firstStatus": 200,
+    "ignoredStatus": 409,
+    "before": {
+      "profiles": 1,
+      "commands": 1
+    },
+    "after": {
+      "profiles": 1,
+      "commands": 1
+    },
+    "untrackedProjection": false
+  },
+  "oldRegressionExit": {
+    "exitCode": 1,
+    "expectedRed": true
+  },
+  "newRegressionExit": {
+    "exitCode": 0,
+    "expectedGreen": true
+  },
+  "guardedUpgrade": {
+    "applied": 1,
+    "total": 13,
+    "checkpoint": "d6c0d096a138c50ff38c6b8c9731825a1b3cec5b04d0c7d468b1e48a094bcdd7"
+  },
+  "newMigrationSha256": "bcd6f346bb3b831ded2be7d4c26d62830bdc8a31d3ccc818208554bc227acf6a"
+}

@@ -1,0 +1,84 @@
+{
+  "installedVersion": "16.4.3",
+  "installedSource": "node_modules/next/dist/server/base-server.js",
+  "sha256": "5f3c52c9299b4f4b9b9428626d0011641224bd81e199c45a1a532f52c8e5dd50",
+  "lines": [
+    1449,
+    1490
+  ],
+  "behavior": "RSC header validation requires the internal _rsc value to match the header hash; with only RSC:1 and no Flight state/prefetch headers expected hash is empty; invalid or absent key redirects307 to the same private path with canonical key. No authorization redirect is accepted.",
+  "observations": [
+    {
+      "path": "/companies",
+      "query": "?_rsc=synthetic-cc",
+      "status": 307,
+      "url": "https://127.0.0.1:3153/companies?_rsc=synthetic-cc",
+      "location": "/companies?_rsc",
+      "cache": "private, no-cache, no-store, must-revalidate, max-age=0",
+      "type": null
+    },
+    {
+      "path": "/companies",
+      "stage": "canonical-cache-key",
+      "status": 200,
+      "url": "https://127.0.0.1:3153/companies?_rsc",
+      "location": null,
+      "cache": "private, no-cache, no-store, must-revalidate, max-age=0",
+      "type": "text/x-component"
+    },
+    {
+      "path": "/companies",
+      "query": "",
+      "status": 307,
+      "url": "https://127.0.0.1:3153/companies",
+      "location": "/companies?_rsc",
+      "cache": "private, no-cache, no-store, must-revalidate, max-age=0",
+      "type": null
+    },
+    {
+      "path": "/companies",
+      "stage": "canonical-cache-key",
+      "status": 200,
+      "url": "https://127.0.0.1:3153/companies?_rsc",
+      "location": null,
+      "cache": "private, no-cache, no-store, must-revalidate, max-age=0",
+      "type": "text/x-component"
+    },
+    {
+      "path": "/contacts",
+      "query": "?_rsc=synthetic-cc",
+      "status": 307,
+      "url": "https://127.0.0.1:3153/contacts?_rsc=synthetic-cc",
+      "location": "/contacts?_rsc",
+      "cache": "private, no-cache, no-store, must-revalidate, max-age=0",
+      "type": null
+    },
+    {
+      "path": "/contacts",
+      "stage": "canonical-cache-key",
+      "status": 200,
+      "url": "https://127.0.0.1:3153/contacts?_rsc",
+      "location": null,
+      "cache": "private, no-cache, no-store, must-revalidate, max-age=0",
+      "type": "text/x-component"
+    },
+    {
+      "path": "/contacts",
+      "query": "",
+      "status": 307,
+      "url": "https://127.0.0.1:3153/contacts",
+      "location": "/contacts?_rsc",
+      "cache": "private, no-cache, no-store, must-revalidate, max-age=0",
+      "type": null
+    },
+    {
+      "path": "/contacts",
+      "stage": "canonical-cache-key",
+      "status": 200,
+      "url": "https://127.0.0.1:3153/contacts?_rsc",
+      "location": null,
+      "cache": "private, no-cache, no-store, must-revalidate, max-age=0",
+      "type": "text/x-component"
+    }
+  ]
+}

@@ -47,3 +47,7 @@ PO 2026-10-31 zatwierdził 1A/2A i pełne wykonanie [analizy/planu](history-corr
 ## Recruitment Lifecycle 3C — DEC-057
 
 [Zatwierdzony kontrakt i plan](../technical/recruitment-lifecycle-3c.md): jawne zakończenie z wynikiem, wznowienie kontynuacji i kolejne odrębne zakończenia. Nie aplikowano dotyczy cyklu konkretnego zakończenia. Audytowane korekty wyniku/dnia zachowują oryginały bez fikcyjnych zdarzeń. Zakończone bez bieżącego etapu, snapshot zachowany; wznowienie ma preview ważnej podstawy. Korekta 3A/3B nie otwiera sprawy. UI: wymagany wynik bez domyślnego, świadome potwierdzenie oferty, opcjonalny dzień/unknown, cancel bez skutków, konflikt wymaga nowego podglądu, odzyskanie identycznego zamiaru, audyt przy zakończeniu. Tylko lokalny zakres bez otwartych Task/CalendarEvent; BR-011 pozostaje wymagana dla przyszłych modułów. Pełny TC-012/Global Search i publiczne bramki poza pokryciem. Addytywny ledger, bez resetu persistent DEV. Implementacja i osobny PR autoryzowane, bez merge/deploymentu; wyniki weryfikacji raportowane osobno.
+
+## Companies & Contacts — DEC-058, wykonanie 2026-10-31
+
+Zatwierdzone 1A/2A/3A [kontraktu](companies-contacts-analysis.md) wykonano jako osobny vertical slice katalogu i relacji z istniejącymi RecruitmentCase. [QA](companies-contacts-qa.md): runner105/105 integracji i92/92 HTTPS browser PASS, natural exit0; [raport i review](companies-contacts-report.md). Event participants/historia osoby, CalendarEvent/Task, import/Search i publiczne bramki pozostają kolejnymi etapami. Autoryzowany osobny PR, bez merge/deploymentu.
