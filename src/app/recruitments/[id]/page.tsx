@@ -63,7 +63,12 @@ export default async function RecruitmentDetailPage({
       </Link>
       <section className="min-w-0" aria-label="Zapisane dane sprawy">
         <CaseContent item={item} />
-        <CaseEventForm userId={user.id} caseId={item.id} />
+        <CaseEventForm
+          userId={user.id}
+          caseId={item.id}
+          status={item.status}
+          stageVersion={item.stage_version}
+        />
         <CaseHistory caseId={item.id} result={history} />
       </section>
     </Workspace>

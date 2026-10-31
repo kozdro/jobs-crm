@@ -629,3 +629,333 @@ for (const width of [1440, 1024, 768, 375])
     ).toBe(true);
     await expect(history(page)).toContainText("Kontakt wychodzący");
   });
+
+const stageConfirmation = (page: Page, invitation: boolean) =>
+  page.getByRole("checkbox", {
+    name: invitation
+      ? "Potwierdzam otrzymanie zaproszenia do etapu kwalifikacyjnego i ustawienie wskazanego etapu jako bieżącego."
+      : "Potwierdzam rzeczywiste przejście do wskazanego etapu i ustawienie go jako bieżącego.",
+    exact: true,
+  });
+async function stageAction(
+  page: Page,
+  name: string,
+  invitation = true,
+  day?: string,
+) {
+  await page
+    .getByRole("button", {
+      name: invitation ? "Zarejestruj zaproszenie" : "Zmień etap",
+      exact: true,
+    })
+    .click();
+  await page.getByLabel("Nazwa etapu", { exact: true }).fill(name);
+  if (day)
+    await page
+      .getByLabel("Data zdarzenia (opcjonalnie)", { exact: true })
+      .fill(day);
+  await stageConfirmation(page, invitation).check();
+  await save(page).click();
+  await expect(
+    page.getByText("Zdarzenie zostało zapisane.", { exact: true }),
+  ).toBeVisible();
+  await expect(save(page)).not.toBeVisible();
+}
+
+test("DEC055 LC007/008/011/012/013: real invitation starts recruitment, skipped stage preserves snapshots and active contact never regresses", async ({
+  page,
+}) => {
+  const c = await create();
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${c.id}`);
+  await expect(
+    page.getByRole("button", { name: "Zmień etap", exact: true }),
+  ).not.toBeVisible();
+  await stageAction(page, "Screening");
+  await expect(
+    page.getByText("W rekrutacji", { exact: true }).first(),
+  ).toBeVisible();
+  await page.reload();
+  await expect(
+    page.getByText("Screening", { exact: true }).first(),
+  ).toBeVisible();
+  await stageAction(page, "Rozmowa techniczna", true, "2000-01-01");
+  await stageAction(page, "Oferta", false);
+  await record(page, "inbound");
+  await record(page, "application");
+  const { data, error } = await c.client
+    .from("recruitment_case")
+    .select("status,current_stage,stage_version")
+    .eq("id", c.id)
+    .single();
+  expect(error === null).toBe(true);
+  expect(data).toEqual({
+    status: "W rekrutacji",
+    current_stage: "Oferta",
+    stage_version: 3,
+  });
+  const { data: facts } = await c.client
+    .from("recruitment_case_event")
+    .select("kind,stage_name,previous_stage")
+    .eq("case_id", c.id)
+    .order("recorded_at");
+  expect(
+    facts?.map((row) => [row.kind, row.stage_name, row.previous_stage]),
+  ).toEqual([
+    ["invitation", "Screening", null],
+    ["invitation", "Rozmowa techniczna", "Screening"],
+    ["stage-change", "Oferta", "Rozmowa techniczna"],
+    ["contact", null, null],
+    ["application", null, null],
+  ]);
+  await expect(
+    history(page).getByText("Screening", { exact: false }).first(),
+  ).toBeVisible();
+  await page.goto(`${target.appOrigin}/recruitments`);
+  await expect(page.getByText(c.title, { exact: true })).toBeVisible();
+});
+
+test("DEC055 invitation requires truthful confirmation; unconfirmed save writes nothing and stale concurrent stage requires refresh", async ({
+  page,
+}) => {
+  const c = await create();
+  const intents: string[] = [];
+  await page.route("**/recruitments/commands", async (route) => {
+    const body = route.request().postDataJSON();
+    if (body.kind === "stage-change") intents.push(body.requestId);
+    await route.continue();
+  });
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${c.id}`);
+  await page
+    .getByRole("button", { name: "Zarejestruj zaproszenie", exact: true })
+    .click();
+  await page.getByLabel("Nazwa etapu", { exact: true }).fill("Screening");
+  await save(page).click();
+  await expect(stageConfirmation(page, true)).not.toBeChecked();
+  expect(await stored(c.id)).toHaveLength(0);
+  await stageConfirmation(page, true).check();
+  await save(page).click();
+  await expect(save(page)).not.toBeVisible();
+  await page.getByRole("button", { name: "Zmień etap", exact: true }).click();
+  await page
+    .getByLabel("Nazwa etapu", { exact: true })
+    .fill("Stale browser choice");
+  const { error } = await c.client.rpc("record_recruitment_case_stage_event", {
+    p_request_id: randomUUID(),
+    p_case_id: c.id,
+    p_kind: "stage-change",
+    p_stage_name: "Other tab",
+    p_expected_stage_version: 1,
+    p_occurred_on: null,
+  });
+  expect(error === null).toBe(true);
+  await stageConfirmation(page, false).check();
+  await save(page).click();
+  await expect(
+    page.getByRole("button", { name: "Odśwież stan sprawy", exact: true }),
+  ).toBeVisible();
+  expect(await stored(c.id)).toHaveLength(2);
+  await page
+    .getByRole("button", { name: "Odśwież stan sprawy", exact: true })
+    .click();
+  await expect(page.getByLabel("Nazwa etapu", { exact: true })).toHaveValue(
+    "Stale browser choice",
+  );
+  await expect(stageConfirmation(page, false)).not.toBeChecked();
+  expect(await stored(c.id)).toHaveLength(2);
+  await stageConfirmation(page, false).check();
+  await save(page).click();
+  await expect(
+    page.getByText("Zdarzenie zostało zapisane.", { exact: true }),
+  ).toBeVisible();
+  expect(await stored(c.id)).toHaveLength(3);
+  expect(intents).toHaveLength(2);
+  expect(intents[0]).not.toBe(intents[1]);
+  const { data: finalState } = await c.client
+    .from("recruitment_case")
+    .select("status,current_stage,stage_version")
+    .eq("id", c.id)
+    .single();
+  expect(finalState).toEqual({
+    status: "W rekrutacji",
+    current_stage: "Stale browser choice",
+    stage_version: 3,
+  });
+});
+
+for (const width of [1440, 1024, 768, 375])
+  test(`DEC055 invitation keyboard and long Unicode stage layout ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    const c = await create();
+    await login(page);
+    await page.goto(`${target.appOrigin}/recruitments/${c.id}`);
+    const trigger = page.getByRole("button", {
+      name: "Zarejestruj zaproszenie",
+      exact: true,
+    });
+    await trigger.focus();
+    await page.keyboard.press("Enter");
+    await page
+      .getByLabel("Nazwa etapu", { exact: true })
+      .fill("😀".repeat(160));
+    await stageConfirmation(page, true).check();
+    if (width === 375)
+      await page.screenshot({
+        path: test.info().outputPath("invitation-375.png"),
+        fullPage: true,
+      });
+    await save(page).click();
+    await expect(save(page)).not.toBeVisible();
+    await expect(
+      page.getByText("W rekrutacji", { exact: true }).first(),
+    ).toBeVisible();
+    if (width === 1440) {
+      await expect(history(page).getByRole("listitem")).toHaveCount(1);
+      await expect(
+        page.getByRole("region", { name: "Szczegóły sprawy", exact: true }),
+      ).toContainText("😀".repeat(160));
+      await expect(
+        page.getByRole("form", {
+          name: "Zarejestruj zaproszenie",
+          exact: true,
+        }),
+      ).not.toBeVisible();
+      await page.screenshot({
+        path: test.info().outputPath("active-detail-1440.png"),
+        fullPage: true,
+      });
+    }
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    ).toBe(true);
+  });
+
+test("DEC055 lost invitation response reload recovers one stage mutation without resubmitting private draft", async ({
+  page,
+}) => {
+  const c = await create();
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${c.id}`);
+  let writes = 0;
+  await page.route("**/recruitments/commands", async (route) => {
+    const body = route.request().postDataJSON();
+    if (body.kind !== "invitation") return route.continue();
+    writes++;
+    const response = await route.fetch();
+    expect(response.status()).toBe(200);
+    return route.abort("failed");
+  });
+  await page
+    .getByRole("button", { name: "Zarejestruj zaproszenie", exact: true })
+    .click();
+  await page
+    .getByLabel("Nazwa etapu", { exact: true })
+    .fill("Private stage draft");
+  await stageConfirmation(page, true).check();
+  await save(page).click();
+  await expect(
+    page.getByRole("button", { name: "Ponów ten sam zapis", exact: true }),
+  ).toBeVisible();
+  expect(await stored(c.id)).toHaveLength(1);
+  const storage = await page.evaluate(() => Object.values(sessionStorage));
+  expect(storage.join(" ")).not.toContain("Private stage draft");
+  await page.reload();
+  await expect(
+    page.getByText("Zdarzenie zostało zapisane.", { exact: true }),
+  ).toBeVisible();
+  expect(writes).toBe(1);
+  expect(await stored(c.id)).toHaveLength(1);
+  const { data } = await c.client
+    .from("recruitment_case")
+    .select("current_stage,stage_version,status")
+    .eq("id", c.id)
+    .single();
+  expect(data).toEqual({
+    status: "W rekrutacji",
+    current_stage: "Private stage draft",
+    stage_version: 1,
+  });
+});
+
+test("DEC055 natural Tab ShiftTab and dirty cancel for invitation and stage-change restore initiating focus without a write", async ({
+  page,
+}) => {
+  const c = await create();
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${c.id}`);
+  for (const invitation of [true, false]) {
+    const before = await stored(c.id);
+    const { data: stateBefore } = await c.client
+      .from("recruitment_case")
+      .select("status,current_stage,stage_version")
+      .eq("id", c.id)
+      .single();
+    const trigger = page.getByRole("button", {
+      name: invitation ? "Zarejestruj zaproszenie" : "Zmień etap",
+      exact: true,
+    });
+    await tabTo(page, trigger);
+    await page.keyboard.press("Enter");
+    const heading = page.getByRole("heading", {
+      name: invitation ? "Zarejestruj zaproszenie" : "Zmień etap",
+      exact: true,
+    });
+    await expect(heading).toBeFocused();
+    await page.keyboard.press("Tab");
+    const stage = page.getByLabel("Nazwa etapu", { exact: true });
+    await expect(stage).toBeFocused();
+    await stage.fill("Unsubmitted stage");
+    await page.keyboard.press("Tab");
+    await expect(
+      page.getByLabel("Data zdarzenia (opcjonalnie)", { exact: true }),
+    ).toBeFocused();
+    // Traverse native date segments with real Tab presses.
+    await tabTo(page, stageConfirmation(page, invitation));
+    await page.keyboard.press("Space");
+    await expect(stageConfirmation(page, invitation)).toBeChecked();
+    await page.keyboard.press("Tab");
+    await expect(save(page)).toBeFocused();
+    await page.keyboard.press("Tab");
+    const cancel = page.getByRole("button", { name: "Anuluj", exact: true });
+    await expect(cancel).toBeFocused();
+    await page.keyboard.press("Enter");
+    const back = page.getByRole("button", {
+      name: "Wróć do formularza",
+      exact: true,
+    });
+    const discard = page.getByRole("button", {
+      name: "Potwierdź porzucenie",
+      exact: true,
+    });
+    await page.keyboard.press("Tab");
+    await expect(back).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(discard).toBeFocused();
+    await page.keyboard.press("Shift+Tab");
+    await expect(back).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(heading).toBeFocused();
+    await tabTo(page, cancel);
+    await page.keyboard.press("Enter");
+    await page.keyboard.press("Tab");
+    await expect(back).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(discard).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(save(page)).not.toBeVisible();
+    await expect(trigger).toBeFocused();
+    expect(await stored(c.id)).toEqual(before);
+    const { data: stateAfter } = await c.client
+      .from("recruitment_case")
+      .select("status,current_stage,stage_version")
+      .eq("id", c.id)
+      .single();
+    expect(stateAfter).toEqual(stateBefore);
+    if (invitation) await stageAction(page, "Actual screening");
+  }
+});

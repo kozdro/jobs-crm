@@ -1,3 +1,7 @@
+import type {
+  CaseEvent,
+  RecordCaseEventInput,
+} from "@/modules/recruitment/domain/case-events";
 import { uuidPattern } from "@/modules/recruitment/domain/recruitment-case";
 
 export const eventIntentStorageKey = "jobs-crm.case-event.pending";
@@ -30,4 +34,34 @@ export function parsePendingEventIntent(
   } catch {
     return null;
   }
+}
+
+/** Recovery must match the full intent, including the observed stage revision. */
+export function eventMatchesIntent(
+  event: CaseEvent,
+  intent: RecordCaseEventInput,
+): boolean {
+  return (
+    event.case_id === intent.caseId &&
+    event.kind === intent.kind &&
+    event.direction === intent.direction &&
+    event.occurred_on === intent.occurredOn &&
+    (event.stage_name ?? null) === (intent.stageName ?? null) &&
+    (event.expected_stage_version ?? null) ===
+      (intent.expectedStageVersion ?? null)
+  );
+}
+
+/** Successful responses establish a floor while RSC refresh may still be pending. */
+export function confirmedStageRevision(
+  previous: number,
+  event: CaseEvent,
+): number {
+  if (
+    (event.kind === "invitation" || event.kind === "stage-change") &&
+    event.expected_stage_version !== null
+  ) {
+    return Math.max(previous, event.expected_stage_version + 1);
+  }
+  return previous;
 }

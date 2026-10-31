@@ -266,6 +266,7 @@ try {
       "--test-concurrency=1",
       "tests/integration/recruitment/recruitment.test.ts",
       "tests/integration/recruitment/lifecycle.test.ts",
+      "tests/integration/recruitment/stages.test.ts",
     ],
     env,
     "business-integration",

@@ -11,7 +11,9 @@ export type RecruitmentCase = {
   title: string;
   description: string | null;
   source_url: string | null;
-  status: "Zapisane" | "Kontakt rozpoczęty";
+  status: "Zapisane" | "Kontakt rozpoczęty" | "W rekrutacji";
+  current_stage: string | null;
+  stage_version: number;
   created_at: string;
 };
 
@@ -32,7 +34,7 @@ export const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** PostgreSQL text cannot represent NUL or an unpaired UTF-16 surrogate. */
-function storableText(value: string) {
+export function storableText(value: string) {
   return !value.includes("\0") && value.isWellFormed();
 }
 export function unicodeLength(value: string) {

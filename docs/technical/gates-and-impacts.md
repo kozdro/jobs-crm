@@ -60,3 +60,8 @@ Publiczne SEC/OPS/privacy i pozostałe OPEN nadal obowiązują. Brak fetch w tym
 ## Rozszerzenie DATA-01 — Lifecycle 3A, DEC-054
 
 [Kontrakt 3A](recruitment-lifecycle-3a.md) rozszerza DATA-01 o trwałe fakty aplikowania/kontaktu i jedyne przejście Zapisane → Kontakt rozpoczęty. Minimalne pola, opcjonalny dzień bez godziny, brak przyszłych dat i osobny czas zapisu zatwierdzone. SEC-02 obejmuje nowe tabele, RPC, triggery, granty i relacje przez realne Auth/Data API/RLS A/B/anon; atomowość i retry wymagają runtime proof. OPEN-004 pozostaje bramką publicznego udostępnienia (korekta/usuwanie/audyt); pozostały lifecycle i zależne OPEN nie są rozstrzygnięte. Nie resetować persistent local target; testy przez izolowany runner.
+
+
+## Rozszerzenie DATA-01 / SEC-02 — Lifecycle 3B, DEC-055
+
+[DEC-055](../decisions/product-decisions.md) i [kontrakt](recruitment-lifecycle-3b-analysis.md) dopuszczają zaproszenia, bieżący indywidualny etap, historyczne snapshoty i kontrolowane wejście do W rekrutacji. Addytywne migracje istniejącego ledgeru Drizzle; bez backfillu i bez resetu persistent DEV. SEC-02 wymaga realnych Auth/Data API/RLS A/B/anon, ochrony relacji i bezpośrednich zapisów oraz atomowości/retry/stale-stage conflict. OPEN-004 nadal przed publicznym udostępnieniem, OPEN-003/027 dla globalnego/default zestawu. Brak nowej architektury/ADR.

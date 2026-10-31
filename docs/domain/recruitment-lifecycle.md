@@ -50,3 +50,10 @@ To **nie jest zamknięta tabela wszystkich dozwolonych przejść**. W szczególn
 ## Autoryzowany podzbiór przejść 3A — DEC-054
 
 [3A](../technical/recruitment-lifecycle-3a.md): aplikowanie lub kontakt inbound/outbound na istniejącej własnej sprawie Zapisane zapisuje jeden fakt i atomowo zmienia status na Kontakt rozpoczęty. W Kontakt rozpoczęty kolejny rzeczywisty fakt dopisuje historię bez zmiany statusu. Komenda nie obsługuje innych statusów/przejść, korekt, zamykania i wznowień. Nie jest to pełny graf lifecycle. Data wsteczna nie cofa statusu; brak daty nie jest zastępowany created_at.
+
+
+## Autoryzowany podzbiór 3B — DEC-055
+
+Późniejsza [DEC-055](../decisions/product-decisions.md) rozszerza 3A: świadomie zarejestrowane kwalifikujące zaproszenie na własnej sprawie Zapisane/Kontakt rozpoczęty ustawia atomowo W rekrutacji i indywidualny etap. Wcześniejszy kontakt nie jest wymagany ani dopisywany. W rekrutacji kolejne zaproszenie albo jawna zmiana etapu ustawia bieżący etap, zachowując historyczne nazwy; sama zmiana etapu nie tworzy zaproszenia. Dalsza aplikacja/kontakt nie cofają statusu ani etapu.
+
+W lokalnym 3B wcześniejsze statusy mają brak etapu; W rekrutacji wymaga niepustego etapu. Bez pełnej macierzy dla Zakończone. Etapy można pomijać, bez domyślnego/globalnego zestawu. Data faktu wsteczna lub nieznana nie odtwarza automatycznie bieżącego stanu; zapis jawnie ustawia wybrany etap jako bieżący. Konkurencyjna zmiana wymaga konfliktu i odświeżenia. Retry identycznego zamiaru zwraca wcześniejszy wynik, bez ponowienia skutków. Append-only lokalnie; OPEN-004 nadal przed publicznym udostępnieniem.

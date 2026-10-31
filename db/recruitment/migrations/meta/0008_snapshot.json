@@ -1,0 +1,354 @@
+{
+  "id": "aa67e341-ff31-49a5-94d3-555cae6a3186",
+  "prevId": "999ed57e-c97e-4466-ab1b-f31f61ac6e43",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.recruitment_case": {
+      "name": "recruitment_case",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "owner_id": {
+          "name": "owner_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "auth.uid()"
+        },
+        "request_id": {
+          "name": "request_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_url": {
+          "name": "source_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Zapisane'"
+        },
+        "current_stage": {
+          "name": "current_stage",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "stage_version": {
+          "name": "stage_version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "recruitment_case_owner_created_idx": {
+          "name": "recruitment_case_owner_created_idx",
+          "columns": [
+            {
+              "expression": "owner_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "recruitment_case_owner_title_idx": {
+          "name": "recruitment_case_owner_title_idx",
+          "columns": [
+            {
+              "expression": "owner_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "title",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "recruitment_case_owner_url_idx": {
+          "name": "recruitment_case_owner_url_idx",
+          "columns": [
+            {
+              "expression": "owner_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "md5(\"source_url\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"recruitment_case\".\"source_url\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "recruitment_case_owner_fk": {
+          "name": "recruitment_case_owner_fk",
+          "tableFrom": "recruitment_case",
+          "tableTo": "users",
+          "schemaTo": "auth",
+          "columnsFrom": ["owner_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "recruitment_case_owner_id_unique": {
+          "name": "recruitment_case_owner_id_unique",
+          "nullsNotDistinct": false,
+          "columns": ["owner_id", "id"]
+        },
+        "recruitment_case_owner_request_unique": {
+          "name": "recruitment_case_owner_request_unique",
+          "nullsNotDistinct": false,
+          "columns": ["owner_id", "request_id"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "recruitment_case_title_valid": {
+          "name": "recruitment_case_title_valid",
+          "value": "char_length(\"recruitment_case\".\"title\") BETWEEN 1 AND 160 AND \"recruitment_case\".\"title\" = public.recruitment_trim(\"recruitment_case\".\"title\")"
+        },
+        "recruitment_case_description_valid": {
+          "name": "recruitment_case_description_valid",
+          "value": "\"recruitment_case\".\"description\" IS NULL OR (char_length(\"recruitment_case\".\"description\") BETWEEN 1 AND 2000 AND \"recruitment_case\".\"description\" = public.recruitment_trim(\"recruitment_case\".\"description\"))"
+        },
+        "recruitment_case_url_valid": {
+          "name": "recruitment_case_url_valid",
+          "value": "\"recruitment_case\".\"source_url\" IS NULL OR (\"recruitment_case\".\"source_url\" = public.recruitment_source_url(\"recruitment_case\".\"source_url\") AND public.recruitment_source_url(\"recruitment_case\".\"source_url\") IS NOT NULL)"
+        },
+        "recruitment_case_3b_status_stage": {
+          "name": "recruitment_case_3b_status_stage",
+          "value": "(\"recruitment_case\".\"status\" IN ('Zapisane', 'Kontakt rozpoczęty') AND \"recruitment_case\".\"current_stage\" IS NULL AND \"recruitment_case\".\"stage_version\" = 0) OR (\"recruitment_case\".\"status\" = 'W rekrutacji' AND \"recruitment_case\".\"current_stage\" IS NOT NULL AND char_length(\"recruitment_case\".\"current_stage\") BETWEEN 1 AND 160 AND \"recruitment_case\".\"current_stage\" = public.recruitment_trim(\"recruitment_case\".\"current_stage\") AND \"recruitment_case\".\"stage_version\" >= 1)"
+        }
+      },
+      "isRLSEnabled": true
+    },
+    "public.recruitment_case_event": {
+      "name": "recruitment_case_event",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "owner_id": {
+          "name": "owner_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "auth.uid()"
+        },
+        "request_id": {
+          "name": "request_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "case_id": {
+          "name": "case_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "direction": {
+          "name": "direction",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "occurred_on": {
+          "name": "occurred_on",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "stage_name": {
+          "name": "stage_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "previous_stage": {
+          "name": "previous_stage",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expected_stage_version": {
+          "name": "expected_stage_version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "recorded_at": {
+          "name": "recorded_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "recruitment_case_event_timeline_idx": {
+          "name": "recruitment_case_event_timeline_idx",
+          "columns": [
+            {
+              "expression": "owner_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "case_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "occurred_on",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            },
+            {
+              "expression": "recorded_at",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "recruitment_case_event_owned_case_fk": {
+          "name": "recruitment_case_event_owned_case_fk",
+          "tableFrom": "recruitment_case_event",
+          "tableTo": "recruitment_case",
+          "columnsFrom": ["owner_id", "case_id"],
+          "columnsTo": ["owner_id", "id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "recruitment_case_event_owner_request_unique": {
+          "name": "recruitment_case_event_owner_request_unique",
+          "nullsNotDistinct": false,
+          "columns": ["owner_id", "request_id"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "recruitment_case_event_3b_payload_valid": {
+          "name": "recruitment_case_event_3b_payload_valid",
+          "value": "((\"recruitment_case_event\".\"kind\" = 'application' AND \"recruitment_case_event\".\"direction\" IS NULL) OR (\"recruitment_case_event\".\"kind\" = 'contact' AND \"recruitment_case_event\".\"direction\" IS NOT NULL AND \"recruitment_case_event\".\"direction\" IN ('inbound', 'outbound'))) AND \"recruitment_case_event\".\"stage_name\" IS NULL AND \"recruitment_case_event\".\"previous_stage\" IS NULL AND \"recruitment_case_event\".\"expected_stage_version\" IS NULL OR (\"recruitment_case_event\".\"kind\" IN ('invitation', 'stage-change') AND \"recruitment_case_event\".\"direction\" IS NULL AND \"recruitment_case_event\".\"stage_name\" IS NOT NULL AND char_length(\"recruitment_case_event\".\"stage_name\") BETWEEN 1 AND 160 AND \"recruitment_case_event\".\"stage_name\" = public.recruitment_trim(\"recruitment_case_event\".\"stage_name\") AND \"recruitment_case_event\".\"expected_stage_version\" IS NOT NULL AND \"recruitment_case_event\".\"expected_stage_version\" BETWEEN 0 AND 2147483646 AND (\"recruitment_case_event\".\"previous_stage\" IS NULL OR (char_length(\"recruitment_case_event\".\"previous_stage\") BETWEEN 1 AND 160 AND \"recruitment_case_event\".\"previous_stage\" = public.recruitment_trim(\"recruitment_case_event\".\"previous_stage\"))))"
+        },
+        "recruitment_case_event_date_valid": {
+          "name": "recruitment_case_event_date_valid",
+          "value": "\"recruitment_case_event\".\"occurred_on\" IS NULL OR (\"recruitment_case_event\".\"occurred_on\" >= DATE '0001-01-01' AND \"recruitment_case_event\".\"occurred_on\" <= (CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Warsaw')::date)"
+        }
+      },
+      "isRLSEnabled": true
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

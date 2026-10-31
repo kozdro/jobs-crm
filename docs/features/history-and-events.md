@@ -39,3 +39,8 @@ Utrzymać jedną, prawdziwą chronologię sprawy oraz cykl życia zaplanowanych 
 ## Przyrost historii 3A — DEC-054
 
 [3A](../technical/recruitment-lifecycle-3a.md) dodaje wyłącznie fakty aplikowania i kontaktu inbound/outbound; nie implementuje kalendarza, notatek ani uczestników. Fakty mają opcjonalny dzień bez godziny i osobny serwerowy czas rejestracji; znane daty malejąco ze stabilnym remisem, nieznane w oznaczonym obszarze. Bez fikcyjnego backfillu, osobnego zdarzenia zmiany statusu i kopiowania faktu. Append-only bez edycji/usuwania zaakceptowane jako ograniczenie przyrostu; OPEN-004 (korekta/unieważnienie/audyt) nadal obowiązuje przed publicznym udostępnieniem.
+
+
+## Historia zaproszeń i etapów — DEC-055
+
+Lokalny 3B rozszerza jedną historię 3A o kwalifikujące zaproszenie oraz jawne przejście etapu. Zachowuje nazwy etapów w chwili faktu (poprzedni/nowy), nie kopiuje technicznej zmiany statusu jako drugiego faktu. Nieznany dzień pozostaje nieznany; data zapisu jest oddzielna. Zapis etapu oznacza jawne ustawienie bieżącego etapu, bez automatycznego replay historii po datach. Odczyt paginowany, unknown date i deterministyczna kolejność zachowane. Append-only obowiązuje lokalnie także 3B; korekty/audyt OPEN-004 nadal blokują publiczne udostępnienie. Nie powstają kalendarz, spotkanie odbyte ani komunikacja.

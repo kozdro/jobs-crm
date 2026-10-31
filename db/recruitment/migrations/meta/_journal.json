@@ -57,6 +57,13 @@
       "when": 1793374992260,
       "tag": "0007_recruitment_lifecycle_3a",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793383623156,
+      "tag": "0008_recruitment_lifecycle_3b",
+      "breakpoints": true
     }
   ]
 }

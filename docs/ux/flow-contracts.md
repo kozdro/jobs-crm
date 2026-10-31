@@ -162,3 +162,12 @@ Późniejsze zlecenie PO §13.2, [DEC-052](../decisions/product-decisions.md), w
 ## F04 — autoryzowany podzakres 3A (DEC-054)
 
 Na detalu własnej istniejącej sprawy użytkownik rejestruje aplikowanie lub kontakt inbound/outbound. Formularz nie sugeruje wykonania na podstawie URL/nazwy, wymaga świadomego potwierdzenia faktu, pozwala podać dzień bez godziny albo pozostawić datę nieznaną i uprzedza o braku edycji/usuwania. Nie dodaje kanału, opisu komunikacji, osoby ani CV. Anulowanie nie zapisuje niczego; błąd zachowuje dane, niepewny wynik pozwala sprawdzić/ponowić ten sam zamiar, bez obietnicy niezapisanego sukcesu. Po potwierdzonym zapisie detal/lista pokazują Kontakt rozpoczęty i jeden fakt. Jedna historia, znane daty najnowsze pierwsze i osobny obszar nieznanych dat, czas zapisu dostępny oddzielnie. OPEN-004 przed publicznym udostępnieniem; korekty i reszta F04 nadal poza 3A.
+
+
+## Lokalny kontrakt 3B — DEC-055, rozszerzenie F04/F06
+
+Na istniejącym detalu przycisk „Zarejestruj zaproszenie” otwiera jawny formularz: indywidualna nazwa etapu, opcjonalny dzień otrzymania zaproszenia, potwierdzenie rzeczywistego kwalifikującego zaproszenia i ustawienia wskazanego etapu jako bieżącego. Nie jest to termin spotkania ani potwierdzenie odbioru aplikacji. Zapis ustawia W rekrutacji atomowo z historią i etapem.
+
+W W rekrutacji osobna akcja „Zmień etap” potwierdza faktyczne przejście bez tworzenia zaproszenia; można pominąć pośrednie. Kolejne zaproszenia pozostają rzeczywistymi zaproszeniami. Daty wsteczne i unknown nie służą do automatycznego odtwarzania bieżącego stanu. Status i etap widoczne osobno. Lokalny append-only komunikowany przed zapisem.
+
+Pending blokuje ponowienie, unknown result zachowuje identyfikator zamiaru do recovery/retry. Konflikt etapu wymaga odświeżenia aktualnego stanu bez cichego nadpisania i bez wymyślania zdarzenia. Anulowanie nie mutuje; fokus, błędy, naturalna klawiatura i układ 1440/1024/768/375 podlegają QA. Bez nowego Kanbana, drawera, kalendarza i konfiguratora szablonów.

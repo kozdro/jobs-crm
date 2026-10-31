@@ -8,7 +8,8 @@ import {
   type RecordCaseEventInput,
 } from "../domain/case-events";
 
-const eventColumns = "id,case_id,kind,direction,occurred_on,recorded_at";
+const eventColumns =
+  "id,case_id,kind,direction,occurred_on,recorded_at,stage_name,previous_stage,expected_stage_version";
 export const caseEventPageSize = 25;
 
 function readEvent(value: unknown): CaseEvent {
@@ -20,13 +21,24 @@ function readEvent(value: unknown): CaseEvent {
     !uuidPattern.test(row.id) ||
     typeof row.case_id !== "string" ||
     !uuidPattern.test(row.case_id) ||
-    (row.kind !== "application" && row.kind !== "contact") ||
-    (row.kind === "application"
+    !["application", "contact", "invitation", "stage-change"].includes(
+      row.kind as string,
+    ) ||
+    (row.kind !== "contact"
       ? row.direction !== null
       : row.direction !== "inbound" && row.direction !== "outbound") ||
     (row.occurred_on !== null &&
       (typeof row.occurred_on !== "string" ||
         !isCalendarDate(row.occurred_on))) ||
+    (row.kind === "invitation" || row.kind === "stage-change"
+      ? typeof row.stage_name !== "string" ||
+        !row.stage_name.trim() ||
+        !Number.isSafeInteger(row.expected_stage_version) ||
+        (row.expected_stage_version as number) < 0 ||
+        !(row.previous_stage === null || typeof row.previous_stage === "string")
+      : row.stage_name !== null ||
+        row.previous_stage !== null ||
+        row.expected_stage_version !== null) ||
     typeof row.recorded_at !== "string" ||
     !Number.isFinite(Date.parse(row.recorded_at))
   )
@@ -34,10 +46,13 @@ function readEvent(value: unknown): CaseEvent {
   return {
     id: row.id,
     case_id: row.case_id,
-    kind: row.kind,
+    kind: row.kind as CaseEvent["kind"],
     direction: row.direction as CaseEvent["direction"],
     occurred_on: row.occurred_on as string | null,
     recorded_at: row.recorded_at,
+    stage_name: row.stage_name as string | null,
+    previous_stage: row.previous_stage as string | null,
+    expected_stage_version: row.expected_stage_version as number | null,
   };
 }
 export async function recordRecruitmentCaseEvent(
@@ -46,20 +61,38 @@ export async function recordRecruitmentCaseEvent(
 ): Promise<{ kind: "created" | "replayed"; event: CaseEvent }> {
   const parsed = parseRecordCaseEventInput(input);
   if (!parsed.success) throw new CaseRepositoryError("invalid");
-  const { data, error } = await client.rpc("record_recruitment_case_event", {
-    p_request_id: parsed.data.requestId,
-    p_case_id: parsed.data.caseId,
-    p_kind: parsed.data.kind,
-    p_direction: parsed.data.direction,
-    p_occurred_on: parsed.data.occurredOn,
-  });
+  const stageAction =
+    parsed.data.kind === "invitation" || parsed.data.kind === "stage-change";
+  const { data, error } = await client.rpc(
+    stageAction
+      ? "record_recruitment_case_stage_event"
+      : "record_recruitment_case_event",
+    stageAction
+      ? {
+          p_request_id: parsed.data.requestId,
+          p_case_id: parsed.data.caseId,
+          p_kind: parsed.data.kind,
+          p_stage_name: parsed.data.stageName,
+          p_expected_stage_version: parsed.data.expectedStageVersion,
+          p_occurred_on: parsed.data.occurredOn,
+        }
+      : {
+          p_request_id: parsed.data.requestId,
+          p_case_id: parsed.data.caseId,
+          p_kind: parsed.data.kind,
+          p_direction: parsed.data.direction,
+          p_occurred_on: parsed.data.occurredOn,
+        },
+  );
   if (error)
     throw new CaseRepositoryError(
-      error.code === "PT409"
-        ? "conflict"
-        : error.code === "22023"
-          ? "invalid"
-          : "unavailable",
+      error.code === "PT412"
+        ? "stale"
+        : error.code === "PT409"
+          ? "conflict"
+          : error.code === "22023"
+            ? "invalid"
+            : "unavailable",
     );
   if (data?.kind !== "created" && data?.kind !== "replayed")
     throw new CaseRepositoryError("unavailable");
@@ -68,7 +101,9 @@ export async function recordRecruitmentCaseEvent(
     event.case_id !== parsed.data.caseId ||
     event.kind !== parsed.data.kind ||
     event.direction !== parsed.data.direction ||
-    event.occurred_on !== parsed.data.occurredOn
+    event.occurred_on !== parsed.data.occurredOn ||
+    event.stage_name !== (parsed.data.stageName ?? null) ||
+    event.expected_stage_version !== (parsed.data.expectedStageVersion ?? null)
   )
     throw new CaseRepositoryError("unavailable");
   return { kind: data.kind, event };

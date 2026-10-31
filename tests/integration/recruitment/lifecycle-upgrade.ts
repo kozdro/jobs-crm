@@ -54,7 +54,7 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
     };
     assert.equal(
       journal.entries.length,
-      8,
+      9,
       "Upgrade test must cover the exact current migration history",
     );
     for (const entry of journal.entries.slice(0, 7)) await apply(entry.tag);
@@ -91,11 +91,42 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
       );
       assert.equal(recorded.result.kind, "created");
     });
+    const before3b =
+      await upgrade`select * from public.recruitment_case where id=${caseId}::uuid`;
+    const facts3a =
+      await upgrade`select * from public.recruitment_case_event where case_id=${caseId}::uuid`;
+    assert.equal(facts3a.length, 1);
+    await apply(journal.entries[8].tag);
+    const after3b =
+      await upgrade`select * from public.recruitment_case where id=${caseId}::uuid`;
+    const { current_stage, stage_version, ...preserved } = after3b[0];
+    assert.equal(current_stage, null);
+    assert.equal(stage_version, 0);
+    assert.deepEqual(preserved, { ...before3b[0] });
+    const factsAfter =
+      await upgrade`select * from public.recruitment_case_event where case_id=${caseId}::uuid`;
+    const { stage_name, previous_stage, expected_stage_version, ...oldFact } =
+      factsAfter[0];
+    assert.equal(stage_name, null);
+    assert.equal(previous_stage, null);
+    assert.equal(expected_stage_version, null);
+    assert.deepEqual(oldFact, { ...facts3a[0] });
+    await upgrade.begin(async (tx) => {
+      await tx.unsafe("set local role authenticated");
+      await tx.unsafe("select set_config('request.jwt.claim.sub',$1,true)", [
+        owner,
+      ]);
+      const [invited] = await tx.unsafe(
+        "select public.record_recruitment_case_stage_event($1::uuid,$2::uuid,'invitation','Technical',0,null) result",
+        [randomUUID(), caseId],
+      );
+      assert.equal(invited.result.kind, "created");
+    });
     const [continued] =
       await upgrade`select status from public.recruitment_case where id=${caseId}::uuid`;
     assert.equal(
       continued.status,
-      "Kontakt rozpoczęty",
+      "W rekrutacji",
       "An upgraded existing case accepts the real lifecycle transaction",
     );
   } finally {

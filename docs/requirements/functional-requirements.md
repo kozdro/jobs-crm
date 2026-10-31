@@ -245,3 +245,8 @@ OPEN-002/024 są **PARTIALLY RESOLVED**, reszta pozostaje OPEN. Ta adnotacja nie
 ## Zatwierdzony przyrost Recruitment Lifecycle 3A — DEC-054
 
 [Kontrakt 3A](../technical/recruitment-lifecycle-3a.md) wykonuje podzakres FR-LC-002/004/005/006/014 oraz FR-HE-001/002/003/005 na istniejącej sprawie: trzy fakty (aplikowanie, kontakt inbound/outbound), opcjonalny rzeczywisty dzień bez godziny lub brak daty, osobny serwerowy czas rejestracji, atomowe Zapisane → Kontakt rozpoczęty. Dalszy fakt przy Kontakt rozpoczęty pozostawia status. Bez edycji/usuwania, korekty statusu, notatek, kanałów, osób/CV, etapów i innych przejść. FR-LC-024 nie jest realizowany. Główne wymagania nie są w całości ukończone tym podzbiorem; OPEN-004 pozostaje bramką publicznego udostępnienia.
+
+
+## Zatwierdzony podzakres 3B — DEC-055
+
+FR-LC-007/008/011/012/013/014 oraz FR-HE-001/002/003 i FR-AD-002 rozszerzają się o [kontrakt 3B](../technical/recruitment-lifecycle-3b-analysis.md). Jedna świadoma akcja zaproszenia ustawia W rekrutacji i indywidualny etap, także ze Zapisane bez kontaktu. Kolejne zaproszenia i jawne zmiany etapów zachowują historię i status; kontakt/aplikacja w W rekrutacji nie cofają stanu. Pola i dozwolone kombinacje tylko według DEC-055; full LC-009/010/global/default stages pozostają poza przyrostem i OPEN-003/027. Historyczny kontrakt 3A pozostaje baseline'em poprzedniego etapu, a jego ograniczenie dwóch statusów rozszerza wyłącznie DEC-055.

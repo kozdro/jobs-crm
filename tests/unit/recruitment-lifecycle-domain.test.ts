@@ -93,3 +93,77 @@ describe("DEC-054 real case facts and calendar dates", () => {
     expect(isCalendarDate("9999-12-31")).toBe(true);
   });
 });
+
+describe("DEC-055 stage event input", () => {
+  const stage = (extra: Record<string, unknown> = {}) =>
+    parse({
+      kind: "invitation",
+      stageName: "Screening",
+      expectedStageVersion: 0,
+      ...extra,
+    });
+  it("explicitly names a qualifying stage without fabricating another fact", () => {
+    expect(stage()).toEqual({
+      success: true,
+      data: {
+        requestId,
+        caseId,
+        kind: "invitation",
+        direction: null,
+        occurredOn: null,
+        stageName: "Screening",
+        expectedStageVersion: 0,
+      },
+    });
+    expect(
+      stage({
+        kind: "stage-change",
+        stageName: "  Zadanie techniczne  ",
+        expectedStageVersion: 2,
+      }),
+    ).toMatchObject({
+      success: true,
+      data: {
+        kind: "stage-change",
+        stageName: "Zadanie techniczne",
+        expectedStageVersion: 2,
+      },
+    });
+  });
+  it.each([
+    undefined,
+    null,
+    "",
+    " \t\u00a0",
+    12,
+    "ą".repeat(161),
+    "bad\0",
+    "\ud800",
+  ])("rejects missing/invalid stage %j", (stageName) =>
+    expect(stage({ stageName }).success).toBe(false),
+  );
+  it("counts Unicode codepoints consistently with PostgreSQL and trims ECMAScript whitespace", () => {
+    const stageName = "ą😀".repeat(80);
+    expect(stage({ stageName: "\u00a0" + stageName + "\ufeff" })).toMatchObject(
+      { success: true, data: { stageName } },
+    );
+    expect(stage({ stageName: stageName + "x" }).success).toBe(false);
+  });
+  it.each([undefined, null, -1, 0.5, "1", Infinity, 2147483647])(
+    "requires an observed bounded integer revision %j",
+    (expectedStageVersion) =>
+      expect(stage({ expectedStageVersion }).success).toBe(false),
+  );
+  it("does not let application/contact mutate stage or client choose history snapshots", () => {
+    expect(parse({ stageName: "HR", expectedStageVersion: 1 }).success).toBe(
+      false,
+    );
+    expect(stage({ previousStage: "HR" }).success).toBe(false);
+    expect(stage({ direction: "inbound" }).success).toBe(false);
+    expect(stage({ occurredOn: "2026-10-31" }).success).toBe(false);
+    expect(stage({ occurredOn: "2026-10-01" })).toMatchObject({
+      success: true,
+      data: { occurredOn: "2026-10-01" },
+    });
+  });
+});

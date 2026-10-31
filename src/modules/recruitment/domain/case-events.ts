@@ -1,11 +1,13 @@
-import { uuidPattern } from "./recruitment-case";
+import { storableText, unicodeLength, uuidPattern } from "./recruitment-case";
 
 export type RecordCaseEventInput = {
   requestId: string;
   caseId: string;
-  kind: "application" | "contact";
+  kind: "application" | "contact" | "invitation" | "stage-change";
   direction: "inbound" | "outbound" | null;
   occurredOn: string | null;
+  stageName?: string | null;
+  expectedStageVersion?: number | null;
 };
 export type CaseEvent = {
   id: string;
@@ -14,6 +16,9 @@ export type CaseEvent = {
   direction: RecordCaseEventInput["direction"];
   occurred_on: string | null;
   recorded_at: string;
+  stage_name: string | null;
+  previous_stage: string | null;
+  expected_stage_version: number | null;
 };
 export type CaseEventInputErrors = Partial<
   Record<keyof RecordCaseEventInput | "form", string>
@@ -55,9 +60,15 @@ export function parseRecordCaseEventInput(
   if (
     Object.keys(input).some(
       (key) =>
-        !["requestId", "caseId", "kind", "direction", "occurredOn"].includes(
-          key,
-        ),
+        ![
+          "requestId",
+          "caseId",
+          "kind",
+          "direction",
+          "occurredOn",
+          "stageName",
+          "expectedStageVersion",
+        ].includes(key),
     )
   )
     errors.form = "Formularz zawiera nieobsługiwane pola.";
@@ -65,16 +76,42 @@ export function parseRecordCaseEventInput(
     errors.requestId = "Nieprawidłowy identyfikator zapisu.";
   if (typeof input.caseId !== "string" || !uuidPattern.test(input.caseId))
     errors.caseId = "Nieprawidłowy identyfikator sprawy.";
-  if (input.kind !== "application" && input.kind !== "contact")
+  if (
+    !["application", "contact", "invitation", "stage-change"].includes(
+      input.kind as string,
+    )
+  )
     errors.kind = "Wybierz faktycznie wykonane działanie.";
   const direction = input.direction ?? null;
   if (
-    (input.kind === "application" && direction !== null) ||
+    (input.kind !== "contact" && direction !== null) ||
     (input.kind === "contact" &&
       direction !== "inbound" &&
       direction !== "outbound")
   )
     errors.direction = "Wybierz kierunek kontaktu.";
+  const stageAction =
+    input.kind === "invitation" || input.kind === "stage-change";
+  const stageName =
+    typeof input.stageName === "string" ? input.stageName.trim() : null;
+  const expectedStageVersion = input.expectedStageVersion ?? null;
+  if (stageAction) {
+    if (
+      !stageName ||
+      unicodeLength(stageName) > 160 ||
+      !storableText(stageName)
+    )
+      errors.stageName = "Podaj nazwę etapu od 1 do 160 znaków.";
+    if (
+      typeof expectedStageVersion !== "number" ||
+      !Number.isSafeInteger(expectedStageVersion) ||
+      expectedStageVersion < 0 ||
+      expectedStageVersion >= 2_147_483_647
+    )
+      errors.expectedStageVersion = "Odśwież sprawę przed zmianą etapu.";
+  } else if (input.stageName != null || expectedStageVersion !== null) {
+    errors.form = "To działanie nie zmienia etapu.";
+  }
   const occurredOn = input.occurredOn ?? null;
   if (
     occurredOn !== null &&
@@ -93,6 +130,9 @@ export function parseRecordCaseEventInput(
       kind: input.kind as RecordCaseEventInput["kind"],
       direction: direction as RecordCaseEventInput["direction"],
       occurredOn: occurredOn as string | null,
+      ...(stageAction
+        ? { stageName, expectedStageVersion: expectedStageVersion as number }
+        : {}),
     },
   };
 }

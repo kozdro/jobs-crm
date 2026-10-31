@@ -36,6 +36,9 @@ const event = {
   direction: input.direction,
   occurred_on: input.occurredOn,
   recorded_at: "2026-10-30T12:00:00Z",
+  stage_name: null,
+  previous_stage: null,
+  expected_stage_version: null,
 };
 function request(
   extra: Record<string, unknown> = {},
@@ -108,6 +111,7 @@ describe("Lifecycle command identity and response boundary", () => {
   });
   it.each([
     ["PT409", 409, "conflict"],
+    ["PT412", 409, "stale"],
     ["22023", 400, "invalid"],
     ["42501", 503, "unavailable"],
     ["XX000", 503, "unavailable"],
@@ -137,6 +141,8 @@ describe("Lifecycle command identity and response boundary", () => {
       description: null,
       source_url: null,
       status: "Kontakt rozpoczęty",
+      current_stage: null,
+      stage_version: 0,
       created_at: event.recorded_at,
     };
     mocks.rpc.mockResolvedValue({
@@ -243,5 +249,108 @@ describe("Lifecycle read projection and bounded pagination", () => {
         { ...input, direction: null },
       ),
     ).rejects.toMatchObject({ kind: "invalid" });
+  });
+});
+
+describe("DEC-055 stage command and recovery", () => {
+  const stageInput = {
+    ...input,
+    kind: "invitation" as const,
+    direction: null,
+    stageName: "Screening",
+    expectedStageVersion: 0,
+  };
+  const stageEvent = {
+    ...event,
+    kind: "invitation",
+    direction: null,
+    stage_name: "Screening",
+    previous_stage: null,
+    expected_stage_version: 0,
+  };
+  it("dispatches a stage intention to its invoker RPC after verified identity", async () => {
+    mocks.rpc.mockResolvedValue({
+      data: { kind: "created", event: stageEvent },
+      error: null,
+    });
+    const response = await POST(request(stageInput));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      kind: "created",
+      event: stageEvent,
+    });
+    expect(mocks.rpc).toHaveBeenCalledWith(
+      "record_recruitment_case_stage_event",
+      {
+        p_request_id: input.requestId,
+        p_case_id: input.caseId,
+        p_kind: "invitation",
+        p_stage_name: "Screening",
+        p_expected_stage_version: 0,
+        p_occurred_on: input.occurredOn,
+      },
+    );
+  });
+  it("verifies replay snapshots and revision rather than accepting unrelated success", async () => {
+    const client = { rpc: mocks.rpc } as unknown as SupabaseClient;
+    mocks.rpc.mockResolvedValue({
+      data: { kind: "replayed", event: stageEvent },
+      error: null,
+    });
+    expect(await recordRecruitmentCaseEvent(client, stageInput)).toEqual({
+      kind: "replayed",
+      event: stageEvent,
+    });
+    mocks.rpc.mockResolvedValue({
+      data: {
+        kind: "replayed",
+        event: { ...stageEvent, expected_stage_version: 1 },
+      },
+      error: null,
+    });
+    await expect(
+      recordRecruitmentCaseEvent(client, stageInput),
+    ).rejects.toMatchObject({ kind: "unavailable" });
+  });
+  it("reads create replay in active recruitment with separate stage and revision", async () => {
+    const active = {
+      id: input.caseId,
+      title: "Existing",
+      description: null,
+      source_url: null,
+      status: "W rekrutacji",
+      current_stage: "HR",
+      stage_version: 2,
+      created_at: event.recorded_at,
+    };
+    mocks.rpc.mockResolvedValue({
+      data: { kind: "replayed", case: active },
+      error: null,
+    });
+    expect(
+      await createRecruitmentCase(
+        { rpc: mocks.rpc } as unknown as SupabaseClient,
+        {
+          requestId: input.requestId,
+          title: "Existing",
+          description: null,
+          sourceUrl: null,
+          allowDuplicate: false,
+        },
+      ),
+    ).toEqual({ kind: "replayed", case: active });
+    mocks.rpc.mockResolvedValue({
+      data: { kind: "replayed", case: { ...active, current_stage: null } },
+      error: null,
+    });
+    await expect(
+      createRecruitmentCase({ rpc: mocks.rpc } as unknown as SupabaseClient, {
+        requestId: input.requestId,
+        title: "Existing",
+        description: null,
+        sourceUrl: null,
+        allowDuplicate: false,
+      }),
+    ).rejects.toMatchObject({ kind: "unavailable" });
   });
 });

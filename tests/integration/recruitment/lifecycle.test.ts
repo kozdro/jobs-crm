@@ -230,7 +230,7 @@ test(
       async () => {
         const fresh = await create();
         for (const invalid of [
-          { p_kind: "invitation" },
+          { p_kind: "automatic-receipt" },
           { p_kind: "contact", p_direction: null },
           { p_direction: "outbound" },
           { p_kind: "contact", p_direction: "sideways" },
@@ -679,7 +679,7 @@ test(
       },
     );
     await t.test(
-      "Physical upgrade 0000–0006 → 0007 preserves synthetic pre-existing case fields and creates no fictional history",
+      "Physical upgrades through 3A and 3B preserve existing cases and real facts without fictional backfill",
       async () => {
         await verifyLifecycleUpgrade(target);
       },

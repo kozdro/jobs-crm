@@ -269,3 +269,23 @@ Poniższe dodatkowe kryteria dotyczą wyłącznie [kontraktu 3A](../technical/re
 | AC-HE-003-02 | Nie powstają fakty z samego created_at, URL, nazwy ani technicznej zmiany statusu; brak drugiego wpisu dla statusu wynikającego z zapisanego faktu. UI uprzedza, że w 3A brak edycji/usuwania. | FR-HE-003 |
 
 Owner isolation FR/AC-AD-002 i BR-030 obejmuje nowe fakty, ich listy/count/ID oraz relacje ze sprawą również przez bezpośredni Data API; wpis nie może zostać przypisany cudzej sprawie. Publiczne udostępnienie nadal wymaga OPEN-004 oraz pozostałych zależnych bramek.
+
+
+## AC podzakresu Lifecycle 3B — DEC-055
+
+APPROVED w zakresie DEC-055; stan wykonania osobno w raporcie 3B. Historyczne AC 3A pozostają dowodem kontraktu poprzedniego etapu; 3B rozszerza obsługiwane statusy komendy bez zmiany semantyki aplikowania/kontaktu.
+
+| ID | Kryterium | FR |
+|---|---|---|
+| AC-LC-007-01 | Świadoma rejestracja kwalifikującego zaproszenia na własnej sprawie Zapisane lub Kontakt rozpoczęty zapisuje jeden fakt, W rekrutacji i wymagany etap atomowo. Nie wymaga ani nie dopisuje wcześniejszego kontaktu/aplikacji. Potwierdzenie aplikacji nie wystarcza. | FR-LC-007 |
+| AC-LC-008-01 | Detal i istniejąca lista prezentują W rekrutacji oraz indywidualny etap osobno, także po reload; wcześniejsze statusy bez etapu. | FR-LC-008 |
+| AC-LC-011-01 | Indywidualna nazwa etapu 1–160 punktów kodowych po trim dotyczy wyłącznie danej sprawy; pusty/whitespace/161 odrzucone, bez seedowania domyślnego/globalnego zestawu. | FR-LC-011 |
+| AC-LC-012-01 | W W rekrutacji jawna zmiana do dowolnego indywidualnego etapu nie wymaga zaliczenia pośrednich, nie tworzy zaproszenia i nie zmienia statusu. | FR-LC-012 |
+| AC-LC-013-01 | Historia zachowuje snapshot poprzedniej i nowej nazwy; kolejne zaproszenia/zmiany nie nadpisują faktów. Wsteczny dzień nie odtwarza automatycznie bieżącego etapu: skutek ustawienia bieżącego jest jawnie potwierdzany. | FR-LC-013 |
+| AC-LC-014-02 | Konkurencyjna zmiana etapu daje konflikt i wymaga odświeżenia bez częściowego zapisu; identyczny owner-scoped zamiar replayuje wynik również po dalszej progresji. Odmienny payload pod tym kluczem konfliktuje. | FR-LC-014 |
+| AC-LC-005-02 | Faktyczne aplikowanie w W rekrutacji dodaje fakt, zachowując status i etap; nie tworzy nowego zaproszenia. | FR-LC-005 |
+| AC-LC-006-02 | Faktyczny kontakt inbound/outbound w W rekrutacji zachowuje status i etap, bez domyślnego CV/osoby. | FR-LC-006 |
+| AC-HE-002-04 | Zaproszenie i zmiana etapu mają opcjonalny poprawny nieprzyszły dzień faktu, nieznany bez zastępowania datą zapisu; dzień zaproszenia nie jest przyszłym terminem rozmowy. | FR-HE-002 |
+| AC-HE-003-03 | UI uprzedza o lokalnym append-only także 3B. Zaproszenie nie tworzy dodatkowego fikcyjnego kontaktu, aplikacji, statusowego wpisu ani odbytego spotkania; sama zmiana etapu nie tworzy zaproszenia. | FR-HE-003 |
+
+AC-HE-001-01 rozszerza się na mieszaną paginowaną historię; AC-AD-002 na sprawę–zaproszenie–etap i listy/direct ID/count/recovery/relacje, z odmową B/anon bez wycieku, także bez BFF. Pełne publiczne AC nadal nie są ukończone.

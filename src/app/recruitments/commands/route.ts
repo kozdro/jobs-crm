@@ -83,7 +83,11 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof CaseRepositoryError)
       return failure(
-        error.kind === "conflict" ? 409 : error.kind === "invalid" ? 400 : 503,
+        error.kind === "conflict" || error.kind === "stale"
+          ? 409
+          : error.kind === "invalid"
+            ? 400
+            : 503,
         error.kind,
       );
     // Never log/return private SQL/provider payloads or tokens.

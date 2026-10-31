@@ -29,7 +29,7 @@ function sourceHostname(url: string) {
 }
 export function CaseListItem({ item }: { item: RecruitmentCase }) {
   return (
-    <li className="grid min-w-0 gap-3 border-b border-border px-5 py-5 last:border-b-0 lg:grid-cols-[minmax(0,1fr)_100px_150px] lg:gap-5 md:px-6">
+    <li className="grid min-w-0 gap-3 border-b border-border px-5 py-5 last:border-b-0 lg:grid-cols-[minmax(0,1fr)_180px_150px] lg:gap-5 md:px-6">
       <div className="min-w-0">
         <h2 className="text-[15px] leading-6 font-semibold [overflow-wrap:anywhere]">
           <Link
@@ -59,8 +59,17 @@ export function CaseListItem({ item }: { item: RecruitmentCase }) {
           </a>
         )}
       </div>
-      <div>
-        <CaseStatus status={item.status} />
+      <div className="min-w-0 space-y-2">
+        <div>
+          <span className="sr-only">Status: </span>
+          <CaseStatus status={item.status} />
+        </div>
+        {item.current_stage && (
+          <p className="text-[13px] leading-5 [overflow-wrap:anywhere]">
+            <span className="text-muted-foreground">Etap: </span>
+            {item.current_stage}
+          </p>
+        )}
       </div>
       <div className="text-[13px] leading-5 text-muted-foreground">
         <span className="mr-2 lg:block">Dodano do CRM</span>
@@ -84,6 +93,14 @@ export function CaseContent({ item }: { item: RecruitmentCase }) {
             <dt className="mb-2 text-[13px] text-muted-foreground">Status</dt>
             <dd>
               <CaseStatus status={item.status} />
+            </dd>
+          </div>
+          <div>
+            <dt className="mb-1 text-[13px] text-muted-foreground">
+              Bieżący etap
+            </dt>
+            <dd className="[overflow-wrap:anywhere]">
+              {item.current_stage ?? "Nie ustawiono etapu"}
             </dd>
           </div>
           <div>

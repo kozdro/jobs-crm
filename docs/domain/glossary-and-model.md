@@ -78,3 +78,8 @@ To świadomie częściowy model: brak edycji/lifecycle, tabel historii i audytu.
 ## Podmodel Lifecycle 3A — DEC-054
 
 [Kontrakt](../technical/recruitment-lifecycle-3a.md) rozszerza minimalny create/read o rzeczywisty fakt aplikowania lub kontaktu inbound/outbound na istniejącej sprawie. Opcjonalny dzień zdarzenia nie jest czasem rejestracji. Historia tylko dopisuje fakty; status Zapisane przechodzi atomowo w Kontakt rozpoczęty, a kolejne fakty tego statusu nie zmieniają. Brak relacji osób/CV, kanałów, treści komunikacji, etapów i backfillu. OPEN-004 nadal blokuje publiczne udostępnienie bez rozstrzygnięcia korekt.
+
+
+## Podmodel 3B — DEC-055
+
+Zaproszenie kwalifikujące jest potwierdzonym przez użytkownika faktem zaproszenia do konkretnego etapu oceny, odrębnym od aplikowania, kontaktu i CalendarEvent. Indywidualny etap bieżący należy do sprawy; historyczne nazwy etapów są snapshotami faktów zaproszenia/zmiany, a nie globalnym słownikiem. [Kontrakt 3B](../technical/recruitment-lifecycle-3b-analysis.md) i DEC-055 rozszerzają DATA-01; nie rozstrzygają globalnych szablonów, zamknięć ani korekt.
