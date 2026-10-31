@@ -392,31 +392,102 @@ export function RecruitmentWorkspace({
       previous.href !== window.location.pathname + window.location.search
     )
       return;
+    // Route focus/scroll handling and the session boundary can settle on different
+    // frames. Keep restoring until layout AND offsets agree across consecutive
+    // paint frames, rather than assuming the first visible frame is final.
     let frame = 0;
-    const observer = new MutationObserver(restoreWhenVisible);
-    function restoreWhenVisible() {
-      if (!root.current?.getClientRects().length) return;
+    let stableFrames = 0;
+    let lastLayout = "";
+    let started = false;
+    let cancelled = false;
+    const observer = new MutationObserver(startWhenVisible);
+    const resize = new ResizeObserver(() => {
+      stableFrames = 0;
+    });
+    function stopForUserInput() {
+      cancelled = true;
+      cancelAnimationFrame(frame);
       observer.disconnect();
-      frame = requestAnimationFrame(() => {
-        window.scrollTo(0, previous!.scrollY);
-        if (board.current) board.current.scrollLeft = previous!.boardScroll;
-        for (const [status, scroll] of Object.entries(previous!.columns)) {
+      resize.disconnect();
+    }
+    function restoreFrame() {
+      if (cancelled || !root.current?.getClientRects().length) return;
+      const geometry = [
+        document.documentElement.scrollHeight,
+        innerWidth,
+        innerHeight,
+        root.current.offsetHeight,
+        board.current?.scrollWidth ?? 0,
+        ...Object.values(columns.current).map(
+          (column) => column?.scrollHeight ?? 0,
+        ),
+      ].join(":");
+      const targetY = Math.min(
+        previous!.scrollY,
+        Math.max(0, document.documentElement.scrollHeight - innerHeight),
+      );
+      const targetBoard = Math.min(
+        previous!.boardScroll,
+        Math.max(
+          0,
+          (board.current?.scrollWidth ?? 0) - (board.current?.clientWidth ?? 0),
+        ),
+      );
+      const aligned =
+        Math.abs(window.scrollY - targetY) < 1 &&
+        (!board.current ||
+          Math.abs(board.current.scrollLeft - targetBoard) < 1) &&
+        Object.entries(previous!.columns).every(([status, scroll]) => {
           const column = columns.current[status];
-          if (column) column.scrollTop = scroll;
-        }
+          return (
+            !column ||
+            Math.abs(
+              column.scrollTop -
+                Math.min(
+                  scroll,
+                  Math.max(0, column.scrollHeight - column.clientHeight),
+                ),
+            ) < 1
+          );
+        });
+      stableFrames = aligned && geometry === lastLayout ? stableFrames + 1 : 0;
+      lastLayout = geometry;
+      window.scrollTo({ top: targetY, behavior: "instant" });
+      if (board.current) board.current.scrollLeft = targetBoard;
+      for (const [status, scroll] of Object.entries(previous!.columns)) {
+        const column = columns.current[status];
+        if (column) column.scrollTop = scroll;
+      }
+      if (stableFrames >= 8) {
+        observer.disconnect();
+        resize.disconnect();
         if (hash)
           window.history.replaceState(window.history.state, "", previous!.href);
-      });
+      } else frame = requestAnimationFrame(restoreFrame);
+    }
+    function startWhenVisible() {
+      if (started || cancelled || !root.current?.getClientRects().length)
+        return;
+      started = true;
+      resize.observe(document.body);
+      resize.observe(root.current);
+      frame = requestAnimationFrame(restoreFrame);
     }
     observer.observe(document.body, {
       attributes: true,
       subtree: true,
       attributeFilter: ["hidden"],
     });
-    restoreWhenVisible();
+    for (const event of ["wheel", "touchstart", "pointerdown", "keydown"])
+      window.addEventListener(event, stopForUserInput, {
+        once: true,
+        passive: true,
+      });
+    startWhenVisible();
     return () => {
-      observer.disconnect();
-      cancelAnimationFrame(frame);
+      stopForUserInput();
+      for (const event of ["wheel", "touchstart", "pointerdown", "keydown"])
+        window.removeEventListener(event, stopForUserInput);
     };
   }, [data, userId]);
   function select(id: string, element: HTMLButtonElement) {
@@ -810,25 +881,78 @@ function WorkspaceDrawer({
   }, [id, userId, retry]);
   useEffect(() => {
     closeButton.current?.focus({ preventScroll: true });
+    function backgroundVisible(element: HTMLElement) {
+      if (!shown(element) || !panel.current) return false;
+      const rect = element.getBoundingClientRect();
+      const overlay = panel.current.getBoundingClientRect();
+      if (
+        rect.width === 0 ||
+        rect.height === 0 ||
+        rect.top < 0 ||
+        rect.bottom > innerHeight ||
+        rect.left < 0 ||
+        rect.right > innerWidth
+      )
+        return false;
+      if (
+        rect.right > overlay.left &&
+        rect.left < overlay.right &&
+        rect.bottom > overlay.top &&
+        rect.top < overlay.bottom
+      )
+        return false;
+      for (
+        let parent = element.parentElement;
+        parent;
+        parent = parent.parentElement
+      ) {
+        const style = getComputedStyle(parent);
+        const clip = parent.getBoundingClientRect();
+        if (
+          /(auto|scroll|hidden|clip)/.test(style.overflowY) &&
+          (rect.top < clip.top || rect.bottom > clip.bottom)
+        )
+          return false;
+        if (
+          /(auto|scroll|hidden|clip)/.test(style.overflowX) &&
+          (rect.left < clip.left || rect.right > clip.right)
+        )
+          return false;
+      }
+      return true;
+    }
     function key(event: KeyboardEvent) {
       if (event.key === "Escape") {
         event.preventDefault();
         close();
+        return;
       }
-      if (event.key === "Tab" && mobile && panel.current) {
-        const elements = Array.from(
-          panel.current.querySelectorAll<HTMLElement>(focusables),
-        ).filter(shown);
-        const first = elements[0],
-          last = elements.at(-1);
-        if (event.shiftKey && document.activeElement === first) {
-          event.preventDefault();
-          last?.focus();
-        } else if (!event.shiftKey && document.activeElement === last) {
-          event.preventDefault();
-          first?.focus();
-        }
-      }
+      if (event.key !== "Tab" || !panel.current) return;
+      // Desktop remains nonmodal: include unobscured visible background controls
+      // and cards. Exclude scroll-clipped/offscreen targets before focus moves.
+      const elements = Array.from(
+        document.querySelectorAll<HTMLElement>(focusables),
+      ).filter((element) =>
+        panel.current!.contains(element)
+          ? shown(element)
+          : !mobile && backgroundVisible(element),
+      );
+      if (!elements.length) return;
+      const current = elements.indexOf(document.activeElement as HTMLElement);
+      const index = event.shiftKey
+        ? current <= 0
+          ? elements.length - 1
+          : current - 1
+        : (current + 1) % elements.length;
+      event.preventDefault();
+      const next = elements[index];
+      next.focus({ preventScroll: true });
+      if (panel.current.contains(next))
+        next.scrollIntoView({
+          block: "nearest",
+          inline: "nearest",
+          behavior: "instant",
+        });
     }
     function focus(event: FocusEvent) {
       const element = event.target;
@@ -838,15 +962,7 @@ function WorkspaceDrawer({
         panel.current.contains(element)
       )
         return;
-      const rect = element.getBoundingClientRect(),
-        overlay = panel.current.getBoundingClientRect();
-      if (
-        mobile ||
-        (rect.right > overlay.left &&
-          rect.left < overlay.right &&
-          rect.bottom > overlay.top &&
-          rect.top < overlay.bottom)
-      )
+      if (mobile || !backgroundVisible(element))
         closeButton.current?.focus({ preventScroll: true });
     }
     document.addEventListener("keydown", key);

@@ -154,7 +154,10 @@ async function snapshot() {
   return values;
 }
 async function chooseOrganization(page: Page) {
-  const selector = page.getByLabel("Organizacja", { exact: true });
+  const selector = page.getByRole("combobox", {
+    name: "Organizacja",
+    exact: true,
+  });
   await expect(selector).toBeEnabled();
   for (let i = 0; i < 3; i++) {
     if (await selector.locator(`option[value="${organization.id}"]`).count())
@@ -229,7 +232,9 @@ test("DEC059 default board/list filters operate on complete data, presets and co
     .getByLabel("Osoba kontaktowa", { exact: true })
     .selectOption(person.id);
   await expect(rows).toHaveCount(1);
-  await page.getByLabel("Sortowanie", { exact: true }).selectOption("oldest");
+  await page
+    .getByRole("combobox", { name: "Sortowanie", exact: true })
+    .selectOption("oldest");
   await page.getByRole("button", { name: "Aktywne", exact: true }).click();
   await expect(rows).toHaveCount(1);
   await page.getByRole("button", { name: "Zakończone", exact: true }).click();
@@ -238,13 +243,15 @@ test("DEC059 default board/list filters operate on complete data, presets and co
   await page
     .getByRole("button", { name: "Wyczyść filtry", exact: true })
     .click();
-  await expect(page.getByLabel("Organizacja", { exact: true })).toHaveValue("");
   await expect(
-    page.getByLabel("Osoba kontaktowa", { exact: true }),
+    page.getByRole("combobox", { name: "Organizacja", exact: true }),
   ).toHaveValue("");
-  await expect(page.getByLabel("Sortowanie", { exact: true })).toHaveValue(
-    "newest",
-  );
+  await expect(
+    page.getByRole("combobox", { name: "Osoba kontaktowa", exact: true }),
+  ).toHaveValue("");
+  await expect(
+    page.getByRole("combobox", { name: "Sortowanie", exact: true }),
+  ).toHaveValue("newest");
   await expect(rows).toHaveCount(25);
   await page.getByRole("link", { name: "Rekrutacje", exact: true }).click();
   await expect(
@@ -274,6 +281,22 @@ test("DEC059 drawer exact ID, readonly history and detail return restore actual 
     drawer(page).getByRole("button", { name: /Zakończ|Zapisz|Zmień etap/ }),
   ).toHaveCount(0);
   const contextURL = page.url();
+  let clickScroll: number | null = null;
+  page.on("console", (message) => {
+    if (message.text().startsWith("qa-workspace-click-scroll:"))
+      clickScroll = Number(message.text().split(":")[1]);
+  });
+  await page.evaluate(() => {
+    document.addEventListener(
+      "click",
+      (event) => {
+        const link = (event.target as Element).closest("a");
+        if (link?.textContent?.includes("Otwórz pełną stronę"))
+          console.info(`qa-workspace-click-scroll:${scrollY}`);
+      },
+      { capture: true },
+    );
+  });
   await page.evaluate(() => window.scrollTo(0, 180));
   const scrollBefore = await page.evaluate(() => scrollY);
   await drawer(page)
@@ -285,13 +308,17 @@ test("DEC059 drawer exact ID, readonly history and detail return restore actual 
     .click();
   await expect(page).toHaveURL(contextURL);
   await expect(drawer(page)).toHaveCount(0);
-  await expect.poll(() => page.evaluate(() => scrollY)).toBe(scrollBefore);
+  await expect
+    .poll(() => page.evaluate(() => scrollY), {
+      message: JSON.stringify({ scrollBefore, clickScroll }),
+    })
+    .toBe(scrollBefore);
   await expect(
     page.getByRole("button", { name: "Lista", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByLabel("Sortowanie", { exact: true })).toHaveValue(
-    "oldest",
-  );
+  await expect(
+    page.getByRole("combobox", { name: "Sortowanie", exact: true }),
+  ).toHaveValue("oldest");
   await expect(item).toContainText(title);
   await item.click();
   await page.keyboard.press("Escape");
@@ -333,6 +360,7 @@ test("DEC059 history pagination preserves workspace token, board/column scroll a
   await drawer(page)
     .getByRole("link", { name: "Otwórz pełną stronę", exact: true })
     .click();
+  await expect(page).toHaveURL(/\/recruitments\/[a-f0-9-]+\?workspaceReturn=/);
   const token = new URL(page.url()).searchParams.get("workspaceReturn");
   expect(token).toBeTruthy();
   await page
@@ -489,6 +517,9 @@ for (const width of [1440, 1024, 768, 375, 320])
           .querySelector('[aria-label="Podgląd sprawy"]')!
           .getBoundingClientRect();
         return {
+          tag: document.activeElement?.tagName,
+          label: document.activeElement?.getAttribute("aria-label"),
+          text: document.activeElement?.textContent?.slice(0, 100),
           left: r.left,
           right: r.right,
           top: r.top,
@@ -500,8 +531,8 @@ for (const width of [1440, 1024, 768, 375, 320])
           ),
         };
       });
-      expect(focused.top).toBeGreaterThanOrEqual(0);
-      expect(focused.bottom).toBeLessThanOrEqual(901);
+      expect(focused.top, JSON.stringify(focused)).toBeGreaterThanOrEqual(0);
+      expect(focused.bottom, JSON.stringify(focused)).toBeLessThanOrEqual(901);
       if (!focused.inside)
         expect(
           focused.right <= focused.overlayLeft ||
