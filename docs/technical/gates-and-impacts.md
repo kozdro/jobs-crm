@@ -69,3 +69,7 @@ Publiczne SEC/OPS/privacy i pozostałe OPEN nadal obowiązują. Brak fetch w tym
 ## DATA-01 / SEC-02 — History Corrections, DEC-056
 
 OPEN-004/020/034 częściowo rozstrzygnięte dla korekt i terminalnego void faktów 3A/3B z audytem i atomowym uzgodnieniem trzech statusów. [Kontrakt](history-corrections-integrity-analysis.md). Wymagane realne Auth/Data API/RLS A/B/anon dla audytu, relacji i recovery, upgrade bez utraty danych, concurrency/replay i niezależne backend/frontend/security review. Nie oznacza zamknięcia retencji, pełnego lifecycle ani publicznych bramek.
+
+## Recruitment Lifecycle 3C — DEC-057
+
+[Zatwierdzony kontrakt i plan](../technical/recruitment-lifecycle-3c.md): jawne zakończenie z wynikiem, wznowienie kontynuacji i kolejne odrębne zakończenia. Nie aplikowano dotyczy cyklu konkretnego zakończenia. Audytowane korekty wyniku/dnia zachowują oryginały bez fikcyjnych zdarzeń. Zakończone bez bieżącego etapu, snapshot zachowany; wznowienie ma preview ważnej podstawy. Korekta 3A/3B nie otwiera sprawy. UI: wymagany wynik bez domyślnego, świadome potwierdzenie oferty, opcjonalny dzień/unknown, cancel bez skutków, konflikt wymaga nowego podglądu, odzyskanie identycznego zamiaru, audyt przy zakończeniu. Tylko lokalny zakres bez otwartych Task/CalendarEvent; BR-011 pozostaje wymagana dla przyszłych modułów. Pełny TC-012/Global Search i publiczne bramki poza pokryciem. Addytywny ledger, bez resetu persistent DEV. Implementacja i osobny PR autoryzowane, bez merge/deploymentu; wyniki weryfikacji raportowane osobno.

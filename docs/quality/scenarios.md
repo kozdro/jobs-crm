@@ -680,3 +680,13 @@ Regresje UC/TC-001/002/003/004/034 tylko w istniejącym podzakresie: create Zapi
 UC/TC-021 częściowo (bez DnD): własny dawny lub najnowszy wpis → poprawa dnia/direction/nazwy albo void → preview → cancel/no-write lub confirm → reload/list/detail/audit. Korekta nie tworzy faktu biznesowego. Regresje UC/TC-005/009: data nie odtwarza stanu, previous_stage pozostaje pierwotne; invite A → stage B → invite C → void A odrzucony ze względu na B; świadome void błędnego B potem A działa bez kaskady. Ostatnia aplikacja/kontakt → void → Zapisane; ostatnia komenda etapowa → void → poprzedni ważny etap lub brak etapu według kontraktu.
 
 Negatywne: obcy owner/case/event/revision, direct Data API bypass, spoofing aktora/czasu, retype/restore/delete, stale preview, równoczesne fakty/korekty/void i ABA. Retry po lost response oraz dawny create/correction replay po późniejszym void nie przywraca stanu. Upgrade zachowuje dane i klucze 3A/3B. Nowe AC: HE-002-05/003-04, LC-015-02/-03, LC-014-03/-04 oraz AD-002. Wykonanie raportowane osobno, obecnie PLANNED.
+
+## UC/TC-012/013 — podscenariusze 3C (DEC-057)
+
+1. Zamknij z zatwierdzonym wynikiem → wznów kontynuację → zamknij ponownie; odczytaj dwa odrębne zakończenia i oryginalne snapshoty.
+2. Aplikacja w pierwszym cyklu blokuje Nie aplikowano w tym cyklu. Po wznowieniu cykl bez aplikacji pozwala na Nie aplikowano; historyczna aplikacja nie znika. Korekta wcześniejszego zakończenia nadal waliduje jego własny cykl.
+3. Skoryguj wynik/dzień zakończenia; sprawdź oryginał/audyt i brak nowej aktywności/statusu. Skoryguj/void dawny fakt 3A/3B na Zakończone: brak niejawnego reopen. Sprawdź zmianę podstawy jawnego wznowienia oraz odmowę osierocenia etapu.
+4. Brak wyniku, potwierdzenia oferty, przyszły dzień, stale preview, cudzy owner/relacja → zero częściowych zapisów. Retry po utracie odpowiedzi i stare retry po kolejnych cyklach nie duplikują ani nie odtwarzają skutków.
+5. Realne close/close, close/reopen, close/correct, stale/ABA i wymuszony rollback; upgrade starych danych, real Auth/Data API/RLS A/B/anon. UI cancel/focus/conflict/recovery, reload i mały ekran.
+
+Pełny TC-012 z otwartymi zadaniami i przyszłym wydarzeniem NIE JEST wykonywany przez 3C — brak tych modułów w zatwierdzonym zakresie. TC-013 pokrywa kontynuację bez Global Search; TC-014 automatyczne proponowanie nowej sprawy nie jest wdrażane. Wyniki testów osobno w raporcie.

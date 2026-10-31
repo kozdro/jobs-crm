@@ -61,3 +61,7 @@ W lokalnym 3B wcześniejsze statusy mają brak etapu; W rekrutacji wymaga niepus
 ## Korekty integralności — DEC-056
 
 Wariant 2A [kontraktu korekt](../technical/history-corrections-integrity-analysis.md) dopuszcza atomowe uzgodnienie trzech wdrożonych statusów po korekcie/void. Stosuje pierwotną kolejność ważnych komend etapowych, nie datę faktu. Każde przejście wymaga wcześniejszego ważnego zaproszenia; bez niego odmowa bez kaskady. Przy braku komend etapowych ważny kontakt/aplikacja uzasadnia Kontakt rozpoczęty, inaczej Zapisane, oba bez etapu. To podzakres FR-LC-015/OPEN-020/034, bez niezależnego ustawiania statusu, zamykania lub wznowienia.
+
+## Zatwierdzony 3C — DEC-057
+
+[Kontrakt](../technical/recruitment-lifecycle-3c.md) rozszerza trzy aktywne statusy o jawne zamknięcie z wynikiem i kontynuację przez wznowienie. Każde zamknięcie jest osobnym zachowanym faktem; korekty wyniku/dnia przechowują oryginał i rewizje bez fikcyjnych zdarzeń. Nie aplikowano jest walidowane wyłącznie względem ważnych aplikacji w danym cyklu. Zakończone bez bieżącego etapu, snapshot zachowany; wznowienie ma preview ważnej podstawy stanu. Korekta 3A/3B nie może przejść przez barierę zamknięcia i otworzyć sprawy. Nie aplikowano w nowym cyklu nie neguje historycznej aplikacji ze starszego cyklu. BR-011 pozostaje obowiązująca dla przyszłych Task/CalendarEvent; w 3C brak tych obiektów i pełne TC-012 nie jest wykonane.

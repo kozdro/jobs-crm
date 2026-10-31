@@ -83,3 +83,7 @@ To świadomie częściowy model: brak edycji/lifecycle, tabel historii i audytu.
 ## Podmodel 3B — DEC-055
 
 Zaproszenie kwalifikujące jest potwierdzonym przez użytkownika faktem zaproszenia do konkretnego etapu oceny, odrębnym od aplikowania, kontaktu i CalendarEvent. Indywidualny etap bieżący należy do sprawy; historyczne nazwy etapów są snapshotami faktów zaproszenia/zmiany, a nie globalnym słownikiem. [Kontrakt 3B](../technical/recruitment-lifecycle-3b-analysis.md) i DEC-055 rozszerzają DATA-01; nie rozstrzygają globalnych szablonów, zamknięć ani korekt.
+
+## Doprecyzowanie 3C — DEC-057
+
+Cykl sprawy: początkowy od utworzenia sprawy, kolejne od jawnego wznowienia. Służy przypisaniu faktycznych aplikacji i konkretnego zakończenia według kolejności zastosowania komend, nie dnia faktu. Nie aplikowano odnosi się do cyklu tego zakończenia. ClosureRecord pozostaje odrębnym zachowanym zakończeniem; korekty wyniku/dnia mają rewizje audytowe zachowujące oryginał. Wznowienie nie nadpisuje dawnych zakończeń, nie jest korektą i nie fabrykuje kontaktu/zaproszenia. Task/CalendarEvent nadal poza lokalnym 3C, BR-011 pozostaje wymagana przy ich przyszłej integracji. [Kontrakt](../technical/recruitment-lifecycle-3c.md).

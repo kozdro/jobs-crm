@@ -302,3 +302,18 @@ AC-HE-001-01 rozszerza się na mieszaną paginowaną historię; AC-AD-002 na spr
 | AC-LC-014-04 | Ten sam owner/key/payload replayuje jeden wynik korekty, inny payload konfliktuje. Replay utworzenia po korekcie/void ani replay dawnej korekty po następnej nie przywraca danych/stanu; recovery rozdziela historyczny wynik od aktualnego stanu. | FR-LC-014 |
 
 AC-AD-002 obejmuje także audyt/rewizje, listę/direct ID/count/relacje/recovery i bezpośredni Data API A/B/anon. AC-HE-001-01 obejmuje paginację poprawionej mieszanej historii i czytelne oznaczenie void; błąd odczytu nie jest pustą historią. AC-HE-003-02/-03 zachowane jako historyczne ograniczenia 3A/3B, zastąpione w nowym przyroście wyłącznie przez DEC-056.
+
+## AC przyrostu Lifecycle 3C — DEC-057 (APPROVED)
+
+| ID | Kryterium | FR |
+|---|---|---|
+| AC-LC-016-03 | Brak/nieznany wynik odrzucany bez mutacji; wynik oferty wymaga jawnego potwierdzenia rzeczywistej oferty; bez wartości domyślnej i automatycznego Brak odpowiedzi. | FR-LC-016 |
+| AC-LC-016-04 | Nie aplikowano wymaga braku ważnej aplikacji w cyklu danego zakończenia, także przy korekcie starego zakończenia; aplikacja w innym cyklu nie blokuje. Przynależność cyklu nie wynika z dnia faktu. | FR-LC-016 |
+| AC-LC-017-02 | Close/reopen/close tworzy odrębne zakończenia; oryginały, wyniki i snapshoty wcześniejszych zakończeń pozostają odtwarzalne po reload. | FR-LC-017 |
+| AC-LC-017-03 | Korekta wyniku/dnia zakończenia zachowuje oryginał i prywatny audyt before/after, aktor/czas; nie tworzy nowej aktywności biznesowej, nie zmienia statusu/etapu i nie przepisuje późniejszych cykli. | FR-LC-017 |
+| AC-LC-019-03 | Jawne wznowienie ma preview stanu uzasadnionego nadal ważnymi faktami; W rekrutacji wymaga ważnego zaproszenia i etapu. Wznowienie nie generuje kontaktu/aplikacji/zaproszenia; Zakończone bez bieżącego etapu, oryginalny snapshot pozostaje. | FR-LC-019 |
+| AC-LC-015-04 | Korekta/void faktu 3A/3B na zamkniętej sprawie nie wznawia jej ani nie usuwa ClosureRecord; uzgadnianie po wznowieniu zachowuje ważne podstawy i odmowę osierocenia bez kaskady. | FR-LC-015 |
+| AC-LC-014-05 | Close/reopen/korekta zakończenia mają atomowy efekt, monotoniczne konflikty i owner/key/payload idempotencję. Stare retry nie przywraca skutków po późniejszych cyklach lub korektach; utrata odpowiedzi odzyskuje ten sam zamiar. | FR-LC-014 |
+| AC-HE-002-06 | Zakończenie/wznowienie i korekta zakończenia zachowują opcjonalny nieprzyszły dzień/unknown oraz odrębny pierwotny czas zapisu. Data nie steruje kolejnością cykli ani bieżącym stanem. | FR-HE-002 |
+
+AC-AD-002 rozszerza się na zakończenia, wznowienia, oryginały i audyt, listy/count/ID/relacje/recovery oraz bezpośredni Data API A/B/anon. AC-HE-001-01 obejmuje nową historię, paginację, błędy nieudające pustego stanu i czytelne oznaczenia korekt. AC-LC-018 i pełny TC-012 pozostają poza wykonaniem lokalnego zakresu bez otwartych Task/CalendarEvent; BR-011 nie jest uchylona. AC-LC-021 częściowe lista/detal bez Global Search.

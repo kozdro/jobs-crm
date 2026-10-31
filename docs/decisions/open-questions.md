@@ -121,3 +121,15 @@ OPEN-001/003/018/019/027/029/034 nie blokują tego wąskiego przyrostu bez etap�
 ## History Corrections & Integrity — DEC-056 (2026-10-31)
 
 OPEN-004/020/034 **PARTIALLY RESOLVED**: zatwierdzone 1A/2A i pełne wykonanie [minimalnego slice’a](../technical/history-corrections-integrity-analysis.md). Korekty czterech rodzajów faktów 3A/3B, rewizje/audyt i terminalne unieważnienie z atomowym uzgodnieniem trzech wdrożonych statusów. Zależne osierocone etapy blokują operację, bez kaskady. Pozostałe typy historii, dowolna ręczna korekta statusu, pełny lifecycle, retencja/usuwanie i publiczne bramki pozostają OPEN. Zatwierdzenie nie jest dowodem wykonania ani zgodą na publiczne udostępnienie.
+
+## Recruitment Lifecycle 3C — DEC-057 (2026-10-31)
+
+PO zatwierdził 1A/2A/3A/4A i pełne wykonanie z osobnym PR, bez merge/deploymentu. [Kontrakt 3C](../technical/recruitment-lifecycle-3c.md).
+
+- OPEN-001/002: RESOLVED dla minimalnych formularzy 3C i ośmiu wyników; Nie aplikowano dotyczy zamykanego cyklu, nie całej historii. Pozostałe formularze OPEN.
+- OPEN-019/020/034: PARTIALLY RESOLVED — jawna kontynuacja istniejącej sprawy, Zakończone bez bieżącego etapu, zachowany snapshot. Wznowienie z podglądem stanu uzasadnionego ważnymi faktami; W rekrutacji nadal wymaga zaproszenia. Bez automatycznego przyporządkowania reaplikacji ani dowolnego PATCH statusu.
+- OPEN-004/020: PARTIALLY RESOLVED — korekty wyniku/dnia zakończenia zachowują oryginały i audyt, bez kasowania i kaskady. Korekty faktów 3A/3B nie usuwają zakończeń i nie otwierają spraw.
+- OPEN-029: zatwierdzona granica lokalnego 3C bez otwartych Task/CalendarEvent; pełna obsługa anuluj/zachowaj/odłącz nadal OPEN wraz z zależnymi OPEN-040/021. Przyszłe moduły muszą respektować BR-011.
+- OPEN-037: dotychczasowa precyzja opcjonalnego nieprzyszłego dnia/unknown rozszerzona tylko na zakończenie/wznowienie; pozostałe reguły kalendarza OPEN.
+
+Zatwierdzenie nie jest wynikiem testów ani zgodą na publiczne udostępnienie.

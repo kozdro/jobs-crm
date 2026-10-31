@@ -43,3 +43,7 @@ PO zatwierdził warianty 1A/2A/3A i pełne wykonanie w osobnym PR, bez merge/dep
 ## History Corrections & Integrity — DEC-056
 
 PO 2026-10-31 zatwierdził 1A/2A i pełne wykonanie [analizy/planu](history-corrections-integrity-analysis.md), QA, niezależny review i osobny PR. Baza merge PR #16 8729e9e; prace w izolowanym worktree. Bez merge/deploymentu, ingerencji w persistent DEV i cudze zmiany.
+
+## Recruitment Lifecycle 3C — DEC-057
+
+[Zatwierdzony kontrakt i plan](../technical/recruitment-lifecycle-3c.md): jawne zakończenie z wynikiem, wznowienie kontynuacji i kolejne odrębne zakończenia. Nie aplikowano dotyczy cyklu konkretnego zakończenia. Audytowane korekty wyniku/dnia zachowują oryginały bez fikcyjnych zdarzeń. Zakończone bez bieżącego etapu, snapshot zachowany; wznowienie ma preview ważnej podstawy. Korekta 3A/3B nie otwiera sprawy. UI: wymagany wynik bez domyślnego, świadome potwierdzenie oferty, opcjonalny dzień/unknown, cancel bez skutków, konflikt wymaga nowego podglądu, odzyskanie identycznego zamiaru, audyt przy zakończeniu. Tylko lokalny zakres bez otwartych Task/CalendarEvent; BR-011 pozostaje wymagana dla przyszłych modułów. Pełny TC-012/Global Search i publiczne bramki poza pokryciem. Addytywny ledger, bez resetu persistent DEV. Implementacja i osobny PR autoryzowane, bez merge/deploymentu; wyniki weryfikacji raportowane osobno.

@@ -108,3 +108,7 @@ PO zlecił UI Foundation & UX Polish i delegował wybór kolorystyki po rzeczywi
 Dla obecnego podzakresu App Shell: sidebar desktop z siedmioma nazwami modułów w zatwierdzonej kolejności, ale aktywne tylko istniejące Dashboard i Rekrutacje; pozostałe jawnie niedostępne, bez atrap tras. Ręczne zwijanie z dostępnymi nazwami/tooltipami i zachowaniem podczas nawigacji; mobile menu zarządza focusem. Topbar udostępnia istniejące manual Quick Capture i menu konta; Global Search nie jest symulowane. Konto i natywne operacje sesji są dostępne w logicznym miejscu; DEC-051 i semantyka SDK/JWT pozostają bez zmiany.
 
 Dashboard bez fikcyjnych danych i widgetów. Lista/detal zachowują dane DEC-052; wizualny skrót opisu na liście nie zmienia zapisanego tekstu, pełny kontekst pozostaje w detalu. Quick Capture zachowuje cztery kroki, reguły, ostrzeżenia, idempotencję i recovery. Jasny system obowiązuje istniejące ekrany Auth; bez dark mode, nowego logo/nazwy, nowych pól lub modułów.
+
+## 3C — DEC-057, 2026-10-31
+
+PO zatwierdził 1A/2A/3A/4A z analizy Closure & Reopening: [kontrakt](../technical/recruitment-lifecycle-3c.md). Formularze w istniejącym detalu: wynik bez domyślnego wyboru, jawne potwierdzenie oferty, opcjonalny dzień/unknown, podgląd/potwierdzenie skutku statusu/etapu, audyt zakończeń, recovery identycznego zamiaru. Nie aplikowano jest cyklowe. Dotychczasowy visual language, focus/cancel/stale i małe ekrany zachowane. Bez DnD, nowego modułu zadań/kalendarza ani Global Search.
