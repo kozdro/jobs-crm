@@ -1,7 +1,7 @@
 # Jobs CRM
 
 > **Status projektu:** F1/F2/F3 i pierwszy RecruitmentCase/Manual Quick Capture zmergowane; bez publicznego wdrożenia. [Wyniki i ograniczenia F3](docs/technical/foundation-f3.md).
-> **Stan na:** 2026-10-30. **Język dokumentacji:** polski.
+> **Stan na:** 2026-10-31. **Język dokumentacji:** polski.
 > Recruitment Lifecycle 3A (DEC-054): [kontrakt](docs/technical/recruitment-lifecycle-3a.md) i [wyniki weryfikacji](docs/technical/recruitment-lifecycle-3a-report.md); bez publicznego wdrożenia.
 > Recruitment Lifecycle 3B (DEC-055): [zatwierdzony zakres i izolacja](docs/technical/recruitment-lifecycle-3b-analysis.md); zaproszenia i indywidualne etapy, bez publicznego udostępnienia.
 > History Corrections & Integrity (DEC-056): [kontrakt 1A/2A](docs/technical/history-corrections-integrity-analysis.md), [raport wykonania](docs/technical/history-corrections-integrity-report.md); korekty i unieważnienia historii 3A/3B z audytem, bez publicznego udostępnienia.

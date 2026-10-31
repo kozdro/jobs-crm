@@ -29,4 +29,25 @@ Ogląd 375px: before/after, wynik status/etap i potwierdzenie czytelne, brak hor
 
 ## Finalna weryfikacja
 
-**W toku — brak finalnego PASS.** Po poprawkach wskazanych przez niezależne review wymagany świeży replay zmienionej migracji 0009, pełna integracja i browser oraz manifest zgodności finalnego kandydata. Polecenie: `PATH=/Users/kozdro/.volta/tools/image/node/24.22.2/bin:$PATH node scripts/recruitment/runner.ts` w izolowanym runtime. Nie nadano PASS z samego opisu, review ani testów jednostkowych. Publiczny release, hosted CI i merge są odrębnymi kontrolami; merge/deployment poza autoryzacją.
+**PASS — finalny r5, naturalny exit 0.** Kandydat produktu `9afd75048f78fcc1508b6ee15404c2412e9834b9`. Polecenie: `PATH=/Users/kozdro/.volta/tools/image/node/24.22.2/bin:$PATH node scripts/recruitment/runner.ts` w izolowanym runtime. Nowy własny target `run-6558cb0c`, projectId `jobs-crm-recruitment-ad0cf5-014b95318412`, porty 572xx; migracje **10/10**, checkpoint `25fceb1331de9de8f63d70266ddc2d77c39201d7d8cf0cba3310735775f0ac86`.
+
+| Kontrola finalnego r5 | Wynik |
+|---|---|
+| Production build | PASS, exit 0 |
+| Real Auth/Data API/RLS integracja + fizyczny upgrade | **66/66 PASS**, 0 failed/cancelled/skipped |
+| HTTPS Chromium pełna regresja i nowe korekty | **60/60 PASS**, 0 failures |
+| Tożsamość src/db/tests | **117/117 SHA256** zgodne z `git show 9afd750:<path>`, 0 mismatch |
+| Guarded cleanup | PASS; naturalny runner exit 0, własne kontenery/network usunięte, **44/44** wcześniejsze ID zachowane, 0 dodatkowych kontenerów pozostawionych |
+| Redakcja output/build | PASS według runnera; 19 browser assets i 15 HTML/RSC zeskanowane, canary/service-role nie ujawniono |
+
+Przed finalnym r5 wykonano r4: build PASS, integracja 66/66 PASS, browser 59/59 PASS, naturalny exit 0, guarded cleanup, 117/117 hashy zgodne z `fe6f07d4718faae9f3b6cb9b2a7dd5cbb56d1f70`. Późniejszy niezależny review ujawnił dodatkowy P2: opóźnione parsowanie JSON odpowiedzi starej instancji mogło usunąć nowszy pending intent po remount. Frontend dodał kontrolę lifetime/epoch po odczycie body oraz usuwanie tylko identycznej tożsamości zapisu. R5 dodaje deterministyczny browser regression: rzeczywisty zapis A → opóźnione zużycie rzeczywistego GET JSON A → remount przez pagination → recovery A w nowej instancji → niedostarczony POST B → spóźnione body A → B zachowane → reload i identyczny retry B zapisują dokładnie jeden audyt. Test opóźnia wyłącznie klientowe `response.json()`, nie fabrykuje Auth, odpowiedzi API ani faktów biznesowych.
+
+R5 sprawdza również nowy kontrakt temporary sessionStorage: owner-bound envelope przechowuje **zamrożoną potwierdzoną komendę**, w tym dzień/kierunek/nazwę etapu i oczekiwane rewizje, aby niedostarczony zapis dało się powtórzyć identycznie po reload. Nie jest to zapewnienie braku danych formularza w tab storage. Envelope pozostaje przy nieznanym wyniku, jest walidowany i usuwany dopiero przy potwierdzonym wyniku lub zaufanej odmowie starego zamiaru; nie wolno usuwać nowszego zamiaru B na podstawie odpowiedzi A. Sesja i właściciel pozostają granicą użycia; brak dodatkowego tekstu powodu i korespondencji.
+
+**Ujawniony timing formatowania:** podczas przejścia r5 integracja → browser, o `2026-10-31T12:48:59.178395Z`, doprowadzono `recruitment-history-corrections.spec.ts` do Prettier w kanonicznym i runtime katalogu. Była to wyłącznie zmiana whitespace, przed test collection/worker loading; shell formatowania PID 22362 poprzedził Playwright CLI PID 22371. Zaktualizowano hash w `full-r5-manifest.json`; końcowy test i porównanie Git obejmują finalne sformatowane bajty. Nie zmieniano produktu ani testów po ich wykonaniu.
+
+Dowody finalne: `/private/tmp/jobs-crm-history-qa-evidence/full-r5.log`, `evidence-r5.json`, `full-r5-manifest.json`, `full-r5-candidate-proof.json`, `containers-final-r5.txt`, `r5-browser/`. Poprzednie próby zachowane osobno; r1/r2/r3 FAIL nie zostały przemianowane na PASS. R4 ma własny komplet `full-r4*` / `evidence-r4.json` / `r4-browser/`.
+
+Root potwierdził końcowe niezależne frontend/security review PASS na `9afd750`, backend review poprawki SQL PASS na `fe6f07d`; szczegóły sesji i fingerprintów w raporcie orchestratora. To oddzielne dowody od QA. QA nie nadaje review własnemu kodowi.
+
+**Ograniczenia:** rzeczywiste równoległe żądania nie dowodzą wszystkich możliwych przeplotów. Specjalny synthetic nested-trigger bypass nie był uruchamiany; scenariusz pozostaje ograniczeniem runtime proof przy osobnym static security review bez blokujących findings. Fizyczne urządzenia, AT, pełny WCAG, live OAuth i publiczny release NOT RUN. Publiczne bramki retencji/privacy/OPS i pozostały lifecycle nadal otwarte. Hosted CI jest osobnym dowodem finalnego HEAD PR; merge/deployment poza autoryzacją.

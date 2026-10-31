@@ -1,8 +1,8 @@
 # History Corrections & Integrity — raport wykonania
 
-Data 2026-10-31. W TOKU — nie jest to końcowy wynik akceptacji. Podstawa DEC-056, zatwierdzone 1A/2A [kontraktu](history-corrections-integrity-analysis.md). Baza merge PR #16 `8729e9e180d81eea1ef9adbeb0f8330243a6304a`, izolowany worktree `/private/tmp/jobs-crm-history-integrity`, branch `feat/history-corrections-integrity`. Bez merge/deploymentu i mutacji persistent DEV.
+Data 2026-10-31. **PASS — lokalna implementacja, końcowe QA i niezależne review zatwierdzonego slice’a.** Publiczne udostępnienie pozostaje poza zakresem. Podstawa DEC-056, zatwierdzone 1A/2A [kontraktu](history-corrections-integrity-analysis.md). Baza merge PR #16 `8729e9e180d81eea1ef9adbeb0f8330243a6304a`, izolowany worktree `/private/tmp/jobs-crm-history-integrity`, branch `feat/history-corrections-integrity`. Bez merge/deploymentu i mutacji persistent DEV.
 
-Wyniki testów i niezależnego review zostaną uzupełnione po ich rzeczywistym wykonaniu; obecnie NOT RUN.
+Historyczne przebiegi i findings są zachowane poniżej; finalny wynik oraz ograniczenia opisuje końcowa sekcja. Hosted CI jest sprawdzane osobno dla finalnego HEAD PR.
 
 ## Autoryzacja, zakres i izolacja
 
@@ -43,3 +43,25 @@ Root full gates: **256app unit +87script PASS**, typecheck/lint/format PASS (`*-
 Re-review osobnych read-only rodziców: backend sesja01a191fb-90cf-7ae0-96b7-bf3c54a55276 **PASS**, poprzedniP2 CLOSED i nowe testy zamykają wskazane luki kodu testów; security01a191fb-90cf-72b1-9b13-3873f6e8e88f **PASS** bez findings; frontend01a191fb-90cf-7282-bfe7-f80a0ef8012c **FAIL1nowyP2**, oba wcześniejszeP2 CLOSED. Nowy finding: stara odpowiedź po await JSONbody i remount mogła usunąć nowszy pending zamiar. Wszystkie wrappery exit0/changedFiles[], fingerprintBefore=After `21faed05f12e25e8abc448f2703a3b5a1a2377d64bc54016a47bd6e66862f467`. Dowody `/private/tmp/jobs-crm-history-review-r2/`. Review statyczne, nie wykonanie testów; pozytywne wyniki runtime pochodzą od QA.
 
 Autor dodał lifetime epoch guards po fetch i JSON oraz w catch/finally/focus dla wszystkich async ścieżek, identity-matched cleanup storage (owner/case/event/request), brak dispatch globalnego potwierdzenia po wygaśnięciu lub niezgodności. QA dodaje deterministyczny test: rzeczywistyGETA, opóźnione wyłącznie JSONbody, Next Link remount historii, recoveryA, niedostarczonyB, późnyAbody → B nadal zachowany → reload i identyczny retryB dokładnie raz. Nie fabrykuje się odpowiedzi biznesowej ani Auth. Nowy unit helpera obejmuje zachowanie nowszego zamiaru. R5 runtime i ostatnie frontend/security re-review wymagane osobno przed końcowym PASS.
+
+## Finalny wynik — kod 9afd750
+
+Finalny kandydat produktu i testów: `9afd75048f78fcc1508b6ee15404c2412e9834b9`. Późniejszy commit raportów nie zmienia src/db/tests. **Brak otwartych findings.** Zmienione obszary: nowa migracja0009 i schema/metadata, prywatny efektywny widok i append-only audyt, moduł korekt/BFF history-commands, istniejący detal/edytor/historia, unit/integracja/E2E/upgrade, rejestracja suite i test prefiksów migracji oraz wskazana wyżej dokumentacja. Migracje0000–0008 nie zmieniły się.
+
+| Kontrola | Wynik / dowód |
+|---|---|
+| Full unit | **PASS257 aplikacyjnych +87 skryptowych**, `pnpm test:unit`, `/private/tmp/jobs-crm-history-test-unit-r5.log` |
+| Typecheck / lint / format | **PASS**, `pnpm typecheck`, `pnpm lint`, `pnpm format:check`; logi `*-r5.log` i `format-check-r5-final.log` |
+| Boundaries / canary | **PASS** lokalnie w opisanym wcześniejszym snapshotcie; finalny hosted CI osobno. |
+| Production build i realna integracja | **PASS**, runtime r5 naturalexit0, **66/66**; rollback po AFTER, upgrade/nowe komendy starych danych, realne Auth/Data API/RLS A/B/anon i wyścigi. |
+| Pełny HTTPS Chromium | **PASS60/60**,0fail/skip, także delayedJSON/remount i niedostarczony POST/reload/same-intent retry, stale, paginacja, audyt/void i stare regresje. |
+| Tożsamość runtime | **PASS117/117** src/db/tests SHA256 także przeciw gitshow9afd750; finalne formatowanie nowego testu (tylko whitespace) skopiowano przed kolekcją testów przez worker, odnotowane w manifeście. Cztery jawne adaptery portów pozostają wyłącznie runtime. |
+| Cleanup i zachowanie innych zasobów | **PASS** guarded cleanup własnego targetu;44/44preexisting kontenery zachowane,0własnych pozostało. Źródłowe2pliki analizy bez zmian SHA256. |
+
+Końcowe dowody: `/private/tmp/jobs-crm-history-qa-evidence/{full-r5.log,evidence-r5.json,full-r5-manifest.json,full-r5-candidate-proof.json,r5-browser/}`; [QA](history-corrections-integrity-qa.md). Root obejrzał focused375/1440 obrazy z poprzedniego pełnego przebiegu tego samego layoutu; nowy patch wyłącznie async lifetime/cleanup + regresja, bez zmiany wyglądu.
+
+Finalne niezależne frontend review sesja01a19202-5928-72b1-9474-369707f95817 **PASS**, wszystkie3P2 CLOSED; security sesja01a19202-5928-7971-9d08-ba2b56f1d170 **PASS**. Kod9afd750, osobni read-only rodzice/generic role subagents, każdy exit0/changedFiles[], fingerprintBefore=After `253e887b39bab3fe05ed95b9dc369ce6b3b53311ffab852667ba10063d5d2b87`; dowody `/private/tmp/jobs-crm-history-review-r3/`. Backend **PASS** na fe6f07d pozostaje aktualny: po nim brak zmian backendu/migracji; P2 CLOSED, dowody drugiego review powyżej. Reviewerzy nie uruchamiali testów; zakresy statyczne i runtime QA są rozdzielone.
+
+**Ograniczenia / NOT RUN:** fizyczne urządzenia i technologie asystujące, pełny audyt WCAG, live OAuth, syntetyczna próba obejścia przez sztucznie zagnieżdżony trigger (brak potwierdzonej dostępnej użytkownikowi ścieżki w static security review), publiczny release. Realne równoległe requesty nie dowodzą wszystkich możliwych przeplotów. Recovery przechowuje zamrożony payload w owner/case-bound sessionStorage do bezpiecznego identycznego retry; dane nie są sekretami ani nowymi polami produktu, nie trafiają do repo/logów. Starszy/nieprawidłowy bound marker bez poprawnego payloadu dopuszcza wyłącznie odczyt recovery, bez ryzykownego nowego zamiaru.
+
+Pozostałe OPEN i odłożony zakres według DEC-056/analizy: pełny lifecycle/niezależny PATCH, retencja i fizyczna kasacja/restore, inne rodzaje historii/notatki, kalendarz/globalne etapy, import/Search i publiczne Auth/privacy/OPS. **Bez merge i deploymentu**, bez mutacji persistent DEV. Zgoda PO obejmuje publikację osobnego PR; hosted CI pozostaje odrębnym wynikiem exact HEAD, raportowanym w opisie PR po zakończeniu.
