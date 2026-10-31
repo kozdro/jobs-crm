@@ -16,7 +16,7 @@ Baza `fa66fc7badde0f224a316cccea8a242e71e3bdb1`, gałąź `feat/companies-contac
 
 | Kontrola | Wynik |
 |---|---|
-| Unit | PASS 326 aplikacyjnych + 87 skryptowych; zero skips |
+| Unit | PASS 332 aplikacyjnych + 87 skryptowych; zero skips |
 | Typecheck / lint | PASS |
 | Format | PASS — finalna kontrola Prettier |
 | Boundaries / canary | PASS: natural exit 0; pozytywne kontrole wykrywają naruszenia |
@@ -40,3 +40,21 @@ Wykonano z prefiksem Node24.22.2 i `pnpm --config.verifyDepsBeforeRun=error`: `t
 Review backend/frontend/security uruchomiono na oddzielnym detached worktree `/tmp/jobs-crm-cc-review`, dokładnie commit8d8323c; trzy rodzice read-only przez kanoniczny wrapper. Autorzy nie zmieniają ocenianego kandydata; nowe wyniki QA/dokumenty w głównym checkout nie zmieniają snapshotu review.
 
 Pierwszy pełny runtime: build PASS, integracje102/104 FAIL (jedna błędna asercja wejścia fixture i jej suite parent). Nowy test zamkniętej sprawy wysyłał `null` zamiast `preview.closureRevision=0` do starego API3C; poprawiono wyłącznie fixture, bez zmiany produktu/migracji. Browser pierwszej próby NOT RUN — runner poprawnie przerwał po integracji. QA zachowuje nieudane próby i dowody oddzielnie od końcowego wyniku.
+
+## Pierwsza runda niezależnego review — 8d8323c
+
+Wszystkie trzy rodzice read-only zakończyły natural exit0, changedFiles=[], fingerprint864311dcd27cb58604fab8f19e7049cf188d53a920d8cdc8e8bf369fde6e8fca przed/po identyczny. Status oceny FAIL, niezależny od pomyślnego wykonania launchera. Logi lokalne `/tmp/jobs-crm-cc-{backend,frontend,security}-reviewer.jsonl` i odpowiadające `-meta.json`.
+
+| Rola | Finding | Stan naprawy |
+|---|---|---|
+| Backend P1 | BEFORE INSERT projekcja przed ON CONFLICT ignore może pozostawić zmianę bez komendy/audytu | Potwierdzony realnym JWT/PostgREST: profiles1→2, audit1→1. Addytywna0012 blokuje zużytyowner/request przed skutkami; QA regresja w toku |
+| Frontend P2 | Potwierdzenie duplikatu po niepewnym wyniku może zastąpić oryginalny klucz | Naprawa i regresja w toku |
+| Frontend P2 | Refetch profilu odmontowuje panel i gubi aktywny zamiar relacji | Naprawa i regresja w toku |
+| Security P2 | Nowe rodziny stron pomijają matcher sesji/cache | Proxy rozszerzone o companies/contacts/catalog;3unit proxy PASS, runtime pending |
+| Security P2 | Dodatkowy surowy log nie jest tą samą reprezentacją co zweryfikowana przez scanner | Dodatkowe utrwalanie logów usunięte; istniejące output.verify/liczniki pozostają |
+
+0011 pozostaje byte-identical61836b881f1acbaab4370f85abd9a9087ca01713c9df7103188c34fedc67689c. Poprawka ma osobną0012 i test upgrade; brak resetu lub zmiany ledgeru istniejącego targetu. Reprodukcja P1: `/tmp/jobs-crm-cc-qa-evidence/ignore-duplicates-repro.json`; bez tokenów/PII. Końcowe zamknięcie wymaga pozytywnych regresji i re-review nowego kandydata.
+
+Poprawiony kandydat rozszerza ledger o13. migrację0012 (osobna addytywna naprawa P1). Kontrole r5: PASS332 aplikacyjne +87 skryptowe, typecheck i lint; format wymagał wyłącznie wygenerowanych0012snapshot/journal, które sformatowano bez zmiany SQL. Testy proxy obejmują matcher, przekazanie cookies i ochronę no-store. Frontend dodaje synchroniczną blokadę zastąpienia niepewnego zamiaru i zachowanie potwierdzonych danych tylko dla dokładnie tego samego owner/query podczas refetch.
+
+R3 wcześniejszego kandydata: integracje104/104 PASS, browser85/87 FAIL (stary exactnav allowlist oraz wyścig testu focus z zamierzonym requestAnimationFrame). Naprawiono jawne4linki i await zamierzonego focusu przed dalszym Tab; bez osłabienia asercji. Zestaw ten nie obejmował nowych regresji z review i nie stanowi końcowej akceptacji.

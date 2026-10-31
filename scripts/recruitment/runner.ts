@@ -78,8 +78,6 @@ function captured() {
 }
 async function run(args: string[], env: NodeJS.ProcessEnv, stage: string) {
   const output = captured();
-  const safeLogChunks: string[] = [];
-  let safeLogBytes = 0;
   let code: number | null = null;
   await new Promise<void>((ok, no) => {
     const p = spawn(node, args, {
@@ -87,13 +85,8 @@ async function run(args: string[], env: NodeJS.ProcessEnv, stage: string) {
       env,
       stdio: ["ignore", "pipe", "pipe"],
     });
-    const capture = (chunk: Buffer) => {
-      output.push(chunk);
-      safeLogBytes += chunk.byteLength;
-      if (safeLogBytes <= 8 * 1024 * 1024) safeLogChunks.push(chunk.toString());
-    };
-    p.stdout?.on("data", capture);
-    p.stderr?.on("data", capture);
+    p.stdout?.on("data", (chunk) => output.push(chunk));
+    p.stderr?.on("data", (chunk) => output.push(chunk));
     p.once("error", () =>
       no(new Error("Recruitment test process failed to start")),
     );
@@ -103,12 +96,6 @@ async function run(args: string[], env: NodeJS.ProcessEnv, stage: string) {
     });
   });
   const summary = output.verify();
-  // Persist diagnostics only after the existing bounded secret/session scan passes.
-  await writeFile(
-    join(directory, `${stage}.safe.log`),
-    safeLogChunks.join(""),
-    { mode: 0o600 },
-  );
   evidence.outputChecks.push({ stage, ...summary });
   console.log(
     `Recruitment ${stage}: ${JSON.stringify({ exit: code, ...summary })}`,

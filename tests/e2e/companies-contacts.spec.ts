@@ -317,6 +317,15 @@ test("DEC058 explicit company/contact/case M:N and role correction/detach do not
   await expect(
     relations(page).getByRole("link", { name: org.name, exact: true }),
   ).toHaveCount(0);
+  await relations(page)
+    .getByRole("button", { name: "Audyt zmian", exact: true })
+    .last()
+    .click();
+  await expect(
+    relations(page)
+      .getByRole("list", { name: "Wpisy audytu", exact: true })
+      .getByText("Odłączenie powiązania", { exact: true }),
+  ).toBeVisible();
   for (const endpointId of [c.id, org.id]) {
     const auditResponse = await page.request.get(
       `${target.appOrigin}/catalog/commands?auditId=${endpointId}&page=1`,
@@ -351,6 +360,24 @@ test("DEC058 explicit company/contact/case M:N and role correction/detach do not
     page.getByRole("region", { name: "Historia sprawy", exact: true }),
   ).toHaveCount(0);
   expect(await rows("recruitment_case_event", `case_id:${c.id}`)).toEqual([]);
+  await relations(page)
+    .getByRole("button", { name: `Odłącz ${c.title}`, exact: true })
+    .click();
+  await relations(page)
+    .getByRole("button", { name: "Potwierdź odłączenie", exact: true })
+    .click();
+  await expect(
+    relations(page).getByRole("link", { name: c.title, exact: true }),
+  ).toHaveCount(0);
+  await page
+    .getByRole("button", { name: "Audyt zmian", exact: true })
+    .last()
+    .click();
+  await expect(
+    page
+      .getByRole("list", { name: "Wpisy audytu", exact: true })
+      .getByText("Odłączenie powiązania", { exact: true }),
+  ).toBeVisible();
 });
 test("DEC058 delivered commit with lost response recovers same intent without PII persistence", async ({
   page,
@@ -631,6 +658,9 @@ for (const width of [1440, 1024, 768, 375])
     await page
       .getByRole("button", { name: "Edytuj profil", exact: true })
       .click();
+    await expect(
+      page.getByRole("heading", { name: "Edycja profilu", exact: true }),
+    ).toBeFocused();
     await page.getByLabel("Nazwa kontaktu", { exact: true }).focus();
     await expect(
       page.getByLabel("Nazwa kontaktu", { exact: true }),
@@ -652,3 +682,318 @@ for (const width of [1440, 1024, 768, 375])
       fullPage: true,
     });
   });
+
+test("DEC058 lost acknowledged duplicate create cannot issue fresh confirmation and recovers one distinct profile", async ({
+  page,
+}) => {
+  const p = await profile();
+  await login(page);
+  await newProfile(page, "contact", p.name);
+  await page
+    .getByRole("button", { name: "Zapisz profil", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Możliwe duplikaty", exact: true }),
+  ).toBeVisible();
+  const sent: Record<string, unknown>[] = [];
+  let lose = true;
+  await page.route("**/catalog/commands", async (route) => {
+    if (route.request().method() === "POST") {
+      sent.push(route.request().postDataJSON());
+      if (lose) {
+        lose = false;
+        const real = await route.fetch();
+        expect(real.status()).toBe(200);
+        await route.abort("failed");
+        return;
+      }
+    }
+    await route.continue();
+  });
+  await page
+    .getByRole("button", { name: "Zapisz jako odrębny profil", exact: true })
+    .click();
+  await expect(page.getByRole("main").getByRole("alert")).toContainText(
+    "Wynik zapisu jest nieznany",
+  );
+  const confirm = page.getByRole("button", {
+    name: "Zapisz jako odrębny profil",
+    exact: true,
+  });
+  if (await confirm.count()) await expect(confirm).toBeDisabled();
+  await page
+    .getByRole("button", { name: "Ponów ten sam zapis", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/contacts\/[0-9a-f-]+$/);
+  expect(sent).toHaveLength(2);
+  expect(sent[0]).toEqual(sent[1]);
+  expect(await rows("catalog_profile", `name:${p.name}`)).toHaveLength(2);
+});
+test("DEC058 lost duplicate edit preserves one intent and cannot be reconfirmed with a new key", async ({
+  page,
+}) => {
+  const one = await profile(),
+    two = await profile();
+  await login(page);
+  await page.goto(`/contacts/${one.id}`);
+  await page
+    .getByRole("button", { name: "Edytuj profil", exact: true })
+    .click();
+  await page.getByLabel("Nazwa kontaktu", { exact: true }).fill(two.name);
+  await page
+    .getByRole("button", { name: "Zapisz zmiany", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Możliwe duplikaty", exact: true }),
+  ).toBeVisible();
+  let sent: Record<string, unknown> | null = null;
+  let lose = true;
+  await page.route("**/catalog/commands", async (route) => {
+    if (lose && route.request().method() === "POST") {
+      lose = false;
+      sent = route.request().postDataJSON();
+      const real = await route.fetch();
+      expect(real.status()).toBe(200);
+      await route.abort("failed");
+      return;
+    }
+    await route.continue();
+  });
+  await page
+    .getByRole("button", { name: "Zapisz jako odrębny profil", exact: true })
+    .click();
+  await expect(page.getByRole("main").getByRole("alert")).toContainText(
+    "Wynik zapisu jest nieznany",
+  );
+  const confirm = page.getByRole("button", {
+    name: "Zapisz jako odrębny profil",
+    exact: true,
+  });
+  if (await confirm.count()) await expect(confirm).toBeDisabled();
+  await page
+    .getByRole("button", { name: "Sprawdź wynik zapisu", exact: true })
+    .click();
+  await expect(
+    page
+      .getByRole("region", { name: "Dane profilu", exact: true })
+      .getByRole("heading", { name: two.name, exact: true }),
+  ).toBeVisible();
+  expect(sent).not.toBeNull();
+  expect(await rows("catalog_profile", `name:${two.name}`)).toHaveLength(2);
+});
+test("DEC058 uncertain relation intent survives independent profile edit save and parent refresh", async ({
+  page,
+}) => {
+  const p = await profile(),
+    c = await caseFixture();
+  await command({
+    operation: "attach",
+    relationType: "case-contact",
+    leftId: c.id,
+    rightId: p.id,
+    role: null,
+  });
+  await login(page);
+  await page.goto(`/contacts/${p.id}`);
+  await relations(page)
+    .getByRole("button", { name: `Odłącz ${c.title}`, exact: true })
+    .click();
+  let lose = true;
+  let relationKey: string | undefined;
+  await page.route("**/catalog/commands", async (route) => {
+    const body =
+      route.request().method() === "POST"
+        ? (route.request().postDataJSON() as {
+            operation?: string;
+            requestId?: string;
+          })
+        : null;
+    if (lose && body?.operation === "detach") {
+      lose = false;
+      relationKey = body.requestId;
+      const actual = await route.fetch();
+      expect(actual.status()).toBe(200);
+      await route.abort("failed");
+      return;
+    }
+    await route.continue();
+  });
+  await relations(page)
+    .getByRole("button", { name: "Potwierdź odłączenie", exact: true })
+    .click();
+  await expect(relations(page).getByRole("alert")).toContainText(
+    "Wynik zapisu jest nieznany",
+  );
+  await page
+    .getByRole("button", { name: "Edytuj profil", exact: true })
+    .click();
+  await page
+    .getByLabel("Nazwa kontaktu", { exact: true })
+    .fill(`${p.name} corrected`);
+  await page
+    .getByRole("button", { name: "Zapisz zmiany", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: `${p.name} corrected`, exact: true }),
+  ).toBeVisible();
+  await expect(
+    relations(page).getByRole("button", {
+      name: "Sprawdź wynik zapisu",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await relations(page)
+    .getByRole("button", { name: "Sprawdź wynik zapisu", exact: true })
+    .click();
+  await expect(
+    relations(page).getByRole("link", { name: c.title, exact: true }),
+  ).toHaveCount(0);
+  expect(relationKey).toBeTruthy();
+  expect(
+    await rows("catalog_command", `request_id:${relationKey}`),
+  ).toHaveLength(1);
+});
+test("DEC058 new private routes refresh expired SDK cookies on SSR, protect HTML/RSC cache and logout", async ({
+  browser,
+}) => {
+  test.setTimeout(120000);
+  const org = await profile("organization"),
+    person = await profile();
+  const contexts = await Promise.all([
+    browser.newContext({ ignoreHTTPSErrors: true }),
+    browser.newContext({ ignoreHTTPSErrors: true }),
+  ]);
+  const snapshots: Awaited<ReturnType<(typeof contexts)[0]["cookies"]>>[] = [];
+  const expiries: number[] = [];
+  try {
+    for (const context of contexts) {
+      const page = await context.newPage();
+      await login(page);
+      const cookies = (await context.cookies()).filter((c) =>
+        /^sb-.+-auth-token(?:\.\d+)?$/.test(c.name),
+      );
+      expect(cookies.length).toBeGreaterThan(0);
+      snapshots.push(cookies);
+      const encoded = cookies
+        .sort((x, y) =>
+          x.name.localeCompare(y.name, undefined, { numeric: true }),
+        )
+        .map((c) => c.value)
+        .join("");
+      let expiry = 0;
+      try {
+        const decoded = encoded.startsWith("base64-")
+          ? Buffer.from(encoded.slice(7), "base64url").toString()
+          : encoded;
+        expiry = (JSON.parse(decoded) as { expires_at: number }).expires_at;
+      } catch {
+        throw new Error(
+          "Synthetic expiry could not be inspected; session material withheld",
+        );
+      }
+      expect(expiry * 1000 - Date.now()).toBeLessThan(120000);
+      expiries.push(expiry);
+      await page.close();
+    }
+    const deadline = Math.max(...expiries) * 1000 + 1500;
+    while (Date.now() < deadline)
+      await new Promise((resolve) =>
+        setTimeout(resolve, Math.min(1000, deadline - Date.now())),
+      );
+    for (const [index, context] of contexts.entries()) {
+      const first = await context.request.get(
+        `${target.appOrigin}${index === 0 ? "/companies" : `/contacts/${person.id}`}`,
+      );
+      expect(first.status()).toBe(200);
+      expect(first.headers()["cache-control"]).toContain("no-store");
+      expect(first.headers()["set-cookie"]).toBeTruthy();
+      const after = await context.cookies();
+      expect(
+        after.some(
+          (cookie) =>
+            cookie.name.startsWith("sb-") &&
+            !snapshots[index].some(
+              (old) => old.name === cookie.name && old.value === cookie.value,
+            ),
+        ),
+      ).toBe(true);
+      for (const path of [
+        "/companies",
+        "/contacts",
+        `/companies/${org.id}`,
+        `/contacts/${person.id}`,
+      ]) {
+        const html = await context.request.get(`${target.appOrigin}${path}`);
+        expect(html.status()).toBe(200);
+        expect(html.headers()["cache-control"]).toContain("private");
+        expect(html.headers()["cache-control"]).toContain("no-store");
+        const rsc = await context.request.get(
+          `${target.appOrigin}${path}?_rsc=synthetic-cc`,
+          { headers: { RSC: "1" } },
+        );
+        expect(rsc.status()).toBe(200);
+        expect(rsc.headers()["cache-control"]).toContain("no-store");
+      }
+    }
+    const page = await contexts[0].newPage();
+    await page.goto(`${target.appOrigin}/account`);
+    await page
+      .getByRole("button", { name: "Wyloguj tutaj", exact: true })
+      .click();
+    await expect(page).toHaveURL(/\/login(?:\?|$)/);
+    for (const path of [
+      "/companies",
+      "/contacts",
+      `/companies/${org.id}`,
+      `/contacts/${person.id}`,
+    ]) {
+      const reply = await contexts[0].request.get(
+        `${target.appOrigin}${path}`,
+        { maxRedirects: 0 },
+      );
+      expect([303, 307]).toContain(reply.status());
+      expect(reply.headers().location).toContain("/login");
+    }
+  } finally {
+    await Promise.all(contexts.map((context) => context.close()));
+  }
+});
+
+test("DEC058 200percent text resize at375px preserves fields, keyboard focus and readable layout", async ({
+  page,
+}, testInfo) => {
+  await page.setViewportSize({ width: 375, height: 900 });
+  const p = await profile(
+    "contact",
+    `Text resize ${"Syntetyczne ".repeat(10)}`,
+  );
+  await login(page);
+  await page.goto(`/contacts/${p.id}`);
+  await page
+    .getByRole("button", { name: "Edytuj profil", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Edycja profilu", exact: true }),
+  ).toBeFocused();
+  await page.evaluate(() => {
+    document.documentElement.style.fontSize = "200%";
+  });
+  const input = page.getByLabel("Nazwa kontaktu", { exact: true });
+  await input.focus();
+  await expect(input).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(
+    page.getByLabel("E-mail (opcjonalnie)", { exact: true }),
+  ).toBeFocused();
+  const dimensions = await page.evaluate(() => ({
+    inner: innerWidth,
+    scroll: document.documentElement.scrollWidth,
+    font: getComputedStyle(document.documentElement).fontSize,
+  }));
+  expect(dimensions.font).toBe("32px");
+  expect(dimensions.scroll).toBeLessThanOrEqual(dimensions.inner);
+  await page.screenshot({
+    path: testInfo.outputPath("cc-text200-375.png"),
+    fullPage: true,
+  });
+});

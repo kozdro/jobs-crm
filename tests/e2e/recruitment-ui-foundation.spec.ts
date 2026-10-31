@@ -274,9 +274,12 @@ test("UI foundation empty state and responsive keyboard navigation restore focus
     exact: true,
   });
   for (const link of await navigation.getByRole("link").all()) {
-    expect(["/dashboard", "/recruitments"]).toContain(
-      await link.getAttribute("href"),
-    );
+    expect([
+      "/dashboard",
+      "/recruitments",
+      "/companies",
+      "/contacts",
+    ]).toContain(await link.getAttribute("href"));
   }
   await expect(
     navigation.getByRole("link", { name: "Dashboard", exact: true }),

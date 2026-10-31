@@ -132,6 +132,7 @@ export function CatalogProfileScreen({
     userId,
     { id },
     revision,
+    true,
   );
   const profile = read.data?.profile;
   return (
@@ -145,6 +146,12 @@ export function CatalogProfileScreen({
           : "Wróć do listy kontaktów"}
       </Link>
       <ReadFeedback {...read} />
+      {read.error && profile && (
+        <p className="text-sm text-muted-foreground">
+          Pokazujemy ostatnio potwierdzone dane profilu. Odczyt nie został
+          odświeżony.
+        </p>
+      )}
       {read.data && (!profile || profile.type !== type) ? (
         <p role="alert">Nie znaleziono dostępnego profilu.</p>
       ) : (
@@ -167,6 +174,7 @@ export function CatalogProfileScreen({
                 type="button"
                 className={buttonStyles.secondary}
                 aria-expanded={editing}
+                disabled={read.loading || read.error}
                 onClick={() => {
                   setEditing(true);
                   requestAnimationFrame(() => heading.current?.focus());

@@ -129,7 +129,7 @@ export function MutationFeedback({ mutation }: { mutation: CatalogMutation }) {
           <button
             type="button"
             className={buttonStyles.secondary}
-            disabled={pending}
+            disabled={pending || uncertain}
             onClick={acknowledge}
           >
             Zapisz jako odrębny profil

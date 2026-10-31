@@ -744,6 +744,107 @@ test(
       },
     );
     await t.test(
+      "Consumed direct command keys cannot project effects through PostgREST ignore/merge conflicts",
+      async () => {
+        const key = randomUUID();
+        const original = {
+          operation: "create-profile",
+          profileType: "contact",
+          name: `Conflict guard ${randomUUID()}`,
+          email: null,
+        };
+        const first = ok<Result>(await rpc(original, key));
+        const p = first.profile!;
+        const c = await caseCreate();
+        const org = await create("organization");
+        const link = (await attach("case-organization", c, org.id, "employer"))
+          .value;
+        const candidates = [
+          original,
+          { ...original, name: `Untracked ${randomUUID()}` },
+          {
+            operation: "edit-profile",
+            profileType: "contact",
+            profileId: p.id,
+            name: `Must not change ${randomUUID()}`,
+            email: null,
+            expectedRevision: p.revision,
+          },
+          {
+            operation: "attach",
+            relationType: "case-contact",
+            leftId: c,
+            rightId: p.id,
+            role: null,
+          },
+          {
+            operation: "detach",
+            relationId: link.id,
+            expectedRevision: link.revision,
+          },
+          {
+            operation: "change-role",
+            relationId: link.id,
+            expectedRevision: link.revision,
+            role: "agency",
+          },
+        ];
+        const snapshot = async () =>
+          Promise.all(
+            ["catalog_profile", "catalog_relation", "catalog_command"].map(
+              (table) => get(table, "order=id"),
+            ),
+          );
+        for (const resolution of ["ignore-duplicates", "merge-duplicates"]) {
+          for (const payload of candidates) {
+            const before = await snapshot();
+            const response = await api(
+              "/rest/v1/catalog_command?on_conflict=owner_id,request_id",
+              "POST",
+              { request_id: key, payload },
+              a.token,
+              {
+                Prefer: `resolution=${resolution},return=representation,count=exact`,
+              },
+            );
+            assert.deepEqual(
+              await snapshot(),
+              before,
+              "Consumed-key conflict must leave every profile/revision/relation/audit unchanged",
+            );
+            denied(response);
+          }
+        }
+        const before = await snapshot();
+        const bulk = await api(
+          "/rest/v1/catalog_command?on_conflict=owner_id,request_id",
+          "POST",
+          [
+            {
+              request_id: randomUUID(),
+              payload: { ...original, name: `Bulk rollback ${randomUUID()}` },
+            },
+            {
+              request_id: key,
+              payload: { ...original, name: `Consumed bulk ${randomUUID()}` },
+            },
+          ],
+          a.token,
+          { Prefer: "resolution=ignore-duplicates,return=representation" },
+        );
+        denied(bulk);
+        assert.deepEqual(
+          await snapshot(),
+          before,
+          "Consumed second key rolls back an otherwise valid first command in same insert",
+        );
+        const replay = ok<Result>(await rpc(original, key));
+        assert.equal(replay.kind, "replayed");
+        assert.equal(replay.profile!.id, p.id);
+        assert.deepEqual(await snapshot(), before);
+      },
+    );
+    await t.test(
       "Rollback after profile mutation leaves no partial row or consumed intent",
       async () => {
         const sql = postgres({

@@ -11,23 +11,35 @@ import {
   resultMatchesCommand,
 } from "./client";
 
+import {
+  acknowledgedCatalogCommand,
+  catalogReadTransition,
+  mayDispatchCatalogCommand,
+  type CatalogReadState,
+} from "./intent";
+
 export function useCatalogRead<T>(
   userId: string,
   query: Record<string, string | number>,
   revision = 0,
+  retainConfirmed = false,
 ) {
   const key = JSON.stringify(query);
-  const [state, setState] = useState<{
-    data: T | null;
-    error: boolean;
-    loading: boolean;
-  }>({ data: null, error: false, loading: true });
+  const scope = `${userId}:${key}`;
+  const [state, setState] = useState<CatalogReadState<T>>({
+    scope,
+    data: null,
+    error: false,
+    loading: true,
+  });
   const [retry, setRetry] = useState(0);
   useEffect(() => {
     const controller = new AbortController();
     void Promise.resolve().then(async () => {
       if (controller.signal.aborted) return;
-      setState({ data: null, error: false, loading: true });
+      setState((previous) =>
+        catalogReadTransition(previous, scope, retainConfirmed),
+      );
       try {
         const data = await catalogRead<T>(
           userId,
@@ -35,7 +47,7 @@ export function useCatalogRead<T>(
           controller.signal,
         );
         if (!controller.signal.aborted)
-          setState({ data, error: false, loading: false });
+          setState({ scope, data, error: false, loading: false });
       } catch (error) {
         if (controller.signal.aborted) return;
         if (
@@ -43,12 +55,18 @@ export function useCatalogRead<T>(
           error.kind === "unauthenticated"
         )
           window.location.replace("/login");
-        setState({ data: null, error: true, loading: false });
+        setState((previous) =>
+          catalogReadTransition(previous, scope, retainConfirmed, true),
+        );
       }
     });
     return () => controller.abort();
-  }, [userId, key, revision, retry]);
-  return { ...state, reload: () => setRetry((value) => value + 1) };
+  }, [userId, key, scope, revision, retry, retainConfirmed]);
+  return {
+    ...state,
+    data: state.scope === scope ? state.data : null,
+    reload: () => setRetry((value) => value + 1),
+  };
 }
 export function useCatalogMutation(
   userId: string,
@@ -64,6 +82,7 @@ export function useCatalogMutation(
   const [saved, setSaved] = useState(false);
   const attempt = useRef<CatalogCommand | null>(null);
   const busy = useRef(false);
+  const ambiguousAttempt = useRef(false);
   const live = useRef(true);
   const feedback = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -86,13 +105,22 @@ export function useCatalogMutation(
   function reset() {
     if (busy.current) return;
     attempt.current = null;
+    ambiguousAttempt.current = false;
     setUncertain(false);
     setError(null);
     setDuplicates(null);
     setSaved(false);
   }
   async function send(command: CatalogCommand) {
-    if (busy.current) return;
+    if (
+      !mayDispatchCatalogCommand(
+        attempt.current,
+        command,
+        busy.current,
+        ambiguousAttempt.current,
+      )
+    )
+      return;
     busy.current = true;
     attempt.current = command;
     setPending(true);
@@ -103,10 +131,12 @@ export function useCatalogMutation(
       if (!live.current) return;
       if (result.kind === "duplicates") {
         setDuplicates(result);
+        ambiguousAttempt.current = false;
         setUncertain(false);
         focus();
         return;
       }
+      ambiguousAttempt.current = false;
       setUncertain(false);
       setDuplicates(null);
       attempt.current = null;
@@ -124,6 +154,7 @@ export function useCatalogMutation(
       }
       const ambiguous =
         !(error instanceof CatalogClientError) || error.uncertain;
+      ambiguousAttempt.current = ambiguous;
       setUncertain(ambiguous);
       if (!ambiguous) attempt.current = null;
       setError(
@@ -159,6 +190,7 @@ export function useCatalogMutation(
         resultMatchesCommand(result, command)
       ) {
         attempt.current = null;
+        ambiguousAttempt.current = false;
         setUncertain(false);
         setError(null);
         setSaved(true);
@@ -199,7 +231,7 @@ export function useCatalogMutation(
     recover,
     reset,
     clearDraftFeedback: () => {
-      if (!uncertain && !busy.current) {
+      if (!ambiguousAttempt.current && !busy.current) {
         attempt.current = null;
         setDuplicates(null);
         setError(null);
@@ -207,12 +239,13 @@ export function useCatalogMutation(
       }
     },
     acknowledge: () => {
-      if (attempt.current && duplicates)
-        void send({
-          ...attempt.current,
-          requestId: crypto.randomUUID(),
-          acknowledgedMatches: duplicates.matchToken,
-        });
+      const command = acknowledgedCatalogCommand(
+        attempt.current,
+        duplicates?.matchToken ?? null,
+        busy.current || ambiguousAttempt.current,
+        () => crypto.randomUUID(),
+      );
+      if (command) void send(command);
     },
     retry: () => {
       if (attempt.current) void send(attempt.current);

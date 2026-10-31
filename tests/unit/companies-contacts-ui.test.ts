@@ -14,7 +14,17 @@ import {
 } from "@/components/companies-contacts/client";
 import { ProfileForm } from "@/components/companies-contacts/profile-form";
 import { RelationsPanel } from "@/components/companies-contacts/relations";
-import { PageControls } from "@/components/companies-contacts/common";
+import {
+  PageControls,
+  MutationFeedback,
+} from "@/components/companies-contacts/common";
+import {
+  acknowledgedCatalogCommand,
+  catalogReadTransition,
+  mayDispatchCatalogCommand,
+  type CatalogReadState,
+} from "@/components/companies-contacts/intent";
+import type { CatalogMutation } from "@/components/companies-contacts/hooks";
 const id = "00000000-0000-4000-8000-000000000001";
 const other = "00000000-0000-4000-8000-000000000002";
 const profile: CatalogProfile = {
@@ -226,5 +236,88 @@ describe("Catalog accessible presentation", () => {
     );
     expect(html).toContain('aria-label="Strony audytu"');
     expect((html.match(/disabled=""/g) ?? []).length).toBe(2);
+  });
+});
+
+describe("Catalog recovery survives acknowledgement and profile refetch", () => {
+  it("does not allocate a new intention after an acknowledged duplicate save becomes uncertain", () => {
+    const makeId = vi.fn(() => other);
+    const acknowledged = acknowledgedCatalogCommand(
+      create,
+      [`${id}:1`],
+      false,
+      makeId,
+    )!;
+    expect(acknowledged.requestId).toBe(other);
+    expect(makeId).toHaveBeenCalledTimes(1);
+    expect(
+      acknowledgedCatalogCommand(acknowledged, [`${id}:1`], true, makeId),
+    ).toBeNull();
+    expect(makeId).toHaveBeenCalledTimes(1);
+    expect(
+      mayDispatchCatalogCommand(
+        acknowledged,
+        { ...acknowledged, requestId: id },
+        false,
+        true,
+      ),
+    ).toBe(false);
+    expect(
+      mayDispatchCatalogCommand(acknowledged, acknowledged, false, true),
+    ).toBe(true);
+    expect(
+      mayDispatchCatalogCommand(acknowledged, acknowledged, true, true),
+    ).toBe(false);
+    expect(acknowledged.requestId).toBe(other);
+    expect(create.requestId).toBe(id);
+  });
+  it("retains the confirmed profile while its same-account same-query refresh is pending or failed", () => {
+    const data = { profile };
+    const state: CatalogReadState<typeof data> = {
+      scope: `owner-a:${id}`,
+      data,
+      error: false,
+      loading: false,
+    };
+    const pending = catalogReadTransition(state, state.scope, true);
+    expect(pending.data).toBe(data);
+    expect(pending.loading).toBe(true);
+    const failed = catalogReadTransition(pending, state.scope, true, true);
+    expect(failed.data).toBe(data);
+    expect(failed.error).toBe(true);
+    expect(failed.loading).toBe(false);
+    expect(catalogReadTransition(state, `owner-b:${id}`, true).data).toBeNull();
+    expect(
+      catalogReadTransition(state, `owner-a:${other}`, true).data,
+    ).toBeNull();
+    expect(catalogReadTransition(state, state.scope, false).data).toBeNull();
+  });
+  it("disables duplicate confirmation while uncertain and keeps same-intention recovery controls", () => {
+    const mutation: CatalogMutation = {
+      pending: false,
+      uncertain: true,
+      error: "Wynik nieznany",
+      duplicates: {
+        kind: "duplicates",
+        matches: [profile],
+        matchToken: [`${id}:1`],
+      },
+      saved: false,
+      feedbackRef: vi.fn(),
+      send: vi.fn(),
+      recover: vi.fn(),
+      reset: vi.fn(),
+      clearDraftFeedback: vi.fn(),
+      acknowledge: vi.fn(),
+      retry: vi.fn(),
+    };
+    const html = renderToStaticMarkup(
+      createElement(MutationFeedback, { mutation }),
+    );
+    expect(html).toMatch(
+      /<button[^>]*disabled=""[^>]*>Zapisz jako odrębny profil<\/button>/,
+    );
+    expect(html).toContain("Sprawdź wynik zapisu");
+    expect(html).toContain("Ponów ten sam zapis");
   });
 });

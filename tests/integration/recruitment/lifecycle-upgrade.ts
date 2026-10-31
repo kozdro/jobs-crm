@@ -54,7 +54,7 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
     };
     assert.equal(
       journal.entries.length,
-      12,
+      13,
       "Upgrade test must cover the exact current migration history",
     );
     for (const entry of journal.entries.slice(0, 7)) await apply(entry.tag);
@@ -379,6 +379,59 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
         "CC upgrade must never infer profiles or links from historical facts",
       );
     }
+    await upgrade.begin(async (tx) => {
+      await tx.unsafe("set local role authenticated");
+      await tx.unsafe("select set_config('request.jwt.claim.sub',$1,true)", [
+        owner,
+      ]);
+      const [createdProfile] = await tx.unsafe(
+        "select public.execute_catalog_command($1::uuid,$2::jsonb) result",
+        [
+          randomUUID(),
+          JSON.stringify({
+            operation: "create-profile",
+            profileType: "contact",
+            name: "Synthetic pre-0012 contact",
+            email: null,
+          }),
+        ],
+      );
+      assert.equal(createdProfile.result.kind, "saved");
+      const [createdRelation] = await tx.unsafe(
+        "select public.execute_catalog_command($1::uuid,$2::jsonb) result",
+        [
+          randomUUID(),
+          JSON.stringify({
+            operation: "attach",
+            relationType: "case-contact",
+            leftId: caseId,
+            rightId: createdProfile.result.profile.id,
+            role: null,
+          }),
+        ],
+      );
+      assert.equal(createdRelation.result.kind, "saved");
+    });
+    const catalogSnapshot = async () =>
+      Promise.all(
+        ["catalog_profile", "catalog_relation", "catalog_command"].map(
+          (table) =>
+            upgrade!.unsafe(`select * from public.${table} order by id`),
+        ),
+      );
+    const existingCatalog = await catalogSnapshot();
+    const beforeIntentGuard = await snapshot();
+    await apply(journal.entries[12].tag);
+    assert.deepEqual(
+      await catalogSnapshot(),
+      existingCatalog,
+      "0012 preserves existing catalog profiles, relationships, command identities and audit payloads",
+    );
+    assert.deepEqual(
+      await snapshot(),
+      beforeIntentGuard,
+      "0012 intent guard preserves previous recruitment records and projections",
+    );
   } finally {
     if (upgrade) await upgrade.end();
     if (created) await admin`drop database ${admin(database)}`;
