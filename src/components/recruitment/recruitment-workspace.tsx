@@ -534,6 +534,10 @@ export function RecruitmentWorkspace({
       : Object.values(data.columns).some(
           (column) => column && column.cases.length > 0,
         ));
+  const firstPage =
+    query.view === "list"
+      ? query.page === 1
+      : statuses.every((status) => query.columnPages[status] === 1);
   const filtered =
     query.statuses.length !== 4 ||
     query.organizationId !== null ||
@@ -718,12 +722,16 @@ export function RecruitmentWorkspace({
           <h2 className="text-lg font-semibold">
             {filtered
               ? "Brak wyników dla wybranych filtrów"
-              : "Brak spraw na tej stronie"}
+              : firstPage
+                ? "Nie masz jeszcze spraw"
+                : "Brak spraw na tej stronie"}
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
             {filtered
               ? "Zmień lub wyczyść filtry, aby zobaczyć inne sprawy."
-              : "Jeśli nie masz jeszcze spraw, wybierz „Dodaj”. Możesz też wrócić do poprzedniej strony wyników."}
+              : firstPage
+                ? "Wybierz „Dodaj”, aby zapisać pierwszą sprawę."
+                : "Wróć do poprzedniej strony lub początku wyników."}
           </p>
         </section>
       )}
