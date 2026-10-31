@@ -196,6 +196,35 @@ test(
       p_expected_case_revision: preview.caseRevision,
       p_expected_closure_revision: preview.closureRevision,
     });
+    // Relation-filtered result itself crosses the page boundary; both aliases must filter BEFORE range.
+    for (const item of saved) {
+      await attach(
+        "case-organization",
+        item.id,
+        organizations[2].id,
+        "employer",
+      );
+      await attach("case-contact", item.id, contacts[2].id);
+    }
+    // Bounded preview is a fragment, with truthful continuation flags at each independent boundary.
+    for (let i = 0; i < 7; i++)
+      if (i !== 2)
+        await attach(
+          "case-organization",
+          saved[2].id,
+          organizations[i].id,
+          "agency",
+        );
+    for (let i = 0; i < contacts.length; i++)
+      if (i !== 2) await attach("case-contact", saved[2].id, contacts[i].id);
+    for (let i = 0; i < 6; i++)
+      await rpc("record_recruitment_case_event", {
+        p_request_id: randomUUID(),
+        p_case_id: recruiting.id,
+        p_kind: "contact",
+        p_direction: "outbound",
+        p_occurred_on: null,
+      });
     const foreign = await create(`Workspace PRIVATE ${marker}`, b);
     const foreignOrg = await profile(
       "organization",
@@ -315,8 +344,8 @@ test(
         );
         assert.deepEqual(
           await getIds({ contact: contacts[1].id }),
-          [],
-          "Organization-contact is not a case-contact",
+          [saved[2].id],
+          "Organization-contact must not add the organization's other cases",
         );
         assert.deepEqual(
           await getIds({ status: ["Kontakt rozpoczęty", "W rekrutacji"] }),
@@ -328,6 +357,52 @@ test(
           await getIds({ status: "W rekrutacji", organization: org.id }),
           [],
         );
+      },
+    );
+    await t.test(
+      "relation-filtered >25 AND result is complete in list and independently paginated Kanban",
+      async () => {
+        const expected = all
+          .filter((row) => saved.some((item) => item.id === row.id))
+          .map((row) => row.id);
+        for (const view of ["list", "kanban"]) {
+          const found: string[] = [];
+          for (let page = 1; page < 10; page++) {
+            const r = await body<Workspace>({
+              view,
+              organization: organizations[2].id,
+              contact: contacts[2].id,
+              page: String(page),
+              savedPage: String(page),
+            });
+            const slice = view === "list" ? r.list! : r.columns["Zapisane"];
+            found.push(...slice.cases.map((row) => row.id));
+            if (!slice.hasMore) break;
+          }
+          assert.deepEqual(found, expected);
+          assert.equal(new Set(found).size, 31);
+        }
+      },
+    );
+    await t.test(
+      "preview truncation has explicit organization/contact/history continuation flags",
+      async () => {
+        const relations = await body<{
+          case: { organizations: Row[] };
+          contacts: Row[];
+          organizationsHasMore: boolean;
+          contactsHasMore: boolean;
+        }>({ mode: "preview", id: saved[2].id });
+        assert.equal(relations.case.organizations.length, 5);
+        assert.equal(relations.organizationsHasMore, true);
+        assert.equal(relations.contacts.length, 25);
+        assert.equal(relations.contactsHasMore, true);
+        const history = await body<{
+          history: unknown[];
+          hasMoreHistory: boolean;
+        }>({ mode: "preview", id: recruiting.id });
+        assert.equal(history.history.length, 5);
+        assert.equal(history.hasMoreHistory, true);
       },
     );
     await t.test(

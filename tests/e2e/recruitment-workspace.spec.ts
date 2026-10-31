@@ -77,6 +77,16 @@ test.beforeAll(async () => {
     p_occurred_on: "2020-01-01",
   });
   expect(error).toBeNull();
+  for (let i = 0; i < 26; i++) {
+    const fact = await client.rpc("record_recruitment_case_event", {
+      p_request_id: randomUUID(),
+      p_case_id: cases[1].id,
+      p_kind: "contact",
+      p_direction: "inbound",
+      p_occurred_on: null,
+    });
+    expect(fact.error).toBeNull();
+  }
   const closure = {
     p_case_id: cases[2].id,
     p_operation: "close",
@@ -294,6 +304,83 @@ test("DEC059 drawer exact ID, readonly history and detail return restore actual 
   await expect(
     page.getByRole("button", { name: "Kanban", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
+});
+
+test("DEC059 history pagination preserves workspace token, board/column scroll and independent Kanban pages", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 768, height: 900 });
+  await login(page);
+  await page.goto("/recruitments?view=kanban&sort=oldest&closedOpen=1");
+  await ready(page);
+  const scroller = page.getByLabel("Przewijanie tablicy", { exact: true });
+  const saved = page.getByLabel("Sprawy: Zapisane", { exact: true });
+  await saved.evaluate((element) => {
+    element.scrollTop = 480;
+  });
+  await scroller.evaluate((element) => {
+    element.scrollLeft = element.scrollWidth;
+  });
+  const before = {
+    board: await scroller.evaluate((e) => e.scrollLeft),
+    column: await saved.evaluate((e) => e.scrollTop),
+  };
+  expect(before.board).toBeGreaterThan(0);
+  expect(before.column).toBeGreaterThan(0);
+  await page.getByRole("button", { name: cases[1].title, exact: true }).click();
+  await expect(drawer(page)).toContainText("Ocena techniczna");
+  const href = page.url();
+  await drawer(page)
+    .getByRole("link", { name: "Otwórz pełną stronę", exact: true })
+    .click();
+  const token = new URL(page.url()).searchParams.get("workspaceReturn");
+  expect(token).toBeTruthy();
+  await page
+    .getByRole("link", { name: "Następna strona historii", exact: true })
+    .click();
+  await expect
+    .poll(() => new URL(page.url()).searchParams.get("historyPage"))
+    .toBe("2");
+  expect(new URL(page.url()).searchParams.get("workspaceReturn")).toBe(token);
+  await page
+    .getByRole("link", { name: "Wróć do listy spraw", exact: true })
+    .click();
+  await expect(page).toHaveURL(href);
+  await ready(page);
+  await expect(drawer(page)).toHaveCount(0);
+  await expect
+    .poll(() => scroller.evaluate((e) => e.scrollLeft))
+    .toBe(before.board);
+  await expect
+    .poll(() => saved.evaluate((e) => e.scrollTop))
+    .toBe(before.column);
+  await scroller.evaluate((element) => {
+    element.scrollLeft = 0;
+  });
+  await page
+    .getByRole("navigation", { name: "Strony: Zapisane", exact: true })
+    .getByRole("button", { name: "Dalsze wyniki", exact: true })
+    .click();
+  await ready(page);
+  expect(new URL(page.url()).searchParams.get("savedPage")).toBe("2");
+  expect(new URL(page.url()).searchParams.get("recruitingPage")).toBeNull();
+  const last = saved.getByRole("button").first();
+  await last.click();
+  await drawer(page)
+    .getByRole("link", { name: "Otwórz pełną stronę", exact: true })
+    .click();
+  await page
+    .getByRole("link", { name: "Wróć do listy spraw", exact: true })
+    .click();
+  await ready(page);
+  expect(new URL(page.url()).searchParams.get("savedPage")).toBe("2");
+  expect(new URL(page.url()).searchParams.get("recruitingPage")).toBeNull();
+  await expect(
+    page.getByRole("navigation", { name: "Strony: Zapisane", exact: true }),
+  ).toContainText("Strona 2");
+  await expect(
+    page.getByRole("navigation", { name: "Strony: W rekrutacji", exact: true }),
+  ).toContainText("Strona 1");
 });
 
 test("DEC059 preview errors/retry and out-of-order responses cannot replace the selected case", async ({
