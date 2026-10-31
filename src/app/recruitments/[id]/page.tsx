@@ -12,6 +12,7 @@ import {
   getServerClient,
 } from "@/modules/identity/infrastructure/server";
 import { getRecruitmentCase } from "@/modules/recruitment/application/cases";
+import { uuidPattern } from "@/modules/recruitment/domain/recruitment-case";
 export const dynamic = "force-dynamic";
 
 export default async function RecruitmentDetailPage({
@@ -41,6 +42,11 @@ export default async function RecruitmentDetailPage({
   }
   if (!item) notFound();
   const query = await searchParams;
+  const workspaceReturnToken =
+    typeof query.workspaceReturn === "string" &&
+    uuidPattern.test(query.workspaceReturn)
+      ? query.workspaceReturn
+      : undefined;
   const rawPage = query.historyPage;
   const historyPage =
     typeof rawPage === "string" && /^[1-9][0-9]{0,5}$/.test(rawPage)
@@ -60,14 +66,7 @@ export default async function RecruitmentDetailPage({
 
   return (
     <Workspace userId={user.id} title={item.title}>
-      <WorkspaceReturnLink
-        userId={user.id}
-        token={
-          typeof query.workspaceReturn === "string"
-            ? query.workspaceReturn
-            : undefined
-        }
-      />
+      <WorkspaceReturnLink userId={user.id} token={workspaceReturnToken} />
       <section className="min-w-0" aria-label="Zapisane dane sprawy">
         <CaseContent item={item} />
         <div className="mt-5">
@@ -95,6 +94,7 @@ export default async function RecruitmentDetailPage({
           userId={user.id}
           caseId={item.id}
           result={history}
+          workspaceReturnToken={workspaceReturnToken}
         />
       </section>
     </Workspace>
