@@ -80,10 +80,10 @@ test("Local DEV migrations reject cloud, CI and alternate endpoints before conne
 });
 
 test("fresh bootstrap and checkpoint-bound approved prefix/full histories are accepted", () => {
-  assert.equal(history.length, 11);
+  assert.equal(history.length, 13);
   assertPersistentMigrationState([], history, target(), schema);
   // Pre-3A, 3A, 3B and history-integrity ledgers remain accepted upgrade prefixes.
-  for (const count of [1, 7, 8, 9, 10, history.length]) {
+  for (const count of [1, 7, 8, 9, 10, 11, 12, history.length]) {
     const prefix = ledger.slice(0, count);
     assertPersistentMigrationState(
       prefix,

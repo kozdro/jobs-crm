@@ -269,6 +269,7 @@ try {
       "tests/integration/recruitment/stages.test.ts",
       "tests/integration/recruitment/history-corrections.test.ts",
       "tests/integration/recruitment/closure-reopening.test.ts",
+      "tests/integration/recruitment/companies-contacts.test.ts",
     ],
     env,
     "business-integration",

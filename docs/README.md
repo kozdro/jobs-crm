@@ -1,5 +1,7 @@
 # Mapa dokumentacji — Jobs CRM
 
+Następny slice po merge PR #18: [Companies & Contacts — analiza SDD i plan](technical/companies-contacts-analysis.md), **APPROVED 1A/2A/3A — DEC-058**, wykonanie i osobny PR autoryzowane; bez merge/deploymentu.
+
 | Pytanie | Autorytatywny dokument |
 | --- | --- |
 | Po co i dla kogo? | [Wizja i zakres](product/vision-and-scope.md), [persony/JTBD](product/users-and-jtbd.md) |
@@ -74,3 +76,9 @@ Po potwierdzonym merge PR #16: [analiza OPEN-004/020, propozycja minimalnego sli
 Wykonanie: [raport](technical/recruitment-lifecycle-3c-report.md) i [QA](technical/recruitment-lifecycle-3c-qa.md), lokalnie PASS: 291+87 unit, 83/83 integracje, 73/73 HTTPS browser oraz niezależne backend/frontend/security review. Pełny TC-012, Global Search i publiczny release pozostają poza pokryciem. Hosted CI osobno dla dokładnego PR head.
 
 [DEC-057](decisions/product-decisions.md), [kontrakt, analiza wpływu i plan](technical/recruitment-lifecycle-3c.md): zatwierdzone 1A/2A/3A/4A i pełne wykonanie z osobnym PR, bez merge/deploymentu. Wyniki z cyklu, zachowane zakończenia i audyt, lokalny zakres bez zadań/kalendarza; BR-011 zachowana.
+
+## Companies & Contacts — DEC-058, 2026-10-31
+
+[Kontrakt/plan](technical/companies-contacts-analysis.md), [raport wykonania](technical/companies-contacts-report.md), [QA](technical/companies-contacts-qa.md) i [UX](ux/companies-contacts-slice.md). Zatwierdzone 1A/2A/3A i osobny PR, bez merge/deploymentu. Wyniki wykonania są raportowane oddzielnie od zatwierdzenia.
+
+Wyniki Companies & Contacts: lokalnie PASS333+87unit,105/105integracje,92/92productionHTTPSbrowser, naturalexit0, niezależne review PASS i44/44wcześniejsze zasoby zachowane. Ograniczenia i historyczneFAIL pozostają w raporcie/QA; hostedCI odrębnie dla dokładnego PRhead.

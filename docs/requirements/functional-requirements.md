@@ -258,3 +258,7 @@ APPROVED podzakres FR-LC-015, LC-013/014, HE-001/002/003 i AD-002: na własnej s
 ## Przyrost Closure & Reopening 3C — DEC-057 (APPROVED)
 
 FR-LC-016/017/019 i HE-001/002/003: [3C](../technical/recruitment-lifecycle-3c.md) dopuszcza osiem zatwierdzonych wyników, opcjonalny nieprzyszły dzień/unknown, osobny czas zapisu; jawny close/reopen/close bez nadpisywania zakończeń; audytowane korekty wyniku/dnia. Nie aplikowano dotyczy cyklu danego zakończenia, również przy korekcie starego zakończenia. Korekty 3A/3B zachowują barierę zamknięcia. FR-LC-018 i TN-011 pozostają częściowe: wyłącznie zakres bez otwartych Task/CalendarEvent, przyszła integracja musi respektować BR-011. FR-LC-021 częściowe lista/detal bez Global Search. OPEN-019/020/034 częściowo rozstrzygnięte dla jawnej kontynuacji z ważną podstawą stanu, bez arbitralnego PATCH i automatycznych sugestii nowej sprawy. Pełne publiczne moduły i bramki pozostają poza zakresem.
+
+## Companies & Contacts — zatwierdzony podzakres DEC-058
+
+FR-CC-001–006/008/011 i FR-AD-002: [kontrakt 1A/2A/3A](../technical/companies-contacts-analysis.md) obejmuje prywatne listy/profile/create/edit, nazwy 1–160 po trim i opcjonalny e-mail kontaktu do 254, wersjonowanie/audyt, jawne opcjonalne relacje M:N z kontekstowymi rolami organizacji, attach/detach/korektę roli również dla zakończonych spraw. Deduplikacja owner-only po nazwie/e-mailu wymaga potwierdzenia nowego dopasowania przy zapisie; reuse nie aktualizuje automatycznie profilu. FR-CC-007/009/010 i historyczne uczestnictwo pozostają poza wykonaniem tego przyrostu.

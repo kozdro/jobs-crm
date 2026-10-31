@@ -679,6 +679,9 @@ test(
           assert.deepEqual(
             relations.map((row) => row.relname),
             [
+              "catalog_command",
+              "catalog_profile",
+              "catalog_relation",
               "recruitment_case",
               "recruitment_case_event",
               "recruitment_case_event_revision",

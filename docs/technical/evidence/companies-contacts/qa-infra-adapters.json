@@ -1,0 +1,305 @@
+[
+  {
+    "path": "scripts/auth/cleanup-plan.test.ts",
+    "source": "b8f8cdeea8a1aaa1ec2bbcd78298bfa43a5c2c2e2c3908e4276da1aedc58df23",
+    "runtime": "b8f8cdeea8a1aaa1ec2bbcd78298bfa43a5c2c2e2c3908e4276da1aedc58df23",
+    "adapter": false
+  },
+  {
+    "path": "scripts/auth/cleanup-plan.ts",
+    "source": "acbf23b2d643141595d5ba5fae2d4b9993836727e28e3bf302360ff934dcbdd1",
+    "runtime": "acbf23b2d643141595d5ba5fae2d4b9993836727e28e3bf302360ff934dcbdd1",
+    "adapter": false
+  },
+  {
+    "path": "scripts/auth/cleanup.ts",
+    "source": "9a954901d33949422648d2ba9b48d80d789623df61220bcc3f73aa3aeb7d9cc9",
+    "runtime": "9a954901d33949422648d2ba9b48d80d789623df61220bcc3f73aa3aeb7d9cc9",
+    "adapter": false
+  },
+  {
+    "path": "scripts/auth/f3-target.ts",
+    "source": "551052f292730e8dfe9d36c3da9aec4b09a3aeec797f7fe2db9ee3b4b5e8cae1",
+    "runtime": "551052f292730e8dfe9d36c3da9aec4b09a3aeec797f7fe2db9ee3b4b5e8cae1",
+    "adapter": false
+  },
+  {
+    "path": "scripts/auth/integration.ts",
+    "source": "4f28304273e212672bea44c16b98ce99557b23becb63ed6199682bbc2e7d0765",
+    "runtime": "4f28304273e212672bea44c16b98ce99557b23becb63ed6199682bbc2e7d0765",
+    "adapter": false
+  },
+  {
+    "path": "scripts/auth/output-safety.test.ts",
+    "source": "aebfa03fa0962fdb091ca039fa0785030047cd69eb750c408282907468bdd883",
+    "runtime": "aebfa03fa0962fdb091ca039fa0785030047cd69eb750c408282907468bdd883",
+    "adapter": false
+  },
+  {
+    "path": "scripts/auth/output-safety.ts",
+    "source": "5364fb102548cbd4bd5e822dac3763db6321835584687b85ba053c34fba20743",
+    "runtime": "5364fb102548cbd4bd5e822dac3763db6321835584687b85ba053c34fba20743",
+    "adapter": false
+  },
+  {
+    "path": "scripts/auth/runner.ts",
+    "source": "c159c67be7d99a2414dc12c4a681842614b391ba65ac2736eb2aaf7f23fb6a46",
+    "runtime": "c159c67be7d99a2414dc12c4a681842614b391ba65ac2736eb2aaf7f23fb6a46",
+    "adapter": false
+  },
+  {
+    "path": "scripts/db/cleanup-targets.test.ts",
+    "source": "20905e442ba4f3388b92ccb05f548321a48c662a907e9c5a23c0d37bdcd176a1",
+    "runtime": "20905e442ba4f3388b92ccb05f548321a48c662a907e9c5a23c0d37bdcd176a1",
+    "adapter": false
+  },
+  {
+    "path": "scripts/db/cleanup-targets.ts",
+    "source": "535a2890144a31d4fec2076407d2a48152a6cba5f529aef356e22801deeb814a",
+    "runtime": "535a2890144a31d4fec2076407d2a48152a6cba5f529aef356e22801deeb814a",
+    "adapter": false
+  },
+  {
+    "path": "scripts/db/cleanup.ts",
+    "source": "7e98aafe0877b6e1b02535f44b7e6602d9b45f370e46bd84e8f018f6a7781fc0",
+    "runtime": "7e98aafe0877b6e1b02535f44b7e6602d9b45f370e46bd84e8f018f6a7781fc0",
+    "adapter": false
+  },
+  {
+    "path": "scripts/db/cli.ts",
+    "source": "0a31491b6a029c767a21bcdd5bd10868be64b22820184e01e56f5f53aae34d63",
+    "runtime": "0a31491b6a029c767a21bcdd5bd10868be64b22820184e01e56f5f53aae34d63",
+    "adapter": false
+  },
+  {
+    "path": "scripts/db/docker-cli-contract.test.ts",
+    "source": "9370f08ca7660f23e63aeae39745fbf5d65f16b07e2461a79f2a0d5a9533fbfc",
+    "runtime": "9370f08ca7660f23e63aeae39745fbf5d65f16b07e2461a79f2a0d5a9533fbfc",
+    "adapter": false
+  },
+  {
+    "path": "scripts/db/docker-guard.test.ts",
+    "source": "a67be98d29c6f9c2754ae8f65868531bf07b2dc0697b4798e1c555245ff94533",
+    "runtime": "a67be98d29c6f9c2754ae8f65868531bf07b2dc0697b4798e1c555245ff94533",
+    "adapter": false
+  },
+  {
+    "path": "scripts/db/docker-guard.ts",
+    "source": "7b39c904e0d8caf7ca6578ee0c63b15f1e1d7757024eceaddc7c6a384632264e",
+    "runtime": "7b39c904e0d8caf7ca6578ee0c63b15f1e1d7757024eceaddc7c6a384632264e",
+    "adapter": false
+  },
+  {
+    "path": "scripts/db/f2.ts",
+    "source": "4d289663584ff22fe4a4641f4121ac6780c43cd44877544145f5e4471c1e1f5a",
+    "runtime": "4d289663584ff22fe4a4641f4121ac6780c43cd44877544145f5e4471c1e1f5a",
+    "adapter": false
+  },
+  {
+    "path": "scripts/db/preflight-validation.test.ts",
+    "source": "27123c0149c8a73461a4be5e7a689b6f4b975f269541b0cf4df3b5bb59cb25f8",
+    "runtime": "27123c0149c8a73461a4be5e7a689b6f4b975f269541b0cf4df3b5bb59cb25f8",
+    "adapter": false
+  },
+  {
+    "path": "scripts/db/preflight-validation.ts",
+    "source": "06ccba5a9c9ce8c9c35b8f239e52f3230f5c54345a8ab2ee12ee94addbba4267",
+    "runtime": "06ccba5a9c9ce8c9c35b8f239e52f3230f5c54345a8ab2ee12ee94addbba4267",
+    "adapter": false
+  },
+  {
+    "path": "scripts/db/service-versions.ts",
+    "source": "e357ae8eaa39a3169099fabec265a250500b2f2b93b7b5e262f6ba6f6a7bb3ef",
+    "runtime": "e357ae8eaa39a3169099fabec265a250500b2f2b93b7b5e262f6ba6f6a7bb3ef",
+    "adapter": false
+  },
+  {
+    "path": "scripts/local-dev/acceptance.ts",
+    "source": "3f4208a3bd5e18e3a7e4fc06236cb7060fc17c5e69959b4e4b0993f985865b33",
+    "runtime": "3f4208a3bd5e18e3a7e4fc06236cb7060fc17c5e69959b4e4b0993f985865b33",
+    "adapter": false
+  },
+  {
+    "path": "scripts/local-dev/cli.ts",
+    "source": "6213e4049657d44bddd4a71cf1ab62b80524d28ab4fc390554380ebd82e9f8af",
+    "runtime": "6213e4049657d44bddd4a71cf1ab62b80524d28ab4fc390554380ebd82e9f8af",
+    "adapter": false
+  },
+  {
+    "path": "scripts/local-dev/control.ts",
+    "source": "a19aee111f735f6f8e774d116146959f041a2f887b8e77327aa3cb6f6c1eebb3",
+    "runtime": "a19aee111f735f6f8e774d116146959f041a2f887b8e77327aa3cb6f6c1eebb3",
+    "adapter": false
+  },
+  {
+    "path": "scripts/local-dev/docker-endpoint.test.ts",
+    "source": "0355523ea767a54953e5158f8703ca2dc6497e25c861bd9e3875b18d7dd1157d",
+    "runtime": "0355523ea767a54953e5158f8703ca2dc6497e25c861bd9e3875b18d7dd1157d",
+    "adapter": false
+  },
+  {
+    "path": "scripts/local-dev/environment.ts",
+    "source": "faafdd8fd585c5b679de0e792d99fe253b104cdb9a3d2483a23d850eba9ea182",
+    "runtime": "faafdd8fd585c5b679de0e792d99fe253b104cdb9a3d2483a23d850eba9ea182",
+    "adapter": false
+  },
+  {
+    "path": "scripts/local-dev/guards.qa.test.ts",
+    "source": "51950f361c31185175f09a00ff215e058597f16ea449a1b7b438b3f0caced834",
+    "runtime": "51950f361c31185175f09a00ff215e058597f16ea449a1b7b438b3f0caced834",
+    "adapter": false
+  },
+  {
+    "path": "scripts/local-dev/logs.ts",
+    "source": "57b7a41603433a908115464348ef1006b23de0a78b100650f8f1b9cfa1dddfa4",
+    "runtime": "57b7a41603433a908115464348ef1006b23de0a78b100650f8f1b9cfa1dddfa4",
+    "adapter": false
+  },
+  {
+    "path": "scripts/local-dev/migrations.test.ts",
+    "source": "f3be7d46611d39e520315d4b3b2604997ebc0dd65872947d64bb9532c7ae901f",
+    "runtime": "f3be7d46611d39e520315d4b3b2604997ebc0dd65872947d64bb9532c7ae901f",
+    "adapter": false
+  },
+  {
+    "path": "scripts/local-dev/migrations.ts",
+    "source": "0cfa6af26a100dba1db42506bf8f01b97efaa23195f046eefd9f4acf844274ef",
+    "runtime": "0cfa6af26a100dba1db42506bf8f01b97efaa23195f046eefd9f4acf844274ef",
+    "adapter": false
+  },
+  {
+    "path": "scripts/local-dev/platform.test.ts",
+    "source": "0276c2f6c2c5b5b940836f7f1dc226948f9982fa5a56e853d298381d4a038cf6",
+    "runtime": "0276c2f6c2c5b5b940836f7f1dc226948f9982fa5a56e853d298381d4a038cf6",
+    "adapter": false
+  },
+  {
+    "path": "scripts/local-dev/private-files.ts",
+    "source": "764192a0735ff1f15d011a643ad21ab2e3449b388fd50bb24b1e1b4e31cadf1b",
+    "runtime": "764192a0735ff1f15d011a643ad21ab2e3449b388fd50bb24b1e1b4e31cadf1b",
+    "adapter": false
+  },
+  {
+    "path": "scripts/local-dev/security-hardening.test.ts",
+    "source": "2f40b03a2cb2515b246d188986fe2a6cd1b89f1e75cc2878a5552e08d15ebd39",
+    "runtime": "2f40b03a2cb2515b246d188986fe2a6cd1b89f1e75cc2878a5552e08d15ebd39",
+    "adapter": false
+  },
+  {
+    "path": "scripts/local-dev/studio-guard.test.ts",
+    "source": "c13ede847a707268602c8dee7ebd97e07f7065114069229b053f92626b3528a5",
+    "runtime": "c13ede847a707268602c8dee7ebd97e07f7065114069229b053f92626b3528a5",
+    "adapter": false
+  },
+  {
+    "path": "scripts/local-dev/target.ts",
+    "source": "facfe80a0c6d4dd67fb914b53f49af44881151ea6a6da1111d11e8e48c23edbc",
+    "runtime": "facfe80a0c6d4dd67fb914b53f49af44881151ea6a6da1111d11e8e48c23edbc",
+    "adapter": false
+  },
+  {
+    "path": "scripts/local-dev/validation.ts",
+    "source": "37fcd43fdf090f87ff917b98deefe3f534ca8087a532441eec1df8236a55ace7",
+    "runtime": "37fcd43fdf090f87ff917b98deefe3f534ca8087a532441eec1df8236a55ace7",
+    "adapter": false
+  },
+  {
+    "path": "scripts/recruitment/cleanup-plan.test.ts",
+    "source": "0c63ca349cd1e8c955a9a8bbf40ba559fa2a661362f8b728ce2a2ef09cbc00ce",
+    "runtime": "0c63ca349cd1e8c955a9a8bbf40ba559fa2a661362f8b728ce2a2ef09cbc00ce",
+    "adapter": false
+  },
+  {
+    "path": "scripts/recruitment/cleanup-plan.ts",
+    "source": "42661e07b2d86b48afbd9ba3c02d046667937445913dab824ce597406556809b",
+    "runtime": "8e330d6d9660f49fae651d01e10a244753a8e2805fc4c6cf4b3714e6aee64e2f",
+    "adapter": true,
+    "normalizedRuntimeSha256": "42661e07b2d86b48afbd9ba3c02d046667937445913dab824ce597406556809b"
+  },
+  {
+    "path": "scripts/recruitment/cleanup.ts",
+    "source": "e2fb855944ce15478707b3c50e29c38f647ebf4e9bf4344f9af0c5c26a920eeb",
+    "runtime": "e2fb855944ce15478707b3c50e29c38f647ebf4e9bf4344f9af0c5c26a920eeb",
+    "adapter": false
+  },
+  {
+    "path": "scripts/recruitment/runner.ts",
+    "source": "d9d2ea687fbe60010c07611059e7f7616bc482ca1170684e2c8f0663482557d7",
+    "runtime": "d9d2ea687fbe60010c07611059e7f7616bc482ca1170684e2c8f0663482557d7",
+    "adapter": false
+  },
+  {
+    "path": "scripts/recruitment/target.ts",
+    "source": "7bec84b1fb29ba85ff0325d652651a54101bbbf1ae4fd4a855e2b8cbc5227e4a",
+    "runtime": "f0bf13d6e7d12edf95e180fe8e2cb61f72c11c114c5bb9ce6c0f4012f0c30cd0",
+    "adapter": true,
+    "normalizedRuntimeSha256": "7bec84b1fb29ba85ff0325d652651a54101bbbf1ae4fd4a855e2b8cbc5227e4a"
+  },
+  {
+    "path": "scripts/recruitment/validation.test.ts",
+    "source": "7ad319d3657fcea44397a162ae386f841e344187b44082fea16683f7fca2449a",
+    "runtime": "7ad319d3657fcea44397a162ae386f841e344187b44082fea16683f7fca2449a",
+    "adapter": false
+  },
+  {
+    "path": "scripts/recruitment/validation.ts",
+    "source": "c9e8eeb9fd573f475e82275e32138dfadc05aba74f68995b472297bf6b520174",
+    "runtime": "c9e8eeb9fd573f475e82275e32138dfadc05aba74f68995b472297bf6b520174",
+    "adapter": false
+  },
+  {
+    "path": "scripts/test-boundaries.mjs",
+    "source": "375f26267ba037244ca993757dce97d53248688839f5133a9a1e40a6edc78e2f",
+    "runtime": "375f26267ba037244ca993757dce97d53248688839f5133a9a1e40a6edc78e2f",
+    "adapter": false
+  },
+  {
+    "path": "scripts/test-canary.mjs",
+    "source": "08e2121dc1d6069edd814e59f9836a65a85a1c5116a21ddf7d17ef9330a4b97d",
+    "runtime": "08e2121dc1d6069edd814e59f9836a65a85a1c5116a21ddf7d17ef9330a4b97d",
+    "adapter": false
+  },
+  {
+    "path": "scripts/test-fixture.mjs",
+    "source": "7a3a47f02390404225edf9593f06eae707ef0a6f68da2d9f0b9dce642753356d",
+    "runtime": "7a3a47f02390404225edf9593f06eae707ef0a6f68da2d9f0b9dce642753356d",
+    "adapter": false
+  },
+  {
+    "path": "scripts/ui-candidates.mjs",
+    "source": "1ff0ae06e8a4811663e41dd3229367c508716f043b2d3d57200d6739221cc4b9",
+    "runtime": "1ff0ae06e8a4811663e41dd3229367c508716f043b2d3d57200d6739221cc4b9",
+    "adapter": false
+  },
+  {
+    "path": "supabase/.gitignore",
+    "source": "507699eb91144818edf61d3a079212cacf31d8db520eae428e3b48fcf0d6919c",
+    "runtime": "507699eb91144818edf61d3a079212cacf31d8db520eae428e3b48fcf0d6919c",
+    "adapter": false
+  },
+  {
+    "path": "supabase/config.toml",
+    "source": "8ca0a571af57b505064f071944312fb3248b699cb99d44ac3da99bcc19e7138b",
+    "runtime": "8ca0a571af57b505064f071944312fb3248b699cb99d44ac3da99bcc19e7138b",
+    "adapter": false
+  },
+  {
+    "path": "supabase/f3-config.toml",
+    "source": "1e5e90fcb4ac91d6a3bc9ed109d1f09936bb7e656c265f643989b2f1f006dbfe",
+    "runtime": "1e5e90fcb4ac91d6a3bc9ed109d1f09936bb7e656c265f643989b2f1f006dbfe",
+    "adapter": false
+  },
+  {
+    "path": "supabase/local-dev-config.toml",
+    "source": "6031d17d106b746cb0dc7faf55caf8846c3794ab68af69e0ddfe3449794bf7d8",
+    "runtime": "6031d17d106b746cb0dc7faf55caf8846c3794ab68af69e0ddfe3449794bf7d8",
+    "adapter": false
+  },
+  {
+    "path": "supabase/recruitment-config.toml",
+    "source": "7e2fe03700482259594a2a84cbdb99ac422a2185d9c94c0a0b63f6152743f2a0",
+    "runtime": "ff3bc8b308bdae4fbc431ce69c1c9adc785d1de76c6842461340958c50a5f8d4",
+    "adapter": true,
+    "normalizedRuntimeSha256": "7e2fe03700482259594a2a84cbdb99ac422a2185d9c94c0a0b63f6152743f2a0"
+  }
+]

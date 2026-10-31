@@ -1,0 +1,4 @@
+Recruitment production-build: {"exit":0,"bytes":1156,"sha256":"6f90ec8ff4ce2df812e7f9a91a72a2d9dfecca944493fc2638fc3688ff71036a","counts":{},"observations":[]}
+Recruitment business-integration: {"exit":0,"bytes":12514,"sha256":"313e3ab8ed3a54f6c7bf6084922afff7b9ac0f44ecf0bcd79fe9012c9d8cd692","counts":{"tests":105,"passed":105,"failed":0,"cancelled":0,"skipped":0},"observations":[]}
+Recruitment business-HTTPS-browser: {"exit":0,"bytes":15227,"sha256":"1564fb19da2e0c427087c79957f80af888d06f10125957c352bdfe7f1e2ad001","counts":{"passed":92},"observations":[]}
+Recruitment target retained for explicit inspection/cleanup: companies-cc-r7

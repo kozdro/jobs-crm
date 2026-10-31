@@ -59,7 +59,10 @@ additional_redirect_urls = [
 ]
 enable_signup = true
 enable_anonymous_sign_ins = false
-jwt_expiry = 60
+# Synthetic product QA only: the SDK refresh margin is90s; use the recommended
+# minimum300s to exercise actual expiry without pathological immediate rotations.
+# This is not a public session policy and does not change persistent DEV/F3.
+jwt_expiry = 300
 minimum_password_length = 12
 
 [auth.email]

@@ -12,6 +12,7 @@ import {
   text,
   timestamp,
   unique,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 import { authUsers } from "drizzle-orm/supabase";
@@ -281,6 +282,137 @@ export const recruitmentClosureRevision = pgTable(
     check(
       "recruitment_closure_revision_version_valid",
       sql`${t.expectedCaseRevision} >= 0 AND ${t.expectedClosureRevision} >= 0 AND ${t.revision} = ${t.expectedClosureRevision} + 1`,
+    ),
+  ],
+).enableRLS();
+
+/** DEC-058 private catalog; catalog_command is the only mutation contract. */
+export const catalogProfile = pgTable(
+  "catalog_profile",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    type: text("type").notNull(),
+    name: text("name").notNull(),
+    email: text("email"),
+    revision: integer("revision").default(0).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    foreignKey({
+      name: "catalog_profile_owner_fk",
+      columns: [t.ownerId],
+      foreignColumns: [authUsers.id],
+    }),
+    unique("catalog_profile_owner_id_unique").on(t.ownerId, t.id),
+    check(
+      "catalog_profile_type_valid",
+      sql`${t.type} IN ('organization','contact')`,
+    ),
+    check(
+      "catalog_profile_name_valid",
+      sql`char_length(${t.name}) BETWEEN 1 AND 160 AND ${t.name}=public.recruitment_trim(${t.name})`,
+    ),
+    check(
+      "catalog_profile_email_valid",
+      sql`${t.email} IS NULL OR (${t.type}='contact' AND char_length(${t.email}) BETWEEN 1 AND 254 AND ${t.email}=public.recruitment_trim(${t.email}) AND ${t.email} ~ '^[^[:space:]@]+@[^[:space:]@]+[.][^[:space:]@]+$')`,
+    ),
+    check("catalog_profile_revision_valid", sql`${t.revision}>=0`),
+    index("catalog_profile_owner_order_idx").on(t.ownerId, t.createdAt, t.id),
+  ],
+).enableRLS();
+export const catalogRelation = pgTable(
+  "catalog_relation",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    type: text("type").notNull(),
+    caseId: uuid("case_id"),
+    organizationId: uuid("organization_id"),
+    contactId: uuid("contact_id"),
+    role: text("role"),
+    active: boolean("active").default(true).notNull(),
+    revision: integer("revision").default(0).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    unique("catalog_relation_owner_id_unique").on(t.ownerId, t.id),
+    uniqueIndex("catalog_relation_active_unique")
+      .on(
+        t.ownerId,
+        t.type,
+        sql`COALESCE(${t.caseId},'00000000-0000-0000-0000-000000000000'::uuid)`,
+        sql`COALESCE(${t.organizationId},'00000000-0000-0000-0000-000000000000'::uuid)`,
+        sql`COALESCE(${t.contactId},'00000000-0000-0000-0000-000000000000'::uuid)`,
+        sql`COALESCE(${t.role},'')`,
+      )
+      .where(sql`${t.active}`),
+    foreignKey({
+      name: "catalog_relation_owned_case_fk",
+      columns: [t.ownerId, t.caseId],
+      foreignColumns: [recruitmentCase.ownerId, recruitmentCase.id],
+    }),
+    foreignKey({
+      name: "catalog_relation_owned_org_fk",
+      columns: [t.ownerId, t.organizationId],
+      foreignColumns: [catalogProfile.ownerId, catalogProfile.id],
+    }),
+    foreignKey({
+      name: "catalog_relation_owned_contact_fk",
+      columns: [t.ownerId, t.contactId],
+      foreignColumns: [catalogProfile.ownerId, catalogProfile.id],
+    }),
+    check(
+      "catalog_relation_shape_valid",
+      sql`(${t.type}='case-organization' AND ${t.caseId} IS NOT NULL AND ${t.organizationId} IS NOT NULL AND ${t.contactId} IS NULL AND ${t.role} IN ('employer','agency')) OR (${t.type}='case-contact' AND ${t.caseId} IS NOT NULL AND ${t.organizationId} IS NULL AND ${t.contactId} IS NOT NULL AND ${t.role} IS NULL) OR (${t.type}='organization-contact' AND ${t.caseId} IS NULL AND ${t.organizationId} IS NOT NULL AND ${t.contactId} IS NOT NULL AND ${t.role} IS NULL)`,
+    ),
+    check("catalog_relation_revision_valid", sql`${t.revision}>=0`),
+    index("catalog_relation_owner_idx").on(
+      t.ownerId,
+      t.caseId,
+      t.organizationId,
+      t.contactId,
+    ),
+  ],
+).enableRLS();
+export const catalogCommand = pgTable(
+  "catalog_command",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    requestId: uuid("request_id").notNull(),
+    payload: jsonb("payload").notNull(),
+    result: jsonb("result").notNull(),
+    targetId: uuid("target_id").notNull(),
+    operation: text("operation").notNull(),
+    beforeValues: jsonb("before_values"),
+    afterValues: jsonb("after_values").notNull(),
+    recordedAt: timestamp("recorded_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    foreignKey({
+      name: "catalog_command_owner_fk",
+      columns: [t.ownerId],
+      foreignColumns: [authUsers.id],
+    }),
+    unique("catalog_command_owner_request_unique").on(t.ownerId, t.requestId),
+    index("catalog_command_audit_idx").on(
+      t.ownerId,
+      t.targetId,
+      t.recordedAt,
+      t.id,
     ),
   ],
 ).enableRLS();

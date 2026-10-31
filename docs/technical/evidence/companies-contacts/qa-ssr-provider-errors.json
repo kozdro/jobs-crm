@@ -1,0 +1,221 @@
+{
+  "project": "jobs-crm-recruitment-f5e7b6-b698861a4ef6",
+  "providerErrorEvents": [
+    {
+      "time": "2026-10-31T17:43:50Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 500,
+      "error_code": "unexpected_failure",
+      "classifiedReason": "other_auth_error"
+    },
+    {
+      "time": "2026-10-31T17:44:16Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 500,
+      "error_code": "unexpected_failure",
+      "classifiedReason": "other_auth_error"
+    },
+    {
+      "time": "2026-10-31T17:44:20Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 500,
+      "error_code": "unexpected_failure",
+      "classifiedReason": "other_auth_error"
+    },
+    {
+      "time": "2026-10-31T17:44:20Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 500,
+      "error_code": "unexpected_failure",
+      "classifiedReason": "other_auth_error"
+    },
+    {
+      "time": "2026-10-31T17:45:21Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 400,
+      "error_code": "refresh_token_already_used",
+      "classifiedReason": "other_auth_error"
+    },
+    {
+      "time": "2026-10-31T17:45:39Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 400,
+      "error_code": "refresh_token_not_found",
+      "classifiedReason": "refresh_missing"
+    },
+    {
+      "time": "2026-10-31T17:45:39Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 400,
+      "error_code": "refresh_token_not_found",
+      "classifiedReason": "refresh_missing"
+    },
+    {
+      "time": "2026-10-31T17:46:27Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 500,
+      "error_code": "unexpected_failure",
+      "classifiedReason": "other_auth_error"
+    },
+    {
+      "time": "2026-10-31T17:46:40Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 500,
+      "error_code": "unexpected_failure",
+      "classifiedReason": "other_auth_error"
+    },
+    {
+      "time": "2026-10-31T17:46:48Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 500,
+      "error_code": null,
+      "classifiedReason": "other_auth_error"
+    },
+    {
+      "time": "2026-10-31T17:46:56Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 500,
+      "error_code": "unexpected_failure",
+      "classifiedReason": "other_auth_error"
+    },
+    {
+      "time": "2026-10-31T17:46:57Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 400,
+      "error_code": "refresh_token_not_found",
+      "classifiedReason": "refresh_missing"
+    },
+    {
+      "time": "2026-10-31T17:46:57Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 400,
+      "error_code": "refresh_token_not_found",
+      "classifiedReason": "refresh_missing"
+    },
+    {
+      "time": "2026-10-31T17:46:57Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 400,
+      "error_code": "refresh_token_not_found",
+      "classifiedReason": "refresh_missing"
+    },
+    {
+      "time": "2026-10-31T17:46:58Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 400,
+      "error_code": "refresh_token_not_found",
+      "classifiedReason": "refresh_missing"
+    },
+    {
+      "time": "2026-10-31T17:47:04Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 500,
+      "error_code": "unexpected_failure",
+      "classifiedReason": "other_auth_error"
+    },
+    {
+      "time": "2026-10-31T17:47:06Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 500,
+      "error_code": "unexpected_failure",
+      "classifiedReason": "other_auth_error"
+    },
+    {
+      "time": "2026-10-31T17:47:10Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 500,
+      "error_code": "unexpected_failure",
+      "classifiedReason": "other_auth_error"
+    },
+    {
+      "time": "2026-10-31T17:47:34Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 400,
+      "error_code": "invalid_credentials",
+      "classifiedReason": "other_auth_error"
+    },
+    {
+      "time": "2026-10-31T17:47:35Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 400,
+      "error_code": "refresh_token_not_found",
+      "classifiedReason": "refresh_missing"
+    },
+    {
+      "time": "2026-10-31T17:47:35Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 400,
+      "error_code": "refresh_token_not_found",
+      "classifiedReason": "refresh_missing"
+    },
+    {
+      "time": "2026-10-31T17:47:37Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 400,
+      "error_code": "refresh_token_not_found",
+      "classifiedReason": "refresh_missing"
+    },
+    {
+      "time": "2026-10-31T17:47:37Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 400,
+      "error_code": "refresh_token_not_found",
+      "classifiedReason": "refresh_missing"
+    },
+    {
+      "time": "2026-10-31T17:47:37Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 400,
+      "error_code": "refresh_token_not_found",
+      "classifiedReason": "refresh_missing"
+    },
+    {
+      "time": "2026-10-31T17:47:37Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 500,
+      "error_code": "unexpected_failure",
+      "classifiedReason": "other_auth_error"
+    },
+    {
+      "time": "2026-10-31T17:49:29Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 500,
+      "error_code": "unexpected_failure",
+      "classifiedReason": "other_auth_error"
+    },
+    {
+      "time": "2026-10-31T17:50:31Z",
+      "path": "/token",
+      "method": "POST",
+      "status": 400,
+      "error_code": "refresh_token_already_used",
+      "classifiedReason": "other_auth_error"
+    }
+  ]
+}

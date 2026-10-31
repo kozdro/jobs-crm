@@ -1,0 +1,43 @@
+[
+  {
+    "stage": "before-close",
+    "names": [
+      "sb-127-auth-token"
+    ],
+    "sessionExpiresAt": 1793469029,
+    "jwtExp": 1793469029,
+    "now": 1793468969.441
+  },
+  {
+    "stage": "after-close",
+    "names": [
+      "sb-127-auth-token"
+    ],
+    "sessionExpiresAt": 1793469029,
+    "jwtExp": 1793469029,
+    "now": 1793468969.481
+  },
+  {
+    "stage": "before-SSR",
+    "names": [
+      "sb-127-auth-token"
+    ],
+    "sessionExpiresAt": 1793469029,
+    "jwtExp": 1793469029,
+    "now": 1793469031.005
+  },
+  {
+    "stage": "SSR",
+    "requested": "https://127.0.0.1:3153/companies",
+    "url": "https://127.0.0.1:3153/companies",
+    "status": 307,
+    "location": "/login",
+    "hasSetCookie": true,
+    "cache": "private, no-cache, no-store, must-revalidate, max-age=0",
+    "middleware": null
+  },
+  {
+    "stage": "failure",
+    "message": "Unexpected end of JSON input"
+  }
+]

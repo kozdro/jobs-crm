@@ -690,3 +690,7 @@ Negatywne: obcy owner/case/event/revision, direct Data API bypass, spoofing akto
 5. Realne close/close, close/reopen, close/correct, stale/ABA i wymuszony rollback; upgrade starych danych, real Auth/Data API/RLS A/B/anon. UI cancel/focus/conflict/recovery, reload i mały ekran.
 
 Pełny TC-012 z otwartymi zadaniami i przyszłym wydarzeniem NIE JEST wykonywany przez 3C — brak tych modułów w zatwierdzonym zakresie. TC-013 pokrywa kontynuację bez Global Search; TC-014 automatyczne proponowanie nowej sprawy nie jest wdrażane. Wyniki testów osobno w raporcie.
+
+## Adaptacja Companies & Contacts — DEC-058
+
+Plan QA [CC](../technical/companies-contacts-analysis.md) obejmuje TC-006/008/014 (podzbiór relacji do istniejących spraw), TC-025 (samodzielny kontakt, bez komunikacji) i TC-034 (nowe katalogi/relacje/audyt/metadata, bez dokumentów/Search). TC-019 i dodatnie scenariusze historii osoby poza zakresem. Wymagane negatywne regresje: link osoby nie dziedziczy zdarzeń, afiliacja nie wynika ze wspólnej sprawy, role i zamknięcia nie zmieniają się po attach/detach. Nowe testy wykonuje QA; niniejszy wpis sam nie oznacza PASS.

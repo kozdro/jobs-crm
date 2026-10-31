@@ -133,3 +133,7 @@ PO zatwierdził 1A/2A/3A/4A i pełne wykonanie z osobnym PR, bez merge/deploymen
 - OPEN-037: dotychczasowa precyzja opcjonalnego nieprzyszłego dnia/unknown rozszerzona tylko na zakończenie/wznowienie; pozostałe reguły kalendarza OPEN.
 
 Zatwierdzenie nie jest wynikiem testów ani zgodą na publiczne udostępnienie.
+
+## Companies & Contacts — DEC-058, 2026-10-31
+
+OPEN-002/005/024 są PARTIALLY RESOLVED dla 1A/2A/3A [kontraktu CC](../technical/companies-contacts-analysis.md): pola i korekty profili, jawne M:N i attach/detach/korekta roli z audytem, owner-only ostrzeżenia dedup i retry. OPEN-005 nadal obejmuje usuwanie/archiwizację/restore profili; OPEN-030 historyczne uczestnictwo; OPEN-032 polityki retencji/publicznego użycia. Brak nowych blokujących wyborów w zatwierdzonym lokalnym slice.

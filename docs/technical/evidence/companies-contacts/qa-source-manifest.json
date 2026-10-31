@@ -1,0 +1,931 @@
+{
+  "source": "/Users/kozdro/Desktop/jobs-crm",
+  "runtime": "/private/tmp/jobs-crm-cc-runtime",
+  "files": [
+    {
+      "path": "src/app/account/page.tsx",
+      "source": "7e05e31972523c699a999341fa3255eaf1b81d873636a517aad710af66d925f5",
+      "runtime": "7e05e31972523c699a999341fa3255eaf1b81d873636a517aad710af66d925f5",
+      "commit": "7e05e31972523c699a999341fa3255eaf1b81d873636a517aad710af66d925f5"
+    },
+    {
+      "path": "src/app/auth/callback/route.ts",
+      "source": "6c064f068182b1dbe9b4147fe8984f3c9b204e12537e984d207a9910c3d8f252",
+      "runtime": "6c064f068182b1dbe9b4147fe8984f3c9b204e12537e984d207a9910c3d8f252",
+      "commit": "6c064f068182b1dbe9b4147fe8984f3c9b204e12537e984d207a9910c3d8f252"
+    },
+    {
+      "path": "src/app/auth/password/route.ts",
+      "source": "918c289add854a383b0a0c55b12aa96fd23a79affb8edc7b19ac44ed9cc03569",
+      "runtime": "918c289add854a383b0a0c55b12aa96fd23a79affb8edc7b19ac44ed9cc03569",
+      "commit": "918c289add854a383b0a0c55b12aa96fd23a79affb8edc7b19ac44ed9cc03569"
+    },
+    {
+      "path": "src/app/auth/user/route.ts",
+      "source": "219f228d471a30e5301805ee28d393fba1820e68345eb688b0bf148d3356ec89",
+      "runtime": "219f228d471a30e5301805ee28d393fba1820e68345eb688b0bf148d3356ec89",
+      "commit": "219f228d471a30e5301805ee28d393fba1820e68345eb688b0bf148d3356ec89"
+    },
+    {
+      "path": "src/app/catalog/commands/route.ts",
+      "source": "2e1c774b4b3b8cf0e09970adec334becdbac3e6b2fb48cf70f04bdb86aaf3a18",
+      "runtime": "2e1c774b4b3b8cf0e09970adec334becdbac3e6b2fb48cf70f04bdb86aaf3a18",
+      "commit": "2e1c774b4b3b8cf0e09970adec334becdbac3e6b2fb48cf70f04bdb86aaf3a18"
+    },
+    {
+      "path": "src/app/companies/[id]/page.tsx",
+      "source": "9b8f93c8180020ddf2fee569e627bbb96d4f7b0b49d4fa07ef20c4f3a1089b08",
+      "runtime": "9b8f93c8180020ddf2fee569e627bbb96d4f7b0b49d4fa07ef20c4f3a1089b08",
+      "commit": "9b8f93c8180020ddf2fee569e627bbb96d4f7b0b49d4fa07ef20c4f3a1089b08"
+    },
+    {
+      "path": "src/app/companies/page.tsx",
+      "source": "28723ed20c92555cc1929102b6a05708eb4d4fd6f65aa0244e0e6dcbd2cf06e0",
+      "runtime": "28723ed20c92555cc1929102b6a05708eb4d4fd6f65aa0244e0e6dcbd2cf06e0",
+      "commit": "28723ed20c92555cc1929102b6a05708eb4d4fd6f65aa0244e0e6dcbd2cf06e0"
+    },
+    {
+      "path": "src/app/contacts/[id]/page.tsx",
+      "source": "51583fe2eb245d5a208ea0aefde4d718d4cd33e080eb990ead879a778e59754a",
+      "runtime": "51583fe2eb245d5a208ea0aefde4d718d4cd33e080eb990ead879a778e59754a",
+      "commit": "51583fe2eb245d5a208ea0aefde4d718d4cd33e080eb990ead879a778e59754a"
+    },
+    {
+      "path": "src/app/contacts/page.tsx",
+      "source": "3ac3c81552988eb9ace5e4948df0a150dfea0fc2e38270b6e04a1790503a2ec7",
+      "runtime": "3ac3c81552988eb9ace5e4948df0a150dfea0fc2e38270b6e04a1790503a2ec7",
+      "commit": "3ac3c81552988eb9ace5e4948df0a150dfea0fc2e38270b6e04a1790503a2ec7"
+    },
+    {
+      "path": "src/app/dashboard/page.tsx",
+      "source": "74f3c1f2344bc1f2758b000aa0d399f140a3958f6923a7f126894525863cbff1",
+      "runtime": "74f3c1f2344bc1f2758b000aa0d399f140a3958f6923a7f126894525863cbff1",
+      "commit": "74f3c1f2344bc1f2758b000aa0d399f140a3958f6923a7f126894525863cbff1"
+    },
+    {
+      "path": "src/app/forgot-password/page.tsx",
+      "source": "7d9c7ab31aeb7d41bfcef87f2200d4e5bbd1a6c05c72b117f9ad72ba2226b9f4",
+      "runtime": "7d9c7ab31aeb7d41bfcef87f2200d4e5bbd1a6c05c72b117f9ad72ba2226b9f4",
+      "commit": "7d9c7ab31aeb7d41bfcef87f2200d4e5bbd1a6c05c72b117f9ad72ba2226b9f4"
+    },
+    {
+      "path": "src/app/globals.css",
+      "source": "2ab4d3214338ef414682e758d6608ffcc6924b2d8738951df007baebcd0cb2bd",
+      "runtime": "2ab4d3214338ef414682e758d6608ffcc6924b2d8738951df007baebcd0cb2bd",
+      "commit": "2ab4d3214338ef414682e758d6608ffcc6924b2d8738951df007baebcd0cb2bd"
+    },
+    {
+      "path": "src/app/health/ready/route.ts",
+      "source": "9dbc1884714fe0cb1815a77fc2882ac0432f769ffe6b6ddf23e2f1eae06d60c8",
+      "runtime": "9dbc1884714fe0cb1815a77fc2882ac0432f769ffe6b6ddf23e2f1eae06d60c8",
+      "commit": "9dbc1884714fe0cb1815a77fc2882ac0432f769ffe6b6ddf23e2f1eae06d60c8"
+    },
+    {
+      "path": "src/app/layout.tsx",
+      "source": "16dbfb50aad88e5279d9b8d1789256fee64607ab2883842feaaef975385e5e37",
+      "runtime": "16dbfb50aad88e5279d9b8d1789256fee64607ab2883842feaaef975385e5e37",
+      "commit": "16dbfb50aad88e5279d9b8d1789256fee64607ab2883842feaaef975385e5e37"
+    },
+    {
+      "path": "src/app/login/page.tsx",
+      "source": "c138a59d2ad2f238d761888a3236fd612f2fa1ef611989fd6febea6cf8729802",
+      "runtime": "c138a59d2ad2f238d761888a3236fd612f2fa1ef611989fd6febea6cf8729802",
+      "commit": "c138a59d2ad2f238d761888a3236fd612f2fa1ef611989fd6febea6cf8729802"
+    },
+    {
+      "path": "src/app/page.tsx",
+      "source": "393912b3ffa3af589456582418c9f50dfba6e176a3b6750c753df4437d33a67a",
+      "runtime": "393912b3ffa3af589456582418c9f50dfba6e176a3b6750c753df4437d33a67a",
+      "commit": "393912b3ffa3af589456582418c9f50dfba6e176a3b6750c753df4437d33a67a"
+    },
+    {
+      "path": "src/app/recruitments/[id]/not-found.tsx",
+      "source": "e3ca4840d6d92cb381a93deaacc9d8a98102e88dbae1a308bc058a15ca8efcd3",
+      "runtime": "e3ca4840d6d92cb381a93deaacc9d8a98102e88dbae1a308bc058a15ca8efcd3",
+      "commit": "e3ca4840d6d92cb381a93deaacc9d8a98102e88dbae1a308bc058a15ca8efcd3"
+    },
+    {
+      "path": "src/app/recruitments/[id]/page.tsx",
+      "source": "3aadde45358f40d5df0fd440e5fe0bec5fe1e4155c80b952572e8b160a4b5ea7",
+      "runtime": "3aadde45358f40d5df0fd440e5fe0bec5fe1e4155c80b952572e8b160a4b5ea7",
+      "commit": "3aadde45358f40d5df0fd440e5fe0bec5fe1e4155c80b952572e8b160a4b5ea7"
+    },
+    {
+      "path": "src/app/recruitments/commands/route.ts",
+      "source": "34660c9d87d678735f0b8665f40de4487a5416c7c5b48e65c42e28f9abe0a8cd",
+      "runtime": "34660c9d87d678735f0b8665f40de4487a5416c7c5b48e65c42e28f9abe0a8cd",
+      "commit": "34660c9d87d678735f0b8665f40de4487a5416c7c5b48e65c42e28f9abe0a8cd"
+    },
+    {
+      "path": "src/app/recruitments/history-commands/route.ts",
+      "source": "3787d4d329ff917eaff04744b9169b2afaf127e5907b99ae8099a6b73774fb57",
+      "runtime": "3787d4d329ff917eaff04744b9169b2afaf127e5907b99ae8099a6b73774fb57",
+      "commit": "3787d4d329ff917eaff04744b9169b2afaf127e5907b99ae8099a6b73774fb57"
+    },
+    {
+      "path": "src/app/recruitments/lifecycle-commands/route.ts",
+      "source": "20e023c9fa91e3c291156b5604d0bf0f27145ac8c3a64dad39ffbba1cb09d590",
+      "runtime": "20e023c9fa91e3c291156b5604d0bf0f27145ac8c3a64dad39ffbba1cb09d590",
+      "commit": "20e023c9fa91e3c291156b5604d0bf0f27145ac8c3a64dad39ffbba1cb09d590"
+    },
+    {
+      "path": "src/app/recruitments/page.tsx",
+      "source": "6f9521245dc5306b47507f9af4b8ee379381a7993326fc6e1484b479e981fbc8",
+      "runtime": "6f9521245dc5306b47507f9af4b8ee379381a7993326fc6e1484b479e981fbc8",
+      "commit": "6f9521245dc5306b47507f9af4b8ee379381a7993326fc6e1484b479e981fbc8"
+    },
+    {
+      "path": "src/app/reset-password/page.tsx",
+      "source": "e8dfe0304588fd6ea28aee7ded35399dc3360b5c4e00e174c673e6d09d59b00d",
+      "runtime": "e8dfe0304588fd6ea28aee7ded35399dc3360b5c4e00e174c673e6d09d59b00d",
+      "commit": "e8dfe0304588fd6ea28aee7ded35399dc3360b5c4e00e174c673e6d09d59b00d"
+    },
+    {
+      "path": "src/app/signup/page.tsx",
+      "source": "ef2bbed656fe11b6cb798b5fe20f7fa33c5d7db6ba909c51958054efae164918",
+      "runtime": "ef2bbed656fe11b6cb798b5fe20f7fa33c5d7db6ba909c51958054efae164918",
+      "commit": "ef2bbed656fe11b6cb798b5fe20f7fa33c5d7db6ba909c51958054efae164918"
+    },
+    {
+      "path": "src/components/auth/account-session.tsx",
+      "source": "f68cec6fe8a58ec25a8f1239dbfd0e65208fe6dfc4b047947a7a8d59bcfcd3ca",
+      "runtime": "f68cec6fe8a58ec25a8f1239dbfd0e65208fe6dfc4b047947a7a8d59bcfcd3ca",
+      "commit": "f68cec6fe8a58ec25a8f1239dbfd0e65208fe6dfc4b047947a7a8d59bcfcd3ca"
+    },
+    {
+      "path": "src/components/auth/auth-form.tsx",
+      "source": "623f9b8c6fb2b18f1058aa5a6a85d26c580324b9f78956a218a3bda87634baa9",
+      "runtime": "623f9b8c6fb2b18f1058aa5a6a85d26c580324b9f78956a218a3bda87634baa9",
+      "commit": "623f9b8c6fb2b18f1058aa5a6a85d26c580324b9f78956a218a3bda87634baa9"
+    },
+    {
+      "path": "src/components/auth/auth-shell.tsx",
+      "source": "d5f91b05cb4c296b0411214b3f2f805629a3b3bd2e18405a5498d07a09a889df",
+      "runtime": "d5f91b05cb4c296b0411214b3f2f805629a3b3bd2e18405a5498d07a09a889df",
+      "commit": "d5f91b05cb4c296b0411214b3f2f805629a3b3bd2e18405a5498d07a09a889df"
+    },
+    {
+      "path": "src/components/auth/feedback.tsx",
+      "source": "2dc19a0f4cc9fe10495f6cfd3e66c9af453f467081641c4745d1d7e74e32aaba",
+      "runtime": "2dc19a0f4cc9fe10495f6cfd3e66c9af453f467081641c4745d1d7e74e32aaba",
+      "commit": "2dc19a0f4cc9fe10495f6cfd3e66c9af453f467081641c4745d1d7e74e32aaba"
+    },
+    {
+      "path": "src/components/companies-contacts/catalog.tsx",
+      "source": "6b50fe83df0c6f1e779a8cc234157428cf1fc84757a7c305a318abe78fef5da4",
+      "runtime": "6b50fe83df0c6f1e779a8cc234157428cf1fc84757a7c305a318abe78fef5da4",
+      "commit": "6b50fe83df0c6f1e779a8cc234157428cf1fc84757a7c305a318abe78fef5da4"
+    },
+    {
+      "path": "src/components/companies-contacts/client.ts",
+      "source": "9df15a68dfd090378ead7719bef5af8615e5848bacd3fc3344229455c0c2ab8d",
+      "runtime": "9df15a68dfd090378ead7719bef5af8615e5848bacd3fc3344229455c0c2ab8d",
+      "commit": "9df15a68dfd090378ead7719bef5af8615e5848bacd3fc3344229455c0c2ab8d"
+    },
+    {
+      "path": "src/components/companies-contacts/common.tsx",
+      "source": "cb0da1ed43a82bf33515114a014219a41b22c1928c3c3d1009944ebe1bd0cf36",
+      "runtime": "cb0da1ed43a82bf33515114a014219a41b22c1928c3c3d1009944ebe1bd0cf36",
+      "commit": "cb0da1ed43a82bf33515114a014219a41b22c1928c3c3d1009944ebe1bd0cf36"
+    },
+    {
+      "path": "src/components/companies-contacts/hooks.ts",
+      "source": "7323a5bc4685275e6abd47ce01d5ef67ae18aafbbdd4037ada02fdae5ef13d17",
+      "runtime": "7323a5bc4685275e6abd47ce01d5ef67ae18aafbbdd4037ada02fdae5ef13d17",
+      "commit": "7323a5bc4685275e6abd47ce01d5ef67ae18aafbbdd4037ada02fdae5ef13d17"
+    },
+    {
+      "path": "src/components/companies-contacts/intent.ts",
+      "source": "81a4820b9a068e569e138d09bdcbe0f276063bcb6f7adda0a514a837a3529a8b",
+      "runtime": "81a4820b9a068e569e138d09bdcbe0f276063bcb6f7adda0a514a837a3529a8b",
+      "commit": "81a4820b9a068e569e138d09bdcbe0f276063bcb6f7adda0a514a837a3529a8b"
+    },
+    {
+      "path": "src/components/companies-contacts/profile-form.tsx",
+      "source": "8a509c0fb80ff5c7e5c489da8e2ee855a91284ad8e0e2010fdc7f33d6b0873ea",
+      "runtime": "8a509c0fb80ff5c7e5c489da8e2ee855a91284ad8e0e2010fdc7f33d6b0873ea",
+      "commit": "8a509c0fb80ff5c7e5c489da8e2ee855a91284ad8e0e2010fdc7f33d6b0873ea"
+    },
+    {
+      "path": "src/components/companies-contacts/relations.tsx",
+      "source": "7a112e102f5e9b12c7a141ce598a98136131c5eb886d2a7b943300569b8f33ac",
+      "runtime": "7a112e102f5e9b12c7a141ce598a98136131c5eb886d2a7b943300569b8f33ac",
+      "commit": "7a112e102f5e9b12c7a141ce598a98136131c5eb886d2a7b943300569b8f33ac"
+    },
+    {
+      "path": "src/components/companies-contacts/styles.ts",
+      "source": "26ec34b64c0cd50f3203a39d7f2eeede471776671fbb94f93771c04f83f21a8c",
+      "runtime": "26ec34b64c0cd50f3203a39d7f2eeede471776671fbb94f93771c04f83f21a8c",
+      "commit": "26ec34b64c0cd50f3203a39d7f2eeede471776671fbb94f93771c04f83f21a8c"
+    },
+    {
+      "path": "src/components/recruitment/case-content.tsx",
+      "source": "4171d71b16b0f223ff9f3c3e6852a5619b1365d83d5d72eab460631384483dfe",
+      "runtime": "4171d71b16b0f223ff9f3c3e6852a5619b1365d83d5d72eab460631384483dfe",
+      "commit": "4171d71b16b0f223ff9f3c3e6852a5619b1365d83d5d72eab460631384483dfe"
+    },
+    {
+      "path": "src/components/recruitment/case-event-form.tsx",
+      "source": "f6f8814de48caac6d80365ac0a1e18ef5bf16b838267eba8b3233ca8305b31dd",
+      "runtime": "f6f8814de48caac6d80365ac0a1e18ef5bf16b838267eba8b3233ca8305b31dd",
+      "commit": "f6f8814de48caac6d80365ac0a1e18ef5bf16b838267eba8b3233ca8305b31dd"
+    },
+    {
+      "path": "src/components/recruitment/case-history.tsx",
+      "source": "0e10a11bcfa9f0d3c04ea1c6ac39b30a9c840ec76cc90f802398cef25e25baac",
+      "runtime": "0e10a11bcfa9f0d3c04ea1c6ac39b30a9c840ec76cc90f802398cef25e25baac",
+      "commit": "0e10a11bcfa9f0d3c04ea1c6ac39b30a9c840ec76cc90f802398cef25e25baac"
+    },
+    {
+      "path": "src/components/recruitment/event-intent.ts",
+      "source": "37e37384fcaeb34d0d67e0f222955e30cbea8794ecd0bcb00d470d241cb19033",
+      "runtime": "37e37384fcaeb34d0d67e0f222955e30cbea8794ecd0bcb00d470d241cb19033",
+      "commit": "37e37384fcaeb34d0d67e0f222955e30cbea8794ecd0bcb00d470d241cb19033"
+    },
+    {
+      "path": "src/components/recruitment/history-corrections.tsx",
+      "source": "eb41aea67860ac44f3f3705895a2487da9b5c5974b8b65044914d39263b42e0e",
+      "runtime": "eb41aea67860ac44f3f3705895a2487da9b5c5974b8b65044914d39263b42e0e",
+      "commit": "eb41aea67860ac44f3f3705895a2487da9b5c5974b8b65044914d39263b42e0e"
+    },
+    {
+      "path": "src/components/recruitment/history-intent.ts",
+      "source": "47250de4c6af879f67b4cdeffaef8f9103747ee908461fc3229409b6862d02cc",
+      "runtime": "47250de4c6af879f67b4cdeffaef8f9103747ee908461fc3229409b6862d02cc",
+      "commit": "47250de4c6af879f67b4cdeffaef8f9103747ee908461fc3229409b6862d02cc"
+    },
+    {
+      "path": "src/components/recruitment/intent.ts",
+      "source": "0ba6f5dd3d1e51feb3cf136187986e7254bac5936afd68140cac6ffe771968e2",
+      "runtime": "0ba6f5dd3d1e51feb3cf136187986e7254bac5936afd68140cac6ffe771968e2",
+      "commit": "0ba6f5dd3d1e51feb3cf136187986e7254bac5936afd68140cac6ffe771968e2"
+    },
+    {
+      "path": "src/components/recruitment/lifecycle-intent.ts",
+      "source": "a647a7e22d0deba6d5d4bbd7d3d514729b5626b40f5b046019735ef8b1892227",
+      "runtime": "a647a7e22d0deba6d5d4bbd7d3d514729b5626b40f5b046019735ef8b1892227",
+      "commit": "a647a7e22d0deba6d5d4bbd7d3d514729b5626b40f5b046019735ef8b1892227"
+    },
+    {
+      "path": "src/components/recruitment/lifecycle.tsx",
+      "source": "70f7cb2b8cfa0b0a25fe715e7f6e841340befb560182f18f0bec6fa961bedc58",
+      "runtime": "70f7cb2b8cfa0b0a25fe715e7f6e841340befb560182f18f0bec6fa961bedc58",
+      "commit": "70f7cb2b8cfa0b0a25fe715e7f6e841340befb560182f18f0bec6fa961bedc58"
+    },
+    {
+      "path": "src/components/recruitment/quick-capture.tsx",
+      "source": "14242b79f40af078b6983b22897a532bc50c7d536e83bacc0dcea1d035689bcf",
+      "runtime": "14242b79f40af078b6983b22897a532bc50c7d536e83bacc0dcea1d035689bcf",
+      "commit": "14242b79f40af078b6983b22897a532bc50c7d536e83bacc0dcea1d035689bcf"
+    },
+    {
+      "path": "src/components/recruitment/recovery-session.ts",
+      "source": "a73df7c37a88c64bfa7caba1cbde6281d4e9ff6930198af938a92bb9513b8cef",
+      "runtime": "a73df7c37a88c64bfa7caba1cbde6281d4e9ff6930198af938a92bb9513b8cef",
+      "commit": "a73df7c37a88c64bfa7caba1cbde6281d4e9ff6930198af938a92bb9513b8cef"
+    },
+    {
+      "path": "src/components/recruitment/saved-case-notice.tsx",
+      "source": "2c1a55d9825e2a697f78867bf218184336b025e775c957b2283e688270b9d382",
+      "runtime": "2c1a55d9825e2a697f78867bf218184336b025e775c957b2283e688270b9d382",
+      "commit": "2c1a55d9825e2a697f78867bf218184336b025e775c957b2283e688270b9d382"
+    },
+    {
+      "path": "src/components/recruitment/workspace.tsx",
+      "source": "04b3e3ad31e8a477a6bf3d566aa0b2853500807625c88f53cdc5ced826272bc2",
+      "runtime": "04b3e3ad31e8a477a6bf3d566aa0b2853500807625c88f53cdc5ced826272bc2",
+      "commit": "04b3e3ad31e8a477a6bf3d566aa0b2853500807625c88f53cdc5ced826272bc2"
+    },
+    {
+      "path": "src/components/ui/LICENSE",
+      "source": "1564074e13439397221ffd522e2e504d56561994a23d371aa5e3ad43e4f5423f",
+      "runtime": "1564074e13439397221ffd522e2e504d56561994a23d371aa5e3ad43e4f5423f",
+      "commit": "1564074e13439397221ffd522e2e504d56561994a23d371aa5e3ad43e4f5423f"
+    },
+    {
+      "path": "src/components/ui/badge.tsx",
+      "source": "355afa81ee5621e01c60b2f465a9f86c402afe769aba8213e33f87a97add5100",
+      "runtime": "355afa81ee5621e01c60b2f465a9f86c402afe769aba8213e33f87a97add5100",
+      "commit": "355afa81ee5621e01c60b2f465a9f86c402afe769aba8213e33f87a97add5100"
+    },
+    {
+      "path": "src/components/ui/card.tsx",
+      "source": "6eab3ffeac8be0500a4aa234e3a7db44b409d9684a85f684105eb8def5a6058d",
+      "runtime": "6eab3ffeac8be0500a4aa234e3a7db44b409d9684a85f684105eb8def5a6058d",
+      "commit": "6eab3ffeac8be0500a4aa234e3a7db44b409d9684a85f684105eb8def5a6058d"
+    },
+    {
+      "path": "src/components/ui/styles.ts",
+      "source": "a9545a06c42c804ea84b9db7017235b05301387a034443f43f7ccc531b1d02cc",
+      "runtime": "a9545a06c42c804ea84b9db7017235b05301387a034443f43f7ccc531b1d02cc",
+      "commit": "a9545a06c42c804ea84b9db7017235b05301387a034443f43f7ccc531b1d02cc"
+    },
+    {
+      "path": "src/components/workspace/account-menu.tsx",
+      "source": "1b79e2c1bcbf36e5f37c287a29ff147ea6bf12ccf98dfa411214499060428190",
+      "runtime": "1b79e2c1bcbf36e5f37c287a29ff147ea6bf12ccf98dfa411214499060428190",
+      "commit": "1b79e2c1bcbf36e5f37c287a29ff147ea6bf12ccf98dfa411214499060428190"
+    },
+    {
+      "path": "src/components/workspace/app-shell.tsx",
+      "source": "428676dbabbbcc50d1d04703f41407c05c68093ba1bf03f2521e2a606e1670fb",
+      "runtime": "428676dbabbbcc50d1d04703f41407c05c68093ba1bf03f2521e2a606e1670fb",
+      "commit": "428676dbabbbcc50d1d04703f41407c05c68093ba1bf03f2521e2a606e1670fb"
+    },
+    {
+      "path": "src/components/workspace/sidebar.tsx",
+      "source": "ddcf608a6a17f503316d688ce7ededd0b4fd609b0a386a4a7b6831ef481c2339",
+      "runtime": "ddcf608a6a17f503316d688ce7ededd0b4fd609b0a386a4a7b6831ef481c2339",
+      "commit": "ddcf608a6a17f503316d688ce7ededd0b4fd609b0a386a4a7b6831ef481c2339"
+    },
+    {
+      "path": "src/lib/utils.ts",
+      "source": "d1f1e0d62cb8d8d1e04c26e14de842d8a151f75812d81b046c65b5d1fe8e4b27",
+      "runtime": "d1f1e0d62cb8d8d1e04c26e14de842d8a151f75812d81b046c65b5d1fe8e4b27",
+      "commit": "d1f1e0d62cb8d8d1e04c26e14de842d8a151f75812d81b046c65b5d1fe8e4b27"
+    },
+    {
+      "path": "src/modules/companies-contacts/application/catalog.ts",
+      "source": "8fb16e4b5baa1ed48c0bba95923598bb70d6fb84bdcf7391f8879d9193d3911f",
+      "runtime": "8fb16e4b5baa1ed48c0bba95923598bb70d6fb84bdcf7391f8879d9193d3911f",
+      "commit": "8fb16e4b5baa1ed48c0bba95923598bb70d6fb84bdcf7391f8879d9193d3911f"
+    },
+    {
+      "path": "src/modules/companies-contacts/domain/catalog.ts",
+      "source": "000129d46216f2ceae204876839305e4b3684ef6a2e525728e3de1826b52fbdd",
+      "runtime": "000129d46216f2ceae204876839305e4b3684ef6a2e525728e3de1826b52fbdd",
+      "commit": "000129d46216f2ceae204876839305e4b3684ef6a2e525728e3de1826b52fbdd"
+    },
+    {
+      "path": "src/modules/identity/application/validation.ts",
+      "source": "fc6e572948ff97a8cdf033097a4b0da3964a5b6988db632a7af54e4da63e1e79",
+      "runtime": "fc6e572948ff97a8cdf033097a4b0da3964a5b6988db632a7af54e4da63e1e79",
+      "commit": "fc6e572948ff97a8cdf033097a4b0da3964a5b6988db632a7af54e4da63e1e79"
+    },
+    {
+      "path": "src/modules/identity/infrastructure/browser.ts",
+      "source": "e1d5c99e9ce1c701c3a08a68e4da05799c32eabcb399dfb3dfc7eedecbee96c2",
+      "runtime": "e1d5c99e9ce1c701c3a08a68e4da05799c32eabcb399dfb3dfc7eedecbee96c2",
+      "commit": "e1d5c99e9ce1c701c3a08a68e4da05799c32eabcb399dfb3dfc7eedecbee96c2"
+    },
+    {
+      "path": "src/modules/identity/infrastructure/http.ts",
+      "source": "b34e40e52e3fedd44eef381618998c26069e1e95e548685fa6a3fe9c0651f987",
+      "runtime": "b34e40e52e3fedd44eef381618998c26069e1e95e548685fa6a3fe9c0651f987",
+      "commit": "b34e40e52e3fedd44eef381618998c26069e1e95e548685fa6a3fe9c0651f987"
+    },
+    {
+      "path": "src/modules/identity/infrastructure/server.ts",
+      "source": "e2e373632ad02931343e5e01df207d90b1b26043846f456b55b71c043589dccd",
+      "runtime": "e2e373632ad02931343e5e01df207d90b1b26043846f456b55b71c043589dccd",
+      "commit": "e2e373632ad02931343e5e01df207d90b1b26043846f456b55b71c043589dccd"
+    },
+    {
+      "path": "src/modules/recruitment/application/case-events.ts",
+      "source": "64bf2af923a5bdfac04045b0515500076dcf359bc489806bd1f50cec3d5b734e",
+      "runtime": "64bf2af923a5bdfac04045b0515500076dcf359bc489806bd1f50cec3d5b734e",
+      "commit": "64bf2af923a5bdfac04045b0515500076dcf359bc489806bd1f50cec3d5b734e"
+    },
+    {
+      "path": "src/modules/recruitment/application/cases.ts",
+      "source": "c6842059c7fd8c336a78f74fe86e70f6c5d432f1dff0852886b743aa7fc8b7b3",
+      "runtime": "c6842059c7fd8c336a78f74fe86e70f6c5d432f1dff0852886b743aa7fc8b7b3",
+      "commit": "c6842059c7fd8c336a78f74fe86e70f6c5d432f1dff0852886b743aa7fc8b7b3"
+    },
+    {
+      "path": "src/modules/recruitment/application/history-corrections.ts",
+      "source": "81f5cd79475520d280cb2c3e334bdca1a92bd7875aeda9d7bee6f6eef285ab1c",
+      "runtime": "81f5cd79475520d280cb2c3e334bdca1a92bd7875aeda9d7bee6f6eef285ab1c",
+      "commit": "81f5cd79475520d280cb2c3e334bdca1a92bd7875aeda9d7bee6f6eef285ab1c"
+    },
+    {
+      "path": "src/modules/recruitment/application/lifecycle.ts",
+      "source": "5e2b2f85ff5f1e077ba5ef32d4878ed725473127615ad87c5af55abbf43b0ee0",
+      "runtime": "5e2b2f85ff5f1e077ba5ef32d4878ed725473127615ad87c5af55abbf43b0ee0",
+      "commit": "5e2b2f85ff5f1e077ba5ef32d4878ed725473127615ad87c5af55abbf43b0ee0"
+    },
+    {
+      "path": "src/modules/recruitment/domain/case-events.ts",
+      "source": "de19cbd37bfe58a4820ba768ffa0a02abbc6018e9c62977044503fdd99d008a3",
+      "runtime": "de19cbd37bfe58a4820ba768ffa0a02abbc6018e9c62977044503fdd99d008a3",
+      "commit": "de19cbd37bfe58a4820ba768ffa0a02abbc6018e9c62977044503fdd99d008a3"
+    },
+    {
+      "path": "src/modules/recruitment/domain/history-corrections.ts",
+      "source": "3c8c678f259c38b5aec37f1d656679a1cc88d30362c11614e35272b7fcb648a9",
+      "runtime": "3c8c678f259c38b5aec37f1d656679a1cc88d30362c11614e35272b7fcb648a9",
+      "commit": "3c8c678f259c38b5aec37f1d656679a1cc88d30362c11614e35272b7fcb648a9"
+    },
+    {
+      "path": "src/modules/recruitment/domain/lifecycle.ts",
+      "source": "39e1777ad793c7c57986d23c2e979b4db766f73199b74f1c54cff34bb596a6ab",
+      "runtime": "39e1777ad793c7c57986d23c2e979b4db766f73199b74f1c54cff34bb596a6ab",
+      "commit": "39e1777ad793c7c57986d23c2e979b4db766f73199b74f1c54cff34bb596a6ab"
+    },
+    {
+      "path": "src/modules/recruitment/domain/recruitment-case.ts",
+      "source": "0fb80fa96499b7e23e41df6231cc322ecefffd50b066073807a690d06b0eddb3",
+      "runtime": "0fb80fa96499b7e23e41df6231cc322ecefffd50b066073807a690d06b0eddb3",
+      "commit": "0fb80fa96499b7e23e41df6231cc322ecefffd50b066073807a690d06b0eddb3"
+    },
+    {
+      "path": "src/proxy.ts",
+      "source": "f404bd67cd55f170dd18ae30226e01f6b99ddb637bd3217877514528d62da712",
+      "runtime": "f404bd67cd55f170dd18ae30226e01f6b99ddb637bd3217877514528d62da712",
+      "commit": "f404bd67cd55f170dd18ae30226e01f6b99ddb637bd3217877514528d62da712"
+    },
+    {
+      "path": "src/shared/public/auth-config.ts",
+      "source": "7c4ba36eb8f08c4cbf2f66f831654ff7e5372a8e6f190cf8b31bd435c33e59c5",
+      "runtime": "7c4ba36eb8f08c4cbf2f66f831654ff7e5372a8e6f190cf8b31bd435c33e59c5",
+      "commit": "7c4ba36eb8f08c4cbf2f66f831654ff7e5372a8e6f190cf8b31bd435c33e59c5"
+    },
+    {
+      "path": "src/shared/server/env.ts",
+      "source": "a93d853dcab7ca18d9ecde41cda620dd3a2fd6f4328312c7ff43d5004e59af50",
+      "runtime": "a93d853dcab7ca18d9ecde41cda620dd3a2fd6f4328312c7ff43d5004e59af50",
+      "commit": "a93d853dcab7ca18d9ecde41cda620dd3a2fd6f4328312c7ff43d5004e59af50"
+    },
+    {
+      "path": "src/shared/validation/auth-config.ts",
+      "source": "5ee069c23ef87cd95beff06603f20f08bc3a752c1b66a23c722e03eb7504ee27",
+      "runtime": "5ee069c23ef87cd95beff06603f20f08bc3a752c1b66a23c722e03eb7504ee27",
+      "commit": "5ee069c23ef87cd95beff06603f20f08bc3a752c1b66a23c722e03eb7504ee27"
+    },
+    {
+      "path": "src/shared/validation/env.ts",
+      "source": "a48ecb242157624450d146b67125697b78d029f252b793ab7445ceaff1af991a",
+      "runtime": "a48ecb242157624450d146b67125697b78d029f252b793ab7445ceaff1af991a",
+      "commit": "a48ecb242157624450d146b67125697b78d029f252b793ab7445ceaff1af991a"
+    },
+    {
+      "path": "src/shared/validation/origin.ts",
+      "source": "8c3d2d1f6608b5650addbcbffa077bdb5dd3b514501b9fde0ddebc02bb088ad6",
+      "runtime": "8c3d2d1f6608b5650addbcbffa077bdb5dd3b514501b9fde0ddebc02bb088ad6",
+      "commit": "8c3d2d1f6608b5650addbcbffa077bdb5dd3b514501b9fde0ddebc02bb088ad6"
+    },
+    {
+      "path": "db/recruitment/migrations/0000_recruitment_validation.sql",
+      "source": "640ae10d48af84a1468b2a764c8a13ea68eda21bf25a1be8cfbb4361e24573bd",
+      "runtime": "640ae10d48af84a1468b2a764c8a13ea68eda21bf25a1be8cfbb4361e24573bd",
+      "commit": "640ae10d48af84a1468b2a764c8a13ea68eda21bf25a1be8cfbb4361e24573bd"
+    },
+    {
+      "path": "db/recruitment/migrations/0001_recruitment_case.sql",
+      "source": "d17053c59a8063e54db97e4c30fda7f05d0e2eb52ff65e07089acf1bf2b159e6",
+      "runtime": "d17053c59a8063e54db97e4c30fda7f05d0e2eb52ff65e07089acf1bf2b159e6",
+      "commit": "d17053c59a8063e54db97e4c30fda7f05d0e2eb52ff65e07089acf1bf2b159e6"
+    },
+    {
+      "path": "db/recruitment/migrations/0002_recruitment_access_and_create.sql",
+      "source": "2ee4db5cc11271c8ba34aacf0dfab86100231111a3446bdea78e2e91e99a747a",
+      "runtime": "2ee4db5cc11271c8ba34aacf0dfab86100231111a3446bdea78e2e91e99a747a",
+      "commit": "2ee4db5cc11271c8ba34aacf0dfab86100231111a3446bdea78e2e91e99a747a"
+    },
+    {
+      "path": "db/recruitment/migrations/0003_recruitment_intent_before_warning.sql",
+      "source": "a09fe0b3d0596da51e36faf0c2efe63a049daa2b20648100811b79b77ed03347",
+      "runtime": "a09fe0b3d0596da51e36faf0c2efe63a049daa2b20648100811b79b77ed03347",
+      "commit": "a09fe0b3d0596da51e36faf0c2efe63a049daa2b20648100811b79b77ed03347"
+    },
+    {
+      "path": "db/recruitment/migrations/0004_recruitment_url_canonical_boundary.sql",
+      "source": "844601688ef784e4f8bba3fb04708833c99bfdd6f20b611b3caa7b1d0f8fe1d2",
+      "runtime": "844601688ef784e4f8bba3fb04708833c99bfdd6f20b611b3caa7b1d0f8fe1d2",
+      "commit": "844601688ef784e4f8bba3fb04708833c99bfdd6f20b611b3caa7b1d0f8fe1d2"
+    },
+    {
+      "path": "db/recruitment/migrations/0005_recruitment_url_constraint_revalidation.sql",
+      "source": "7bdd45f5b6dd031525fd42cf2ca0b133ccf8c54d57e04b702d810852ba98ab90",
+      "runtime": "7bdd45f5b6dd031525fd42cf2ca0b133ccf8c54d57e04b702d810852ba98ab90",
+      "commit": "7bdd45f5b6dd031525fd42cf2ca0b133ccf8c54d57e04b702d810852ba98ab90"
+    },
+    {
+      "path": "db/recruitment/migrations/0006_recruitment_numeric_host_parity.sql",
+      "source": "c01abf7026b3117ea5e62e1d17a918b5b15ddb1716a690bf44c4678d1cd34b82",
+      "runtime": "c01abf7026b3117ea5e62e1d17a918b5b15ddb1716a690bf44c4678d1cd34b82",
+      "commit": "c01abf7026b3117ea5e62e1d17a918b5b15ddb1716a690bf44c4678d1cd34b82"
+    },
+    {
+      "path": "db/recruitment/migrations/0007_recruitment_lifecycle_3a.sql",
+      "source": "98b608140bb16d923390b0cfa355ebbc417dd159f1732e8135dbadf9de948924",
+      "runtime": "98b608140bb16d923390b0cfa355ebbc417dd159f1732e8135dbadf9de948924",
+      "commit": "98b608140bb16d923390b0cfa355ebbc417dd159f1732e8135dbadf9de948924"
+    },
+    {
+      "path": "db/recruitment/migrations/0008_recruitment_lifecycle_3b.sql",
+      "source": "60afefbba42c329bfd07a1a552e8b397da6bf725281c58e36fcbf80347f6af18",
+      "runtime": "60afefbba42c329bfd07a1a552e8b397da6bf725281c58e36fcbf80347f6af18",
+      "commit": "60afefbba42c329bfd07a1a552e8b397da6bf725281c58e36fcbf80347f6af18"
+    },
+    {
+      "path": "db/recruitment/migrations/0009_history_corrections_integrity.sql",
+      "source": "085d8146b32709cb4c2d8d0a7213f173ba55fa921694d8588fc6f40525fbb583",
+      "runtime": "085d8146b32709cb4c2d8d0a7213f173ba55fa921694d8588fc6f40525fbb583",
+      "commit": "085d8146b32709cb4c2d8d0a7213f173ba55fa921694d8588fc6f40525fbb583"
+    },
+    {
+      "path": "db/recruitment/migrations/0010_recruitment_lifecycle_3c.sql",
+      "source": "64e3063626831448967f0358883afa3e8a110f8e3dd4029f0b9810d238bad9ca",
+      "runtime": "64e3063626831448967f0358883afa3e8a110f8e3dd4029f0b9810d238bad9ca",
+      "commit": "64e3063626831448967f0358883afa3e8a110f8e3dd4029f0b9810d238bad9ca"
+    },
+    {
+      "path": "db/recruitment/migrations/0011_companies_contacts.sql",
+      "source": "61836b881f1acbaab4370f85abd9a9087ca01713c9df7103188c34fedc67689c",
+      "runtime": "61836b881f1acbaab4370f85abd9a9087ca01713c9df7103188c34fedc67689c",
+      "commit": "61836b881f1acbaab4370f85abd9a9087ca01713c9df7103188c34fedc67689c"
+    },
+    {
+      "path": "db/recruitment/migrations/0012_catalog_intent_guard.sql",
+      "source": "bcd6f346bb3b831ded2be7d4c26d62830bdc8a31d3ccc818208554bc227acf6a",
+      "runtime": "bcd6f346bb3b831ded2be7d4c26d62830bdc8a31d3ccc818208554bc227acf6a",
+      "commit": "bcd6f346bb3b831ded2be7d4c26d62830bdc8a31d3ccc818208554bc227acf6a"
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0000_snapshot.json",
+      "source": "69a3653d19a33546cac79eec6640fe3b96acc33988827fc8d34afbbf4fa58268",
+      "runtime": "69a3653d19a33546cac79eec6640fe3b96acc33988827fc8d34afbbf4fa58268",
+      "commit": "69a3653d19a33546cac79eec6640fe3b96acc33988827fc8d34afbbf4fa58268"
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0001_snapshot.json",
+      "source": "9ef6f556a87789eb46f306114190a5c09b3757cf786c311066074ee283263d74",
+      "runtime": "9ef6f556a87789eb46f306114190a5c09b3757cf786c311066074ee283263d74",
+      "commit": "9ef6f556a87789eb46f306114190a5c09b3757cf786c311066074ee283263d74"
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0002_snapshot.json",
+      "source": "3869672e2c71a5d51b210db9b07d96a64c5ab9fcd26c6a936c487dae7d83fdd0",
+      "runtime": "3869672e2c71a5d51b210db9b07d96a64c5ab9fcd26c6a936c487dae7d83fdd0",
+      "commit": "3869672e2c71a5d51b210db9b07d96a64c5ab9fcd26c6a936c487dae7d83fdd0"
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0003_snapshot.json",
+      "source": "472cc857fbfd80afd7db7c67ae9c2feff55438449cbe423f6c396833056c75ec",
+      "runtime": "472cc857fbfd80afd7db7c67ae9c2feff55438449cbe423f6c396833056c75ec",
+      "commit": "472cc857fbfd80afd7db7c67ae9c2feff55438449cbe423f6c396833056c75ec"
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0004_snapshot.json",
+      "source": "1b15585de111f2286e6f2eeb3fbe7e31850a304c1a64c1fc62ac4ec1d0388bc5",
+      "runtime": "1b15585de111f2286e6f2eeb3fbe7e31850a304c1a64c1fc62ac4ec1d0388bc5",
+      "commit": "1b15585de111f2286e6f2eeb3fbe7e31850a304c1a64c1fc62ac4ec1d0388bc5"
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0005_snapshot.json",
+      "source": "26e9929e9da76a6d0ace47ceba470005bd6b9e39f2ba68d56e0091c9fb6b8745",
+      "runtime": "26e9929e9da76a6d0ace47ceba470005bd6b9e39f2ba68d56e0091c9fb6b8745",
+      "commit": "26e9929e9da76a6d0ace47ceba470005bd6b9e39f2ba68d56e0091c9fb6b8745"
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0006_snapshot.json",
+      "source": "d334c661617c10a88c267e78136da8af3a0bc18bcf8e3bbde3dd7849242a052e",
+      "runtime": "d334c661617c10a88c267e78136da8af3a0bc18bcf8e3bbde3dd7849242a052e",
+      "commit": "d334c661617c10a88c267e78136da8af3a0bc18bcf8e3bbde3dd7849242a052e"
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0007_snapshot.json",
+      "source": "9ebfcb02ffabee33192c77061a4986752205fbefecffc1ee7fc4f400fd6783af",
+      "runtime": "9ebfcb02ffabee33192c77061a4986752205fbefecffc1ee7fc4f400fd6783af",
+      "commit": "9ebfcb02ffabee33192c77061a4986752205fbefecffc1ee7fc4f400fd6783af"
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0008_snapshot.json",
+      "source": "508809a0f83510a8abd6fd3fe65a1d8e08e1ff8c0b0a7efec66ebf7f5696b1c8",
+      "runtime": "508809a0f83510a8abd6fd3fe65a1d8e08e1ff8c0b0a7efec66ebf7f5696b1c8",
+      "commit": "508809a0f83510a8abd6fd3fe65a1d8e08e1ff8c0b0a7efec66ebf7f5696b1c8"
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0009_snapshot.json",
+      "source": "9681e0bfc356176f32261c0e7910e93325a633dbd710b0f891c6f604b10dba46",
+      "runtime": "9681e0bfc356176f32261c0e7910e93325a633dbd710b0f891c6f604b10dba46",
+      "commit": "9681e0bfc356176f32261c0e7910e93325a633dbd710b0f891c6f604b10dba46"
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0010_snapshot.json",
+      "source": "fcccbaa71fab5830c1143267bfe1d464ebfc37ce9d797fa620a2e2d3d50dd34a",
+      "runtime": "fcccbaa71fab5830c1143267bfe1d464ebfc37ce9d797fa620a2e2d3d50dd34a",
+      "commit": "fcccbaa71fab5830c1143267bfe1d464ebfc37ce9d797fa620a2e2d3d50dd34a"
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0011_snapshot.json",
+      "source": "d30b2e53031afc6fc676ab559b9172643562ae04aa20abe97c3116e41f2092fd",
+      "runtime": "d30b2e53031afc6fc676ab559b9172643562ae04aa20abe97c3116e41f2092fd",
+      "commit": "d30b2e53031afc6fc676ab559b9172643562ae04aa20abe97c3116e41f2092fd"
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0012_snapshot.json",
+      "source": "517046c69234002e26e7510c96372bf1d8711ea54b6ba417968581cc3f407cea",
+      "runtime": "517046c69234002e26e7510c96372bf1d8711ea54b6ba417968581cc3f407cea",
+      "commit": "517046c69234002e26e7510c96372bf1d8711ea54b6ba417968581cc3f407cea"
+    },
+    {
+      "path": "db/recruitment/migrations/meta/_journal.json",
+      "source": "d4b88491cc14ed033fac71dc48402feb30cae67a98b64e213c7942aed47e710a",
+      "runtime": "d4b88491cc14ed033fac71dc48402feb30cae67a98b64e213c7942aed47e710a",
+      "commit": "d4b88491cc14ed033fac71dc48402feb30cae67a98b64e213c7942aed47e710a"
+    },
+    {
+      "path": "db/recruitment/schema.ts",
+      "source": "83817a2fd631ed16a2f0a9ddc27b696bbcd52bc0ad845b873d6ec6d99cb58d02",
+      "runtime": "83817a2fd631ed16a2f0a9ddc27b696bbcd52bc0ad845b873d6ec6d99cb58d02",
+      "commit": "83817a2fd631ed16a2f0a9ddc27b696bbcd52bc0ad845b873d6ec6d99cb58d02"
+    },
+    {
+      "path": "tests/e2e/auth-flows.spec.ts",
+      "source": "3608af62975a0795f553e05b2527410ba57206e94f5bf393656cd89dede7ce87",
+      "runtime": "3608af62975a0795f553e05b2527410ba57206e94f5bf393656cd89dede7ce87",
+      "commit": "3608af62975a0795f553e05b2527410ba57206e94f5bf393656cd89dede7ce87"
+    },
+    {
+      "path": "tests/e2e/companies-contacts.spec.ts",
+      "source": "f3ee709a2744c393f85468a02784a88d681052d5e148bbd382ecf0681a309b34",
+      "runtime": "f3ee709a2744c393f85468a02784a88d681052d5e148bbd382ecf0681a309b34",
+      "commit": "f3ee709a2744c393f85468a02784a88d681052d5e148bbd382ecf0681a309b34"
+    },
+    {
+      "path": "tests/e2e/foundation-smoke.spec.ts",
+      "source": "5f4843a033e3862e8875aef39605878dabdef5caf99bddec73a50c528d7ff0c7",
+      "runtime": "5f4843a033e3862e8875aef39605878dabdef5caf99bddec73a50c528d7ff0c7",
+      "commit": "5f4843a033e3862e8875aef39605878dabdef5caf99bddec73a50c528d7ff0c7"
+    },
+    {
+      "path": "tests/e2e/recruitment-capture.spec.ts",
+      "source": "282b7758a69e0e0b6f3b73bc94afc2cc7442df06775c23ae27b69459cf2ec459",
+      "runtime": "282b7758a69e0e0b6f3b73bc94afc2cc7442df06775c23ae27b69459cf2ec459",
+      "commit": "282b7758a69e0e0b6f3b73bc94afc2cc7442df06775c23ae27b69459cf2ec459"
+    },
+    {
+      "path": "tests/e2e/recruitment-closure-reopening.spec.ts",
+      "source": "eaed778168b9d01af6f06fd00983883391fca6251e5bc6fcc89f7a66a000a1d3",
+      "runtime": "eaed778168b9d01af6f06fd00983883391fca6251e5bc6fcc89f7a66a000a1d3",
+      "commit": "eaed778168b9d01af6f06fd00983883391fca6251e5bc6fcc89f7a66a000a1d3"
+    },
+    {
+      "path": "tests/e2e/recruitment-history-corrections.spec.ts",
+      "source": "7a99c1216c7a7a6a61e655512e9baeb252ac085377feef367614df02d36daf5b",
+      "runtime": "7a99c1216c7a7a6a61e655512e9baeb252ac085377feef367614df02d36daf5b",
+      "commit": "7a99c1216c7a7a6a61e655512e9baeb252ac085377feef367614df02d36daf5b"
+    },
+    {
+      "path": "tests/e2e/recruitment-lifecycle.spec.ts",
+      "source": "b6237a6c9afc7575d02c6c20280363f06106a651363a96a4a39ba3de20b01c95",
+      "runtime": "b6237a6c9afc7575d02c6c20280363f06106a651363a96a4a39ba3de20b01c95",
+      "commit": "b6237a6c9afc7575d02c6c20280363f06106a651363a96a4a39ba3de20b01c95"
+    },
+    {
+      "path": "tests/e2e/recruitment-ui-foundation.spec.ts",
+      "source": "87482b77a1ac0a00166e868b728ee4063ee05e212e77d09c9b592d417917e123",
+      "runtime": "87482b77a1ac0a00166e868b728ee4063ee05e212e77d09c9b592d417917e123",
+      "commit": "87482b77a1ac0a00166e868b728ee4063ee05e212e77d09c9b592d417917e123"
+    },
+    {
+      "path": "tests/e2e/ui-rendered-audit.ts",
+      "source": "6da02ca0c5c66c24647b4fd83f7fc0728f79e9206fbaeb8af007097762b4939e",
+      "runtime": "6da02ca0c5c66c24647b4fd83f7fc0728f79e9206fbaeb8af007097762b4939e",
+      "commit": "6da02ca0c5c66c24647b4fd83f7fc0728f79e9206fbaeb8af007097762b4939e"
+    },
+    {
+      "path": "tests/integration/auth/fixtures.ts",
+      "source": "b8813e29ea45028dc7e528957517ddf1d95f0df88fe787a2a9258f9230a52044",
+      "runtime": "b8813e29ea45028dc7e528957517ddf1d95f0df88fe787a2a9258f9230a52044",
+      "commit": "b8813e29ea45028dc7e528957517ddf1d95f0df88fe787a2a9258f9230a52044"
+    },
+    {
+      "path": "tests/integration/auth/sdk-cases.ts",
+      "source": "f95895e69b11633982e6ba04160e47254eadc0c698b1d1a9f4961a881b6b59d2",
+      "runtime": "f95895e69b11633982e6ba04160e47254eadc0c698b1d1a9f4961a881b6b59d2",
+      "commit": "f95895e69b11633982e6ba04160e47254eadc0c698b1d1a9f4961a881b6b59d2"
+    },
+    {
+      "path": "tests/integration/migrations/checks.ts",
+      "source": "3104480c9751b25afceb6ad201953a930f775543328bcf3d3bfcf9651488d798",
+      "runtime": "3104480c9751b25afceb6ad201953a930f775543328bcf3d3bfcf9651488d798",
+      "commit": "3104480c9751b25afceb6ad201953a930f775543328bcf3d3bfcf9651488d798"
+    },
+    {
+      "path": "tests/integration/recruitment/closure-reopening.test.ts",
+      "source": "d5e7772241ec552294bedfadcbdc00f70bdd7038b22e16fe8d76183541dcbccc",
+      "runtime": "d5e7772241ec552294bedfadcbdc00f70bdd7038b22e16fe8d76183541dcbccc",
+      "commit": "d5e7772241ec552294bedfadcbdc00f70bdd7038b22e16fe8d76183541dcbccc"
+    },
+    {
+      "path": "tests/integration/recruitment/companies-contacts.test.ts",
+      "source": "95a6007fc2a78161feee50e097819064dcbfeae68a53a1d24fbbad32029cbd1e",
+      "runtime": "95a6007fc2a78161feee50e097819064dcbfeae68a53a1d24fbbad32029cbd1e",
+      "commit": "95a6007fc2a78161feee50e097819064dcbfeae68a53a1d24fbbad32029cbd1e"
+    },
+    {
+      "path": "tests/integration/recruitment/direct-insert-race.ts",
+      "source": "949a88668c52fbe9c8c18fc1494b14745acbf85bee8f626706034d8f58da28f3",
+      "runtime": "949a88668c52fbe9c8c18fc1494b14745acbf85bee8f626706034d8f58da28f3",
+      "commit": "949a88668c52fbe9c8c18fc1494b14745acbf85bee8f626706034d8f58da28f3"
+    },
+    {
+      "path": "tests/integration/recruitment/history-corrections.test.ts",
+      "source": "4206dde3fca12b004c723122ed9a4fd190a3c752415d568f0cd0657efbc1b837",
+      "runtime": "4206dde3fca12b004c723122ed9a4fd190a3c752415d568f0cd0657efbc1b837",
+      "commit": "4206dde3fca12b004c723122ed9a4fd190a3c752415d568f0cd0657efbc1b837"
+    },
+    {
+      "path": "tests/integration/recruitment/lifecycle-upgrade.ts",
+      "source": "773378a5028c221174ae2aa3b1722500bf0e26bd4c1ce8a2524dbdb2563e9494",
+      "runtime": "773378a5028c221174ae2aa3b1722500bf0e26bd4c1ce8a2524dbdb2563e9494",
+      "commit": "773378a5028c221174ae2aa3b1722500bf0e26bd4c1ce8a2524dbdb2563e9494"
+    },
+    {
+      "path": "tests/integration/recruitment/lifecycle.test.ts",
+      "source": "5b67bd006dc977da00cac28c3d3d7d8a984e1adebc76635a06747630228acaf7",
+      "runtime": "5b67bd006dc977da00cac28c3d3d7d8a984e1adebc76635a06747630228acaf7",
+      "commit": "5b67bd006dc977da00cac28c3d3d7d8a984e1adebc76635a06747630228acaf7"
+    },
+    {
+      "path": "tests/integration/recruitment/recruitment.test.ts",
+      "source": "2b40ceb57b7a291d00d4e8c721aedf5a9441817e40c45f458f5b59d00ec96c3b",
+      "runtime": "2b40ceb57b7a291d00d4e8c721aedf5a9441817e40c45f458f5b59d00ec96c3b",
+      "commit": "2b40ceb57b7a291d00d4e8c721aedf5a9441817e40c45f458f5b59d00ec96c3b"
+    },
+    {
+      "path": "tests/integration/recruitment/stages.test.ts",
+      "source": "9673c152ea3013a02380fb56bd8a73a9216016d2b235e86aa35664c0fff0bbf5",
+      "runtime": "9673c152ea3013a02380fb56bd8a73a9216016d2b235e86aa35664c0fff0bbf5",
+      "commit": "9673c152ea3013a02380fb56bd8a73a9216016d2b235e86aa35664c0fff0bbf5"
+    },
+    {
+      "path": "tests/integration/recruitment/url-parity.ts",
+      "source": "126feba491521d3609f96796a31529809f389138c8723734f48f68049350d054",
+      "runtime": "126feba491521d3609f96796a31529809f389138c8723734f48f68049350d054",
+      "commit": "126feba491521d3609f96796a31529809f389138c8723734f48f68049350d054"
+    },
+    {
+      "path": "tests/integration/rls/catalog.ts",
+      "source": "28c5482efc465a511cd55321ccd32813a622512b96933ef900b5fa66d725cd1b",
+      "runtime": "28c5482efc465a511cd55321ccd32813a622512b96933ef900b5fa66d725cd1b",
+      "commit": "28c5482efc465a511cd55321ccd32813a622512b96933ef900b5fa66d725cd1b"
+    },
+    {
+      "path": "tests/integration/rls/data-api.ts",
+      "source": "603d0504e08bae07b87104b49b73f5c52954229ebb5ea1ac57b5b74cc15feb6f",
+      "runtime": "603d0504e08bae07b87104b49b73f5c52954229ebb5ea1ac57b5b74cc15feb6f",
+      "commit": "603d0504e08bae07b87104b49b73f5c52954229ebb5ea1ac57b5b74cc15feb6f"
+    },
+    {
+      "path": "tests/integration/rls/f2.test.ts",
+      "source": "0aeb7e71e328780dc8089a3052fd87b8ddd0045a30a3ddd003fc6f208eab88a7",
+      "runtime": "0aeb7e71e328780dc8089a3052fd87b8ddd0045a30a3ddd003fc6f208eab88a7",
+      "commit": "0aeb7e71e328780dc8089a3052fd87b8ddd0045a30a3ddd003fc6f208eab88a7"
+    },
+    {
+      "path": "tests/integration/rls/matrix.ts",
+      "source": "eaceefe7e7c249e976b2e8eeb8e7f89f8521af7a88b7cd855de5d1ce71c5bacf",
+      "runtime": "eaceefe7e7c249e976b2e8eeb8e7f89f8521af7a88b7cd855de5d1ce71c5bacf",
+      "commit": "eaceefe7e7c249e976b2e8eeb8e7f89f8521af7a88b7cd855de5d1ce71c5bacf"
+    },
+    {
+      "path": "tests/unit/auth-browser.test.ts",
+      "source": "e73aa3237b846984c6dcede51f734e5fb15fbb72b1b74fcabcfafc3595d9d7ed",
+      "runtime": "e73aa3237b846984c6dcede51f734e5fb15fbb72b1b74fcabcfafc3595d9d7ed",
+      "commit": "e73aa3237b846984c6dcede51f734e5fb15fbb72b1b74fcabcfafc3595d9d7ed"
+    },
+    {
+      "path": "tests/unit/auth-callback.test.ts",
+      "source": "d650910b1c62de3529edb4a0db41f37a989feed99b039289f1777f1657fd82a6",
+      "runtime": "d650910b1c62de3529edb4a0db41f37a989feed99b039289f1777f1657fd82a6",
+      "commit": "d650910b1c62de3529edb4a0db41f37a989feed99b039289f1777f1657fd82a6"
+    },
+    {
+      "path": "tests/unit/auth-config.test.ts",
+      "source": "cbcaadeec6b9ffa1f70134c912b94d3f3edf7088e41dfd334596ebe9f7d59c0b",
+      "runtime": "cbcaadeec6b9ffa1f70134c912b94d3f3edf7088e41dfd334596ebe9f7d59c0b",
+      "commit": "cbcaadeec6b9ffa1f70134c912b94d3f3edf7088e41dfd334596ebe9f7d59c0b"
+    },
+    {
+      "path": "tests/unit/auth-password.test.ts",
+      "source": "2be96a4331aede742c3e1f346ab0ce481d82f8d996b27bb83f9ec5d0132d8b4d",
+      "runtime": "2be96a4331aede742c3e1f346ab0ce481d82f8d996b27bb83f9ec5d0132d8b4d",
+      "commit": "2be96a4331aede742c3e1f346ab0ce481d82f8d996b27bb83f9ec5d0132d8b4d"
+    },
+    {
+      "path": "tests/unit/auth-server.test.ts",
+      "source": "3b2bc1c532410b42bbbac540d6a67ed9ab40b7a0b287a64f807137ad1cfb1292",
+      "runtime": "3b2bc1c532410b42bbbac540d6a67ed9ab40b7a0b287a64f807137ad1cfb1292",
+      "commit": "3b2bc1c532410b42bbbac540d6a67ed9ab40b7a0b287a64f807137ad1cfb1292"
+    },
+    {
+      "path": "tests/unit/auth-ui.test.ts",
+      "source": "f3f8ee09b966b1b76696d9a61758713f95d8e6e127e6753cd2f70e28bc1db752",
+      "runtime": "f3f8ee09b966b1b76696d9a61758713f95d8e6e127e6753cd2f70e28bc1db752",
+      "commit": "f3f8ee09b966b1b76696d9a61758713f95d8e6e127e6753cd2f70e28bc1db752"
+    },
+    {
+      "path": "tests/unit/auth-validation.test.ts",
+      "source": "208c0ac6b2ed0e01fce0f44b6269b9e7150dabb031f3574943188ea2262ee5bc",
+      "runtime": "208c0ac6b2ed0e01fce0f44b6269b9e7150dabb031f3574943188ea2262ee5bc",
+      "commit": "208c0ac6b2ed0e01fce0f44b6269b9e7150dabb031f3574943188ea2262ee5bc"
+    },
+    {
+      "path": "tests/unit/companies-contacts/catalog.test.ts",
+      "source": "c71f3e14ea413f4adca4b97b440ca59b9d2946f958721e692b2fa48afac98ee2",
+      "runtime": "c71f3e14ea413f4adca4b97b440ca59b9d2946f958721e692b2fa48afac98ee2",
+      "commit": "c71f3e14ea413f4adca4b97b440ca59b9d2946f958721e692b2fa48afac98ee2"
+    },
+    {
+      "path": "tests/unit/companies-contacts/repository.test.ts",
+      "source": "45c866226fbc9b5394143ef54f322a852d70102684ccce7ba46f485e4f03440b",
+      "runtime": "45c866226fbc9b5394143ef54f322a852d70102684ccce7ba46f485e4f03440b",
+      "commit": "45c866226fbc9b5394143ef54f322a852d70102684ccce7ba46f485e4f03440b"
+    },
+    {
+      "path": "tests/unit/companies-contacts-proxy.test.ts",
+      "source": "8d4fa1a040eba4e7b162b02cd4e666c765ed7b230c554a8640ecb4e07f7241db",
+      "runtime": "8d4fa1a040eba4e7b162b02cd4e666c765ed7b230c554a8640ecb4e07f7241db",
+      "commit": "8d4fa1a040eba4e7b162b02cd4e666c765ed7b230c554a8640ecb4e07f7241db"
+    },
+    {
+      "path": "tests/unit/companies-contacts-ui.test.ts",
+      "source": "615859e2cb088a952b873245218521db1591a3361ea1455e60f64b028e6c6426",
+      "runtime": "615859e2cb088a952b873245218521db1591a3361ea1455e60f64b028e6c6426",
+      "commit": "615859e2cb088a952b873245218521db1591a3361ea1455e60f64b028e6c6426"
+    },
+    {
+      "path": "tests/unit/env.test.ts",
+      "source": "802ed8d79b47966e13587c36128b826bd4ef030e1d4ceb954a40b145817bb19c",
+      "runtime": "802ed8d79b47966e13587c36128b826bd4ef030e1d4ceb954a40b145817bb19c",
+      "commit": "802ed8d79b47966e13587c36128b826bd4ef030e1d4ceb954a40b145817bb19c"
+    },
+    {
+      "path": "tests/unit/history-corrections-backend.test.ts",
+      "source": "d03725dfa1d70390edbea1eccd6c562f46238b66d6a0cc8f99e00467a662ddb3",
+      "runtime": "d03725dfa1d70390edbea1eccd6c562f46238b66d6a0cc8f99e00467a662ddb3",
+      "commit": "d03725dfa1d70390edbea1eccd6c562f46238b66d6a0cc8f99e00467a662ddb3"
+    },
+    {
+      "path": "tests/unit/recruitment-closure-backend.test.ts",
+      "source": "e7b6158031ebbb5e98289626116ff52e7c98aacb9930e166bb0cc6086b5fbd03",
+      "runtime": "e7b6158031ebbb5e98289626116ff52e7c98aacb9930e166bb0cc6086b5fbd03",
+      "commit": "e7b6158031ebbb5e98289626116ff52e7c98aacb9930e166bb0cc6086b5fbd03"
+    },
+    {
+      "path": "tests/unit/recruitment-closure-command.test.ts",
+      "source": "25c74a84e514bb7106b9d371c2a4a12dedd940874935a3dc95fbcc1911a57224",
+      "runtime": "25c74a84e514bb7106b9d371c2a4a12dedd940874935a3dc95fbcc1911a57224",
+      "commit": "25c74a84e514bb7106b9d371c2a4a12dedd940874935a3dc95fbcc1911a57224"
+    },
+    {
+      "path": "tests/unit/recruitment-command.test.ts",
+      "source": "14f0253188b6560de138b7f505a49f346c2cb8ca27cc1b8469905ae0feb008dc",
+      "runtime": "14f0253188b6560de138b7f505a49f346c2cb8ca27cc1b8469905ae0feb008dc",
+      "commit": "14f0253188b6560de138b7f505a49f346c2cb8ca27cc1b8469905ae0feb008dc"
+    },
+    {
+      "path": "tests/unit/recruitment-domain.test.ts",
+      "source": "44e1265ca4a07291bc19ceb9ea89a1a4d2978f774560d4d1020517b2e21d19e9",
+      "runtime": "44e1265ca4a07291bc19ceb9ea89a1a4d2978f774560d4d1020517b2e21d19e9",
+      "commit": "44e1265ca4a07291bc19ceb9ea89a1a4d2978f774560d4d1020517b2e21d19e9"
+    },
+    {
+      "path": "tests/unit/recruitment-event-ui.test.ts",
+      "source": "7ceb6c2f4f3311860ccb1589a9574ebc75cf59acf3f68c37380ff14fe2c92887",
+      "runtime": "7ceb6c2f4f3311860ccb1589a9574ebc75cf59acf3f68c37380ff14fe2c92887",
+      "commit": "7ceb6c2f4f3311860ccb1589a9574ebc75cf59acf3f68c37380ff14fe2c92887"
+    },
+    {
+      "path": "tests/unit/recruitment-history-ui.test.ts",
+      "source": "6093ab5b16264338757261b33e44b2316befc8006f5a8b94e6e7fc54835f7e5e",
+      "runtime": "6093ab5b16264338757261b33e44b2316befc8006f5a8b94e6e7fc54835f7e5e",
+      "commit": "6093ab5b16264338757261b33e44b2316befc8006f5a8b94e6e7fc54835f7e5e"
+    },
+    {
+      "path": "tests/unit/recruitment-lifecycle-command.test.ts",
+      "source": "a916599e752cb73466e86083fc889157adb6bdbf72ea0ea20b0b6f0939502f40",
+      "runtime": "a916599e752cb73466e86083fc889157adb6bdbf72ea0ea20b0b6f0939502f40",
+      "commit": "a916599e752cb73466e86083fc889157adb6bdbf72ea0ea20b0b6f0939502f40"
+    },
+    {
+      "path": "tests/unit/recruitment-lifecycle-domain.test.ts",
+      "source": "82a6f8f9ae7864ffa701741d7814f8676b70340e868726f58a4212a5eee3edda",
+      "runtime": "82a6f8f9ae7864ffa701741d7814f8676b70340e868726f58a4212a5eee3edda",
+      "commit": "82a6f8f9ae7864ffa701741d7814f8676b70340e868726f58a4212a5eee3edda"
+    },
+    {
+      "path": "tests/unit/recruitment-lifecycle-ui.test.ts",
+      "source": "81a35a6d88bf13df37ec6f0597d29dd72a746d8ef3ed70dbd5c791e3ab357361",
+      "runtime": "81a35a6d88bf13df37ec6f0597d29dd72a746d8ef3ed70dbd5c791e3ab357361",
+      "commit": "81a35a6d88bf13df37ec6f0597d29dd72a746d8ef3ed70dbd5c791e3ab357361"
+    },
+    {
+      "path": "tests/unit/recruitment-ui.test.ts",
+      "source": "f280b110cce5798322ebb87ae630afb4198892ca7fddd7e1872365005d3fde46",
+      "runtime": "f280b110cce5798322ebb87ae630afb4198892ca7fddd7e1872365005d3fde46",
+      "commit": "f280b110cce5798322ebb87ae630afb4198892ca7fddd7e1872365005d3fde46"
+    },
+    {
+      "path": "tests/unit/workspace-ui.test.ts",
+      "source": "f10cbf0ad28c706fe39595994bf9fc5e68c6a1cf57aa468edc85d09f5798c21e",
+      "runtime": "f10cbf0ad28c706fe39595994bf9fc5e68c6a1cf57aa468edc85d09f5798c21e",
+      "commit": "f10cbf0ad28c706fe39595994bf9fc5e68c6a1cf57aa468edc85d09f5798c21e"
+    }
+  ],
+  "candidate": "3666f4b2e87425010b4e81c34f9b7d6e3a9780c2"
+}

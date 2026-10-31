@@ -267,3 +267,18 @@ Wyniki: [raport](../technical/recruitment-lifecycle-3c-report.md), [QA](../techn
 | FR-LC-021 | AC-LC-021 częściowo | lista/detal; Global Search poza zakresem |
 
 [Kontrakt i plan](../technical/recruitment-lifecycle-3c.md). Zatwierdzenie nie jest dowodem testów; wyniki osobno.
+
+## Companies & Contacts — DEC-058
+
+| Podstawa | Podzakres | Plan dowodów |
+|---|---|---|
+| FR/AC-CC-001–006/008/011, DEC-042–044/058, BR-001/002/018/027/028 | Katalog/create/read/edit, jawne M:N i role, dedup | Unit + nowe integracje i browser CC; TC-006/008/014/025 częściowo |
+| FR/AC-AD-002, BR-030, SEC-01/02 | RLS obu końców, metadata, dedup/audit/recovery i Origin, immutable audyt/intent | Real Auth/Data API A/B/anon, direct write attempts, cache/PII |
+| BR-016/019, DEC-054–057 | Katalog nie zmienia lifecycle/zdarzeń/revisions/closures | Snapshoty + regresja runnera |
+| FR/AC-CC-007/009/010 | Poza przyrostem | NOT RUN: komunikacja/źródłowe uczestnictwo/historia osoby |
+
+Kontrakt i plan: [CC](../technical/companies-contacts-analysis.md). Wyniki wykonania wymagają osobnego raportu, bez domniemania PASS.
+
+### Wykonanie CC — 2026-10-31
+
+[Raport](../technical/companies-contacts-report.md) i [QA](../technical/companies-contacts-qa.md): PASS FR/AC-CC-001–006/008/011 w zatwierdzonym zakresie DEC-058, podzakres AD-002, unit333+87, pełny runner105/105 integration i92/92 browser, natural exit0. Niezależne review domknęło1P1+4P2 i oceniło późniejsze delty. AC-CC-007/009/010, pełne TC-019/025/034 oraz publiczny produkt nadal poza tym dowodem. Hosted CI odrębnie dla exact PR head.

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { RelationsPanel } from "@/components/companies-contacts/relations";
 import { notFound, redirect } from "next/navigation";
 import { Workspace } from "@/components/recruitment/workspace";
 import { CaseEventForm } from "@/components/recruitment/case-event-form";
@@ -64,6 +65,14 @@ export default async function RecruitmentDetailPage({
       </Link>
       <section className="min-w-0" aria-label="Zapisane dane sprawy">
         <CaseContent item={item} />
+        <div className="mt-5">
+          <RelationsPanel
+            key={`${user.id}:${item.id}`}
+            userId={user.id}
+            contextType="case"
+            contextId={item.id}
+          />
+        </div>
         <LifecycleActions
           key={`${user.id}:${item.id}`}
           userId={user.id}
