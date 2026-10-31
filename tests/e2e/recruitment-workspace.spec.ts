@@ -263,6 +263,63 @@ test("DEC059 default board/list filters operate on complete data, presets and co
   expect(await snapshot()).toEqual(before);
 });
 
+test("DEC059 empty owner, empty filter and off-page results are distinct", async ({
+  page,
+}) => {
+  await login(page, b);
+  await page.goto("/recruitments");
+  await ready(page);
+  await expect(
+    page.getByRole("heading", { name: "Nie masz jeszcze spraw", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Lista", exact: true }).click();
+  await ready(page);
+  await expect(
+    page.getByRole("heading", { name: "Nie masz jeszcze spraw", exact: true }),
+  ).toBeVisible();
+  await page.goto("/account");
+  await page
+    .getByRole("button", { name: "Wyloguj tutaj", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/login(?:\?|$)/);
+  await login(page);
+  await page.goto("/recruitments?view=list&page=99");
+  await ready(page);
+  await expect(
+    page.getByRole("heading", {
+      name: "Brak spraw na tej stronie",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Nie masz jeszcze spraw", exact: true }),
+  ).toHaveCount(0);
+  await page.goto(
+    "/recruitments?view=kanban&savedPage=99&contactPage=99&recruitingPage=99&closedPage=99&closedOpen=1",
+  );
+  await ready(page);
+  await expect(
+    page.getByRole("heading", {
+      name: "Brak spraw na tej stronie",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Nie masz jeszcze spraw", exact: true }),
+  ).toHaveCount(0);
+  await page.goto("/recruitments?status=none");
+  await ready(page);
+  await expect(
+    page.getByRole("heading", {
+      name: "Brak wyników dla wybranych filtrów",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Nie masz jeszcze spraw", exact: true }),
+  ).toHaveCount(0);
+});
+
 test("DEC059 drawer exact ID, readonly history and detail return restore actual workspace context", async ({
   page,
 }) => {
