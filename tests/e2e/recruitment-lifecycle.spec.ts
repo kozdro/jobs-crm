@@ -166,7 +166,8 @@ test("LC014: no write before factual confirmation; cancellation, unknown date an
   ).not.toBeChecked();
   await expect(
     page.getByText(
-      /nie można.*(edytować|poprawić)|brak.*(edycji|korekty)|tylko dopisywana/i,
+      "Błędny wpis można skorygować lub unieważnić z zachowaniem oryginału i audytu. Sprawdź dane przed potwierdzeniem.",
+      { exact: true },
     ),
   ).toBeVisible();
   await page

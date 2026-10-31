@@ -49,3 +49,7 @@ OPEN-002/024 oraz DATA-01 są **PARTIALLY RESOLVED**; pozostały model, lifecycl
 ## DATA-01 3B — DEC-055
 
 Rozszerzenie istniejącej sprawy i append-only faktów o kwalifikujące zaproszenie, indywidualny bieżący etap oraz historyczne nazwy. Współbieżność etapu chroniona kontrolą wersji; retry istniejącego zamiaru nie powtarza skutków. Bez nowych globalnych słowników, backfillu, zmian poprzednich migracji, retencji/delete i kalendarza. [Zakres zatwierdzony](recruitment-lifecycle-3b-analysis.md); OPEN-004 pozostaje bramką publicznego udostępnienia.
+
+## DATA-01 — History Corrections, DEC-056
+
+Addytywne rozszerzenie historii 3A/3B o immutable oryginały i audyt korekt/terminalnych unieważnień, atomowo uzgodniony stan i monotoniczną współbieżność całej sprawy. Zachować klucze zamiaru i oryginalne wyniki; replay nie stosuje dawnych skutków. [Zatwierdzony kontrakt 1A/2A](history-corrections-integrity-analysis.md). Bez zmiany starych migracji, backfillu faktów i resetu persistent DEV.

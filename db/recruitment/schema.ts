@@ -6,6 +6,7 @@ import {
   foreignKey,
   index,
   integer,
+  jsonb,
   pgTable,
   text,
   timestamp,
@@ -28,6 +29,7 @@ export const recruitmentCase = pgTable(
     status: text("status").default("Zapisane").notNull(),
     currentStage: text("current_stage"),
     stageVersion: integer("stage_version").default(0).notNull(),
+    caseRevision: integer("case_revision").default(0).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -67,7 +69,7 @@ export const recruitmentCase = pgTable(
     ),
     check(
       "recruitment_case_3b_status_stage",
-      sql`(${table.status} IN ('Zapisane', 'Kontakt rozpoczęty') AND ${table.currentStage} IS NULL AND ${table.stageVersion} = 0) OR (${table.status} = 'W rekrutacji' AND ${table.currentStage} IS NOT NULL AND char_length(${table.currentStage}) BETWEEN 1 AND 160 AND ${table.currentStage} = public.recruitment_trim(${table.currentStage}) AND ${table.stageVersion} >= 1)`,
+      sql`(${table.status} IN ('Zapisane', 'Kontakt rozpoczęty') AND ${table.currentStage} IS NULL AND ${table.stageVersion} >= 0) OR (${table.status} = 'W rekrutacji' AND ${table.currentStage} IS NOT NULL AND char_length(${table.currentStage}) BETWEEN 1 AND 160 AND ${table.currentStage} = public.recruitment_trim(${table.currentStage}) AND ${table.stageVersion} >= 1)`,
     ),
   ],
 ).enableRLS();
@@ -88,6 +90,7 @@ export const recruitmentCaseEvent = pgTable(
     stageName: text("stage_name"),
     previousStage: text("previous_stage"),
     expectedStageVersion: integer("expected_stage_version"),
+    appliedCaseRevision: integer("applied_case_revision"),
     recordedAt: timestamp("recorded_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -116,6 +119,62 @@ export const recruitmentCaseEvent = pgTable(
       table.occurredOn.desc().nullsLast(),
       table.recordedAt.desc(),
       table.id.desc(),
+    ),
+  ],
+).enableRLS();
+
+/** Immutable correction intents and their server-derived audit snapshots. */
+export const recruitmentCaseEventRevision = pgTable(
+  "recruitment_case_event_revision",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    requestId: uuid("request_id").notNull(),
+    caseId: uuid("case_id").notNull(),
+    eventId: uuid("event_id").notNull(),
+    operation: text("operation").notNull(),
+    occurredOn: date("occurred_on", { mode: "string" }),
+    direction: text("direction"),
+    stageName: text("stage_name"),
+    expectedCaseRevision: integer("expected_case_revision").notNull(),
+    expectedEventRevision: integer("expected_event_revision").notNull(),
+    revision: integer("revision").notNull(),
+    beforeValues: jsonb("before_values").notNull(),
+    afterValues: jsonb("after_values").notNull(),
+    resultingStatus: text("resulting_status").notNull(),
+    resultingStage: text("resulting_stage"),
+    recordedAt: timestamp("recorded_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    unique("recruitment_revision_owner_request_unique").on(
+      table.ownerId,
+      table.requestId,
+    ),
+    unique("recruitment_revision_event_version_unique").on(
+      table.eventId,
+      table.revision,
+    ),
+    foreignKey({
+      name: "recruitment_revision_owned_case_fk",
+      columns: [table.ownerId, table.caseId],
+      foreignColumns: [recruitmentCase.ownerId, recruitmentCase.id],
+    }).onDelete("no action"),
+    foreignKey({
+      name: "recruitment_revision_event_fk",
+      columns: [table.eventId],
+      foreignColumns: [recruitmentCaseEvent.id],
+    }).onDelete("no action"),
+    check(
+      "recruitment_revision_operation_valid",
+      sql`${table.operation} IN ('correct','void')`,
+    ),
+    check(
+      "recruitment_revision_versions_valid",
+      sql`${table.expectedCaseRevision} >= 0 AND ${table.expectedEventRevision} >= 0 AND ${table.revision} = ${table.expectedEventRevision} + 1`,
     ),
   ],
 ).enableRLS();

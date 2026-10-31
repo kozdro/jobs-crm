@@ -238,3 +238,16 @@ Wyniki poszczególnych komend, screenshoty, kandydat i ograniczenia są w raporc
 
 
 **Wynik wykonania 3B:** [raport](../technical/recruitment-lifecycle-3b-report.md) i [QA](../technical/recruitment-lifecycle-3b-qa.md):235+87unitPASS,53/53realintegrationPASS,50/50HTTPSbrowserPASS na produkcie f6db0d4. Osobna korekta capture w1c9c830: build/integracja53/targetedbrowser1PASS; nie zastępuje ani nie rozszerza liczby50. Backend/frontend/security statycznyreviewPASS; runtime wykonywało QA. Publiczne udostępnienie i pełne moduły/TC pozostają poza akceptacją. Final-SHA CI osobno w PR.
+
+## History Corrections & Integrity — DEC-056
+
+| FR | AC w przyroście | Scenariusz / dowód |
+|---|---|---|
+| FR-HE-002 | AC-HE-002-05, HE-002-01/-02 | UC/TC-021 podscenariusze korekty dnia; QA/runtime osobno |
+| FR-HE-003 | AC-HE-003-04, HE-003/-01 | UC/TC-021; audit/void bez fikcyjnych faktów |
+| FR-LC-015 | AC-LC-015-02/-03, LC-015/-01 | UC/TC-021 częściowo bez DnD; zależności i uzgodnienie stanu |
+| FR-LC-014 | AC-LC-014-03/-04 | UC/TC-021; concurrency/replay/recovery + regresje 3A/3B |
+| FR-LC-013 | AC-LC-013 | UC/TC-009 regresja snapshotów |
+| FR-AD-002 | AC-AD-002 | owner A/B/anon, audit/ID/count/relacje/Data API/recovery |
+
+APPROVED podzakres DEC-056, testy i review nie wynikają ze statusu decyzji. Raport wykonania: [History Corrections & Integrity](../technical/history-corrections-integrity-report.md).

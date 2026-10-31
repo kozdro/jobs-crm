@@ -65,3 +65,7 @@ Publiczne SEC/OPS/privacy i pozostałe OPEN nadal obowiązują. Brak fetch w tym
 ## Rozszerzenie DATA-01 / SEC-02 — Lifecycle 3B, DEC-055
 
 [DEC-055](../decisions/product-decisions.md) i [kontrakt](recruitment-lifecycle-3b-analysis.md) dopuszczają zaproszenia, bieżący indywidualny etap, historyczne snapshoty i kontrolowane wejście do W rekrutacji. Addytywne migracje istniejącego ledgeru Drizzle; bez backfillu i bez resetu persistent DEV. SEC-02 wymaga realnych Auth/Data API/RLS A/B/anon, ochrony relacji i bezpośrednich zapisów oraz atomowości/retry/stale-stage conflict. OPEN-004 nadal przed publicznym udostępnieniem, OPEN-003/027 dla globalnego/default zestawu. Brak nowej architektury/ADR.
+
+## DATA-01 / SEC-02 — History Corrections, DEC-056
+
+OPEN-004/020/034 częściowo rozstrzygnięte dla korekt i terminalnego void faktów 3A/3B z audytem i atomowym uzgodnieniem trzech statusów. [Kontrakt](history-corrections-integrity-analysis.md). Wymagane realne Auth/Data API/RLS A/B/anon dla audytu, relacji i recovery, upgrade bez utraty danych, concurrency/replay i niezależne backend/frontend/security review. Nie oznacza zamknięcia retencji, pełnego lifecycle ani publicznych bramek.

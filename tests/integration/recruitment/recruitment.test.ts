@@ -678,7 +678,11 @@ test(
             await sql`select c.relname,c.relrowsecurity from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind='r' order by c.relname`;
           assert.deepEqual(
             relations.map((row) => row.relname),
-            ["recruitment_case", "recruitment_case_event"],
+            [
+              "recruitment_case",
+              "recruitment_case_event",
+              "recruitment_case_event_revision",
+            ],
           );
           assert.ok(relations.every((row) => row.relrowsecurity === true));
           for (const role of ["anon", "authenticated"]) {

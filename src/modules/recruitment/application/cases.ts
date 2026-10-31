@@ -40,7 +40,7 @@ function readCase(value: unknown): RecruitmentCase {
       ? typeof row.current_stage !== "string" ||
         !row.current_stage.trim() ||
         (row.stage_version as number) < 1
-      : row.current_stage !== null || row.stage_version !== 0) ||
+      : row.current_stage !== null) ||
     typeof row.created_at !== "string" ||
     !Number.isFinite(Date.parse(row.created_at))
   )

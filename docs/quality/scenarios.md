@@ -674,3 +674,9 @@ UC/TC-005 częściowo: istniejąca własna sprawa Zapisane lub Kontakt rozpoczę
 UC/TC-009 częściowo: indywidualna nazwa etapu → zmiana z pominięciem pośrednich bez zaproszenia → poprzednia nazwa w historii; kolejne zaproszenie może zmienić etap bez zmiany statusu. Konflikt stale revision nie zapisuje częściowego faktu, replay wcześniejszego zamiaru nie cofa stanu. Bez globalnych/default szablonów.
 
 Regresje UC/TC-001/002/003/004/034 tylko w istniejącym podzakresie: create Zapisane bez faktów, dalszy kontakt/aplikacja nie cofają W rekrutacji, owner isolation A/B/anon, historia i dane zachowane po migracji 3A→3B. Testy i komendy raportowane osobno od planu.
+
+## Podscenariusze korekt historii — DEC-056
+
+UC/TC-021 częściowo (bez DnD): własny dawny lub najnowszy wpis → poprawa dnia/direction/nazwy albo void → preview → cancel/no-write lub confirm → reload/list/detail/audit. Korekta nie tworzy faktu biznesowego. Regresje UC/TC-005/009: data nie odtwarza stanu, previous_stage pozostaje pierwotne; invite A → stage B → invite C → void A odrzucony ze względu na B; świadome void błędnego B potem A działa bez kaskady. Ostatnia aplikacja/kontakt → void → Zapisane; ostatnia komenda etapowa → void → poprzedni ważny etap lub brak etapu według kontraktu.
+
+Negatywne: obcy owner/case/event/revision, direct Data API bypass, spoofing aktora/czasu, retype/restore/delete, stale preview, równoczesne fakty/korekty/void i ABA. Retry po lost response oraz dawny create/correction replay po późniejszym void nie przywraca stanu. Upgrade zachowuje dane i klucze 3A/3B. Nowe AC: HE-002-05/003-04, LC-015-02/-03, LC-014-03/-04 oraz AD-002. Wykonanie raportowane osobno, obecnie PLANNED.

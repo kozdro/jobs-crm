@@ -117,3 +117,7 @@ OPEN-001/003/018/019/027/029/034 nie blokują tego wąskiego przyrostu bez etap�
 - OPEN-002/034: PARTIALLY RESOLVED — indywidualna nazwa 1–160 punktów kodowych po trim; opcjonalny nieprzyszły dzień faktu, unknown bez zastępowania datą zapisu; wcześniejsze statusy bez etapu, W rekrutacji z etapem; zmiana etapu tylko w W rekrutacji. Kolejne zaproszenia/zmiany ustawiają jawnie potwierdzony bieżący etap, bez automatycznego odtwarzania stanu z dat i bez cichego nadpisania konkurencyjnej zmiany. Kontakt/aplikacja w W rekrutacji nie cofają stanu. Pozostałe formularze i kombinacje (w tym Zakończone) OPEN.
 - OPEN-004: PARTIALLY RESOLVED wyłącznie lokalne append-only 3B; korekty i audyt nadal OPEN przed publicznym udostępnieniem.
 - OPEN-003/027 nadal OPEN dla globalnych szablonów i domyślnego zestawu; bez ich implementacji i seedowania w 3B. Pozostałe granice z analizy zachowane.
+
+## History Corrections & Integrity — DEC-056 (2026-10-31)
+
+OPEN-004/020/034 **PARTIALLY RESOLVED**: zatwierdzone 1A/2A i pełne wykonanie [minimalnego slice’a](../technical/history-corrections-integrity-analysis.md). Korekty czterech rodzajów faktów 3A/3B, rewizje/audyt i terminalne unieważnienie z atomowym uzgodnieniem trzech wdrożonych statusów. Zależne osierocone etapy blokują operację, bez kaskady. Pozostałe typy historii, dowolna ręczna korekta statusu, pełny lifecycle, retencja/usuwanie i publiczne bramki pozostają OPEN. Zatwierdzenie nie jest dowodem wykonania ani zgodą na publiczne udostępnienie.

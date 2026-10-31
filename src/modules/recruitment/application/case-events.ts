@@ -50,6 +50,15 @@ function readEvent(value: unknown): CaseEvent {
     direction: row.direction as CaseEvent["direction"],
     occurred_on: row.occurred_on as string | null,
     recorded_at: row.recorded_at,
+    // Original create/replay/recovery acknowledgements retain their immutable
+    // payload shape. Only the effective timeline view supplies revision fields.
+    ...(row.revision !== undefined
+      ? {
+          revision: row.revision as number,
+          voided: row.voided as boolean,
+          original: row.original as CaseEvent["original"],
+        }
+      : {}),
     stage_name: row.stage_name as string | null,
     previous_stage: row.previous_stage as string | null,
     expected_stage_version: row.expected_stage_version as number | null,
@@ -122,8 +131,8 @@ export async function listRecruitmentCaseEvents(
     throw new CaseRepositoryError("invalid");
   const offset = (page - 1) * caseEventPageSize;
   const { data, error } = await client
-    .from("recruitment_case_event")
-    .select(eventColumns)
+    .from("recruitment_case_event_current")
+    .select(eventColumns + ",revision,voided,original")
     .eq("case_id", caseId)
     .order("occurred_on", { ascending: false, nullsFirst: false })
     .order("recorded_at", { ascending: false })
