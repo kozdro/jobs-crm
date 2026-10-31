@@ -6,6 +6,7 @@ import {
   isLifecyclePreview,
   lifecycleResultMatches,
   parseLifecycleIntent,
+  persistLifecycleIntent,
 } from "@/components/recruitment/lifecycle-intent";
 import {
   LifecycleActions,
@@ -89,6 +90,44 @@ describe("Lifecycle intent identity and uncertain result recovery", () => {
     expect(parseLifecycleIntent(JSON.stringify(ids), ownerId, caseId)).toEqual(
       ids,
     );
+  });
+  it("requires a readable exact stored intent before allowing a write, including when storage throws or silently drops writes", () => {
+    const saved = { ...ids, command };
+    const inaccessible = {
+      getItem: vi.fn(() => null),
+      setItem: vi.fn(() => {
+        throw new Error("storage disabled");
+      }),
+    };
+    expect(persistLifecycleIntent(inaccessible, "key", saved)).toBe(
+      "unavailable",
+    );
+    const silentlyDropped = { getItem: vi.fn(() => null), setItem: vi.fn() };
+    expect(persistLifecycleIntent(silentlyDropped, "key", saved)).toBe(
+      "unavailable",
+    );
+    let raw: string | null = null;
+    const working = {
+      getItem: () => raw,
+      setItem: (_key: string, value: string) => {
+        raw = value;
+      },
+    };
+    expect(persistLifecycleIntent(working, "key", saved)).toBe("stored");
+    expect(parseLifecycleIntent(raw, ownerId, caseId)).toEqual(saved);
+    expect(persistLifecycleIntent(working, "key", saved)).toBe("stored");
+  });
+  it("does not overwrite a newer pending command when an older retry tries to persist", () => {
+    const newer = JSON.stringify({
+      ...ids,
+      requestId: closureId,
+      command: { ...command, requestId: closureId },
+    });
+    const storage = { getItem: () => newer, setItem: vi.fn() };
+    expect(persistLifecycleIntent(storage, "key", { ...ids, command })).toBe(
+      "conflict",
+    );
+    expect(storage.setItem).not.toHaveBeenCalled();
   });
   it("does not clear a newer request or another account's request on a late response", () => {
     let raw: string | null = JSON.stringify({ ...ids, requestId: closureId });

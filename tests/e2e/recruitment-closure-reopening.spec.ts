@@ -258,6 +258,11 @@ for (const width of [375, 768, 1024, 1440]) {
     await expect(
       page.getByLabel("Wynik zakończenia", { exact: true }),
     ).toBeVisible();
+    if (width === 375 || width === 1440)
+      await page.screenshot({
+        path: `.recruitment-local/${target.id}/3c-visual/closure-form-${width}.png`,
+        fullPage: true,
+      });
     await confirm(page);
     await expect(reopenTrigger(page)).toBeVisible();
     await reopenTrigger(page).focus();
@@ -437,5 +442,95 @@ test("DEC057 mixed facts/closures timeline paginates known and unknown days with
   ).toBe(true);
   await page.goto(`${target.appOrigin}/recruitments/${c.id}`);
   await expect(history(page)).toContainText("Zakończono sprawę");
-  await expect(history(page)).toContainText("Nieznana data");
+  await expect(history(page)).toContainText("Data zdarzenia nieznana");
+});
+
+test("DEC057 unavailable durable storage refuses POST; later committed lost response remains recoverable after abandonment", async ({
+  page,
+}) => {
+  const c = await fixture();
+  await page.addInitScript(() => {
+    const original = Storage.prototype.setItem;
+    Reflect.set(window, "qa3cOriginalSetItem", original);
+    Storage.prototype.setItem = function (key, value) {
+      if (key.startsWith("jobs-crm.lifecycle.pending"))
+        throw new DOMException(
+          "Synthetic 3C storage refusal",
+          "QuotaExceededError",
+        );
+      return original.call(this, key, value);
+    };
+  });
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${c.id}`);
+  const confirms: unknown[] = [];
+  let deliver = false;
+  await page.route("**/recruitments/lifecycle-commands", async (route) => {
+    const body = route.request().postDataJSON() as { action?: string } | null;
+    if (route.request().method() === "POST" && body?.action === "confirm") {
+      confirms.push(body);
+      if (deliver) {
+        const response = await route.fetch();
+        expect(response.status()).toBe(200);
+        await response.dispose();
+      }
+      await route.abort("failed");
+    } else await route.continue();
+  });
+  await openClose(page);
+  await confirm(page);
+  await expect(page.getByRole("alert")).toBeVisible();
+  expect(confirms).toHaveLength(0);
+  expect(await lifecycleRows(c)).toHaveLength(0);
+  await page.getByRole("button", { name: "Anuluj", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Potwierdź porzucenie", exact: true })
+    .click();
+  await expect(closeTrigger(page)).toBeVisible();
+  await page.evaluate(() => {
+    Storage.prototype.setItem = Reflect.get(
+      window,
+      "qa3cOriginalSetItem",
+    ) as Storage["setItem"];
+  });
+  deliver = true;
+  await openClose(page);
+  await confirm(page);
+  await expect(page.getByRole("alert")).toBeVisible();
+  expect(confirms).toHaveLength(1);
+  await expect.poll(async () => (await lifecycleRows(c)).length).toBe(1);
+  const pending = await page.evaluate(
+    (caseId) =>
+      JSON.parse(
+        sessionStorage.getItem(`jobs-crm.lifecycle.pending.${caseId}`) ??
+          "null",
+      ),
+    c.id,
+  );
+  expect(pending?.requestId).toBe(
+    (confirms[0] as { requestId: string }).requestId,
+  );
+  await page.getByRole("button", { name: "Anuluj", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Potwierdź porzucenie", exact: true })
+    .click();
+  await page.getByRole("button", { name: /^(Zakończ|Wznów) sprawę$/ }).click();
+  await expect(page.getByRole("alert")).toContainText("Najpierw sprawdź wynik");
+  expect(confirms).toHaveLength(1);
+  await page.unroute("**/recruitments/lifecycle-commands");
+  await page.reload();
+  await page
+    .getByRole("button", {
+      name: "Sprawdź wcześniejszy zapis cyklu",
+      exact: true,
+    })
+    .click();
+  await expect(
+    page.getByRole("button", {
+      name: "Sprawdź wcześniejszy zapis cyklu",
+      exact: true,
+    }),
+  ).toHaveCount(0);
+  await expect(reopenTrigger(page)).toBeVisible();
+  expect(await lifecycleRows(c)).toHaveLength(1);
 });

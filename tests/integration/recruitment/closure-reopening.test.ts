@@ -671,6 +671,116 @@ test(
     );
 
     await t.test(
+      "Permitted direct lifecycle INSERT enforces the same transaction and replay as RPC",
+      async () => {
+        const c = await create();
+        const p = await preview(input(c));
+        const requestId = randomUUID();
+        const raw = {
+          request_id: requestId,
+          case_id: c,
+          kind: "close",
+          outcome: "Inny",
+          occurred_on: null,
+          offer_confirmed: false,
+          expected_case_revision: p.caseRevision,
+        };
+        const reply = await api(lifecycle, "POST", raw);
+        assert.equal(reply.status, 201);
+        const direct = (reply.body as Row[])[0];
+        assert.equal(direct.previous_status, "Zapisane");
+        assert.equal(direct.resulting_status, "Zakończone");
+        assert.equal(direct.owner_id, a.id);
+        assert.equal((await state(c)).status, "Zakończone");
+        const before = await state(c);
+        const replay = ok<{ kind: string; entry: Row }>(
+          await call(
+            "confirm_recruitment_case_lifecycle",
+            confirmInput(input(c), p, requestId),
+          ),
+        );
+        assert.equal(replay.kind, "replayed");
+        assert.equal(replay.entry.id, direct.id);
+        assert.deepEqual(await state(c), before);
+        assert.equal((await rows(lifecycle, c)).length, 1);
+      },
+    );
+
+    await t.test(
+      "Each individual protected lifecycle/audit column rejects spoofing without partial writes",
+      async () => {
+        const c = await create();
+        const before = await state(c);
+        const raw = {
+          request_id: randomUUID(),
+          case_id: c,
+          kind: "close",
+          outcome: "Inny",
+          occurred_on: null,
+          offer_confirmed: false,
+          expected_case_revision: before.case_revision,
+        };
+        for (const [column, value] of Object.entries({
+          id: randomUUID(),
+          owner_id: a.id,
+          cycle: 99,
+          recorded_at: "2000-01-01T00:00:00Z",
+          previous_status: "W rekrutacji",
+          previous_stage: "Forged old stage",
+          resulting_status: "Zapisane",
+          resulting_stage: "Forged current stage",
+        })) {
+          denied(await api(lifecycle, "POST", { ...raw, [column]: value }));
+          assert.deepEqual(
+            await rows(lifecycle, c),
+            [],
+            `spoof ${column} cannot write closure`,
+          );
+          assert.deepEqual(
+            await state(c),
+            before,
+            `spoof ${column} cannot mutate state`,
+          );
+        }
+        const first = await close(c);
+        const closureId = String(first.result.entry!.id);
+        const closed = await state(c);
+        const revision = {
+          request_id: randomUUID(),
+          case_id: c,
+          closure_id: closureId,
+          outcome: "Brak odpowiedzi",
+          occurred_on: null,
+          offer_confirmed: false,
+          expected_case_revision: closed.case_revision,
+          expected_closure_revision: 0,
+        };
+        for (const [column, value] of Object.entries({
+          id: randomUUID(),
+          owner_id: a.id,
+          recorded_at: "2000-01-01T00:00:00Z",
+          revision: 99,
+          before_values: { outcome: "Forged" },
+          after_values: { outcome: "Forged" },
+        })) {
+          denied(
+            await api(revisions, "POST", { ...revision, [column]: value }),
+          );
+          assert.deepEqual(
+            await rows(revisions, c),
+            [],
+            `spoof ${column} cannot write audit`,
+          );
+          assert.deepEqual(
+            await state(c),
+            closed,
+            `spoof ${column} cannot mutate state`,
+          );
+        }
+      },
+    );
+
+    await t.test(
       "Direct mutations cannot forge closure, revision, actor, time, or arbitrary status",
       async () => {
         const c = await create();

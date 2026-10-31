@@ -185,3 +185,23 @@ export function clearMatchingLifecycleIntent(
   storage.removeItem(key);
   return true;
 }
+
+/** An uncertain write must survive form unmount/reload. Refuse the POST unless
+ * the exact frozen intention is available in tab storage before sending it.
+ * Never overwrite another pending request while trying to persist a retry.
+ */
+export function persistLifecycleIntent(
+  storage: Pick<Storage, "getItem" | "setItem">,
+  key: string,
+  expected: LifecycleIntent & { command: ConfirmLifecycleInput },
+): "stored" | "conflict" | "unavailable" {
+  const serialized = JSON.stringify(expected);
+  try {
+    const existing = storage.getItem(key);
+    if (existing !== null && existing !== serialized) return "conflict";
+    storage.setItem(key, serialized);
+    return storage.getItem(key) === serialized ? "stored" : "unavailable";
+  } catch {
+    return "unavailable";
+  }
+}

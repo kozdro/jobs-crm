@@ -253,6 +253,8 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
       0,
       "3C upgrade invents no historical closures or cycles",
     );
+    let legacyClosureId = "";
+    let nextClosureId = "";
     await upgrade.begin(async (tx) => {
       await tx.unsafe("set local role authenticated");
       await tx.unsafe("select set_config('request.jwt.claim.sub',$1,true)", [
@@ -267,6 +269,7 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
         [randomUUID(), caseId, closing.result.caseRevision],
       );
       assert.equal(closed.result.kind, "created");
+      legacyClosureId = closed.result.entry.id;
       const [resuming] = await tx.unsafe(
         "select public.preview_recruitment_case_lifecycle($1::uuid,'reopen',null,null,null,false) result",
         [caseId],
@@ -294,6 +297,49 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
         secondClose.result.kind,
         "created",
         "Legacy initial-cycle application does not block Not applied in the new cycle",
+      );
+      nextClosureId = secondClose.result.entry.id;
+    });
+    await assert.rejects(
+      upgrade.begin(async (tx) => {
+        await tx.unsafe("set local role authenticated");
+        await tx.unsafe("select set_config('request.jwt.claim.sub',$1,true)", [
+          owner,
+        ]);
+        await tx.unsafe(
+          "select public.preview_recruitment_case_lifecycle($1::uuid,'correct-closure',$2::uuid,'Nie aplikowano',null,false) result",
+          [caseId, legacyClosureId],
+        );
+      }),
+      (error: unknown) => {
+        assert.equal((error as { code?: string }).code, "22023");
+        return true;
+      },
+      "A legacy application with NULL applied_case_revision prevents Not applied correction of its initial closure",
+    );
+    await upgrade.begin(async (tx) => {
+      await tx.unsafe("set local role authenticated");
+      await tx.unsafe("select set_config('request.jwt.claim.sub',$1,true)", [
+        owner,
+      ]);
+      const [p] = await tx.unsafe(
+        "select public.preview_recruitment_case_lifecycle($1::uuid,'correct-closure',$2::uuid,'Nie aplikowano','2002-03-04',false) result",
+        [caseId, nextClosureId],
+      );
+      const [fixed] = await tx.unsafe(
+        "select public.confirm_recruitment_case_lifecycle($1::uuid,$2::uuid,'correct-closure',$3::integer,$4::integer,$5::uuid,'Nie aplikowano','2002-03-04',false) result",
+        [
+          randomUUID(),
+          caseId,
+          p.result.caseRevision,
+          p.result.closureRevision,
+          nextClosureId,
+        ],
+      );
+      assert.equal(
+        fixed.result.kind,
+        "created",
+        "The same legacy application does not block correction of a later application-free cycle",
       );
     });
     const [three] =

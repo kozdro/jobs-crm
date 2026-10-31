@@ -682,6 +682,8 @@ test(
               "recruitment_case",
               "recruitment_case_event",
               "recruitment_case_event_revision",
+              "recruitment_case_lifecycle",
+              "recruitment_closure_revision",
             ],
           );
           assert.ok(relations.every((row) => row.relrowsecurity === true));

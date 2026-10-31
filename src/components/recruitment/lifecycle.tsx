@@ -30,6 +30,7 @@ import {
   lifecycleIntentStorageKey,
   lifecycleResultMatches,
   parseLifecycleIntent,
+  persistLifecycleIntent,
   type LifecycleIntent,
 } from "./lifecycle-intent";
 
@@ -271,18 +272,24 @@ export function LifecycleForm({
       };
     }
     frozen.current = command;
+    let persisted: ReturnType<typeof persistLifecycleIntent> = "unavailable";
     try {
-      sessionStorage.setItem(
-        storageKey(caseId),
-        JSON.stringify({
-          ownerId: userId,
-          caseId,
-          requestId: command.requestId,
-          command,
-        }),
-      );
+      persisted = persistLifecycleIntent(sessionStorage, storageKey(caseId), {
+        ownerId: userId,
+        caseId,
+        requestId: command.requestId,
+        command,
+      });
     } catch {
-      /* Exact in-memory retry remains available. */
+      // Access to sessionStorage itself may throw before the helper is entered.
+    }
+    if (persisted !== "stored") {
+      report(
+        persisted === "conflict"
+          ? "Zachowano inny zamiar zapisu. Nie wysłano tej operacji; najpierw sprawdź wcześniejszy zapis cyklu."
+          : "Nie można zachować danych do bezpiecznego odzyskania wyniku w tej karcie. Nie wysłano operacji. Zachowano formularz; udostępnij pamięć sesji w przeglądarce i spróbuj ponownie.",
+      );
+      return;
     }
     announce(caseId);
     const requestEpoch = epoch.current;
