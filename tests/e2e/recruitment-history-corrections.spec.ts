@@ -536,3 +536,146 @@ test("DEC056 an undelivered confirm survives reload and retries the exact owner-
     await page.evaluate(() => Object.values(sessionStorage).join(" ")),
   ).not.toContain("2004-05-06");
 });
+
+test("DEC056 delayed recovery JSON from an unmounted page cannot clear a newer pending command", async ({
+  page,
+}) => {
+  const c = await fixture();
+  for (let index = 0; index < 26; index++) {
+    const saved = await c.client.rpc("record_recruitment_case_event", {
+      p_request_id: randomUUID(),
+      p_case_id: c.id,
+      p_kind: "contact",
+      p_direction: "inbound",
+      p_occurred_on: "2000-01-01",
+    });
+    expect(saved.error).toBeNull();
+  }
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${c.id}`);
+  const commands: Record<string, unknown>[] = [];
+  await page.route("**/recruitments/history-commands", async (route) => {
+    if (
+      route.request().method() !== "POST" ||
+      route.request().postDataJSON().action !== "confirm"
+    )
+      return route.continue();
+    commands.push(route.request().postDataJSON());
+    if (commands.length === 1) {
+      const response = await route.fetch();
+      expect(response.status()).toBe(200);
+      return route.abort("failed");
+    }
+    if (commands.length === 2) return route.abort("failed");
+    await route.continue();
+  });
+  await open(page);
+  await page
+    .getByLabel("Data zdarzenia (opcjonalnie)", { exact: true })
+    .fill("2005-06-07");
+  await confirm(page);
+  await expect(
+    page.getByRole("button", { name: "Ponów ten sam zapis", exact: true }),
+  ).toBeVisible();
+  expect(await auditRows(c)).toHaveLength(1);
+  await page.reload();
+  // Delay only consumption of the first real committed recovery response's JSON.
+  // Auth, network request, response data and subsequent requests remain real.
+  await page.evaluate((requestId) => {
+    const state = window as typeof window & {
+      historyJsonWaiting?: boolean;
+      releaseHistoryJson?: () => void;
+    };
+    const originalFetch = window.fetch.bind(window);
+    let delayed = false;
+    window.fetch = async (...args) => {
+      const response = await originalFetch(...args);
+      const url = args[0] instanceof Request ? args[0].url : String(args[0]);
+      if (
+        !delayed &&
+        url.includes("/recruitments/history-commands?") &&
+        url.includes(String(requestId))
+      ) {
+        delayed = true;
+        const originalJson = response.json.bind(response);
+        response.json = async () => {
+          const value = await originalJson();
+          state.historyJsonWaiting = true;
+          await new Promise<void>((resolve) => {
+            state.releaseHistoryJson = resolve;
+          });
+          return value;
+        };
+      }
+      return response;
+    };
+  }, commands[0].requestId);
+  await page
+    .getByRole("button", { name: "Sprawdź wynik korekty", exact: true })
+    .click();
+  await page.waitForFunction(
+    () =>
+      (window as typeof window & { historyJsonWaiting?: boolean })
+        .historyJsonWaiting === true,
+  );
+  await history(page)
+    .getByRole("link", { name: "Następna strona historii", exact: true })
+    .click();
+  await expect(history(page).getByRole("listitem")).toHaveCount(2);
+  await page
+    .getByRole("button", { name: "Sprawdź wynik korekty", exact: true })
+    .click();
+  await expect(
+    page.getByText(/Potwierdzono wcześniejszy zapis korekty/),
+  ).toBeVisible();
+  await open(page);
+  await page
+    .getByLabel("Data zdarzenia (opcjonalnie)", { exact: true })
+    .fill("2006-07-08");
+  await confirm(page);
+  await expect(
+    page.getByRole("button", { name: "Ponów ten sam zapis", exact: true }),
+  ).toBeVisible();
+  const pendingB = await page.evaluate(() =>
+    Object.values(sessionStorage).find((value) => value.includes("2006-07-08")),
+  );
+  expect(pendingB).toBeTruthy();
+  expect(await auditRows(c)).toHaveLength(1);
+  await page.evaluate(async () => {
+    (
+      window as typeof window & { releaseHistoryJson?: () => void }
+    ).releaseHistoryJson?.();
+    await new Promise<void>((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+    );
+  });
+  expect(
+    await page.evaluate(() =>
+      Object.values(sessionStorage).find((value) =>
+        value.includes("2006-07-08"),
+      ),
+    ),
+  ).toBe(pendingB);
+  await page.reload();
+  await page
+    .getByRole("button", { name: "Sprawdź wynik korekty", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Ponów ten sam zapis", exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Ponów ten sam zapis", exact: true })
+    .click();
+  await expect(
+    page.getByText(/Potwierdzono (wcześniejszy )?zapis korekty/),
+  ).toBeVisible();
+  await history(page)
+    .getByRole("link", { name: "Poprzednia strona historii", exact: true })
+    .click();
+  await expect(
+    history(page).locator("time[datetime='2006-07-08']"),
+  ).toBeVisible();
+  expect(await auditRows(c)).toHaveLength(2);
+  expect(commands).toHaveLength(3);
+  expect(commands[2]).toEqual(commands[1]);
+});

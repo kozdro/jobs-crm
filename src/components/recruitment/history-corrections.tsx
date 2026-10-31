@@ -11,6 +11,7 @@ import { buttonStyles, inputStyles } from "@/components/ui/styles";
 import { CaseCreatedTime } from "./case-content";
 import {
   historyIntentStorageKey,
+  clearMatchingHistoryIntent,
   parseHistoryIntent,
   isHistoryPreview,
   isHistoryRevision,
@@ -98,6 +99,7 @@ export function HistoryCorrections({
   const frozen = useRef<ConfirmIntent | null>(null);
   const busy = useRef(false);
   const alive = useRef(true);
+  const epoch = useRef(0);
   const heading = useRef<HTMLHeadingElement>(null);
   const feedback = useRef<HTMLParagraphElement>(null);
   const previewHeading = useRef<HTMLHeadingElement>(null);
@@ -106,9 +108,11 @@ export function HistoryCorrections({
     event.kind === "invitation" || event.kind === "stage-change";
   const id = `history-edit-${event.id}`;
   useEffect(() => {
+    epoch.current += 1;
     alive.current = true;
     heading.current?.focus();
     return () => {
+      epoch.current += 1;
       alive.current = false;
     };
   }, []);
@@ -117,30 +121,44 @@ export function HistoryCorrections({
   }, [preview]);
   function report(message: string) {
     setError(message);
-    requestAnimationFrame(() => feedback.current?.focus());
+    const reportingEpoch = epoch.current;
+    requestAnimationFrame(() => {
+      if (alive.current && epoch.current === reportingEpoch)
+        feedback.current?.focus();
+    });
   }
   function login() {
     window.location.replace("/login");
   }
-  function clearStored() {
+  function clearStored(payload: ConfirmIntent): boolean {
     try {
-      sessionStorage.removeItem(storageKey);
+      return clearMatchingHistoryIntent(sessionStorage, storageKey, {
+        ownerId: userId,
+        caseId,
+        eventId: event.id,
+        requestId: payload.requestId,
+      });
     } catch {
-      /* Recovery remains available in memory. */
+      /* No usable tab storage: the confirmed in-memory result remains authoritative. */
+      return true;
     }
   }
-  function finish() {
-    clearStored();
+  function finish(payload: ConfirmIntent) {
+    if (!alive.current || !clearStored(payload)) return;
     router.refresh();
     onClose();
     window.dispatchEvent(
       new CustomEvent("jobs-crm:history-corrected", { detail: { caseId } }),
     );
-    requestAnimationFrame(() =>
-      document.getElementById("case-history-heading")?.focus(),
-    );
+    const finishingEpoch = epoch.current;
+    requestAnimationFrame(() => {
+      if (alive.current && epoch.current === finishingEpoch)
+        document.getElementById("case-history-heading")?.focus();
+    });
   }
   async function request(body: unknown) {
+    const requestEpoch = epoch.current;
+    const current = () => alive.current && epoch.current === requestEpoch;
     const response = await fetch(endpoint, {
       method: "POST",
       credentials: "same-origin",
@@ -149,11 +167,13 @@ export function HistoryCorrections({
       body: JSON.stringify({ ...(body as object), expectedUserId: userId }),
       signal: AbortSignal.timeout(20000),
     });
+    if (!current()) throw new Error("expired");
     if (response.status === 401 || response.status === 403) {
       login();
       throw new Error("auth");
     }
     const result: unknown = await response.json().catch(() => null);
+    if (!current()) throw new Error("expired");
     return { response, result: result as Record<string, unknown> | null };
   }
   function draft(): Draft | null {
@@ -186,6 +206,8 @@ export function HistoryCorrections({
     };
   }
   async function showPreview(formEvent?: FormEvent) {
+    const requestEpoch = epoch.current;
+    const current = () => alive.current && epoch.current === requestEpoch;
     formEvent?.preventDefault();
     if (busy.current || uncertain) return;
     const value = draft();
@@ -199,7 +221,7 @@ export function HistoryCorrections({
         ...value,
         action: "preview",
       });
-      if (!alive.current) return;
+      if (!current()) return;
       if (!response.ok || !isHistoryPreview(result?.preview)) {
         report(
           "Nie udało się pobrać podglądu. Nie wykonano nowej korekty. Sprawdź dane i spróbuj ponownie.",
@@ -208,16 +230,20 @@ export function HistoryCorrections({
       }
       setPreview(result.preview);
     } catch {
-      if (alive.current)
+      if (current())
         report(
           "Nie udało się pobrać podglądu. Zachowano dane formularza; spróbuj ponownie.",
         );
     } finally {
-      busy.current = false;
-      if (alive.current) setPending(false);
+      if (current()) {
+        busy.current = false;
+        setPending(false);
+      }
     }
   }
   async function save() {
+    const requestEpoch = epoch.current;
+    const current = () => alive.current && epoch.current === requestEpoch;
     if (busy.current) return;
     let payload = frozen.current;
     if (!payload) {
@@ -257,10 +283,10 @@ export function HistoryCorrections({
         ...payload,
         action: "confirm",
       });
-      if (!alive.current) return;
+      if (!current()) return;
       if (response.status === 409 || response.status === 400) {
         // These statuses guarantee no mutation for this intention. A new preview requires fresh consent.
-        clearStored();
+        if (!clearStored(payload)) return;
         frozen.current = null;
         setUncertain(false);
         setPreview(null);
@@ -278,20 +304,24 @@ export function HistoryCorrections({
         !revisionMatchesIntent(result.revision, payload)
       )
         throw new Error("unconfirmed");
-      finish();
+      finish(payload);
     } catch {
-      if (alive.current) {
+      if (current()) {
         setUncertain(true);
         report(
           "Wynik korekty jest nieznany. Zapis mógł się powieść. Sprawdź wynik lub ponów ten sam zapis; nie rozpoczynaj drugiej korekty dla tego samego zamiaru.",
         );
       }
     } finally {
-      busy.current = false;
-      if (alive.current) setPending(false);
+      if (current()) {
+        busy.current = false;
+        setPending(false);
+      }
     }
   }
   async function recover() {
+    const requestEpoch = epoch.current;
+    const current = () => alive.current && epoch.current === requestEpoch;
     if (busy.current || !frozen.current) return;
     const payload = frozen.current;
     busy.current = true;
@@ -305,30 +335,33 @@ export function HistoryCorrections({
           signal: AbortSignal.timeout(20000),
         },
       );
-      if (!alive.current) return;
+      if (!current()) return;
       if (response.status === 401 || response.status === 403) {
         login();
         return;
       }
       const result = await response.json();
+      if (!current()) return;
       if (!response.ok) throw new Error("unavailable");
       if (
         isHistoryRevision(result.revision) &&
         revisionMatchesIntent(result.revision, payload)
       )
-        finish();
+        finish(payload);
       else
         report(
           "Nie potwierdzono wyniku. Brak wyniku odczytu nie oznacza cofnięcia zapisu. Sprawdź ponownie lub ponów ten sam zapis.",
         );
     } catch {
-      if (alive.current)
+      if (current())
         report(
           "Nie można teraz sprawdzić wyniku korekty. Zachowano identyfikator zapisu.",
         );
     } finally {
-      busy.current = false;
-      if (alive.current) setPending(false);
+      if (current()) {
+        busy.current = false;
+        setPending(false);
+      }
     }
   }
   const dirty =
@@ -658,14 +691,19 @@ export function HistoryAudit({
   const [revisions, setRevisions] = useState<HistoryRevision[] | null>(null);
   const [error, setError] = useState(false);
   const alive = useRef(true);
+  const epoch = useRef(0);
   const busy = useRef(false);
   useEffect(() => {
+    epoch.current += 1;
     alive.current = true;
     return () => {
+      epoch.current += 1;
       alive.current = false;
     };
   }, []);
   async function load() {
+    const requestEpoch = epoch.current;
+    const current = () => alive.current && epoch.current === requestEpoch;
     if (busy.current) return;
     busy.current = true;
     setOpen(true);
@@ -680,12 +718,13 @@ export function HistoryAudit({
           signal: AbortSignal.timeout(20000),
         },
       );
-      if (!alive.current) return;
+      if (!current()) return;
       if (response.status === 401 || response.status === 403) {
         window.location.replace("/login");
         return;
       }
       const result = await response.json();
+      if (!current()) return;
       if (
         !response.ok ||
         !Array.isArray(result.revisions) ||
@@ -699,10 +738,12 @@ export function HistoryAudit({
         throw new Error("unavailable");
       setRevisions(result.revisions);
     } catch {
-      if (alive.current) setError(true);
+      if (current()) setError(true);
     } finally {
-      busy.current = false;
-      if (alive.current) setPending(false);
+      if (current()) {
+        busy.current = false;
+        setPending(false);
+      }
     }
   }
   return (
@@ -802,10 +843,13 @@ export function HistoryRecovery({
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const alive = useRef(true);
+  const epoch = useRef(0);
   const busy = useRef(false);
   const key = `${historyIntentStorageKey}.${caseId}`;
   useEffect(() => {
+    epoch.current += 1;
     alive.current = true;
+    const mountedEpoch = epoch.current;
     try {
       const found = parseHistoryIntent(
         sessionStorage.getItem(key),
@@ -814,7 +858,7 @@ export function HistoryRecovery({
       );
       if (found)
         queueMicrotask(() => {
-          if (alive.current) setIds(found);
+          if (alive.current && epoch.current === mountedEpoch) setIds(found);
         });
     } catch {
       /* Optional identifier storage. */
@@ -835,22 +879,26 @@ export function HistoryRecovery({
     window.addEventListener("jobs-crm:history-corrected", finished);
     window.addEventListener("jobs-crm:history-recovery", refreshIds);
     return () => {
+      epoch.current += 1;
       alive.current = false;
       window.removeEventListener("jobs-crm:history-corrected", finished);
       window.removeEventListener("jobs-crm:history-recovery", refreshIds);
     };
   }, [key, userId, caseId]);
-  function completeRecovery(message: string) {
+  function completeRecovery(message: string, expected: HistoryIntentIds) {
+    if (!alive.current) return;
     try {
-      sessionStorage.removeItem(key);
+      if (!clearMatchingHistoryIntent(sessionStorage, key, expected)) return;
     } catch {
-      /* Extra recovery is harmless. */
+      /* An in-memory confirmed result is still valid when tab storage is unavailable. */
     }
     setIds(null);
     setMessage(message);
     router.refresh();
   }
   async function retry() {
+    const requestEpoch = epoch.current;
+    const current = () => alive.current && epoch.current === requestEpoch;
     if (busy.current || !ids?.command) return;
     const command = ids.command;
     busy.current = true;
@@ -868,13 +916,13 @@ export function HistoryRecovery({
         }),
         signal: AbortSignal.timeout(20000),
       });
-      if (!alive.current) return;
+      if (!current()) return;
       if (response.status === 401 || response.status === 403) {
         window.location.replace("/login");
         return;
       }
       const result = await response.json();
-      if (!alive.current) return;
+      if (!current()) return;
       if (
         response.ok &&
         isHistoryRevision(result.revision) &&
@@ -882,12 +930,14 @@ export function HistoryRecovery({
       ) {
         completeRecovery(
           "Potwierdzono wcześniejszy zapis korekty. Pobieranie aktualnego stanu historii…",
+          ids,
         );
       } else if (response.status === 409 && result?.kind === "stale") {
         // Same command was resolved server-side: replay is checked before stale.
         // A stale rejection therefore confirms this intention did not mutate data.
         completeRecovery(
           "Poprzedni zamiar nie został zastosowany: stan zmienił się. Pobierz nowy podgląd i ponownie potwierdź korektę.",
+          ids,
         );
       } else {
         setMessage(
@@ -895,16 +945,20 @@ export function HistoryRecovery({
         );
       }
     } catch {
-      if (alive.current)
+      if (current())
         setMessage(
           "Wynik ponowienia jest nieznany. Zachowano te same dane i identyfikator; sprawdź wynik albo ponów ten sam zapis.",
         );
     } finally {
-      busy.current = false;
-      if (alive.current) setPending(false);
+      if (current()) {
+        busy.current = false;
+        setPending(false);
+      }
     }
   }
   async function recover() {
+    const requestEpoch = epoch.current;
+    const current = () => alive.current && epoch.current === requestEpoch;
     if (busy.current || !ids) return;
     busy.current = true;
     setPending(true);
@@ -917,12 +971,13 @@ export function HistoryRecovery({
           signal: AbortSignal.timeout(20000),
         },
       );
-      if (!alive.current) return;
+      if (!current()) return;
       if (response.status === 401 || response.status === 403) {
         window.location.replace("/login");
         return;
       }
       const result = await response.json();
+      if (!current()) return;
       if (!response.ok) throw new Error("unavailable");
       if (
         isHistoryRevision(result.revision) &&
@@ -932,19 +987,22 @@ export function HistoryRecovery({
       ) {
         completeRecovery(
           "Potwierdzono wcześniejszy zapis korekty. Pobieranie aktualnego stanu historii…",
+          ids,
         );
       } else
         setMessage(
           "Nie potwierdzono wyniku korekty. Brak wyniku odczytu nie oznacza cofnięcia zapisu. Sprawdź ponownie przed nową korektą.",
         );
     } catch {
-      if (alive.current)
+      if (current())
         setMessage(
           "Nie można teraz sprawdzić wyniku korekty. Zachowano identyfikator zapisu.",
         );
     } finally {
-      busy.current = false;
-      if (alive.current) setPending(false);
+      if (current()) {
+        busy.current = false;
+        setPending(false);
+      }
     }
   }
   return (

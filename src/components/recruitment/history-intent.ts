@@ -154,3 +154,22 @@ export function revisionMatchesIntent(
         revision.after.stageName === intent.stageName)
   );
 }
+
+/** Compare before removing: an older response must never consume a newer intention. */
+export function clearMatchingHistoryIntent(
+  storage: Pick<Storage, "getItem" | "removeItem">,
+  key: string,
+  expected: HistoryIntentIds,
+): boolean {
+  const raw = storage.getItem(key);
+  if (raw === null) return true;
+  const current = parseHistoryIntent(raw, expected.ownerId, expected.caseId);
+  if (
+    !current ||
+    current.eventId !== expected.eventId ||
+    current.requestId !== expected.requestId
+  )
+    return false;
+  storage.removeItem(key);
+  return true;
+}

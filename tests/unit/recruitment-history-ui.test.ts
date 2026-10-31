@@ -5,6 +5,7 @@ import { CaseHistory } from "@/components/recruitment/case-history";
 import { HistoryCorrections } from "@/components/recruitment/history-corrections";
 import {
   parseHistoryIntent,
+  clearMatchingHistoryIntent,
   isHistoryPreview,
   isHistoryRevision,
   revisionMatchesIntent,
@@ -109,6 +110,44 @@ describe("History correction recovery isolation", () => {
     expect(
       parseHistoryIntent(JSON.stringify(saved), ownerId, ownerId),
     ).toBeNull();
+  });
+  it("only clears the exact stored owner/case/event/request intention, leaving newer payloads untouched", () => {
+    const ids = { ownerId, caseId, eventId: event.id, requestId };
+    const saved = { ...ids, command: intent };
+    let raw: string | null = JSON.stringify(saved);
+    const storage = {
+      getItem: vi.fn(() => raw),
+      removeItem: vi.fn(() => {
+        raw = null;
+      }),
+    };
+    for (const expected of [
+      { ...ids, ownerId: caseId },
+      { ...ids, caseId: ownerId },
+      { ...ids, eventId: ownerId },
+      { ...ids, requestId: ownerId },
+    ])
+      expect(clearMatchingHistoryIntent(storage, "pending", expected)).toBe(
+        false,
+      );
+    expect(storage.removeItem).not.toHaveBeenCalled();
+    expect(raw).toBe(JSON.stringify(saved));
+    // A resolved old response A must not consume pending command B after remount.
+    raw = JSON.stringify({
+      ...saved,
+      requestId: ownerId,
+      command: { ...intent, requestId: ownerId },
+    });
+    expect(clearMatchingHistoryIntent(storage, "pending", ids)).toBe(false);
+    expect(storage.removeItem).not.toHaveBeenCalled();
+    raw = JSON.stringify(saved);
+    expect(clearMatchingHistoryIntent(storage, "pending", ids)).toBe(true);
+    expect(storage.removeItem).toHaveBeenCalledExactlyOnceWith("pending");
+    expect(clearMatchingHistoryIntent(storage, "pending", ids)).toBe(true);
+    expect(storage.removeItem).toHaveBeenCalledTimes(1);
+    raw = "malformed";
+    expect(clearMatchingHistoryIntent(storage, "pending", ids)).toBe(false);
+    expect(raw).toBe("malformed");
   });
   it("does not accept another correction or a historical receipt with mismatched revisions", () => {
     expect(isHistoryRevision(revision)).toBe(true);
