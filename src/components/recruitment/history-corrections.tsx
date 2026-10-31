@@ -112,6 +112,9 @@ export function HistoryCorrections({
       alive.current = false;
     };
   }, []);
+  useEffect(() => {
+    if (preview) previewHeading.current?.focus();
+  }, [preview]);
   function report(message: string) {
     setError(message);
     requestAnimationFrame(() => feedback.current?.focus());
@@ -204,7 +207,6 @@ export function HistoryCorrections({
         return;
       }
       setPreview(result.preview);
-      requestAnimationFrame(() => previewHeading.current?.focus());
     } catch {
       if (alive.current)
         report(
@@ -241,10 +243,11 @@ export function HistoryCorrections({
           caseId,
           eventId: event.id,
           requestId: payload.requestId,
+          command: payload,
         }),
       );
     } catch {
-      /* No private draft is persisted. */
+      /* The frozen command remains in memory if tab storage is unavailable. */
     }
     busy.current = true;
     setPending(true);
@@ -837,6 +840,70 @@ export function HistoryRecovery({
       window.removeEventListener("jobs-crm:history-recovery", refreshIds);
     };
   }, [key, userId, caseId]);
+  function completeRecovery(message: string) {
+    try {
+      sessionStorage.removeItem(key);
+    } catch {
+      /* Extra recovery is harmless. */
+    }
+    setIds(null);
+    setMessage(message);
+    router.refresh();
+  }
+  async function retry() {
+    if (busy.current || !ids?.command) return;
+    const command = ids.command;
+    busy.current = true;
+    setPending(true);
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        credentials: "same-origin",
+        cache: "no-store",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...command,
+          action: "confirm",
+          expectedUserId: userId,
+        }),
+        signal: AbortSignal.timeout(20000),
+      });
+      if (!alive.current) return;
+      if (response.status === 401 || response.status === 403) {
+        window.location.replace("/login");
+        return;
+      }
+      const result = await response.json();
+      if (!alive.current) return;
+      if (
+        response.ok &&
+        isHistoryRevision(result.revision) &&
+        revisionMatchesIntent(result.revision, command)
+      ) {
+        completeRecovery(
+          "Potwierdzono wcześniejszy zapis korekty. Pobieranie aktualnego stanu historii…",
+        );
+      } else if (response.status === 409 && result?.kind === "stale") {
+        // Same command was resolved server-side: replay is checked before stale.
+        // A stale rejection therefore confirms this intention did not mutate data.
+        completeRecovery(
+          "Poprzedni zamiar nie został zastosowany: stan zmienił się. Pobierz nowy podgląd i ponownie potwierdź korektę.",
+        );
+      } else {
+        setMessage(
+          "Nie potwierdzono wyniku korekty. Zachowano ten sam zamiar; sprawdź wynik lub ponów ten sam zapis.",
+        );
+      }
+    } catch {
+      if (alive.current)
+        setMessage(
+          "Wynik ponowienia jest nieznany. Zachowano te same dane i identyfikator; sprawdź wynik albo ponów ten sam zapis.",
+        );
+    } finally {
+      busy.current = false;
+      if (alive.current) setPending(false);
+    }
+  }
   async function recover() {
     if (busy.current || !ids) return;
     busy.current = true;
@@ -860,18 +927,12 @@ export function HistoryRecovery({
       if (
         isHistoryRevision(result.revision) &&
         result.revision.case_id === caseId &&
-        result.revision.event_id === ids.eventId
+        result.revision.event_id === ids.eventId &&
+        (!ids.command || revisionMatchesIntent(result.revision, ids.command))
       ) {
-        try {
-          sessionStorage.removeItem(key);
-        } catch {
-          /* An extra read remains harmless. */
-        }
-        setIds(null);
-        setMessage(
+        completeRecovery(
           "Potwierdzono wcześniejszy zapis korekty. Pobieranie aktualnego stanu historii…",
         );
-        router.refresh();
       } else
         setMessage(
           "Nie potwierdzono wyniku korekty. Brak wyniku odczytu nie oznacza cofnięcia zapisu. Sprawdź ponownie przed nową korektą.",
@@ -894,6 +955,13 @@ export function HistoryRecovery({
             ? "Zachowano identyfikator poprzedniej korekty. Sprawdź jej wynik przed nową zmianą."
             : "")}
       </p>
+      {ids && !ids.command && (
+        <p className="text-sm leading-6 text-warning">
+          Zachowano tylko identyfikatory lub dane ponowienia są nieprawidłowe.
+          Możliwy jest wyłącznie odczyt wyniku; nie ponowimy zmienionych danych
+          ani nie odblokujemy sprawy na podstawie pustego odczytu.
+        </p>
+      )}
       {ids && (
         <button
           type="button"
@@ -902,6 +970,16 @@ export function HistoryRecovery({
           onClick={() => void recover()}
         >
           {pending ? "Sprawdzanie wyniku…" : "Sprawdź wynik korekty"}
+        </button>
+      )}
+      {ids?.command && (
+        <button
+          type="button"
+          disabled={pending}
+          className={buttonStyles.secondary}
+          onClick={() => void retry()}
+        >
+          Ponów ten sam zapis
         </button>
       )}
     </div>

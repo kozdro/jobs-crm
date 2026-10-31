@@ -210,11 +210,14 @@ BEGIN
       OR NEW.previous_stage IS NOT NULL THEN
       RAISE EXCEPTION USING ERRCODE = '22023', MESSAGE = 'Invalid stage input';
     END IF;
-    IF NEW.kind = 'stage-change' AND v_case.status <> 'W rekrutacji' THEN
-      RAISE EXCEPTION USING ERRCODE = '22023', MESSAGE = 'Stage change requires active recruitment';
-    END IF;
+    -- A correction can revoke the active status while this intent is in flight.
+    -- Report its stale snapshot before status-dependent validation so the UI
+    -- refreshes and requires a new confirmation instead of treating it as bad input.
     IF NEW.expected_stage_version <> v_case.stage_version THEN
       RAISE EXCEPTION USING ERRCODE = 'PT412', MESSAGE = 'Stage changed; refresh before confirming again';
+    END IF;
+    IF NEW.kind = 'stage-change' AND v_case.status <> 'W rekrutacji' THEN
+      RAISE EXCEPTION USING ERRCODE = '22023', MESSAGE = 'Stage change requires active recruitment';
     END IF;
     -- A snapshot, not a client-controlled historical value or mutable reference.
     NEW.previous_stage := v_case.current_stage;

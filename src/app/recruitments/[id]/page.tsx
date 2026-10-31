@@ -70,7 +70,7 @@ export default async function RecruitmentDetailPage({
           stageVersion={item.stage_version}
         />
         <CaseHistory
-          key={`${user.id}:${item.id}`}
+          key={`${user.id}:${item.id}:${historyPage}`}
           userId={user.id}
           caseId={item.id}
           result={history}

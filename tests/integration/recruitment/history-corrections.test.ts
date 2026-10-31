@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import test from "node:test";
+import postgres from "postgres";
 import { readRecruitmentTarget } from "../../../scripts/recruitment/target.ts";
 import {
   createAccounts,
@@ -533,6 +534,17 @@ test(
         const returned = await state(c.id);
         assert.equal(returned.status, "Zapisane");
         assert.ok(returned.stage_version > active.stage_version);
+        assert.equal(
+          (
+            await api(
+              "/rest/v1/rpc/record_recruitment_case_stage_event",
+              "POST",
+              staleStage,
+            )
+          ).status,
+          412,
+          "Voiding the active foundation produces a stale conflict even before re-entry",
+        );
         const latest = await stage(c.id, "invitation", "Fresh");
         assert.equal(latest.kind, "created");
         assert.equal(
@@ -555,6 +567,91 @@ test(
         );
         assert.equal(replay.kind, "replayed");
         assert.deepEqual(await state(c.id), before);
+      },
+    );
+
+    await t.test(
+      "Void of active foundation races stage-change without orphan history or partial audit",
+      async () => {
+        for (let round = 0; round < 3; round++) {
+          const c = await create();
+          const f = await stage(c.id);
+          const before = await state(c.id);
+          const input = correction(c.id, f.event, { p_operation: "void" });
+          const p = await preview(input);
+          const [voided, changed] = await Promise.all([
+            api(correctRpc, "POST", confirmed(input, p)),
+            api("/rest/v1/rpc/record_recruitment_case_stage_event", "POST", {
+              p_request_id: randomUUID(),
+              p_case_id: c.id,
+              p_kind: "stage-change",
+              p_stage_name: "Concurrent stage",
+              p_expected_stage_version: before.stage_version,
+              p_occurred_on: null,
+            }),
+          ]);
+          assert.deepEqual([voided.status, changed.status].sort(), [200, 412]);
+          if (voided.status === 200) {
+            assert.equal((await state(c.id)).status, "Zapisane");
+            assert.equal((await state(c.id)).current_stage, null);
+            assert.equal((await audit(c.id)).length, 1);
+            assert.equal((await facts(c.id)).length, 1);
+          } else {
+            assert.equal((await state(c.id)).status, "W rekrutacji");
+            assert.equal((await state(c.id)).current_stage, "Concurrent stage");
+            assert.equal((await audit(c.id)).length, 0);
+            assert.equal((await facts(c.id)).length, 2);
+          }
+          assert.equal(
+            (await state(c.id)).case_revision,
+            before.case_revision + 1,
+          );
+        }
+      },
+    );
+
+    await t.test(
+      "Failure AFTER projected case update rolls back correction audit and state in the same real API transaction",
+      async () => {
+        const c = await create();
+        const f = await record(c.id, "contact", "inbound");
+        const input = correction(c.id, f.event, { p_direction: "outbound" });
+        const p = await preview(input);
+        const before = await state(c.id);
+        const original = await facts(c.id);
+        const sql = postgres({
+          ...target.db,
+          max: 1,
+          ssl: false,
+          onnotice: () => {},
+        });
+        const suffix = randomUUID().replaceAll("-", "");
+        const functionName = `qa_history_rollback_${suffix}`;
+        const triggerName = `qa_history_rollback_${suffix}`;
+        try {
+          // Privileged setup creates only an exact-case failure probe on our disposable target. The attempted command still uses real Auth/Data API/RLS.
+          await sql.unsafe(
+            `CREATE FUNCTION public.${functionName}() RETURNS trigger LANGUAGE plpgsql SECURITY INVOKER SET search_path='' AS $$ BEGIN RAISE EXCEPTION USING ERRCODE='22023', MESSAGE='Synthetic after-projection failure'; END $$`,
+          );
+          await sql.unsafe(
+            `REVOKE ALL ON FUNCTION public.${functionName}() FROM PUBLIC,anon,authenticated,service_role`,
+          );
+          await sql.unsafe(
+            `CREATE TRIGGER ${triggerName} AFTER UPDATE ON public.recruitment_case FOR EACH ROW WHEN (NEW.id='${c.id}'::uuid) EXECUTE FUNCTION public.${functionName}()`,
+          );
+          denied(await api(correctRpc, "POST", confirmed(input, p)));
+          assert.deepEqual(await audit(c.id), []);
+          assert.deepEqual(await state(c.id), before);
+          assert.deepEqual(await facts(c.id), original);
+        } finally {
+          await sql.unsafe(
+            `DROP TRIGGER IF EXISTS ${triggerName} ON public.recruitment_case`,
+          );
+          await sql.unsafe(`DROP FUNCTION IF EXISTS public.${functionName}()`);
+          await sql.end();
+        }
+        await correct(input);
+        assert.equal((await audit(c.id)).length, 1);
       },
     );
 

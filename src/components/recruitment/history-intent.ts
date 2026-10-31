@@ -1,3 +1,7 @@
+import {
+  parseHistoryCorrectionInput,
+  type ConfirmHistoryCorrectionInput,
+} from "@/modules/recruitment/domain/history-corrections";
 import { uuidPattern } from "@/modules/recruitment/domain/recruitment-case";
 
 export const historyIntentStorageKey = "jobs-crm.history-correction.pending";
@@ -6,8 +10,11 @@ export type HistoryIntentIds = {
   caseId: string;
   eventId: string;
   requestId: string;
+  command?: ConfirmHistoryCorrectionInput;
 };
-/** Reload recovery stores identifiers, never historical values or another account's draft. */
+/** Preserve a frozen confirmed command in this tab, bound to its owner and case.
+ * Legacy identifiers and corrupt commands remain read-only recovery, never retry.
+ */
 export function parseHistoryIntent(
   raw: string | null,
   ownerId: string,
@@ -19,7 +26,13 @@ export function parseHistoryIntent(
     if (!row || typeof row !== "object" || Array.isArray(row)) return null;
     const value = row as Record<string, unknown>;
     if (
-      Object.keys(value).length !== 4 ||
+      (Object.keys(value).length !== 4 && Object.keys(value).length !== 5) ||
+      Object.keys(value).some(
+        (key) =>
+          !["ownerId", "caseId", "eventId", "requestId", "command"].includes(
+            key,
+          ),
+      ) ||
       value.ownerId !== ownerId ||
       value.caseId !== caseId ||
       typeof value.eventId !== "string" ||
@@ -28,7 +41,34 @@ export function parseHistoryIntent(
       !uuidPattern.test(value.requestId)
     )
       return null;
-    return value as HistoryIntentIds;
+    const identifiers: HistoryIntentIds = {
+      ownerId,
+      caseId,
+      eventId: value.eventId,
+      requestId: value.requestId,
+    };
+    if (
+      value.command &&
+      typeof value.command === "object" &&
+      !Array.isArray(value.command)
+    ) {
+      const command = value.command as Record<string, unknown>;
+      const parsed = parseHistoryCorrectionInput(command, true);
+      if (
+        Object.keys(command).length === 9 &&
+        parsed.success &&
+        "requestId" in parsed.data &&
+        parsed.data.caseId === caseId &&
+        parsed.data.eventId === value.eventId &&
+        parsed.data.requestId === value.requestId &&
+        Object.entries(parsed.data).every(
+          ([key, entry]) => command[key] === entry,
+        )
+      ) {
+        identifiers.command = parsed.data;
+      }
+    }
+    return identifiers;
   } catch {
     return null;
   }
@@ -38,7 +78,6 @@ import type {
   HistoryValues,
   HistoryPreview,
   HistoryRevision,
-  ConfirmHistoryCorrectionInput,
 } from "@/modules/recruitment/domain/history-corrections";
 export type { HistoryValues, HistoryPreview, HistoryRevision };
 

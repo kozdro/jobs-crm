@@ -153,6 +153,64 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
       0,
       "Upgrade must not backfill synthetic correction audit",
     );
+    await upgrade.begin(async (tx) => {
+      await tx.unsafe("set local role authenticated");
+      await tx.unsafe("select set_config('request.jwt.claim.sub',$1,true)", [
+        owner,
+      ]);
+      const [preview] = await tx.unsafe(
+        "select public.preview_recruitment_case_correction($1::uuid,$2::uuid,'correct','2000-02-03',null,null) result",
+        [caseId, original3bFacts[0].id],
+      );
+      const [corrected] = await tx.unsafe(
+        "select public.correct_recruitment_case_event($1::uuid,$2::uuid,$3::uuid,'correct',$4::integer,$5::integer,'2000-02-03',null,null) result",
+        [
+          randomUUID(),
+          caseId,
+          original3bFacts[0].id,
+          preview.result.caseRevision,
+          preview.result.eventRevision,
+        ],
+      );
+      assert.equal(
+        corrected.result.kind,
+        "created",
+        "A legacy 3A fact accepts an audited correction after upgrade",
+      );
+      const [current] = await tx.unsafe(
+        "select stage_version from public.recruitment_case where id=$1::uuid",
+        [caseId],
+      );
+      const [next] = await tx.unsafe(
+        "select public.record_recruitment_case_stage_event($1::uuid,$2::uuid,'stage-change','After upgrade',$3::integer,null) result",
+        [randomUUID(), caseId, current.stage_version],
+      );
+      assert.equal(
+        next.result.kind,
+        "created",
+        "An upgraded 3B case still accepts new real commands after correction",
+      );
+      const [replay] = await tx.unsafe(
+        "select public.record_recruitment_case_event($1::uuid,$2::uuid,'application',null,null) result",
+        [original3bFacts[0].request_id, caseId],
+      );
+      assert.equal(replay.result.kind, "replayed");
+      assert.equal(
+        replay.result.event.occurred_on,
+        null,
+        "Original request payload remains immutable after correction",
+      );
+    });
+    const originalsAfterWrites =
+      await upgrade`select * from public.recruitment_case_event where id in (${original3bFacts[0].id}::uuid,${original3bFacts[1].id}::uuid) order by recorded_at,id`;
+    assert.deepEqual(
+      originalsAfterWrites.map(({ applied_case_revision, ...row }) => {
+        assert.equal(applied_case_revision, null);
+        return { ...row };
+      }),
+      original3bFacts.map((row) => ({ ...row })),
+      "Subsequent corrected reads and new commands never rewrite legacy originals",
+    );
     const [continued] =
       await upgrade`select status from public.recruitment_case where id=${caseId}::uuid`;
     assert.equal(

@@ -81,7 +81,7 @@ async function confirm(page: Page, voided = false) {
   await page
     .getByRole("checkbox", {
       name: voided
-        ? "Potwierdzam unieważnienie i jej wpływ na bieżący status oraz etap."
+        ? "Potwierdzam unieważnienie i jego wpływ na bieżący status oraz etap."
         : "Potwierdzam korektę i jej wpływ na bieżący status oraz etap.",
       exact: true,
     })
@@ -218,6 +218,9 @@ test("DEC056 stale preview never writes; draft is preserved and new preview requ
     .getByLabel("Data zdarzenia (opcjonalnie)", { exact: true })
     .fill("2002-03-04");
   await previewButton(page).click();
+  await expect(
+    page.getByRole("heading", { name: "Podgląd zmian", exact: true }),
+  ).toBeVisible();
   const concurrent = await c.client.rpc("record_recruitment_case_event", {
     p_request_id: randomUUID(),
     p_case_id: c.id,
@@ -249,7 +252,7 @@ test("DEC056 stale preview never writes; draft is preserved and new preview requ
   expect(await auditRows(c)).toHaveLength(1);
 });
 
-test("DEC056 lost correction response reload recovers one immutable audit without storing private draft", async ({
+test("DEC056 lost correction response reload explicitly recovers one immutable audit and clears the owner-bound frozen command", async ({
   page,
 }) => {
   const c = await fixture();
@@ -283,11 +286,24 @@ test("DEC056 lost correction response reload recovers one immutable audit withou
   const storage = await page.evaluate(() =>
     Object.values(sessionStorage).join(" "),
   );
-  expect(storage).not.toContain("2003-04-05");
+  expect(storage).toContain("2003-04-05");
+  expect(storage).toContain(a.id);
   await page.reload();
+  await page
+    .getByRole("button", { name: "Sprawdź wynik korekty", exact: true })
+    .click();
+  await expect(
+    page.getByText(/Potwierdzono wcześniejszy zapis korekty/),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Sprawdź wynik korekty", exact: true }),
+  ).not.toBeVisible();
   await expect(
     history(page).locator("time[datetime='2003-04-05']"),
   ).toBeVisible();
+  expect(
+    await page.evaluate(() => Object.values(sessionStorage).join(" ")),
+  ).not.toContain("2003-04-05");
   expect(writes).toBe(1);
   expect(await auditRows(c)).toHaveLength(1);
 });
@@ -419,4 +435,104 @@ test("DEC056 BFF protects preview/confirm/audit/recovery from unsafe Origin, spo
     await anonymous.close();
   }
   expect(await auditRows(c)).toHaveLength(0);
+});
+
+test("DEC056 an open editor disables history pagination; cancellation unlocks navigation and the next page editor", async ({
+  page,
+}) => {
+  const c = await fixture();
+  for (let index = 0; index < 26; index++) {
+    const saved = await c.client.rpc("record_recruitment_case_event", {
+      p_request_id: randomUUID(),
+      p_case_id: c.id,
+      p_kind: "contact",
+      p_direction: "inbound",
+      p_occurred_on: "2000-01-01",
+    });
+    expect(saved.error).toBeNull();
+  }
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${c.id}`);
+  await expect(history(page).getByRole("listitem")).toHaveCount(25);
+  await open(page);
+  await expect(
+    history(page).getByRole("link", {
+      name: "Następna strona historii",
+      exact: true,
+    }),
+  ).not.toBeVisible();
+  await page.getByRole("button", { name: "Anuluj", exact: true }).click();
+  await history(page)
+    .getByRole("link", { name: "Następna strona historii", exact: true })
+    .click();
+  await expect(history(page).getByRole("listitem")).toHaveCount(2);
+  await expect(
+    item(page).getByRole("button", { name: "Skoryguj wpis", exact: true }),
+  ).toBeEnabled();
+  await open(page);
+  await expect(
+    page.getByRole("heading", { name: "Korekta wpisu historii", exact: true }),
+  ).toBeFocused();
+  await page.getByRole("button", { name: "Anuluj", exact: true }).click();
+  await history(page)
+    .getByRole("link", { name: "Poprzednia strona historii", exact: true })
+    .click();
+  await expect(history(page).getByRole("listitem")).toHaveCount(25);
+  expect(await auditRows(c)).toHaveLength(0);
+});
+
+test("DEC056 an undelivered confirm survives reload and retries the exact owner-bound command once", async ({
+  page,
+}) => {
+  const c = await fixture();
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${c.id}`);
+  const commands: unknown[] = [];
+  let abortFirst = true;
+  await page.route("**/recruitments/history-commands", async (route) => {
+    if (
+      route.request().method() !== "POST" ||
+      route.request().postDataJSON().action !== "confirm"
+    )
+      return route.continue();
+    commands.push(route.request().postDataJSON());
+    if (abortFirst) {
+      abortFirst = false;
+      return route.abort("failed");
+    }
+    await route.continue();
+  });
+  await open(page);
+  await page
+    .getByLabel("Data zdarzenia (opcjonalnie)", { exact: true })
+    .fill("2004-05-06");
+  await confirm(page);
+  await expect(
+    page.getByRole("button", { name: "Ponów ten sam zapis", exact: true }),
+  ).toBeVisible();
+  expect(await auditRows(c)).toHaveLength(0);
+  expect(commands).toHaveLength(1);
+  await page.reload();
+  const recover = page.getByRole("button", {
+    name: "Sprawdź wynik korekty",
+    exact: true,
+  });
+  await expect(recover).toBeVisible();
+  await recover.click();
+  expect(await auditRows(c)).toHaveLength(0);
+  await expect(
+    page.getByRole("button", { name: "Ponów ten sam zapis", exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Ponów ten sam zapis", exact: true })
+    .click();
+  await expect(
+    history(page).locator("time[datetime='2004-05-06']"),
+  ).toBeVisible();
+  expect(await auditRows(c)).toHaveLength(1);
+  expect(commands).toHaveLength(2);
+  expect(commands[1]).toEqual(commands[0]);
+  expect(
+    await page.evaluate(() => Object.values(sessionStorage).join(" ")),
+  ).not.toContain("2004-05-06");
 });

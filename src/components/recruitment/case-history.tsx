@@ -291,23 +291,35 @@ export function CaseHistory({
               aria-label="Strony historii sprawy"
               className="mt-4 flex flex-wrap items-center gap-5 text-sm text-muted-foreground"
             >
-              {result.page > 1 && (
-                <Link
-                  className="ui-link inline-flex min-h-11 items-center"
-                  href={`/recruitments/${caseId}?historyPage=${result.page - 1}#history`}
-                >
-                  Poprzednia strona historii
-                </Link>
+              {active && (
+                <p className="basis-full text-sm">
+                  Zakończ lub anuluj otwartą korektę przed zmianą strony
+                  historii. Dane formularza pozostają zachowane.
+                </p>
               )}
+              {result.page > 1 &&
+                (active ? (
+                  <span aria-disabled="true">Poprzednia strona historii</span>
+                ) : (
+                  <Link
+                    className="ui-link inline-flex min-h-11 items-center"
+                    href={`/recruitments/${caseId}?historyPage=${result.page - 1}#history`}
+                  >
+                    Poprzednia strona historii
+                  </Link>
+                ))}
               <span>Strona {result.page}</span>
-              {result.hasMore && (
-                <Link
-                  className="ui-link inline-flex min-h-11 items-center"
-                  href={`/recruitments/${caseId}?historyPage=${result.page + 1}#history`}
-                >
-                  Następna strona historii
-                </Link>
-              )}
+              {result.hasMore &&
+                (active ? (
+                  <span aria-disabled="true">Następna strona historii</span>
+                ) : (
+                  <Link
+                    className="ui-link inline-flex min-h-11 items-center"
+                    href={`/recruitments/${caseId}?historyPage=${result.page + 1}#history`}
+                  >
+                    Następna strona historii
+                  </Link>
+                ))}
             </nav>
           )}
         </>

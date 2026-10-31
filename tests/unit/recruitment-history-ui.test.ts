@@ -77,6 +77,39 @@ describe("History correction recovery isolation", () => {
     ])
       expect(parseHistoryIntent(raw, ownerId, caseId)).toBeNull();
   });
+  it("restores only an exact frozen owner-bound command, retaining read-only identifiers for legacy or damaged commands", () => {
+    const ids = { ownerId, caseId, eventId: event.id, requestId };
+    const saved = { ...ids, command: intent };
+    expect(parseHistoryIntent(JSON.stringify(saved), ownerId, caseId)).toEqual(
+      saved,
+    );
+    for (const command of [
+      { ...intent, caseId: ownerId },
+      { ...intent, eventId: requestId },
+      { ...intent, requestId: ownerId },
+      { ...intent, expectedCaseRevision: -1 },
+      { ...intent, expectedEventRevision: 2.5 },
+      { ...intent, operation: "delete" },
+      { ...intent, occurredOn: "2000-02-30" },
+      { ...intent, stageName: "  normalized differently  " },
+      { ...intent, ownerId },
+      { ...intent, reason: "not authorized" },
+    ]) {
+      expect(
+        parseHistoryIntent(
+          JSON.stringify({ ...ids, command }),
+          ownerId,
+          caseId,
+        ),
+      ).toEqual(ids);
+    }
+    expect(
+      parseHistoryIntent(JSON.stringify(saved), caseId, caseId),
+    ).toBeNull();
+    expect(
+      parseHistoryIntent(JSON.stringify(saved), ownerId, ownerId),
+    ).toBeNull();
+  });
   it("does not accept another correction or a historical receipt with mismatched revisions", () => {
     expect(isHistoryRevision(revision)).toBe(true);
     expect(revisionMatchesIntent(revision, intent)).toBe(true);
