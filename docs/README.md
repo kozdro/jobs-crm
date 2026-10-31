@@ -59,6 +59,12 @@ Wyniki wykonania i ograniczenia 3A: [raport](technical/recruitment-lifecycle-3a-
 
 Wyniki 3B i ograniczenia: [raport wykonania](technical/recruitment-lifecycle-3b-report.md), [QA](technical/recruitment-lifecycle-3b-qa.md). Wynik CI jest raportowany dla dokładnego finalnego SHA w PR, niezależnie od lokalnych testów.
 
+## History Corrections & Integrity — analiza SDD, 2026-10-31
+
+Po potwierdzonym merge PR #16: [analiza OPEN-004/020, propozycja minimalnego slice’a i plan QA](technical/history-corrections-integrity-analysis.md). **PROPOSED / READY_FOR_OWNER_DECISION**: dwa pakiety decyzji PO dotyczą korekt/audytu oraz spójności bieżącego statusu i etapu. Bez implementacji; OPEN-004/020 nie zostały zamknięte.
+
+> Historyczny zapis etapu analizy. Warianty 1A/2A zostały następnie zatwierdzone w DEC-056; aktualny stan wykonania i pozostałe bramki opisano poniżej.
+
 ## History Corrections & Integrity — 2026-10-31
 
 [Analiza i plan](technical/history-corrections-integrity-analysis.md): warianty 1A/2A APPROVED przez DEC-056, autoryzowane pełne wykonanie i osobny PR, bez merge/deploymentu. OPEN-004/020/034 częściowo rozstrzygnięte. [Raport wykonania](technical/history-corrections-integrity-report.md) rozdziela wyniki od decyzji.
