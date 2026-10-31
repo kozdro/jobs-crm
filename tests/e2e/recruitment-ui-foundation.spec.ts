@@ -174,7 +174,7 @@ for (const width of widths) {
       .getByRole("link", { name: "Otwórz pełną stronę", exact: true })
       .click();
     await expect(page).toHaveURL(
-      new RegExp(`/recruitments/${detailId}(?:\\?|$)`),
+      new RegExp(`/recruitments/${detailId}(?:[?]|$)`),
     );
     await expect(
       page.getByRole("heading", { name: title, exact: true }),
