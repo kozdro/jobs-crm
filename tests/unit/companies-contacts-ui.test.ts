@@ -321,3 +321,38 @@ describe("Catalog recovery survives acknowledgement and profile refetch", () => 
     expect(html).toContain("Ponów ten sam zapis");
   });
 });
+
+describe("Catalog controls retain readable labels at enlarged text sizes", () => {
+  it("bounds the two controls observed overflowing the 375px panel and permits text wrapping", () => {
+    const pagination = renderToStaticMarkup(
+      createElement(PageControls, {
+        page: 1,
+        hasMore: false,
+        onPage: vi.fn(),
+        label: "Strony powiązań",
+      }),
+    );
+    const panel = renderToStaticMarkup(
+      createElement(RelationsPanel, {
+        userId: id,
+        contextType: "contact",
+        contextId: other,
+      }),
+    );
+    for (const [html, label] of [
+      [pagination, "Poprzednia strona"],
+      [panel, "Powiąż ze sprawą"],
+    ]) {
+      const button = html.match(
+        new RegExp(`<button[^>]*>${label}</button>`),
+      )?.[0];
+      expect(button).toBeDefined();
+      expect(button).toContain("max-w-full");
+      expect(button).toContain("min-w-0");
+      expect(button).toContain("whitespace-normal");
+      expect(button).toContain("[overflow-wrap:anywhere]");
+      expect(button).not.toContain("overflow-hidden");
+      expect(button).not.toContain("truncate");
+    }
+  });
+});

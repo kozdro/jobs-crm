@@ -5,7 +5,8 @@ import type {
   ProfileType,
 } from "@/modules/companies-contacts/domain/catalog";
 import { parseCatalogCommand } from "@/modules/companies-contacts/domain/catalog";
-import { buttonStyles, inputStyles } from "@/components/ui/styles";
+import { inputStyles } from "@/components/ui/styles";
+import { catalogButtonStyles as buttonStyles } from "./styles";
 import { useCatalogMutation } from "./hooks";
 import { MutationFeedback } from "./common";
 

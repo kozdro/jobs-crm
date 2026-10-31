@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { CatalogAudit } from "@/modules/companies-contacts/domain/catalog";
-import { buttonStyles } from "@/components/ui/styles";
+import { catalogButtonStyles as buttonStyles } from "./styles";
 import { profileHref } from "./client";
 import { useCatalogRead, type CatalogMutation } from "./hooks";
 

@@ -6,7 +6,7 @@ import type {
   CatalogProfile,
   ProfileType,
 } from "@/modules/companies-contacts/domain/catalog";
-import { buttonStyles } from "@/components/ui/styles";
+import { catalogButtonStyles as buttonStyles } from "./styles";
 import { profileHref } from "./client";
 import { useCatalogRead } from "./hooks";
 import { ProfileForm } from "./profile-form";

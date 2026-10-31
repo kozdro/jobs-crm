@@ -8,7 +8,8 @@ import type {
 } from "@/modules/companies-contacts/domain/catalog";
 import { getBrowserClient } from "@/modules/identity/infrastructure/browser";
 import { listRecruitmentCases } from "@/modules/recruitment/application/cases";
-import { buttonStyles, inputStyles } from "@/components/ui/styles";
+import { inputStyles } from "@/components/ui/styles";
+import { catalogButtonStyles as buttonStyles } from "./styles";
 import { catalogRead, entityHref } from "./client";
 import { useCatalogRead, useCatalogMutation } from "./hooks";
 import {
