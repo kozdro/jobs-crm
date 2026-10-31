@@ -207,14 +207,13 @@ test(
       await attach("case-contact", item.id, contacts[2].id);
     }
     // Bounded preview is a fragment, with truthful continuation flags at each independent boundary.
-    for (let i = 0; i < 7; i++)
-      if (i !== 2)
-        await attach(
-          "case-organization",
-          saved[2].id,
-          organizations[i].id,
-          "agency",
-        );
+    for (let i = 3; i < 10; i++)
+      await attach(
+        "case-organization",
+        saved[2].id,
+        organizations[i].id,
+        "agency",
+      );
     for (let i = 0; i < contacts.length; i++)
       if (i !== 2) await attach("case-contact", saved[2].id, contacts[i].id);
     for (let i = 0; i < 6; i++)

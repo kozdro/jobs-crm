@@ -455,6 +455,16 @@ for (const width of [1440, 1024, 768, 375, 320])
       });
     const row = page.getByRole("button", { name: cases[0].title, exact: true });
     await expect(row).toBeVisible();
+    await row.scrollIntoViewIfNeeded();
+    await page.screenshot({
+      path: info.outputPath(`workspace-list-${width}.png`),
+    });
+    await page.getByRole("button", { name: "Kanban", exact: true }).click();
+    await ready(page);
+    await board(page).scrollIntoViewIfNeeded();
+    await page.screenshot({
+      path: info.outputPath(`workspace-board-${width}.png`),
+    });
     await row.focus();
     await page.keyboard.press("Enter");
     await expect(drawer(page)).toBeVisible();
