@@ -1,0 +1,12 @@
+Recruitment production-build: {"exit":0,"bytes":1192,"sha256":"ad2b7e805e8942cb7a9396985797cc3940d239f89ba5930b7ca207fa10de1f97","counts":{},"observations":[]}
+Recruitment business-integration: {"exit":1,"bytes":15583,"sha256":"ed0516b9574b665f99b83b8b1422f5d64eb5c49f4f52079d6bd4b6385f4107f6","counts":{"tests":115,"passed":113,"failed":2,"cancelled":0,"skipped":0},"observations":[]}
+Recruitment target retained for explicit inspection/cleanup: workspace-r1
+file:///private/tmp/jobs-crm-workspace-qa/scripts/recruitment/runner.ts:104
+    throw new Error(
+          ^
+
+Error: Recruitment stage business-integration exited 1 (raw output withheld)
+    at run (file:///private/tmp/jobs-crm-workspace-qa/scripts/recruitment/runner.ts:104:11)
+    at async file:///private/tmp/jobs-crm-workspace-qa/scripts/recruitment/runner.ts:263:3
+
+Node.js v24.22.2

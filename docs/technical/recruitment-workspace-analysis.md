@@ -89,7 +89,7 @@ Metadane: orchestrator `/root`; bieżąca analiza: `workspace_spec` (spec-analys
 
 Istniejące komendy na przyszły gate: `pnpm test:unit`, `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm test:boundaries`, `pnpm test:canary`, `pnpm test:recruitment`. Runner obejmuje build i realne integracje/production HTTPS browser; nowy test musi być rzeczywiście do niego dołączony. Node 24.22.2 / pnpm 12.16.1, własny izolowany target i dane syntetyczne, bez resetu persistent DEV i naruszania cudzych zasobów. Przed wykonaniem aktualna dokumentacja wymaganych API przez Context7; ta analiza nie zmienia API ani konfiguracji bibliotek.
 
-## Wynik bieżącej pracy
+## Historyczny wynik etapu analizy
 
 - Potwierdzenie merge i lokalnej bazy: **PASS** (GitHub metadata + Git).
 - Analiza wymagań, UX i plan testów: wykonane; rekomendacja **PROPOSED / READY_FOR_OWNER_DECISION**.

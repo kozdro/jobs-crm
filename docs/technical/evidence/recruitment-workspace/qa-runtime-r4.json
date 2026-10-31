@@ -1,0 +1,58 @@
+{
+  "id": "workspace-r1",
+  "projectId": "jobs-crm-recruitment-f643f5-b4ece1ac54fb",
+  "startedAt": "2026-10-31T19:13:52.301Z",
+  "node": "v24.22.2",
+  "status": "FAIL",
+  "migrations": {
+    "applied": 0,
+    "total": 13,
+    "checkpoint": "d6c0d096a138c50ff38c6b8c9731825a1b3cec5b04d0c7d468b1e48a094bcdd7"
+  },
+  "stages": [
+    "local-target-and-RLS-migrations",
+    "production-build",
+    "real-business-auth-data-api",
+    "build-server-logs-and-browser-artifacts-redacted"
+  ],
+  "outputChecks": [
+    {
+      "stage": "production-build",
+      "bytes": 1192,
+      "sha256": "cd1632e7c1a6361b47589f8138836826c9a92355bb840470361791328ce9a744",
+      "counts": {},
+      "observations": []
+    },
+    {
+      "stage": "business-integration",
+      "bytes": 13697,
+      "sha256": "265c2f3289d32c5dfd33be7b176bc32ea94fe72afa129c72edd870a301d850b9",
+      "counts": {
+        "tests": 115,
+        "passed": 115,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "observations": []
+    },
+    {
+      "stage": "business-HTTPS-browser",
+      "bytes": 3254,
+      "sha256": "6be1868410b8026fdf4ef4fa752c8eec8885268b22d5735ebd891558c45411be",
+      "counts": {
+        "passed": 17
+      },
+      "observations": []
+    },
+    {
+      "stage": "app-process-1",
+      "bytes": 152,
+      "sha256": "340aa58d373f076fb45162a65d2f367411532492708336e3df11d97326f75e14",
+      "counts": {},
+      "observations": []
+    }
+  ],
+  "scannedBrowserFiles": 23,
+  "scannedGeneratedResponseFiles": 15
+}

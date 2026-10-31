@@ -1,0 +1,25 @@
+{
+  "candidate": "0564b4c2326dbfb3288bb12441f6010047fc1ad1",
+  "targetId": "workspace-r9",
+  "scope": "LOCAL SELECTED DIAGNOSTIC, NOT FULL BROWSER ACCEPTANCE",
+  "originalArgs": [
+    "node_modules/@playwright/test/cli.js",
+    "test",
+    "--config=playwright.recruitment.config.ts"
+  ],
+  "executedArgs": [
+    "node_modules/@playwright/test/cli.js",
+    "test",
+    "--config=playwright.recruitment.config.ts",
+    "tests/e2e/recruitment-ui-foundation.spec.ts",
+    "tests/e2e/recruitment-workspace.spec.ts",
+    "--grep-invert",
+    "genuinely expired"
+  ],
+  "expectedSelectedBrowserTests": 20,
+  "excludedLocalTest": "DEC059 new read endpoint refreshes genuinely expired SSR cookies with private no-store response",
+  "fullHostedCIRequired": true,
+  "sourceRunnerUnmodified": true,
+  "sourceTestsUnmodified": true,
+  "reason": "Full R8 already executed both genuine300s expiry tests; only empty-state product text and one added strict browser regression changed. Full final CI must repeat all104 browser tests."
+}

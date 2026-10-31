@@ -1,0 +1,245 @@
+{
+  "schema": 1,
+  "authors": [
+    "/root",
+    "workspace_backend",
+    "workspace_frontend",
+    "workspace_qa_run"
+  ],
+  "runs": [
+    {
+      "role": "backend-reviewer",
+      "candidate": "2046bbb47ed857fd7027a575a28159bec55c8711",
+      "base": "837257b5ecb5e9702b8158c49e9ebc19662d7dcd",
+      "assessment": "PASS_STATIC",
+      "scope": "static review; runtime separate",
+      "isolation": "separate read-only parent via harness/scripts/review.py; exactly one generic subagent plus canonical role",
+      "thread": "01a1935d-3278-7241-a0a1-e152d3b979d3",
+      "result": "**PASS_STATIC — backend. Brak potwierdzonych findings P0–P3.**\n\nDokładnie jeden natywny subagent wykonał review jako **generic subagent + canonical role `backend-reviewer`**, bez typed profile.\n\nOceniono diff `837257b..2046bbb`: semijoin `!inner`, filtrowanie przed paginacją, kardynalność relacji, podglądy, owner/RLS, tożsamość GET oraz cookies/cache. Nie stwierdzono defektu implementacji.\n\nPozostają luki dowodowe testów:\n\n- brak wielostronicowego zbioru po filtrze relacyjnym;\n- integracja nie przekracza progów podglądów 5 organizacji / 25 kontaktów / 5 wpisów historii.\n\n**NOT RUN:** testy w tej sesji. Runtime Auth/DataAPI/RLS i HTTPS browser oraz formatting gate pozostają pending według przekazanego stanu. Wynik nie stanowi akceptacji zadania ani osobnego security/frontend review.\n\nNie zmieniono plików. Końcowy HEAD odpowiada kandydatowi, worktree jest czysty.",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "6480dc9fd6b8a24b6763a1ea95911ef63a6279e1593c0fa15b668c0b22ee842b",
+        "candidateAfter": "6480dc9fd6b8a24b6763a1ea95911ef63a6279e1593c0fa15b668c0b22ee842b"
+      },
+      "logSha256": "ca8b46e2f0cb5c6649a27fca2ad509fae2ef0f5e90ae32021a21b8604e68cacb"
+    },
+    {
+      "role": "frontend-reviewer",
+      "candidate": "2046bbb47ed857fd7027a575a28159bec55c8711",
+      "base": "837257b5ecb5e9702b8158c49e9ebc19662d7dcd",
+      "assessment": "FAIL",
+      "scope": "static review; runtime separate",
+      "isolation": "separate read-only parent via harness/scripts/review.py; exactly one generic subagent plus canonical role",
+      "thread": "01a1935d-35c3-7b21-b9f8-a956db85943a",
+      "result": "**FAIL — jeden finding P2; brak P0/P1.**\n\n**P2 — utrata kontekstu Workspace po stronicowaniu historii.** W [page.tsx:65](/private/tmp/jobs-crm-workspace-review/src/app/recruitments/[id]/page.tsx:65) token powrotu pochodzi wyłącznie z bieżącego query. Linki paginacji w [case-history.tsx:350](/private/tmp/jobs-crm-workspace-review/src/components/recruitment/case-history.tsx:350) usuwają `workspaceReturn`.\n\nPrzebieg: Workspace → pełny detal → następna strona historii → powrót. Użytkownik traci widok, filtry, strony i scroll. Narusza to **AC-RW-009-02, DEC-059 i kontrakt UX**. Zalecenie: zachować zweryfikowany token podczas paginacji historii i dodać regresję tego przebiegu.\n\nUruchomiono dokładnie jednego natywnego subagenta: **generic subagent + canonical role `frontend-reviewer`**, bez typed profile. Odczytano wymagane instrukcje i zastosowano `review-change`.\n\n- **Integralność PASS:** kandydat `2046bbb47ed857fd7027a575a28159bec55c8711` pozostał niezmieniony; katalog roboczy czysty.\n- **NOT RUN:** testy i przeglądarka. Przekazanych wyników nie odtwarzano; runtime i formatting pozostają niepotwierdzone.\n- Brakuje też browser assertions dla odtwarzania niezerowego scrolla tablicy/kolumn i niezależnych stron Kanbana.\n\nNie zmieniono plików. Ocena dotyczy statycznego frontendu; nie stanowi akceptacji zadania ani osobnego backend/security review.",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "6480dc9fd6b8a24b6763a1ea95911ef63a6279e1593c0fa15b668c0b22ee842b",
+        "candidateAfter": "6480dc9fd6b8a24b6763a1ea95911ef63a6279e1593c0fa15b668c0b22ee842b"
+      },
+      "logSha256": "833f520e4ddc7669d625d04c00b9a2dc9367f3205680d74e452ab03c5e722e18"
+    },
+    {
+      "role": "security-reviewer",
+      "candidate": "2046bbb47ed857fd7027a575a28159bec55c8711",
+      "base": "837257b5ecb5e9702b8158c49e9ebc19662d7dcd",
+      "assessment": "PASS_STATIC",
+      "scope": "static review; runtime separate",
+      "isolation": "separate read-only parent via harness/scripts/review.py; exactly one generic subagent plus canonical role",
+      "thread": "01a1935d-3a57-76d2-a29a-030174d068bb",
+      "result": "**PASS_STATIC — subagent nie zgłosił potwierdzonych findings P0–P3.**\n\nUruchomiono dokładnie jednego natywnego subagenta `security_reviewer`: **generic subagent + canonical role**, bez typed profile. Odczytał wymagane instrukcje i zastosował `review-change`.\n\nOceniono kandydata `2046bbb47ed857fd7027a575a28159bec55c8711` względem bazy `837257b5ecb5e9702b8158c49e9ebc19662d7dcd`.\n\nStatyczna ocena objęła zaufaną tożsamość GET, owner/RLS, bezpośrednie ID i filtry profili, prywatne cache/cookies, zmianę konta oraz brak wycieków przez storage/logi. Pokrycie testów oceniono jako adekwatne; mocki nie potwierdzają rzeczywistego działania RLS/SDK.\n\n**NOT RUN:** testy w tej sesji. Wyniki autora nie zostały niezależnie odtworzone. Runtime Auth/Data API/RLS, HTTPS browser i końcowy formatting pozostają niepotwierdzone.\n\nNie zmodyfikowano plików. Końcowe sprawdzenie potwierdziło dokładny HEAD i czyste drzewo. Wynik review **nie oznacza akceptacji zadania**.",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "6480dc9fd6b8a24b6763a1ea95911ef63a6279e1593c0fa15b668c0b22ee842b",
+        "candidateAfter": "6480dc9fd6b8a24b6763a1ea95911ef63a6279e1593c0fa15b668c0b22ee842b"
+      },
+      "logSha256": "539bef78d47119519d4ac0f3a0b5f8401d872f8253ca2441d202bb0fa6358659"
+    },
+    {
+      "role": "frontend-reviewer",
+      "candidate": "77a063eb9ddc131dea4ae1e21df4cb9296a58bc3",
+      "base": "2046bbb47ed857fd7027a575a28159bec55c8711",
+      "assessment": "PASS_STATIC",
+      "scope": "P2 closure and regression delta",
+      "result": "**PASS_STATIC** dla delty `2046bbb… → 77a063e…`. Poprzednie P2 zamknięte statycznie; brak nowych findings.\n\nDokładnie jeden natywny subagent: `frontend_reviewer`, wariant **generic subagent + canonical role**, bez typed profile.\n\nPotwierdzono walidację UUID `workspaceReturn` i zachowanie tokenu w obu kierunkach paginacji. Linki pozostają lokalne; odtwarzanie kontekstu nadal wymaga zgodności użytkownika i tokenu.\n\n**NOT RUN:** testy, lint, typecheck, przeglądarka i runtime. Wyniki autora nie były ponownie wykonywane; pełna weryfikacja runtime pozostaje otwarta.\n\nNie zmieniono plików. Dokładny kandydat pozostał w detached HEAD, worktree czysty.",
+      "thread": "01a1935f-d21b-7672-9bb8-81c7927c53e3",
+      "isolation": "separate read-only parent via harness/scripts/review.py; one generic subagent plus canonical role",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "52284c1c4cd8394a01b63b5d54734eca51abf68a792cbc0d4d795012ca725be3",
+        "candidateAfter": "52284c1c4cd8394a01b63b5d54734eca51abf68a792cbc0d4d795012ca725be3"
+      },
+      "logSha256": "8304eb45297cea033efb77e1a78ba4c5ddff798c02a375dd29e01ae0b0bf74d8"
+    },
+    {
+      "role": "backend-reviewer",
+      "candidate": "0f6370313d435f5b21059ca30bac65e4fe0ed11c",
+      "base": "837257b5ecb5e9702b8158c49e9ebc19662d7dcd",
+      "assessment": "PASS_STATIC",
+      "scope": "final candidate code and enhanced tests; runtime separate",
+      "result": "**PASS_STATIC** dla `0f6370313d435f5b21059ca30bac65e4fe0ed11c`, baza `837257b5ecb5e9702b8158c49e9ebc19662d7dcd`. Brak potwierdzonych findings P0–P3.\n\nUruchomiono dokładnie jednego **generic subagent + canonical role `backend-reviewer`**. Odczytał wymagane instrukcje i niezależnie ocenił backend, izolację danych, kontrakty odczytu oraz końcowy diff.\n\nPotwierdzono poprawkę przekazywania walidowanego tokenu powrotu przez paginację historii. **Nie stwierdzono osłabienia asercji testowych.** Zakres pozostaje zgodny z zatwierdzonym DEC-059 1A/2A.\n\nNie modyfikowano plików ani nie uruchamiano testów. HEAD odpowiada kandydatowi; katalog roboczy czysty.\n\n**Runtime: NOT RUN w tej sesji.** Wyniki wcześniejszego `2046bbb` nie potwierdzają końcowego kandydata. Pełny runtime `0f63703` pozostaje do udokumentowania; review nie stanowi akceptacji zadania.",
+      "thread": "01a19361-ce8a-7172-9e66-3bfa976b4a49",
+      "isolation": "separate read-only parent via harness/scripts/review.py; one generic subagent plus canonical role",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "94877320cd9477fc0a53018429d9fea7c31dc74c10961317e9aaeab615c4da01",
+        "candidateAfter": "94877320cd9477fc0a53018429d9fea7c31dc74c10961317e9aaeab615c4da01"
+      },
+      "logSha256": "16c9117fffd0c3ffe9169bf19d04c51675a5202f42459c30a49af43d465d4249"
+    },
+    {
+      "role": "frontend-reviewer",
+      "candidate": "0f6370313d435f5b21059ca30bac65e4fe0ed11c",
+      "base": "837257b5ecb5e9702b8158c49e9ebc19662d7dcd",
+      "assessment": "PASS_STATIC",
+      "scope": "final candidate code and enhanced tests; runtime separate",
+      "result": "**PASS_STATIC** dla `0f6370313d435f5b21059ca30bac65e4fe0ed11c`. Brak potwierdzonych findings P0–P3.\n\nUruchomiono dokładnie jednego **generic subagent + canonical role** `frontend-reviewer`. Odczytał wymagane instrukcje i niezależnie ocenił diff `2046bbb..candidate`, otaczającą implementację oraz adekwatność testów.\n\nPotwierdzono zachowanie walidowanego tokenu powrotu Workspace w obu kierunkach paginacji historii. Nie stwierdzono osłabienia asercji; zmienione oczekiwanie kontaktu odpowiada rozszerzonemu fixture.\n\nNie zmieniono plików ani nie uruchomiono testów. HEAD zgodny, worktree czysty.\n\n**Runtime: NOT RUN przez reviewera.** Wyniki wcześniejszego kandydata nie potwierdzają finalnego. Trwający finalny build/integracje/browser wymagają osobnych dowodów QA. Ocena nie oznacza akceptacji runtime ani zamknięcia zadania.",
+      "thread": "01a19361-d1f9-7152-9658-195d37c84a92",
+      "isolation": "separate read-only parent via harness/scripts/review.py; one generic subagent plus canonical role",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "94877320cd9477fc0a53018429d9fea7c31dc74c10961317e9aaeab615c4da01",
+        "candidateAfter": "94877320cd9477fc0a53018429d9fea7c31dc74c10961317e9aaeab615c4da01"
+      },
+      "logSha256": "890fab7d51d99fcf4302edf29afc57ff210b87c733d97b36ab00386f1a2507ca"
+    },
+    {
+      "role": "security-reviewer",
+      "candidate": "0f6370313d435f5b21059ca30bac65e4fe0ed11c",
+      "base": "837257b5ecb5e9702b8158c49e9ebc19662d7dcd",
+      "assessment": "PASS_STATIC",
+      "scope": "final candidate code and enhanced tests; runtime separate",
+      "result": "**PASS_STATIC** dla `0f6370313d435f5b21059ca30bac65e4fe0ed11c`. Niezależny security-reviewer nie zgłosił findings P0–P3.\n\nUruchomiono dokładnie jednego **generic subagent + canonical role `security-reviewer`**, bez typed profile. Oceniono diff względem `2046bbb` i otaczające granice bezpieczeństwa, z uwzględnieniem bazy `837257b`.\n\nPotwierdzono walidację UUID kontekstu powrotu, brak dowolnego przekierowania oraz zachowanie kontroli użytkownika, RLS i ochrony cache. Nie stwierdzono osłabienia asercji; zmienione oczekiwanie kontaktu odpowiada jawnej relacji w fixture.\n\n**Runtime: NOT RUN w tej sesji.** Przekazane wcześniejsze wyniki nie potwierdzają finalnego runtime. Trwający przebieg na finalnym kandydacie wymaga osobnej oceny; ten raport nie stanowi akceptacji zadania.\n\nNie zmodyfikowano plików ani nie uruchomiono testów. HEAD pozostał zgodny z kandydatem, worktree czysty.",
+      "thread": "01a19361-d643-7990-851f-d2d085dcc5c9",
+      "isolation": "separate read-only parent via harness/scripts/review.py; one generic subagent plus canonical role",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "94877320cd9477fc0a53018429d9fea7c31dc74c10961317e9aaeab615c4da01",
+        "candidateAfter": "94877320cd9477fc0a53018429d9fea7c31dc74c10961317e9aaeab615c4da01"
+      },
+      "logSha256": "9cf2e3bb4e977b2e9fd02adcd273b5fb83947777f0e0f79d832ec228d0cc7b65"
+    },
+    {
+      "role": "backend-reviewer",
+      "candidate": "adf8a9e4af63155965585530ac23bbdeeb8d4c79",
+      "base": "837257b5ecb5e9702b8158c49e9ebc19662d7dcd",
+      "assessment": "PASS_STATIC",
+      "scope": "final corrected code and strict tests; runtime separate",
+      "result": "**PASS_STATIC** dla `adf8a9e4af63155965585530ac23bbdeeb8d4c79`. Subagent nie zgłosił potwierdzonych findings P0–P3 w zakresie backendowym.\n\nUruchomiono dokładnie jednego **generic subagent + canonical role `backend-reviewer`** (`/root/backend_reviewer`), bez typed profile. Odczytał kanoniczną rolę, workflow i `review-change`; ocenił deltę `0f63703..adf8a9e` oraz potrzebny kontekst pełnego diffu względem `837257b`.\n\nReview potwierdziło statycznie:\n\n- nonce pozostaje metadanymi nawigacji, związanymi z ownerem, nietrwałym kontekstem i destynacją; nie znaleziono open redirect ani nowego źródła uprawnień;\n- zachowano izolację owner/RLS i prywatny cache;\n- testy zachowują ścisłe asercje scrolla i focusu.\n\n**NOT RUN:** wszystkie testy i runtime w tej sesji. Wyniki przekazane w zadaniu nie zostały niezależnie wykonane. Końcowe dowody integracji/browsera i osobny security review pozostają wymaganymi bramkami; ta opinia nie stanowi pełnej akceptacji runtime.\n\nPo review ponownie potwierdzono dokładny SHA, detached HEAD i czyste drzewo. Nie zmieniono plików. Próby utworzenia cache przez systemowy Git/xcrun zostały zablokowane przez sandbox.",
+      "thread": "01a1936f-1bde-7831-bc04-87979404112d",
+      "isolation": "separate read-only parent via harness/scripts/review.py; one generic subagent plus canonical role",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "f98bcddb4afba2ab8e7e48c53befbaf2eb7ca3bc004391becb9158737c177fc6",
+        "candidateAfter": "f98bcddb4afba2ab8e7e48c53befbaf2eb7ca3bc004391becb9158737c177fc6"
+      },
+      "logSha256": "bdb114b552d548cbb28380e8ad792b6725f8df7cc93fec1b3023f3c15d486015"
+    },
+    {
+      "role": "frontend-reviewer",
+      "candidate": "adf8a9e4af63155965585530ac23bbdeeb8d4c79",
+      "base": "837257b5ecb5e9702b8158c49e9ebc19662d7dcd",
+      "assessment": "PASS_STATIC",
+      "scope": "final corrected code and strict tests; runtime separate",
+      "result": "**PASS_STATIC** dla `adf8a9e4af63155965585530ac23bbdeeb8d4c79`, baza `837257b5ecb5e9702b8158c49e9ebc19662d7dcd`. Brak potwierdzonych findings P0–P3.\n\nUruchomiono dokładnie jednego **generic subagent + canonical role** `frontend-reviewer`, bez typed profile. Odczytał wymagane instrukcje i ocenił finalny delta oraz otaczający kod względem zatwierdzonego DEC-059 1A/2A.\n\nStatycznie: nonce wymaga zgodności owner/context/destination; przywracanie scrolla uwzględnia stabilność układu i anulowanie przez użytkownika; filtrowanie fokusu uwzględnia viewport, clipping i drawer. Nie stwierdzono osłabienia kluczowych asercji scrolla i fokusu.\n\n**NOT RUN:** testy, build, przeglądarka i technologie asystujące. Wynik nie potwierdza zachowania runtime ani finalnej akceptacji QA.\n\nNie zmieniono plików. Kontrola przed i po review potwierdziła czysty worktree oraz dokładny detached candidate.",
+      "thread": "01a1936f-1e94-7c23-83b5-9665b62a4be3",
+      "isolation": "separate read-only parent via harness/scripts/review.py; one generic subagent plus canonical role",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "f98bcddb4afba2ab8e7e48c53befbaf2eb7ca3bc004391becb9158737c177fc6",
+        "candidateAfter": "f98bcddb4afba2ab8e7e48c53befbaf2eb7ca3bc004391becb9158737c177fc6"
+      },
+      "logSha256": "e5873ce45250c889bf83a0bbe1c831c33589e500d6ed384120a0771de8876cd6"
+    },
+    {
+      "role": "security-reviewer",
+      "candidate": "adf8a9e4af63155965585530ac23bbdeeb8d4c79",
+      "base": "837257b5ecb5e9702b8158c49e9ebc19662d7dcd",
+      "assessment": "PASS_STATIC",
+      "scope": "final corrected code and strict tests; runtime separate",
+      "result": "**PASS_STATIC** dla `adf8a9e4af63155965585530ac23bbdeeb8d4c79`. Subagent nie znalazł potwierdzonych findings P0–P3 w ocenionym zakresie security.\n\nUruchomiono dokładnie jednego natywnego subagenta: **generic subagent + canonical role** `security-reviewer`, bez typed profile. Odczytał wymagane instrukcje i skill `review-change`, ocenił deltę `0f63703..adf8a9e` oraz otaczające kontrakty względem wskazanej bazy.\n\nStatycznie potwierdził powiązanie nonce z właścicielem, kontekstem pamięciowym i docelową ścieżką; brak znalezionej ścieżki open redirect; zachowanie kontroli auth/RLS i cache oraz brak osłabienia wskazanych asercji scroll/focus.\n\n**NOT RUN:** wszystkie testy i weryfikacja runtime. Ocena nie zamyka oczekujących bramek integracyjnych, browser ani expiry.\n\nBrak zmian plików; detached HEAD pozostał zgodny z kandydatem, working tree czysty. Sandbox zablokował próby zapisu cache `xcrun` wywołane przez systemowy Git.",
+      "thread": "01a1936f-2324-7713-8cc7-5dccd3060b5b",
+      "isolation": "separate read-only parent via harness/scripts/review.py; one generic subagent plus canonical role",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "f98bcddb4afba2ab8e7e48c53befbaf2eb7ca3bc004391becb9158737c177fc6",
+        "candidateAfter": "f98bcddb4afba2ab8e7e48c53befbaf2eb7ca3bc004391becb9158737c177fc6"
+      },
+      "logSha256": "48bc192a5761a30a87a42ab9e0d518729128493e188bb51c1012a0c8c160456d"
+    },
+    {
+      "role": "backend-reviewer",
+      "candidate": "0564b4c2326dbfb3288bb12441f6010047fc1ad1",
+      "base": "adf8a9e4af63155965585530ac23bbdeeb8d4c79",
+      "assessment": "PASS_STATIC",
+      "scope": "empty-state fix and strict regression delta; full final CI mandatory",
+      "result": "**PASS_STATIC** dla `0564b4c2326dbfb3288bb12441f6010047fc1ad1` względem `adf8a9e4af63155965585530ac23bbdeeb8d4c79`. Brak findings P0–P3.\n\nDokładnie jeden natywny **generic subagent + canonical role `backend-reviewer`** zakończył niezależne review:\n- Poprawka prawidłowo rozróżnia pustą kolekcję, pustą stronę paginacji i brak wyników filtrów.\n- Dodane asercje obejmują wskazane przypadki; istniejących asercji, w tym Foundation, nie osłabiono.\n- Backend, auth, owner/RLS, metadata, schemat, cache i zależności pozostają niezmienione; zakres DEC-059 1A/2A zachowano.\n\nPotwierdzono czysty detached worktree na dokładnym kandydacie. Bez edycji i uruchamiania testów — **runtime: NOT RUN**.\n\nR9 pozostaje niepotwierdzony w tej sesji. Pełne, niezmodyfikowane 104 testy przeglądarkowe w hosted CI na dokładnym opublikowanym headzie nadal są wymaganą bramką akceptacji. Review jej nie zastępuje i nie zamyka zadania.",
+      "thread": "01a19381-07d5-7182-8644-2d8322ae95cd",
+      "isolation": "separate read-only parent via harness/scripts/review.py; one generic subagent plus canonical role",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "3f24cfa825577838a72e962b7a52f98ff71bbcb9108539eea0aeea8c5c5180c0",
+        "candidateAfter": "3f24cfa825577838a72e962b7a52f98ff71bbcb9108539eea0aeea8c5c5180c0"
+      },
+      "logSha256": "15b87255b0c0dbd9984eea9aa6fce8b1c6431e5ed4d4f1eac378af8d7a9e5f16"
+    },
+    {
+      "role": "frontend-reviewer",
+      "candidate": "0564b4c2326dbfb3288bb12441f6010047fc1ad1",
+      "base": "adf8a9e4af63155965585530ac23bbdeeb8d4c79",
+      "assessment": "PASS_STATIC",
+      "scope": "empty-state fix and strict regression delta; full final CI mandatory",
+      "result": "**PASS_STATIC** dla `0564b4c2326dbfb3288bb12441f6010047fc1ad1` względem `adf8a9e4af63155965585530ac23bbdeeb8d4c79`.\n\nDokładnie jeden **generic subagent + canonical role `frontend-reviewer`** zakończył niezależny review zgodnie z rolą, workflow i `review-change`.\n\n**Findings P0–P3: brak.**\n\n- Poprawka prawidłowo rozróżnia pustą kolekcję, pustą dalszą stronę i brak wyników filtrów.\n- Dodane asercje obejmują B Kanban/listę, A stronę 99 listy/wszystkich kolumn oraz `status=none`.\n- Oryginalna asercja Foundation pozostała bez zmian; żadnych asercji nie osłabiono.\n- Owner/metadata, auth, backend, schemat, cache i zależności pozostają bez zmian. Zachowano DEC-059 1A/2A read-only.\n\n**Runtime: NOT RUN** — nie uruchamiano testów ani nie modyfikowano plików. HEAD potwierdzony, drzewo robocze czyste.\n\nR9 pozostaje w toku. Akceptacja nadal wymaga sukcesu pełnego, niezmodyfikowanego zestawu **104 testów przeglądarkowych w hosted CI na dokładnym opublikowanym HEAD**. PASS_STATIC nie zamyka tej bramki.",
+      "thread": "01a19381-0af8-7183-9817-7c7c397f0104",
+      "isolation": "separate read-only parent via harness/scripts/review.py; one generic subagent plus canonical role",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "3f24cfa825577838a72e962b7a52f98ff71bbcb9108539eea0aeea8c5c5180c0",
+        "candidateAfter": "3f24cfa825577838a72e962b7a52f98ff71bbcb9108539eea0aeea8c5c5180c0"
+      },
+      "logSha256": "11bdd91f7298d9cd9798866f5b104c9572d6fb96491668cb82c2c86d8b866563"
+    },
+    {
+      "role": "security-reviewer",
+      "candidate": "0564b4c2326dbfb3288bb12441f6010047fc1ad1",
+      "base": "adf8a9e4af63155965585530ac23bbdeeb8d4c79",
+      "assessment": "PASS_STATIC",
+      "scope": "empty-state fix and strict regression delta; full final CI mandatory",
+      "result": "**PASS_STATIC** dla `0564b4c2326dbfb3288bb12441f6010047fc1ad1` względem `adf8a9e4af63155965585530ac23bbdeeb8d4c79`. **Brak findings P0–P3.**\n\nDokładnie jeden **generic subagent + canonical role `security-reviewer`** zakończył niezależny review według `review-change`.\n\n- Poprawka prawidłowo rozróżnia pusty pierwszy widok, dalszą pustą stronę i brak wyników filtrów.\n- Dodane asercje obejmują wskazane przypadki. Oryginalna asercja Foundation pozostała niezmieniona; żadnych asercji nie osłabiono.\n- Owner/metadata, auth, RLS, backend, schemat, cache i zależności pozostają niezmienione. Zakres DEC-059 1A/2A zachowany.\n\n**Runtime: NOT RUN** — nie uruchamiano testów ani nie modyfikowano plików. Końcowy HEAD potwierdzony, worktree czysty. Wyniki R8 i trwający R9 są informacją przekazaną przez użytkownika, nie runtime PASS tego review.\n\nPełne **104 testy browser w hosted CI na dokładnym opublikowanym head** nadal stanowią wymaganą bramkę zamknięcia. Dodatkowy pełny lokalny rerun nie jest wymagany przez ten review.",
+      "thread": "01a19381-0f80-7ca0-8f4e-0716d086f084",
+      "isolation": "separate read-only parent via harness/scripts/review.py; one generic subagent plus canonical role",
+      "execution": {
+        "reviewExecution": "COMPLETED",
+        "exitCode": 0,
+        "changedFiles": [],
+        "candidateBefore": "3f24cfa825577838a72e962b7a52f98ff71bbcb9108539eea0aeea8c5c5180c0",
+        "candidateAfter": "3f24cfa825577838a72e962b7a52f98ff71bbcb9108539eea0aeea8c5c5180c0"
+      },
+      "logSha256": "d835d214a0f39fbd2b8311313f8507c1474f4f6b270e2fc683068c32e8940dbc"
+    }
+  ]
+}

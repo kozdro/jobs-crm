@@ -1,0 +1,19 @@
+$ node scripts/recruitment/runner.ts
+node:internal/fs/promises:1345
+  return new FileHandle(await PromisePrototypeThen(
+                        ^
+
+Error: ENOENT: no such file or directory, open '/Users/kozdro/Desktop/jobs-crm/.recruitment-local/workspace-r1/manifest.json'
+    at async open (node:internal/fs/promises:1345:25)
+    at async readFile (node:internal/fs/promises:2003:14)
+    at async manifestFor (file:///Users/kozdro/Desktop/jobs-crm/scripts/recruitment/target.ts:126:5)
+    at async readRecruitmentTarget (file:///Users/kozdro/Desktop/jobs-crm/scripts/recruitment/target.ts:316:13)
+    at async file:///Users/kozdro/Desktop/jobs-crm/scripts/recruitment/runner.ts:50:5 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/Users/kozdro/Desktop/jobs-crm/.recruitment-local/workspace-r1/manifest.json'
+}
+
+Node.js v24.22.2
+[ELIFECYCLE] Command failed with exit code 1.

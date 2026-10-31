@@ -1,0 +1,42 @@
+{
+  "id": "workspace-r9",
+  "projectId": "jobs-crm-recruitment-364c51-a5be0b2fd3f4",
+  "configHash": "4e8327a86e91fa9285a1c3ef4e4909c8e7fc7a04e150984a7b9c914f6c580ee6",
+  "containers": [
+    {
+      "id": "5e054d63f51540198efd1ee6917f6b4317bfaa59ae71dd1a4a4ed95b4c3d3273",
+      "name": "/supabase_rest_jobs-crm-recruitment-364c51-a5be0b2fd3f4",
+      "imageId": "sha256:1347d7552b88f17832912c06afbf7c43209af6eeeb60834b04aae12c9bd9d5cc"
+    },
+    {
+      "id": "00b0cc55d5f3afbc35bf76d8c1a6c84dfbb85df3f91f9a18a1f84b2d52b21c00",
+      "name": "/supabase_inbucket_jobs-crm-recruitment-364c51-a5be0b2fd3f4",
+      "imageId": "sha256:ed9b00c609e77e99c79b93f1178255ebc271868920f2c69a8d166bd5634ed10d"
+    },
+    {
+      "id": "2e3b72ed4378c9063141462c2230e75b64aa7115e927ff5917d89e2ed3231da4",
+      "name": "/supabase_auth_jobs-crm-recruitment-364c51-a5be0b2fd3f4",
+      "imageId": "sha256:1736a63078f5922b198c4cbe50f80ab9a2d3b54fe8b7b6cfb2e9dc5dbbc12c6b"
+    },
+    {
+      "id": "e39c919d74c889236a32d4074605e47f07ff97f01fc31a8c166fd041149d47a7",
+      "name": "/supabase_kong_jobs-crm-recruitment-364c51-a5be0b2fd3f4",
+      "imageId": "sha256:1b53405d8680a09d6f44494b7990bf7da2ea43f84a258c59717d4539abf09f6d"
+    },
+    {
+      "id": "2944a65a72cf188076d92054d037000320d8daff7b66b4f068b544f356be7a6a",
+      "name": "/supabase_db_jobs-crm-recruitment-364c51-a5be0b2fd3f4",
+      "imageId": "sha256:c141fd17ac6a76c4323e90b3aee8ff1a23d2e89e547c2b963cfadc309c079cc2"
+    }
+  ],
+  "auth": "v2.197.0",
+  "postgrest": "PostgREST 16.5",
+  "postgres": "17.11",
+  "fixture": {
+    "jwtExpirySeconds": 60,
+    "emailOtpExpirySeconds": 60,
+    "signup": true,
+    "emailConfirmation": true,
+    "securePasswordChange": true
+  }
+}
