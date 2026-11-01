@@ -1,5 +1,5 @@
 "use client";
-import { buttonStyles } from "@/components/ui/styles";
+import { buttonStyles } from "./styles";
 import type { TaskMutation } from "./hooks";
 export function TaskReadFeedback({
   loading,

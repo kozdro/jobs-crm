@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Task, TaskAudit } from "@/modules/recruitment/domain/tasks";
-import { buttonStyles } from "@/components/ui/styles";
+import { buttonStyles } from "./styles";
 import { formatTaskDay, isTask, taskReadAcknowledges } from "./client";
 import { useTaskMutation, useTaskRead } from "./hooks";
 import { TaskMutationFeedback, TaskReadFeedback } from "./common";

@@ -3,6 +3,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import {
   clearMatchingLifecycleIntent,
+  isCurrentLifecycleIntent,
+  lifecycleIntentsEquivalent,
   isLifecyclePreview,
   lifecycleResultMatches,
   parseLifecycleIntent,
@@ -60,6 +62,176 @@ const entry: LifecycleEntry = {
 const ids = { ownerId, caseId, requestId };
 
 describe("Lifecycle intent identity and uncertain result recovery", () => {
+  it.each(["order", "case"] as const)(
+    "keeps a changed opaque snapshot %s from authorizing GET, retry or clear",
+    (change) => {
+      const first = "a0000000-0000-4000-8000-000000000001";
+      const second = "b0000000-0000-4000-8000-000000000002";
+      const original = {
+        ...ids,
+        command: {
+          ...command,
+          expectedTaskSnapshot: [`${first}:2`, `${second}:3`],
+          taskResolutions: [
+            { taskId: first, action: "keep" as const },
+            { taskId: second, action: "detach" as const },
+          ],
+        },
+      };
+      const changed = {
+        ...original,
+        command: {
+          ...original.command,
+          expectedTaskSnapshot:
+            change === "order"
+              ? [...original.command.expectedTaskSnapshot].reverse()
+              : [`${first.toUpperCase()}:2`, `${second}:3`],
+        },
+      };
+      const raw = JSON.stringify(changed);
+      const parsed = parseLifecycleIntent(raw, ownerId, caseId)!;
+      expect(parsed.command).toEqual(changed.command);
+      expect(lifecycleIntentsEquivalent(parsed, original)).toBe(false);
+      const storage = { getItem: () => raw, removeItem: vi.fn() };
+      expect(isCurrentLifecycleIntent(storage, "key", original)).toBe(false);
+      expect(clearMatchingLifecycleIntent(storage, "key", original)).toBe(
+        false,
+      );
+      expect(storage.removeItem).not.toHaveBeenCalled();
+      const resolutionEquivalent = {
+        ...original,
+        command: {
+          ...original.command,
+          taskResolutions: [...original.command.taskResolutions]
+            .reverse()
+            .map((item) => ({
+              action: item.action,
+              taskId: item.taskId.toUpperCase(),
+            })),
+        },
+      };
+      const semanticCurrent = parseLifecycleIntent(
+        JSON.stringify(resolutionEquivalent),
+        ownerId,
+        caseId,
+      )!;
+      expect(lifecycleIntentsEquivalent(semanticCurrent, original)).toBe(true);
+      expect(
+        isCurrentLifecycleIntent(
+          { getItem: () => JSON.stringify(resolutionEquivalent) },
+          "key",
+          original,
+        ),
+      ).toBe(true);
+    },
+  );
+
+  it.each([
+    { label: "null command", replacement: { ...ids, command: null } },
+    {
+      label: "invalid action",
+      replacement: {
+        ...ids,
+        command: {
+          ...command,
+          taskResolutions: [{ taskId: closureId, action: "delete" }],
+        },
+      },
+    },
+    {
+      label: "changed valid payload",
+      replacement: {
+        ...ids,
+        command: { ...command, outcome: "Rezygnacja użytkownika" },
+      },
+    },
+    {
+      label: "new request",
+      replacement: {
+        ...ids,
+        requestId: closureId,
+        command: { ...command, requestId: closureId },
+      },
+    },
+  ])(
+    "does not consume $label installed while an earlier recovery response is delayed",
+    ({ replacement }) => {
+      const expected = { ...ids, command };
+      let raw: string | null = JSON.stringify(expected);
+      const frozen = parseLifecycleIntent(raw, ownerId, caseId)!;
+      raw = JSON.stringify(replacement);
+      const changedRaw = raw;
+      const storage = {
+        getItem: () => raw,
+        removeItem: vi.fn(() => {
+          raw = null;
+        }),
+      };
+      expect(isCurrentLifecycleIntent(storage, "key", frozen)).toBe(false);
+      expect(clearMatchingLifecycleIntent(storage, "key", frozen)).toBe(false);
+      expect(storage.removeItem).not.toHaveBeenCalled();
+      expect(raw).toBe(changedRaw);
+    },
+  );
+
+  it("compares semantic full intentions without downgrading commands to legacy and permits an original restored command", () => {
+    const original = { ...ids, command };
+    const taskCommand = {
+      ...command,
+      expectedTaskSnapshot: [`${closureId}:2`],
+      taskResolutions: [{ taskId: closureId, action: "detach" as const }],
+    };
+    const taskIntent = { ...ids, command: taskCommand };
+    const reordered = {
+      ...ids,
+      command: {
+        ...taskCommand,
+        taskResolutions: [{ action: "detach" as const, taskId: closureId }],
+      },
+    };
+    expect(lifecycleIntentsEquivalent(taskIntent, reordered)).toBe(true);
+    expect(
+      lifecycleIntentsEquivalent(original, {
+        ...ids,
+        command: { ...command, expectedTaskSnapshot: [], taskResolutions: [] },
+      }),
+    ).toBe(true);
+    expect(lifecycleIntentsEquivalent(original, ids)).toBe(false);
+    expect(lifecycleIntentsEquivalent(ids, original)).toBe(false);
+    expect(lifecycleIntentsEquivalent(ids, ids)).toBe(true);
+    expect(
+      lifecycleIntentsEquivalent({ ...ids, invalidCommand: true }, ids),
+    ).toBe(false);
+    expect(
+      lifecycleIntentsEquivalent(taskIntent, {
+        ...ids,
+        command: { ...taskCommand, expectedTaskSnapshot: [`${closureId}:3`] },
+      }),
+    ).toBe(false);
+    expect(
+      lifecycleIntentsEquivalent(taskIntent, {
+        ...ids,
+        command: {
+          ...taskCommand,
+          taskResolutions: [{ taskId: closureId, action: "keep" }],
+        },
+      }),
+    ).toBe(false);
+    let raw: string | null = JSON.stringify({ ...ids, command: null });
+    const storage = {
+      getItem: () => raw,
+      removeItem: vi.fn(() => {
+        raw = null;
+      }),
+    };
+    expect(isCurrentLifecycleIntent(storage, "key", original)).toBe(false);
+    raw = JSON.stringify(original);
+    expect(isCurrentLifecycleIntent(storage, "key", original)).toBe(true);
+    expect(clearMatchingLifecycleIntent(storage, "key", original)).toBe(true);
+    expect(raw).toBeNull();
+    expect(isCurrentLifecycleIntent(storage, "key", original)).toBe(false);
+    expect(clearMatchingLifecycleIntent(storage, "key", original)).toBe(false);
+  });
   it("restores an exact confirmed command only for the same owner and case", () => {
     const raw = JSON.stringify({ ...ids, command });
     expect(parseLifecycleIntent(raw, ownerId, caseId)).toEqual({
@@ -220,7 +392,9 @@ describe("Lifecycle intent identity and uncertain result recovery", () => {
     raw = JSON.stringify({ ...ids, ownerId: caseId });
     expect(clearMatchingLifecycleIntent(storage, "key", ids)).toBe(false);
     raw = JSON.stringify({ ...ids, command });
-    expect(clearMatchingLifecycleIntent(storage, "key", ids)).toBe(true);
+    expect(
+      clearMatchingLifecycleIntent(storage, "key", { ...ids, command }),
+    ).toBe(true);
     expect(raw).toBeNull();
   });
   it("matches close recovery against original data after a later audited correction", () => {

@@ -519,6 +519,103 @@ test("DEC060 lost three-choice closure reply recovers the original receipt and r
     )
       recoveryGets++;
   });
+  const guardWarning =
+    "Zachowane dane operacji zmieniły się. Nie potwierdzono wyniku ani nie wysłano ponowienia. Zachowano bieżący zapis oczekujący.";
+  let holdRecoveryReply = false;
+  let recoveryReplyHeld = false;
+  let releaseRecoveryReply = () => {};
+  let recoveryBarrier: Promise<void> = Promise.resolve();
+  await page.route("**/recruitments/lifecycle-commands?**", async (route) => {
+    const url = new URL(route.request().url());
+    if (
+      holdRecoveryReply &&
+      route.request().method() === "GET" &&
+      url.searchParams.get("requestId") === requestId
+    ) {
+      holdRecoveryReply = false;
+      const reply = await route.fetch();
+      expect(reply.status()).toBe(200);
+      const receipt = await reply.json();
+      expect(receipt.entry.request_id).toBe(requestId);
+      expect(receipt.entry.task_resolutions).toHaveLength(3);
+      recoveryReplyHeld = true;
+      await recoveryBarrier;
+      return route.fulfill({ response: reply });
+    }
+    return route.continue();
+  });
+  const changedPending = (
+    variant:
+      | "null-command"
+      | "invalid-action"
+      | "changed-valid"
+      | "changed-action"
+      | "changed-snapshot",
+  ) => {
+    const pending = JSON.parse(originalPending!) as {
+      command: Record<string, unknown> | null;
+    };
+    if (variant === "null-command") pending.command = null;
+    else if (variant === "invalid-action")
+      (pending.command!.taskResolutions as { action: string }[])[0].action =
+        "not-approved";
+    else if (variant === "changed-action") {
+      const choices = pending.command!.taskResolutions as { action: string }[];
+      choices[0].action = choices[0].action === "keep" ? "cancel" : "keep";
+    } else if (variant === "changed-snapshot") {
+      pending.command!.expectedTaskSnapshot = [
+        ...(pending.command!.expectedTaskSnapshot as string[]),
+      ].reverse();
+    } else pending.command!.outcome = "Brak odpowiedzi";
+    return JSON.stringify(pending);
+  };
+  const storePending = (value: string) =>
+    page.evaluate(({ key, value }) => sessionStorage.setItem(key, value), {
+      key: pendingKey,
+      value,
+    });
+  const lateReply = async (
+    trigger: ReturnType<Page["getByRole"]>,
+    altered: string,
+  ) => {
+    holdRecoveryReply = true;
+    recoveryReplyHeld = false;
+    recoveryBarrier = new Promise<void>((resolve) => {
+      releaseRecoveryReply = resolve;
+    });
+    try {
+      await trigger.click();
+      await expect.poll(() => recoveryReplyHeld).toBe(true);
+      const received = page.waitForResponse(
+        (response) =>
+          new URL(response.url()).pathname ===
+            "/recruitments/lifecycle-commands" &&
+          response.request().method() === "GET" &&
+          new URL(response.url()).searchParams.get("requestId") === requestId,
+      );
+      await storePending(altered);
+      releaseRecoveryReply();
+      expect((await received).status()).toBe(200);
+      await expect(page.getByText(guardWarning, { exact: true })).toBeVisible();
+      expect(
+        await page.evaluate(
+          ({ key, value }) => sessionStorage.getItem(key) === value,
+          { key: pendingKey, value: altered },
+        ),
+      ).toBe(true);
+      await expect(
+        page.getByText("Potwierdzono wcześniejszy zapis.", { exact: false }),
+      ).toHaveCount(0);
+      expect(confirms).toBe(1);
+    } finally {
+      holdRecoveryReply = false;
+      releaseRecoveryReply();
+    }
+  };
+  await lateReply(
+    form.getByRole("button", { name: "Sprawdź wynik zapisu", exact: true }),
+    changedPending("null-command"),
+  );
   for (const variant of [
     "omitted",
     "explicit-empty",
@@ -615,6 +712,44 @@ test("DEC060 lost three-choice closure reply recovers the original receipt and r
     await expect(
       page.getByText("Potwierdzono wcześniejszy zapis.", { exact: false }),
     ).toHaveCount(0);
+  }
+  for (const variant of [
+    "null-command",
+    "invalid-action",
+    "changed-valid",
+    "changed-action",
+    "changed-snapshot",
+  ] as const) {
+    await storePending(originalPending!);
+    await page.reload();
+    const recover = page.getByRole("button", {
+      name: "Sprawdź wcześniejszy zapis cyklu",
+      exact: true,
+    });
+    await expect(recover).toBeEnabled();
+    await lateReply(recover, changedPending(variant));
+  }
+  for (const action of [
+    "Sprawdź wcześniejszy zapis cyklu",
+    "Ponów wcześniejszy zapis cyklu",
+  ] as const) {
+    await storePending(originalPending!);
+    await page.reload();
+    const trigger = page.getByRole("button", { name: action, exact: true });
+    await expect(trigger).toBeEnabled();
+    const altered = changedPending("changed-valid");
+    const getsBefore = recoveryGets;
+    await storePending(altered);
+    await trigger.click();
+    await expect(page.getByText(guardWarning, { exact: true })).toBeVisible();
+    expect(recoveryGets).toBe(getsBefore);
+    expect(confirms).toBe(1);
+    expect(
+      await page.evaluate(
+        ({ key, value }) => sessionStorage.getItem(key) === value,
+        { key: pendingKey, value: altered },
+      ),
+    ).toBe(true);
   }
   await page.evaluate(({ key, value }) => sessionStorage.setItem(key, value), {
     key: pendingKey,

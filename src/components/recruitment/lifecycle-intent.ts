@@ -270,16 +270,67 @@ export function lifecycleRecoveryMatches(
     value.request_id === intent.requestId
   );
 }
-/** A delayed response must not consume a newer intention in the same tab. */
+/** Compare the complete frozen intention, including the distinction between a
+ * genuine legacy envelope and a present command. Invalid commands never match. */
+export function lifecycleIntentsEquivalent(
+  current: LifecycleIntent,
+  expected: LifecycleIntent,
+): boolean {
+  if (
+    current.invalidCommand ||
+    expected.invalidCommand ||
+    current.ownerId !== expected.ownerId ||
+    current.caseId !== expected.caseId ||
+    current.requestId !== expected.requestId
+  )
+    return false;
+  if (!current.command || !expected.command)
+    return current.command === undefined && expected.command === undefined;
+  const canonical = (command: ConfirmLifecycleInput) => [
+    command.operation,
+    command.caseId,
+    command.closureId,
+    command.outcome,
+    command.occurredOn,
+    command.offerConfirmed,
+    command.requestId,
+    command.expectedCaseRevision,
+    command.expectedClosureRevision,
+    [...(command.expectedTaskSnapshot ?? [])],
+    (command.taskResolutions ?? [])
+      .map((item) => [item.taskId.toLowerCase(), item.action] as const)
+      .sort(([a], [b]) => a.localeCompare(b)),
+  ];
+  return (
+    JSON.stringify(canonical(current.command)) ===
+    JSON.stringify(canonical(expected.command))
+  );
+}
+/** Re-read storage at the dispatch/acknowledgement boundary; component state is
+ * not authority once another operation or corrupted payload replaced it. */
+export function isCurrentLifecycleIntent(
+  storage: Pick<Storage, "getItem">,
+  key: string,
+  expected: LifecycleIntent,
+): boolean {
+  try {
+    const current = parseLifecycleIntent(
+      storage.getItem(key),
+      expected.ownerId,
+      expected.caseId,
+    );
+    return current !== null && lifecycleIntentsEquivalent(current, expected);
+  } catch {
+    return false;
+  }
+}
+/** A delayed response must not consume a replaced intent with the same IDs. */
 export function clearMatchingLifecycleIntent(
   storage: Pick<Storage, "getItem" | "removeItem">,
   key: string,
   expected: LifecycleIntent,
 ): boolean {
-  const raw = storage.getItem(key);
-  if (raw === null) return true;
-  const current = parseLifecycleIntent(raw, expected.ownerId, expected.caseId);
-  if (!current || current.requestId !== expected.requestId) return false;
+  if (!isCurrentLifecycleIntent(storage, key, expected)) return false;
   storage.removeItem(key);
   return true;
 }
@@ -296,9 +347,14 @@ export function persistLifecycleIntent(
   const serialized = JSON.stringify(expected);
   try {
     const existing = storage.getItem(key);
-    if (existing !== null && existing !== serialized) return "conflict";
+    if (existing !== null)
+      return isCurrentLifecycleIntent(storage, key, expected)
+        ? "stored"
+        : "conflict";
     storage.setItem(key, serialized);
-    return storage.getItem(key) === serialized ? "stored" : "unavailable";
+    return isCurrentLifecycleIntent(storage, key, expected)
+      ? "stored"
+      : "unavailable";
   } catch {
     return "unavailable";
   }

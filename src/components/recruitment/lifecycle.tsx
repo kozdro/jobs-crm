@@ -25,6 +25,7 @@ function formatEventDay(day: string) {
 }
 import {
   clearMatchingLifecycleIntent,
+  isCurrentLifecycleIntent,
   isClosureRevision,
   isLifecyclePreview,
   lifecycleIntentStorageKey,
@@ -52,15 +53,35 @@ function readPending(userId: string, caseId: string) {
     return null;
   }
 }
-function clearPending(userId: string, caseId: string, requestId: string) {
+const changedIntentMessage =
+  "Zachowane dane operacji zmieniły się. Nie potwierdzono wyniku ani nie wysłano ponowienia. Zachowano bieżący zapis oczekujący.";
+function commandIntent(
+  userId: string,
+  caseId: string,
+  command: ConfirmLifecycleInput,
+): LifecycleIntent & { command: ConfirmLifecycleInput } {
+  return { ownerId: userId, caseId, requestId: command.requestId, command };
+}
+function currentPending(expected: LifecycleIntent) {
   try {
-    return clearMatchingLifecycleIntent(sessionStorage, storageKey(caseId), {
-      ownerId: userId,
-      caseId,
-      requestId,
-    });
+    return isCurrentLifecycleIntent(
+      sessionStorage,
+      storageKey(expected.caseId),
+      expected,
+    );
   } catch {
-    return true;
+    return false;
+  }
+}
+function clearPending(expected: LifecycleIntent) {
+  try {
+    return clearMatchingLifecycleIntent(
+      sessionStorage,
+      storageKey(expected.caseId),
+      expected,
+    );
+  } catch {
+    return false;
   }
 }
 async function request(userId: string, query: string | object) {
@@ -199,9 +220,17 @@ export function LifecycleForm({
     setFieldErrors({});
     return parsed.data;
   }
+  function reportChangedIntent() {
+    setUncertain(true);
+    report(changedIntentMessage);
+    announce(caseId);
+  }
   function complete(command: ConfirmLifecycleInput) {
-    if (!alive.current || !clearPending(userId, caseId, command.requestId))
+    if (!alive.current) return;
+    if (!clearPending(commandIntent(userId, caseId, command))) {
+      reportChangedIntent();
       return;
+    }
     announce(caseId);
     invalidateTaskReads(userId, caseId);
     router.refresh();
@@ -259,6 +288,10 @@ export function LifecycleForm({
   async function save() {
     if (busy.current) return;
     let command = frozen.current;
+    if (command && !currentPending(commandIntent(userId, caseId, command))) {
+      reportChangedIntent();
+      return;
+    }
     if (!command) {
       const value = draft();
       if (!value || !preview) return;
@@ -315,6 +348,10 @@ export function LifecycleForm({
       );
       return;
     }
+    if (!currentPending(commandIntent(userId, caseId, command))) {
+      reportChangedIntent();
+      return;
+    }
     announce(caseId);
     const requestEpoch = epoch.current;
     const current = () => alive.current && epoch.current === requestEpoch;
@@ -332,7 +369,10 @@ export function LifecycleForm({
         response.status === 400 ||
         (response.status === 409 && body?.kind === "stale")
       ) {
-        if (!clearPending(userId, caseId, command.requestId)) return;
+        if (!clearPending(commandIntent(userId, caseId, command))) {
+          reportChangedIntent();
+          return;
+        }
         frozen.current = null;
         setUncertain(false);
         setPreview(null);
@@ -366,6 +406,10 @@ export function LifecycleForm({
   async function recover() {
     const command = frozen.current;
     if (busy.current || !command) return;
+    if (!currentPending(commandIntent(userId, caseId, command))) {
+      reportChangedIntent();
+      return;
+    }
     const requestEpoch = epoch.current;
     const current = () => alive.current && epoch.current === requestEpoch;
     busy.current = true;
@@ -779,7 +823,11 @@ export function LifecycleRecovery({
     };
   }, [userId, caseId]);
   function complete(expected: LifecycleIntent, text: string) {
-    if (!clearPending(userId, caseId, expected.requestId)) return;
+    if (!clearPending(expected)) {
+      setIntent(readPending(userId, caseId));
+      setMessage(changedIntentMessage);
+      return;
+    }
     setIntent(null);
     setMessage(text);
     announce(caseId);
@@ -795,6 +843,11 @@ export function LifecycleRecovery({
     )
       return;
     const saved = intent;
+    if (!currentPending(saved)) {
+      setIntent(readPending(userId, caseId));
+      setMessage(changedIntentMessage);
+      return;
+    }
     const requestEpoch = epoch.current;
     const current = () => alive.current && epoch.current === requestEpoch;
     busy.current = true;

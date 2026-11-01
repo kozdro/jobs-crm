@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import type { Task } from "@/modules/recruitment/domain/tasks";
-import { buttonStyles, inputStyles } from "@/components/ui/styles";
+import { inputStyles } from "@/components/ui/styles";
+import { buttonStyles } from "./styles";
 import { isCalendarDate } from "@/modules/recruitment/domain/case-events";
 import { useTaskMutation, useTaskRead } from "./hooks";
 import { TaskMutationFeedback, TaskReadFeedback } from "./common";
