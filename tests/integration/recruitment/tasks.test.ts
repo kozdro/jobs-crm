@@ -17,12 +17,12 @@ const target = await readRecruitmentTarget(id);
 type Row = Record<string, unknown>;
 type Task = Row & {
   id: string;
-  owner_id: string;
   title: string;
   description: string | null;
   due_on: string | null;
   status: "Do zrobienia" | "Wykonane" | "Anulowane";
   case_id: string | null;
+  case_title: string | null;
   revision: number;
 };
 type Preview = {
@@ -95,7 +95,7 @@ test(
     const taskRows = async (query = "", token: string | null = a.token) =>
       ok<Task[]>(
         await api(
-          `/rest/v1/recruitment_task?select=*&${query}`,
+          `/rest/v1/recruitment_task_current?select=id,title,description,due_on,status,case_id,case_title,revision,created_at,updated_at&${query}`,
           "GET",
           undefined,
           token,
