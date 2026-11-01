@@ -12,8 +12,13 @@ import { TaskForm } from "@/components/tasks/task-form";
 import { TasksPanel, TaskValues } from "@/components/tasks/tasks-panel";
 import {
   isLifecyclePreview,
+  lifecycleResultMatches,
   parseLifecycleIntent,
 } from "@/components/recruitment/lifecycle-intent";
+import type {
+  ConfirmLifecycleInput,
+  LifecycleEntry,
+} from "@/modules/recruitment/domain/lifecycle";
 import type { Task } from "@/modules/recruitment/domain/tasks";
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
 const owner = "00000000-0000-4000-8000-000000000001";
@@ -43,6 +48,120 @@ const create: TaskCommand = {
 const render = (value: Parameters<typeof renderToStaticMarkup>[0]) =>
   renderToStaticMarkup(value);
 describe("Tasks Core UI contracts", () => {
+  it("accepts SQL JSONB key order in closure receipts while rejecting changed tasks, choices and revisions", () => {
+    const otherTask = "00000000-0000-4000-8000-000000000005";
+    const thirdTask = "00000000-0000-4000-8000-000000000006";
+    const command: ConfirmLifecycleInput = {
+      operation: "close",
+      caseId,
+      closureId: null,
+      outcome: "Nie aplikowano",
+      occurredOn: null,
+      offerConfirmed: false,
+      requestId,
+      expectedCaseRevision: 2,
+      expectedClosureRevision: 0,
+      expectedTaskSnapshot: [`${taskId}:0`, `${otherTask}:3`, `${thirdTask}:1`],
+      taskResolutions: [
+        { taskId, action: "cancel" },
+        { taskId: otherTask, action: "keep" },
+        { taskId: thirdTask, action: "detach" },
+      ],
+    };
+    const entry: LifecycleEntry = {
+      id: owner,
+      request_id: requestId,
+      case_id: caseId,
+      kind: "close",
+      cycle: 0,
+      occurred_on: null,
+      recorded_at: "2026-11-01T12:00:00Z",
+      outcome: "Nie aplikowano",
+      offer_confirmed: false,
+      previous_status: "Zapisane",
+      previous_stage: null,
+      resulting_status: "Zakończone",
+      resulting_stage: null,
+      revision: 0,
+      expected_case_revision: 2,
+      original: {
+        outcome: "Nie aplikowano",
+        occurredOn: null,
+        offerConfirmed: false,
+      },
+      expected_task_snapshot: command.expectedTaskSnapshot,
+      task_resolutions: [
+        { action: "detach", taskId: thirdTask },
+        { action: "keep", taskId: otherTask },
+        { action: "cancel", taskId },
+      ],
+    };
+    expect(lifecycleResultMatches({ entry }, command)).toBe(true);
+    expect(
+      lifecycleResultMatches(
+        {
+          entry: {
+            ...entry,
+            task_resolutions: [
+              { action: "detach", taskId: thirdTask },
+              { action: "keep", taskId: otherTask },
+              { action: "keep", taskId },
+            ],
+          },
+        },
+        command,
+      ),
+    ).toBe(false);
+    expect(
+      lifecycleResultMatches(
+        {
+          entry: {
+            ...entry,
+            task_resolutions: [
+              { action: "detach", taskId: thirdTask },
+              { action: "keep", taskId: otherTask },
+              { action: "cancel", taskId: owner },
+            ],
+          },
+        },
+        command,
+      ),
+    ).toBe(false);
+    expect(
+      lifecycleResultMatches(
+        {
+          entry: {
+            ...entry,
+            expected_task_snapshot: [
+              `${taskId}:1`,
+              `${otherTask}:3`,
+              `${thirdTask}:1`,
+            ],
+          },
+        },
+        command,
+      ),
+    ).toBe(false);
+    expect(
+      lifecycleResultMatches(
+        { entry: { ...entry, expected_case_revision: 3 } },
+        command,
+      ),
+    ).toBe(false);
+    expect(
+      lifecycleResultMatches(
+        { entry },
+        { ...command, expectedTaskSnapshot: [], taskResolutions: [] },
+      ),
+    ).toBe(false);
+    expect(
+      lifecycleResultMatches(
+        { entry: { ...entry, task_resolutions: [null] } },
+        command,
+      ),
+    ).toBe(false);
+  });
+
   it("invalidates closed-case task lists and audits only within the matching owner and case scope", () => {
     const close = { ownerId: owner, caseId };
     expect(matchesTaskInvalidation(close, owner, {})).toBe(true);

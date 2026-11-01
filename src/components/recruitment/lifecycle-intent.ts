@@ -31,6 +31,40 @@ const day = (value: unknown) =>
   value === null || (typeof value === "string" && isCalendarDate(value));
 const id = (value: unknown) =>
   typeof value === "string" && uuidPattern.test(value);
+function isTaskSnapshot(value: unknown): value is string[] {
+  return (
+    Array.isArray(value) &&
+    value.every((item) => {
+      if (typeof item !== "string") return false;
+      const parts = item.split(":");
+      return (
+        parts.length === 2 &&
+        id(parts[0]) &&
+        /^(0|[1-9][0-9]*)$/.test(parts[1]) &&
+        revision(Number(parts[1])) &&
+        Number(parts[1]) < 2147483647
+      );
+    }) &&
+    new Set(value.map((item) => item.split(":")[0].toLowerCase())).size ===
+      value.length
+  );
+}
+function isTaskResolutions(
+  value: unknown,
+): value is NonNullable<ConfirmLifecycleInput["taskResolutions"]> {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (item) =>
+        record(item) &&
+        Object.keys(item).length === 2 &&
+        id(item.taskId) &&
+        ["cancel", "keep", "detach"].includes(item.action as string),
+    ) &&
+    new Set(value.map((item) => item.taskId.toLowerCase())).size ===
+      value.length
+  );
+}
 export function isClosureValues(value: unknown): value is ClosureValues {
   return (
     record(value) &&
@@ -82,7 +116,11 @@ export function isLifecycleEntry(value: unknown): value is LifecycleEntry {
     (value.resulting_stage === null ||
       typeof value.resulting_stage === "string") &&
     revision(value.revision) &&
-    (value.original === null || isClosureValues(value.original))
+    (value.original === null || isClosureValues(value.original)) &&
+    (value.expected_task_snapshot === undefined ||
+      isTaskSnapshot(value.expected_task_snapshot)) &&
+    (value.task_resolutions === undefined ||
+      isTaskResolutions(value.task_resolutions))
   );
 }
 export function isClosureRevision(value: unknown): value is ClosureRevision {
@@ -175,7 +213,10 @@ export function lifecycleResultMatches(
     if (!isLifecycleEntry(value)) return false;
     const sortResolutions = (
       items: NonNullable<ConfirmLifecycleInput["taskResolutions"]>,
-    ) => [...items].sort((a, b) => a.taskId.localeCompare(b.taskId));
+    ) =>
+      items
+        .map((item) => [item.taskId.toLowerCase(), item.action] as const)
+        .sort(([a], [b]) => a.localeCompare(b));
     if (
       JSON.stringify(value.expected_task_snapshot ?? []) !==
         JSON.stringify(command.expectedTaskSnapshot ?? []) ||

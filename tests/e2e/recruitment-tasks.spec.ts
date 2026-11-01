@@ -280,7 +280,14 @@ test("DEC060 closure requires each choice and atomically cancels, keeps and deta
   await page
     .getByRole("button", { name: "Zatwierdź zakończenie", exact: true })
     .click();
-  await expect(page.getByRole("alert")).toContainText("każde");
+  await expect(
+    page.getByRole("alert").filter({
+      hasText:
+        "Wybierz Anuluj, Zachowaj albo Odłącz dla każdego otwartego zadania.",
+    }),
+  ).toHaveText(
+    "Wybierz Anuluj, Zachowaj albo Odłącz dla każdego otwartego zadania.",
+  );
   expect((await caseState(c)).status).toBe("Zapisane");
   expect(
     (
@@ -307,10 +314,23 @@ test("DEC060 closure requires each choice and atomically cancels, keeps and deta
       request.method() === "POST" &&
       request.postDataJSON().action === "confirm",
   );
+  const replied = page.waitForResponse(
+    (response) =>
+      response.url().endsWith("/recruitments/lifecycle-commands") &&
+      response.request().method() === "POST" &&
+      response.request().postDataJSON().action === "confirm",
+  );
   await page
     .getByRole("button", { name: "Zatwierdź zakończenie", exact: true })
     .click();
   const closingIntent = (await sent).postDataJSON() as Record<string, unknown>;
+  const response = await replied;
+  const receipt = await response.json();
+  expect(
+    response.status(),
+    JSON.stringify({ kind: receipt.kind, error: receipt.error }),
+  ).toBe(200);
+  expect(receipt.kind).toBe("created");
   await expect(
     page.getByRole("button", { name: "Wznów sprawę", exact: true }),
   ).toBeVisible();
@@ -356,6 +376,82 @@ test("DEC060 closure requires each choice and atomically cancels, keeps and deta
   await expect(page.getByText(c.title, { exact: false }).last()).toBeVisible();
 });
 
+test("DEC060 lost three-choice closure reply recovers the original receipt and resolves every task once", async ({
+  page,
+}) => {
+  const c = await fixture();
+  const titles = [
+    "Anulowanie po utracie odpowiedzi",
+    "Zachowanie po utracie odpowiedzi",
+    "Odłączenie po utracie odpowiedzi",
+  ].map((title) => `${title} ${randomUUID()}`);
+  const tasks = await Promise.all(titles.map((title) => taskFixture(c, title)));
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${c.id}`);
+  await closeForm(page);
+  for (const [index, name] of ["Anuluj", "Zachowaj", "Odłącz"].entries())
+    await page
+      .getByRole("group", { name: titles[index], exact: true })
+      .getByRole("radio", { name, exact: true })
+      .check();
+  let requestId = "";
+  let confirms = 0;
+  await page.route("**/recruitments/lifecycle-commands", async (route) => {
+    if (
+      route.request().method() === "POST" &&
+      route.request().postDataJSON().action === "confirm"
+    ) {
+      confirms++;
+      requestId = route.request().postDataJSON().requestId;
+      const reply = await route.fetch();
+      expect(reply.status()).toBe(200);
+      expect((await reply.json()).kind).toBe("created");
+      return route.abort("failed");
+    }
+    return route.continue();
+  });
+  await confirmClose(page);
+  const form = page.getByRole("form", {
+    name: "Zakończenie sprawy",
+    exact: true,
+  });
+  await expect(
+    form.getByRole("alert").filter({ hasText: "Wynik zapisu jest nieznany." }),
+  ).toBeVisible();
+  expect((await caseState(c)).status).toBe("Zakończone");
+  await form
+    .getByRole("button", { name: "Sprawdź wynik zapisu", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Wznów sprawę", exact: true }),
+  ).toBeVisible();
+  await expect(taskArticle(page, titles[0])).toContainText("Anulowane");
+  await expect(taskArticle(page, titles[1])).toContainText("Do zrobienia");
+  await expect(taskArticle(page, titles[2])).toHaveCount(0);
+  const closures = await c.client
+    .from("recruitment_case_lifecycle")
+    .select("id,request_id")
+    .eq("case_id", c.id);
+  expect(closures.error).toBeNull();
+  expect(closures.data).toHaveLength(1);
+  expect(closures.data![0].request_id).toBe(requestId);
+  for (const task of tasks) {
+    const audit = await c.client
+      .from("recruitment_task_command")
+      .select("id,closure_id")
+      .eq("task_id", task.id);
+    expect(audit.error).toBeNull();
+    expect(audit.data).toHaveLength(2);
+    expect(
+      audit.data!.filter((entry) => entry.closure_id === closures.data![0].id),
+    ).toHaveLength(1);
+  }
+  expect(confirms).toBe(1);
+  expect(
+    (await taskRows(c)).find((row) => row.id === tasks[2].id),
+  ).toMatchObject({ case_id: null, status: "Do zrobienia" });
+});
+
 test("DEC060 stale closure task snapshot requires refreshed preview and cannot silently close", async ({
   page,
 }) => {
@@ -371,7 +467,11 @@ test("DEC060 stale closure task snapshot requires refreshed preview and cannot s
     .check();
   await taskFixture(c, `Dodane po podglądzie ${randomUUID()}`);
   await confirmClose(page);
-  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(
+    page
+      .getByRole("alert")
+      .filter({ hasText: "Sprawa lub zakończenie zmieniły się." }),
+  ).toBeVisible();
   expect((await caseState(c)).status).toBe("Zapisane");
   const lifecycle = await c.client
     .from("recruitment_case_lifecycle")
@@ -436,7 +536,9 @@ test("DEC060 failed task save preserves form and never reports a false success",
   await page
     .getByRole("button", { name: "Zapisz zadanie", exact: true })
     .click();
-  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(
+    page.getByRole("alert").filter({ hasText: "Wynik zapisu jest nieznany." }),
+  ).toBeVisible();
   await expect(page.getByLabel("Tytuł zadania", { exact: true })).toHaveValue(
     title,
   );

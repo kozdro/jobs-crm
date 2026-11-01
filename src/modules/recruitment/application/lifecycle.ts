@@ -313,7 +313,10 @@ export async function confirmLifecycle(
   if (entry) {
     const sortResolutions = (
       items: import("../domain/tasks").TaskResolution[],
-    ) => [...items].sort((a, b) => a.taskId.localeCompare(b.taskId));
+    ) =>
+      items
+        .map(({ taskId, action }) => [taskId.toLowerCase(), action] as const)
+        .sort(([leftId], [rightId]) => leftId.localeCompare(rightId));
     if (
       JSON.stringify(entry.expected_task_snapshot ?? []) !==
         JSON.stringify(parsed.data.expectedTaskSnapshot ?? []) ||

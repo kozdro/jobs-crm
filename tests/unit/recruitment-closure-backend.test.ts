@@ -250,3 +250,73 @@ describe("DEC060 complete closure replay identity", () => {
     },
   );
 });
+
+describe("PostgreSQL jsonb task resolution receipt identity", () => {
+  const command: ConfirmLifecycleInput = {
+    ...input,
+    expectedTaskSnapshot: [`${caseId}:0`, `${requestId}:1`, `${id}:2`],
+    taskResolutions: [
+      { taskId: caseId, action: "cancel" },
+      { taskId: requestId, action: "keep" },
+      { taskId: id, action: "detach" },
+    ],
+  };
+  // JSONB serialization orders object keys independently of the original browser object.
+  const sqlResolutions = [
+    { action: "detach", taskId: id },
+    { action: "cancel", taskId: caseId },
+    { action: "keep", taskId: requestId },
+  ];
+  it.each(["created", "replayed"])(
+    "accepts %s receipt with reversed JSON object keys and reordered resolution set",
+    async (kind) => {
+      const rpc = vi.fn().mockResolvedValue({
+        data: {
+          kind,
+          entry: {
+            ...entry,
+            expected_task_snapshot: command.expectedTaskSnapshot,
+            task_resolutions: sqlResolutions,
+          },
+          revision: null,
+        },
+        error: null,
+      });
+      expect(
+        (await confirmLifecycle({ rpc } as unknown as SupabaseClient, command))
+          .kind,
+      ).toBe(kind);
+    },
+  );
+  it.each([
+    [
+      { action: "keep", taskId: caseId },
+      { action: "keep", taskId: requestId },
+      { action: "detach", taskId: id },
+    ],
+    [
+      { action: "cancel", taskId: caseId },
+      { action: "keep", taskId: requestId },
+      { action: "detach", taskId: "44444444-4444-4444-8444-444444444444" },
+    ],
+  ])(
+    "still rejects changed resolution action or task identity %j",
+    async (task_resolutions) => {
+      const rpc = vi.fn().mockResolvedValue({
+        data: {
+          kind: "replayed",
+          entry: {
+            ...entry,
+            expected_task_snapshot: command.expectedTaskSnapshot,
+            task_resolutions,
+          },
+          revision: null,
+        },
+        error: null,
+      });
+      await expect(
+        confirmLifecycle({ rpc } as unknown as SupabaseClient, command),
+      ).rejects.toMatchObject({ kind: "unavailable" });
+    },
+  );
+});

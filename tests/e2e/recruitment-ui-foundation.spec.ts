@@ -281,6 +281,7 @@ test("UI foundation empty state and responsive keyboard navigation restore focus
     expect([
       "/dashboard",
       "/recruitments",
+      "/tasks",
       "/companies",
       "/contacts",
     ]).toContain(await link.getAttribute("href"));
