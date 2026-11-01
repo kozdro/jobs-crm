@@ -1,8 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { AuthRefreshDiscardedError } from "@supabase/supabase-js";
 
 const mocks = vi.hoisted(() => ({
   createBrowserClient: vi.fn(),
   getPublicAuthConfig: vi.fn(),
+  signOut: vi.fn(),
 }));
 vi.mock("@supabase/ssr", () => ({
   createBrowserClient: mocks.createBrowserClient,
@@ -11,7 +13,10 @@ vi.mock("@/shared/public/auth-config", () => ({
   getPublicAuthConfig: mocks.getPublicAuthConfig,
 }));
 
-import { getBrowserClient } from "@/modules/identity/infrastructure/browser";
+import {
+  getBrowserClient,
+  signOut,
+} from "@/modules/identity/infrastructure/browser";
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -21,6 +26,43 @@ beforeEach(() => {
     key: "public",
     origin: "https://app.example.test",
   });
+  mocks.createBrowserClient.mockReturnValue({
+    auth: { signOut: mocks.signOut },
+  });
+});
+
+describe("AUTH-14 local logout during a concurrent token refresh", () => {
+  it("treats a discarded refresh result as a completed local sign-out", async () => {
+    mocks.signOut.mockResolvedValue({
+      data: null,
+      error: new AuthRefreshDiscardedError(),
+    });
+
+    await expect(signOut("local")).resolves.toEqual({
+      data: null,
+      error: null,
+    });
+    expect(mocks.signOut).toHaveBeenCalledExactlyOnceWith({ scope: "local" });
+  });
+
+  it("preserves unrelated Auth errors and the requested scope", async () => {
+    const error = new Error("logout failed");
+    mocks.signOut.mockResolvedValue({ data: null, error });
+
+    await expect(signOut("local")).resolves.toEqual({ data: null, error });
+    expect(mocks.signOut).toHaveBeenCalledExactlyOnceWith({ scope: "local" });
+  });
+
+  it.each(["others", "global"] as const)(
+    "preserves a discarded refresh error for the %s sign-out scope",
+    async (scope) => {
+      const error = new AuthRefreshDiscardedError();
+      mocks.signOut.mockResolvedValue({ data: null, error });
+
+      await expect(signOut(scope)).resolves.toEqual({ data: null, error });
+      expect(mocks.signOut).toHaveBeenCalledExactlyOnceWith({ scope });
+    },
+  );
 });
 afterEach(() => vi.unstubAllGlobals());
 

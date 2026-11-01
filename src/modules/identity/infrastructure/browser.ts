@@ -1,6 +1,7 @@
 "use client";
 
 import { createBrowserClient } from "@supabase/ssr";
+import { isAuthRefreshDiscardedError } from "@supabase/supabase-js";
 
 import {
   logoutScopeSchema,
@@ -38,7 +39,15 @@ export function getBrowserClient() {
 }
 
 export async function signOut(scope: LogoutScope) {
-  return getBrowserClient().auth.signOut({
+  const result = await getBrowserClient().auth.signOut({
     scope: logoutScopeSchema.parse(scope),
   });
+  // A concurrent refresh can lose its commit after signOut cleared local
+  // storage. The SDK reports this specific discarded refresh as an error even
+  // though the local session is already gone; treat that race as a local
+  // sign-out success while preserving every other SDK error.
+  if (scope === "local" && isAuthRefreshDiscardedError(result.error)) {
+    return { ...result, error: null };
+  }
+  return result;
 }
