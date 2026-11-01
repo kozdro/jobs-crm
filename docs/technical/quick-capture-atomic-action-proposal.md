@@ -1,8 +1,16 @@
-# Quick Capture — proponowany kontrakt atomowego Działania
+# Quick Capture — zatwierdzony kontrakt atomowego Działania
 
-**Status całego rozszerzenia: PROPOSED / READY_FOR_OWNER_DECISION. Implementacja: BLOCKED_DECISION / NOT RUN.** Data: 2026-11-01. Baza analizy: `637f330f6dc1215ad2479dd699b8814397e5b5de`, aktualny main po PR #21. Autor: `hardening_spec`, spec-analyst, model/reasoning inherited / NOT EXPOSED. Zastosowano analyze-requirement, clarify-requirements i plan-slice; brak nowych DEC APPROVED, zmian ADR, schematu lub kodu.
+**Status kontraktu: APPROVED — DEC-061, P1/P2/P3. Implementacja: NOT IMPLEMENTED / NOT RUN; wymaga osobnego zadania PO.** Data: 2026-11-01. Baza analizy: `637f330f6dc1215ad2479dd699b8814397e5b5de`, aktualny main po PR #21. Autor: `hardening_spec`, spec-analyst, model/reasoning inherited / NOT EXPOSED. Zastosowano analyze-requirement, clarify-requirements i plan-slice; pierwotna propozycja nie tworzyła DEC APPROVED; poniższa aktualizacja zapisuje rzeczywistą akceptację PO bez zmian ADR, schematu lub kodu.
 
 Źródło obecnej pracy: PO polecił **przed rozszerzeniem Działania przygotować w tym zadaniu szczegółowy kontrakt atomowy do akceptacji; niezależny UX realizować dalej**. To autoryzuje ten projekt kontraktu, nie jego wdrożenie. [Analiza zgodności](product-journey-hardening-analysis.md) nadal rozdziela niezależny hardening od rozszerzenia.
+
+## Akceptacja PO — 2026-11-01
+
+Źródło: odpowiedź PO w bieżącej rozmowie: **„Akceptuję kontrakt P1/P2/P3; implementacja pozostaje osobnym zadaniem.”** Zapis kanoniczny: [DEC-061](../decisions/product-decisions.md). Wszystkie trzy pakiety zostały zaakceptowane jako **kontrakt**, bez zgody na wykonanie produktu, SQL/migracje, zmianę danych, merge lub deployment.
+
+Akceptowany artefakt przed niniejszą adnotacją miał SHA-256 **`1f669e92b8a259ad9a63f68e294d6cb60a1ebcc1fb425acdff8bce5c074af991`**. Jego dokładna treść pozostaje w Git `0f93627cd2af6818487568a93499077d6b3688e5` pod tą samą ścieżką (ref i hash zweryfikowane przed zapisem akceptacji). Historyczny etap PROPOSED / READY_FOR_OWNER_DECISION oraz poniższe warianty akceptacji nie są usuwane. Aktualizacja zmienia status i odsyłacze, a nie treść zaakceptowanych zobowiązań P1/P2/P3. §9 zachowuje historyczne sformułowania propozycji; nie jest ponownym pytaniem o zgodę już udzieloną.
+
+**Pozostała bramka: osobne zadanie implementacyjne.** Macierz testów nadal PLANNED / NOT RUN. Nie zatwierdzono nowych polityk retencji/TTL, publicznych bramek lub nowej architektury. Nazwa pliku `proposal` pozostaje stabilnym adresem historycznej propozycji i zaakceptowanego kontraktu.
 
 ## 1. Istniejące decyzje i nowe rozstrzygnięcia
 
@@ -18,11 +26,11 @@ Skróty źródeł stosowane w każdym punkcie:
 | TECH | [TD](discovery-decisions.md) 1.1/1.2/1.31–1.33/1.37/1.38; [ADR-0001](../decisions/adr/0001-modular-nextjs.md), [ADR-0002](../decisions/adr/0002-relational-state-history.md), [ADR-0012](../decisions/adr/0012-supabase-native-auth-sessions-rls.md), ACCEPTED | Modular monolith, PostgreSQL transakcje, stan/historia/audyt osobno, Data API/JWT/RLS, minimalne RPC INVOKER, Drizzle migracje; bez uprzywilejowanego user path |
 | BR | [BR-001/003/004/007/014/015/016/020/021/022/026/028/029/030](../domain/business-rules.md), APPROVED | Brak fikcyjnych faktów/CV/komunikacji/inferencji, prywatność, rozdział URL i aplikacji, jawna deduplikacja i zapis |
 
-**NOWE — do akceptacji PO:** połączenie CREATE i FACT w jednym zatwierdzeniu; zakres czterech wariantów Działania; wspólny identyfikator pełnego zamiaru i trwały wynik; związanie zgody na duplikat z treścią i aktualnym zbiorem dopasowań; zachowanie niepewnego wyniku, jego odczyt i zgodność starych klientów. Poniższe „musi” opisuje warunki **propozycji po zatwierdzeniu**, nie ogłoszone już wymagania APPROVED.
+**NOWE względem wcześniejszych przyrostów — zatwierdzone DEC-061:** połączenie CREATE i FACT w jednym zatwierdzeniu; zakres czterech wariantów Działania; wspólny identyfikator pełnego zamiaru i trwały wynik; związanie zgody na duplikat z treścią i aktualnym zbiorem dopasowań; zachowanie niepewnego wyniku, jego odczyt i zgodność starych klientów. Poniższe „musi” opisuje zaakceptowany kontrakt P1/P2/P3; jego wykonanie pozostaje nieautoryzowane w tym zadaniu.
 
-Nie proponujemy zastąpienia Discovery uproszczonym MVP. Docelowy cel UX pozostaje; zmieniamy wyłącznie dotychczasowy zakres wykonawczy save-only, jeśli PO zaakceptuje ten kontrakt. Nie otwieramy ponownie wyboru stacku/Auth/F4. ADR-0005 dotyczy importu; [F4](foundation-plan.md) nie blokuje CRUD i nie jest gotowym kontraktem tego rozszerzenia. [Źródła: UX, CREATE, FACT, TECH.]
+Nie proponujemy zastąpienia Discovery uproszczonym MVP. Docelowy cel UX pozostaje; zmieniamy wyłącznie dotychczasowy zakres wykonawczy save-only, zgodnie z akceptacją kontraktu w DEC-061; implementacja wymaga osobnego zadania. Nie otwieramy ponownie wyboru stacku/Auth/F4. ADR-0005 dotyczy importu; [F4](foundation-plan.md) nie blokuje CRUD i nie jest gotowym kontraktem tego rozszerzenia. [Źródła: UX, CREATE, FACT, TECH.]
 
-## 2. Zakres biznesowy i DTO — PROPOSED pakiet P1
+## 2. Zakres biznesowy i DTO — APPROVED kontrakt P1 (DEC-061)
 
 Jeden świadomy zapis tworzy **jedną nową sprawę** i **zero lub jeden rzeczywisty fakt**. Cztery warianty:
 
@@ -66,7 +74,7 @@ type QuickCaptureAtomicInput = {
 - Owner, UUID nowej sprawy/faktu, cycle/revision i `created_at`/`recorded_at` nadają zaufane warstwy zgodnie z CREATE/FACT, nie input. Zaufany czas rejestracji nie dowodzi dnia działania. Początkowy cykl i rewizje stosują istniejące niezmienniki, bez nowej biznesowej definicji. [CREATE, FACT, HISTORY, TECH.]
 - Sytuacja (pięć intencji Blueprintu) jest wyłącznie stanem UI, **nie polem komendy, fingerprintu biznesowego, DB enumem ani faktem**. Nie kopiuje się z niej `action.kind`, date, confirmation, statusu ani danych pracodawcy. [UX, CREATE, BR.]
 
-## 3. Granica transakcji i wynik — PROPOSED P1/P2
+## 3. Granica transakcji i wynik — APPROVED kontrakt P1/P2 (DEC-061)
 
 Jedno wywołanie biznesowego RPC w kontekście uwierzytelnionego właściciela, w jednej transakcji PostgreSQL:
 
@@ -81,7 +89,7 @@ Sukces zwraca receipt z `requestId`, `contractVersion`, zgodnością pełnego za
 
 Nie obiecujemy „exactly once execution”: gwarantujemy pojedynczy utrwalony efekt pełnego zamiaru/replay w określonym owner namespace i brak ponownego zastosowania jego skutków. [CREATE, HISTORY, ADR-0012; P2.]
 
-## 4. Duplikaty, zgoda i współbieżność — PROPOSED P2
+## 4. Duplikaty, zgoda i współbieżność — APPROVED kontrakt P2 (DEC-061)
 
 - Bez zmiany algorytmu CREATE: deterministyczny identyczny znormalizowany title **lub** identyczny canonical URL wyłącznie u właściciela, bez globalnej unikalności/merge. Dopasowania obcego właściciela nie wywołują ostrzeżenia i nie ujawniają count/ID/metadanych. [CREATE, BR-022/030.]
 - Wynik `duplicates` nie tworzy sprawy/faktu/receipt sukcesu. Zawiera własne dopasowania według istniejącego ograniczenia prezentacji CREATE (20 + informacja o dalszych) oraz referencje pełnego zamiaru i aktualnego zestawu dopasowań. Fingerprint zbioru uwzględnia wszystkie dopasowania, nie tylko pierwszą stronę. [CREATE; nowe związanie P2.]
@@ -91,7 +99,7 @@ Nie obiecujemy „exactly once execution”: gwarantujemy pojedynczy utrwalony e
 - Wspólna owner lock serializuje zwykłe create i compound create, a unique `(owner, requestId)` jest końcowym guardem. Nowa ścieżka nie może ignorować trwającego starego create. Istniejący dozwolony bezpośredni INSERT nie daje globalnej gwarancji braku duplikatu biznesowego — dokumentować tę granicę, jak CREATE, bez cichego rozszerzenia grantów lub obietnicy globalnej unikalności. [CREATE, TECH; integracja P2.]
 - Dwa różne requestId mogą oznaczać dwie świadomie oddzielne sprawy po ostrzeżeniu. Nie deduplikować ich przez sam podobny title, wybraną Sytuację lub zgodny fakt. Ten sam UUID u dwóch ownerów pozostaje niezależny. [CREATE, BR-001/002/022; P2.]
 
-## 5. Kanoniczny zamiar, retry i recovery — PROPOSED P2
+## 5. Kanoniczny zamiar, retry i recovery — APPROVED kontrakt P2 (DEC-061)
 
 Canonical intent obejmuje `contractVersion`, kanoniczne title/description/sourceUrl oraz cały wariant action, jego dzień i explicit confirmation. Fingerprint jest deterministyczny i niezależny od kolejności kluczy JSON. Owner jest osobną zaufaną częścią namespace. `requestId` identyfikuje intent, a nie jest składnikiem porównywanej treści. `expectedUserId` jest warunkiem tożsamości; acknowledgment duplikatu nie jest treścią biznesową, bo jego ponowne potwierdzenie musi umożliwić zapis tego samego niezmienionego zamiaru. Sytuacja UI nie zmienia wyniku ani intent. [CREATE, FACT, HISTORY, TASKS; rozszerzenie P2.]
 
@@ -104,7 +112,7 @@ Canonical intent obejmuje `contractVersion`, kanoniczne title/description/source
 - Brak nowego arbitralnego storage payloadów/tokenów. Minimalny dodatkowy stan recovery musi respektować istniejące ograniczenie CREATE: właścicielowo ograniczony klucz; po odświeżeniu receipt może przywrócić zamrożony zamiar po bezpiecznym odczycie właściciela. Bez receipt i pełnej treści klient nie może zgadywać retry. Jeśli potrzebny jest zapis pełnej koperty po stronie klienta, wymaga osobnego uzasadnienia prywatności i akceptacji przed implementacją. [CREATE, BR-030, ADR-0012; dokładny mechanizm P2.]
 - Nie ustalamy TTL/retencji/pruning registry, polityki usuwania lub eksportu. Nie usuwać receipt ani nie pozwalać klientowi rezerwować/przepisywać go bez biznesowej komendy. Jeżeli przyszła realizacja wymaga czasowego wygaśnięcia wyniku/idempotencji, wraca do PO zamiast wymyślać próg; OPEN-005/032 pozostają. [TECH, HISTORY, BR-030; brak nowej polityki.]
 
-## 6. UX, anulowanie i błędy — PROPOSED P3
+## 6. UX, anulowanie i błędy — APPROVED kontrakt P3 (DEC-061)
 
 Cztery kroki **Sytuacja → Dane → Działanie → Podsumowanie** z CREATE pozostają. P3 wprowadza w Działaniu jawny wybór save-only albo application/contact inbound/outbound; nie ma domyślnego faktu, auto-check confirmation ani domyślnego dnia na podstawie Sytuacji. [UX, CREATE, FACT; nowy wybór action w QC P1/P3.]
 
@@ -117,7 +125,7 @@ Cztery kroki **Sytuacja → Dane → Działanie → Podsumowanie** z CREATE pozo
 
 Kategorie odpowiedzi: `created`/`replayed` (sukces), `duplicates` (brak zapisu), validation error, unauthorized, intent conflict, stale duplicate acknowledgment, unavailable/unknown result. Mapowanie HTTP zachowuje istniejące konwencje 400/401/403/409/503 tam gdzie odpowiadają; techniczna niedostępność nie dowodzi braku skutku. Nie wprowadza się automatycznych progów retry/backoff jako polityki produktu. [CREATE, FACT, TECH; nowe warianty P2/P3.]
 
-## 7. Bezpieczeństwo, persystencja i kompatybilność — PROPOSED P2
+## 7. Bezpieczeństwo, persystencja i kompatybilność — APPROVED kontrakt P2 (DEC-061)
 
 - Jedna minimalna funkcja transakcyjna przez Data API/RPC z JWT użytkownika, preferowana SECURITY INVOKER, pusty search_path i jawne schematy/granty. BFF waliduje zaufaną tożsamość, Origin i account binding; DB/RLS jest niezależną granicą, również dla bezpośredniego RPC. Bez service-role/Drizzle w zwykłej ścieżce użytkownika. [TECH, ADR-0012.]
 - Case/event/receipt/audit mają zgodnego ownera i relacje. Zwykły klient nie może przepisać ownera, historii wyniku, fingerprintu/rejestru lub czasu; minimalne EXECUTE, brak dowolnego INSERT/UPDATE/DELETE registry. Cudzy i nieistniejący request/case nie różnią się prywatnymi metadanymi. Logi i browser artifacts nie zawierają tokenów ani surowych prywatnych payloadów. [CREATE, HISTORY, TECH, BR-030.]
@@ -146,7 +154,7 @@ Kategorie odpowiedzi: `created`/`replayed` (sukces), `duplicates` (brak zapisu),
 
 Przyszły workflow: record-decision po faktycznej akceptacji → aktualizacja kontraktów/FR/AC/traceability i plan-slice → backend/frontend + własne unit → QA real isolated Auth/Data API/PostgreSQL/RLS/browser → freeze exact candidate → niezależne backend/frontend/security review przez read-only wrapper z macierzą Discovery/Blueprint/TD/DEC/ADR → poprawki i ponowne testy/review → raport/PR bez merge/deploy. To plan, nie zezwolenie na implementację. [AGENTS, delivery, TECH.]
 
-## 9. Pakiety dokładnej decyzji PO
+## 9. Historyczny zapis pakietów przedstawionych PO — zaakceptowane DEC-061
 
 Można zaakceptować trzy pakiety łącznie albo wskazać konkretny, pozostawiając pozostałe **PROPOSED**. P1 bez P2/P3 nie pozwala wdrożyć fragmentarycznego create+fact.
 

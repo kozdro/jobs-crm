@@ -89,4 +89,6 @@ Wyniki Companies & Contacts: lokalnie PASS333+87unit,105/105integracje,92/92prod
 
 Tasks Core: [raport wykonania, QA i niezależne review](technical/tasks-core-report.md).
 
-Product Journey UX Hardening: [raport](technical/product-journey-hardening-report.md), [macierz zgodności i task packet](technical/product-journey-hardening-task.md), [QA](quality/product-journey-hardening-qa.md) i [kontrakt atomowego Działania — PROPOSED](technical/quick-capture-atomic-action-proposal.md). Nie zmienia kanonicznych decyzji i nie wdraża złożonego zapisu bez akceptacji PO.
+Product Journey UX Hardening: [raport](technical/product-journey-hardening-report.md), [macierz zgodności i task packet](technical/product-journey-hardening-task.md), [QA](quality/product-journey-hardening-qa.md) i [kontrakt atomowego Działania — APPROVED DEC-061](technical/quick-capture-atomic-action-proposal.md). Hardening zachowuje kanoniczne decyzje. DEC-061 zapisuje późniejszą jawną akceptację kontraktu, bez jego implementacji; ta pozostaje osobnym zadaniem PO.
+
+Historyczny Product Journey Audit po PR #21: [raport](quality/product-journey-audit.md), [browser QA](quality/product-journey-browser-audit.md), [mapa SDD](quality/product-journey-sdd-audit.md). Wyniki baseline zachowane; aktualny stan napraw jest w raporcie hardeningu.

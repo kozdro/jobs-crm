@@ -1,5 +1,14 @@
 # Kwestie otwarte i bramki decyzyjne (OPEN)
 
+## Quick Capture — kontrakt atomowy zatwierdzony, wykonanie osobno — 2026-11-01
+
+[DEC-061](product-decisions.md): PO zaakceptował pełny [kontrakt P1/P2/P3](../technical/quick-capture-atomic-action-proposal.md), **bez autoryzacji implementacji**. Poniższe częściowe rozstrzygnięcia dotyczą kontraktu, nie wyników testów lub gotowej funkcji.
+
+- **OPEN-002 — PARTIALLY RESOLVED:** złożone Quick Capture tworzy jedną nową sprawę i zero/jeden jawny fakt save_only/application/contact_inbound/contact_outbound w jednej transakcji; istniejące minimalne dane CREATE i dane faktu 3A, świadomy UX czterech kroków, bez inferencji. Pozostałe formularze/pola/relacje i pełny model nadal OPEN; fizyczny projekt i implementacja wymagają osobnego zadania.
+- **OPEN-024 — PARTIALLY RESOLVED:** zachowany algorytm CREATE owner-only po identycznej nazwie/URL; warning przed mutacją, zgoda na odrębną nową sprawę związana z pełnym intent i aktualnym matchset, replay/receipt i brak faktu na dopasowanej istniejącej sprawie. Aktualizacja istniejącej, merge, zaawansowane podobieństwo i import nadal OPEN.
+- **OPEN-026 — PARTIALLY RESOLVED wyłącznie QC/3A:** zatwierdzone użycie rodzajów application/contact inbound/outbound jak 3A w nowej komendzie; bez kanałów, typów źródeł, CV i uczestników. Słowniki kanałów/źródeł/URL pozostają OPEN.
+- **OPEN-037 — PARTIALLY RESOLVED wyłącznie dnia faktu QC:** opcjonalny rzeczywisty nieprzyszły dzień YYYY-MM-DD lub unknown, osobny server time, dotychczasowa granica Europe/Warsaw jak 3A; bez godziny i domniemanego czasu. Strefy/profil i reguły Calendar/całodniowych/terminów nadal OPEN.
+
 ## Tasks Core — częściowe rozstrzygnięcie 2026-11-01
 
 [DEC-060](product-decisions.md), PO w tej rozmowie: zatwierdzone 1A/2A/3A/4A i pełne wykonanie [kontraktu](../technical/tasks-core-analysis.md), osobny PR bez merge/deploymentu.

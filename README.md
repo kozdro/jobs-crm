@@ -51,4 +51,6 @@ Recruitment Workspace — DEC-059: [kontrakt i plan](docs/technical/recruitment-
 
 Tasks Core: [raport wykonania, QA i niezależne review](docs/technical/tasks-core-report.md).
 
-Product Journey UX Hardening: [zgodność, zmiany i wyniki](docs/technical/product-journey-hardening-report.md). Zachowane cztery kroki i pięć opcjonalnych Sytuacji; pełne Działanie ma [osobny kontrakt PROPOSED do akceptacji PO](docs/technical/quick-capture-atomic-action-proposal.md), bez implementacji rozszerzenia.
+Product Journey UX Hardening: [zgodność, zmiany i wyniki](docs/technical/product-journey-hardening-report.md). Zachowane cztery kroki i pięć opcjonalnych Sytuacji; pełne Działanie ma [osobny kontrakt zatwierdzony DEC-061](docs/technical/quick-capture-atomic-action-proposal.md), bez implementacji rozszerzenia; implementacja pozostaje osobnym zadaniem PO.
+
+Historyczny Product Journey Audit po PR #21: [raport](docs/quality/product-journey-audit.md), [browser QA](docs/quality/product-journey-browser-audit.md), [mapa SDD](docs/quality/product-journey-sdd-audit.md). Wyniki baseline zachowane; aktualny stan napraw jest w raporcie hardeningu.

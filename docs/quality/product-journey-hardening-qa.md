@@ -12,7 +12,7 @@
 | Właściciel przy atakach fragmentem | **PASS15obserwacji**; bootstrap/reload scrub, same-document owner unchanged; bez tokenów w dowodach | [Proof R6](../technical/evidence/product-journey-hardening/qa-fragment-bootstrap-owner-r6.json) |
 | Tożsamość source i cleanup | **PASS904regularfiles +28symlinks bez zmian runtime**,4jawne adaptery; własne zasoby0, baseline44/227/10zachowany | [Source after](../technical/evidence/product-journey-hardening/qa-runtime-after-r6.json), [preservation](../technical/evidence/product-journey-hardening/qa-preservation-final.json) |
 | Fizyczny telefon, touch/soft keyboard/safe areas, Safari/Firefox, AT, rzeczywisty zoom | **NOT RUN**; dostępny desktop Chromium i zmieniony viewport | Nie deklarujemy certyfikacji WCAG ani hardware QA |
-| Pełne Quick Capture create+fact | **BLOCKED_DECISION**; nowy kontrakt atomowy wymaga PO, bez zmiany docelowego Blueprintu | Analiza / propozycja PO |
+| Pełne Quick Capture create+fact | **NOT IMPLEMENTED**; kontrakt APPROVED DEC-061, implementacja wymaga osobnego zadania PO | Analiza / propozycja PO |
 
 ## Zgodność i pokrycie
 
@@ -48,3 +48,7 @@ Cleanup manifest-aware przez stopRecruitmentTarget: automatyczny R2/R6, jawny w�
 - Po tym dowodzie test rozdziela bootstrap od native-only i reload; security invariant jest sprawdzany na każdym etapie. Nie dodano niezatwierdzonego hashchange listenera ani nie osłabiono ochrony SDK. Finalny świeży R6 potwierdza16/16; nie kasuje wcześniejszych FAIL i nie jest lokalnym pełnym rerun134testów.
 
 QA zmienił tylko2pliki testów, ten raport i bezpieczne artefakty. Review niezależne jest obowiązkiem oddzielnych sesji orchestratora; pozytywny test nie nadaje reviewPASS. Pełne Działanie w Quick Capture nadal wymaga jawnego kontraktu PO; brak ten nie został ukryty pod „MVP simplification”.
+
+## Aktualizacja po akceptacji PO
+
+[DEC-061](../decisions/product-decisions.md) zapisuje akceptację P1/P2/P3 po wykonaniu opisanych testów. Kontrakt atomowy jest APPROVED, ale nie wdrożony; wyniki QA nie są testami jego przyszłej implementacji. Wcześniejsze PROPOSED/BLOCKED_DECISION to stan historyczny. Do PR dodano [historyczny audyt](product-journey-audit.md) i dowody baseline637f330; jego stary diagnostic braku summary zachowano jako archiwalny tekst poza testDir.

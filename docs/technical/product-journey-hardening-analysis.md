@@ -2,7 +2,13 @@
 
 2026-11-01. Baza: aktualny `origin/main` / `main` `637f330f6dc1215ad2479dd699b8814397e5b5de` (PR #21). Etap: Requirement → Impact Analysis → plan compliance. Autor: `hardening_spec`, `spec-analyst`, model/reasoning inherited / NOT EXPOSED. Zakres zapisu autora: wyłącznie ten dokument. Skills załadowane i zastosowane: analyze-requirement, clarify-requirements, plan-slice. Brak implementacji produktu lub nowych decyzji PO przez tego autora.
 
-## Wynik kontroli przed implementacją
+## Aktualizacja po decyzji PO — DEC-061, 2026-11-01
+
+PO odpowiedział jawnie: **„Akceptuję kontrakt P1/P2/P3; implementacja pozostaje osobnym zadaniem.”** [DEC-061](../decisions/product-decisions.md) zatwierdza [kontrakt atomowego Działania](quick-capture-atomic-action-proposal.md) w przedstawionej wersji SHA-256 `1f669e92b8a259ad9a63f68e294d6cb60a1ebcc1fb425acdff8bce5c074af991`. **Aktualny status: kontrakt APPROVED; implementacja NOT IMPLEMENTED / NOT RUN, wymaga osobnego zadania.** Bramka akceptacji kontraktu jest rozstrzygnięta; nie wolno ponownie żądać tej samej zgody ani traktować jej jako autoryzacji kodu/migracji. Dotychczasowy PR wykonuje wyłącznie niezależny hardening/save-only.
+
+Poniżej zachowano historyczną analizę przed decyzją i opcje PROPOSED, w tym ówczesny BLOCKED_DECISION. Te określenia nie są bieżącym statusem zatwierdzenia kontraktu. Decyzja częściowo rozstrzyga OPEN-002/024/026/037 wyłącznie dla P1/P2/P3; pozostałe formularze, metadane/kanały, aktualizacja istniejących, Calendar, retencja i publiczne bramki pozostają. Brak nowego ADR lub zmiany architektury.
+
+## Historyczny wynik kontroli przed implementacją
 
 **PASS_STATIC dla niezależnego zakresu napraw zgodnych z istniejącymi źródłami. BLOCKED_DECISION dla łącznego utworzenia sprawy i rejestracji działania w Quick Capture.** Ta blokada nie obejmuje wyboru sytuacji, naprawy formularza zadań, nawigacji po detalu ani testów i minimalnych zabezpieczeń procesu.
 
@@ -39,7 +45,7 @@ Niezmienniki: BR-001/003/004/007/014/015/016/021/022/026/028/029/030; w podróż
 | Journey Audit | Jedna sprawa: create → apply/contact → invitation/stage → company/person → Tasks → close(cancel/keep/detach) → Dashboard/Workspace → reopen → history correction; id/status/stage/task relations/audit zgodne. Nie zastępować testów UI samymi zapisami fixture |
 | Rzeczywisty runtime | Świeży izolowany target, syntetyczne konto A; istniejące testy account B/anon/owner/RLS. Production HTTPS Chromium; 1440/1024/768/375 dla dotkniętych ekranów; hardware/AT odrębnie NOT RUN, jeśli niedostępne |
 
-## Nierozstrzygnięty kontrakt Działanie — do PO
+## Historyczna identyfikacja brakującego kontraktu — rozstrzygnięta DEC-061
 
 **BLOCKED_DECISION:** integracja rzeczywistej aplikacji lub kontaktu w tym samym zatwierdzeniu co nowa sprawa. Blueprint zatwierdza cel, lecz nie ustala nowego kontraktu komendy ani nie rozszerza automatycznie DTO DEC-052. Istniejące requestId create oraz event command nie zapewniają razem jednego wyniku po utracie odpowiedzi. Dwa kolejne zapisy mogą zostawić sprawę bez faktu, choć summary pokazywało wspólny zapis.
 

@@ -184,6 +184,12 @@ APPROVED w podzakresie: menu wpisu → Skoryguj (dzień/unknown, kierunek albo d
 
 ## Product Journey UX Hardening — zachowanie istniejącego kontraktu
 
-Sytuacja Quick Capture ma pięć opcjonalnych intencji z Blueprint §3, zachowanych w szkicu i jego podsumowaniu; brak wyboru jest prawidłowy. Nie tworzy faktów i nie zmienia statusów. Cztery kroki późniejszego DEC-052 pozostają; docelowe Działanie z F04 jest jawnie nieukończone do zatwierdzenia złożonego atomowego zapisu. [Analiza zgodności](../technical/product-journey-hardening-analysis.md).
+Sytuacja Quick Capture ma pięć opcjonalnych intencji z Blueprint §3, zachowanych w szkicu i jego podsumowaniu; brak wyboru jest prawidłowy. Nie tworzy faktów i nie zmienia statusów. Cztery kroki późniejszego DEC-052 pozostają; docelowe Działanie z F04 jest implementacyjnie nieukończone: kontrakt atomowego zapisu zatwierdzono w DEC-061, a implementacja pozostaje osobnym zadaniem. [Analiza zgodności](../technical/product-journey-hardening-analysis.md).
 
 TaskForm ma podsumowanie wszystkich błędów walidacji i odnośniki ustawiające focus we właściwym polu, równolegle do błędów inline; bez zmiany walidacji, draftu i protokołu zapisu. Detal sprawy ma nawigację „Sekcje sprawy” do istniejących danych, powiązań, zadań, zakończenia i kontynuacji, działań oraz historii. Natywne kotwice nie ukrywają informacji, nie filtrują historii i nie zmieniają kolejności ani semantyki sekcji.
+
+## F02/F04 — kontrakt atomowego Działania, DEC-061
+
+**Kontrakt P1/P2/P3 APPROVED przez PO 2026-11-01; implementacja NOT IMPLEMENTED / NOT RUN, osobne zadanie.** [DEC-061](../decisions/product-decisions.md), [zaakceptowany kontrakt i hash wersji](../technical/quick-capture-atomic-action-proposal.md). Cztery kroki pozostają: Sytuacja → Dane → Działanie → Podsumowanie. Zatwierdzony docelowy wybór to save-only albo jawnie potwierdzona rzeczywista aplikacja/kontakt inbound/outbound z dniem/unknown jak 3A, niezależnie od intencji Sytuacji. Summary rozdziela wskazówkę i rzeczywisty skutek; sukces obejmuje atomowo całą komendę albo zero efektów. Duplikaty, full-intent recovery, dirty/cancel i save-next mają kontrakt P2/P3, bez zapisu faktu do dopasowanej istniejącej sprawy i bez automatycznej inferencji.
+
+Obecny działający save-only nie jest pełną realizacją F04. Akceptacja nie uruchamia nowej komendy, migracji ani deploymentu; nie zmienia starych wyników QA i nie ustanawia retencji/TTL, nowych kanałów, CV/uczestników lub polityki Calendar.

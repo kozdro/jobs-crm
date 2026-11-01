@@ -1,0 +1,27 @@
+{
+  "id": "run-d1c0475b",
+  "projectId": "jobs-crm-recruitment-980577-c6301c0e561a",
+  "startedAt": "2026-11-01T15:04:52.859Z",
+  "node": "v24.22.2",
+  "status": "FAIL",
+  "migrations": {
+    "applied": 14,
+    "total": 14,
+    "checkpoint": "5fe9332a33f023aeefc1cb3cce459e6ea5dd4a3d588e660111004b8b385427f0"
+  },
+  "stages": [
+    "local-target-and-RLS-migrations",
+    "build-server-logs-and-browser-artifacts-redacted"
+  ],
+  "outputChecks": [
+    {
+      "stage": "production-build",
+      "bytes": 1529,
+      "sha256": "a696b05d9873b59cfc201648a73508f97a187780fa59e42720fb8f96dd777032",
+      "counts": {},
+      "observations": []
+    }
+  ],
+  "scannedBrowserFiles": 0,
+  "scannedGeneratedResponseFiles": 0
+}

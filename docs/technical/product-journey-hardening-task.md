@@ -40,3 +40,7 @@ PO wybrał przygotowanie w tym zadaniu szczegółowego kontraktu atomowego do ak
 ## Korekta integracji kotwic po niezależnym review R1
 
 Frontend reviewer wykazał konflikt z blanket hash scrub w browser adapterze. Istniejący [kontrakt F3: legalne #sekcja](foundation-f3.md) jawnie wymaga przeglądu przed użyciem kotwic. Plan rozszerzono przed kodem wyłącznie o ścisłą prezentacyjną allowlistę sześciu fragmentów na dokładnej trasie UUID detalu. Wszystkie pozostałe fragmenty nadal usuwane przed SDK, `detectSessionInUrl:false`, PKCE/server callback i uprawnienia bez zmian. To integracja zatwierdzonej lokalnej nawigacji z istniejącą ochroną, nie nowy mechanizm Auth ani zmiana ADR-0012. Nowy pure shared helper + unit matryca token/encoded/unknown/wrong route, browser test wejścia/reload i auth rejection. Frontend ma jawny dodatkowy zakres browser adapter/shared helper/auth-browser tests; QA rozszerza kontekst anchors/draft/back/filtered return. Wymagany dodatkowy niezależny security review przez read-only wrapper przed zamknięciem.
+
+## Aktualizacja decyzji PO po wykonaniu hardeningu
+
+PO jawnie zaakceptował kontrakt P1/P2/P3: [DEC-061](../decisions/product-decisions.md). Kontrakt jest APPROVED; implementacja NOT IMPLEMENTED i wymaga osobnego zadania. Wcześniejsze PROPOSED/BLOCKED_DECISION w tym packecie opisują historyczne wejścia do implementacji hardeningu, a nie aktualny stan akceptacji kontraktu. Dodanie audytu po PR #21 i zapis tej decyzji są wyłącznie zmianą dokumentacji, bez zmiany produktu lub wykonania migracji.

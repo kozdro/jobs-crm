@@ -1,0 +1,285 @@
+/** Cross-module audit: DEC054-060, BR011; all business writes through actual UI. */
+import { randomUUID } from "node:crypto";
+import { expect, test, type Page } from "@playwright/test";
+import { readRecruitmentTarget } from "../../scripts/recruitment/target.ts";
+import { account, login as sdkLogin } from "../integration/auth/fixtures.ts";
+
+for (const width of [1440, 375]) {
+  test(`Product journey create to corrections across modules at ${width}px`, async ({
+    page,
+  }) => {
+    test.setTimeout(180_000);
+    const target = await readRecruitmentTarget(
+      process.env.RECRUITMENT_TARGET_ID!,
+    );
+    const user = await account(target);
+    const { client } = await sdkLogin(target, user);
+    const mark = randomUUID().slice(0, 8);
+    const title = `Journey ${mark}`;
+    const history = page.getByRole("region", {
+      name: "Historia sprawy",
+      exact: true,
+    });
+    const button = (name: string) =>
+      page.getByRole("button", { name, exact: true });
+    const noOverflow = async () =>
+      expect(
+        await page.evaluate(() => ({
+          inner: innerWidth,
+          scroll: document.documentElement.scrollWidth,
+        })),
+      ).toEqual({ inner: width, scroll: width });
+    const navigate = async (name: string) => {
+      if (width < 768) await button("Otwórz nawigację").click();
+      const nav = page
+        .getByRole("navigation", { name: "Główna nawigacja", exact: true })
+        .filter({ visible: true });
+      await nav.getByRole("link", { name, exact: true }).click();
+      if (width < 768)
+        await expect(
+          page.getByRole("dialog", { name: "Nawigacja", exact: true }),
+        ).toHaveCount(0);
+      await noOverflow();
+    };
+    const state = async () => {
+      const result = await client
+        .from("recruitment_case")
+        .select("id,status,current_stage")
+        .eq("title", title)
+        .single();
+      expect(result.error).toBeNull();
+      return result.data!;
+    };
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(`${target.appOrigin}/login`);
+    await page.getByLabel("E-mail", { exact: true }).fill(user.email);
+    await page.getByLabel("Hasło", { exact: true }).fill(user.password);
+    await button("Zaloguj się").click();
+    await expect(page).toHaveURL(`${target.appOrigin}/dashboard`);
+    await button("Dodaj").click();
+    const manual = page.getByRole("menuitem", {
+      name: "Dodaj ręcznie",
+      exact: true,
+    });
+    if (await manual.count()) await manual.click();
+    const dialog = page.getByRole("dialog");
+    await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
+    await dialog.getByLabel("Nazwa sprawy", { exact: true }).fill(title);
+    await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
+    await dialog
+      .getByRole("radio", { name: "Zapisz tylko sprawę", exact: true })
+      .check();
+    await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
+    await dialog.getByRole("button", { name: "Zapisz", exact: true }).click();
+    await expect(dialog).toHaveCount(0);
+    const initial = await state();
+    expect(initial.status).toBe("Zapisane");
+    const caseId = initial.id;
+    await page
+      .getByRole("link", { name: "Otwórz sprawę", exact: true })
+      .click();
+    await button("Zarejestruj aplikowanie").click();
+    await page
+      .getByLabel("Data zdarzenia (opcjonalnie)", { exact: true })
+      .fill("2000-01-01");
+    await page
+      .getByRole("checkbox", {
+        name: "Potwierdzam, że to zdarzenie rzeczywiście miało miejsce.",
+        exact: true,
+      })
+      .check();
+    await button("Zapisz zdarzenie").click();
+    await expect(button("Zapisz zdarzenie")).toHaveCount(0);
+    expect((await state()).status).toBe("Kontakt rozpoczęty");
+    await button("Zarejestruj kontakt").click();
+    await page
+      .getByRole("radio", {
+        name: "Kontakt przychodzący (inbound)",
+        exact: true,
+      })
+      .check();
+    await page
+      .getByRole("checkbox", {
+        name: "Potwierdzam, że to zdarzenie rzeczywiście miało miejsce.",
+        exact: true,
+      })
+      .check();
+    await button("Zapisz zdarzenie").click();
+    await expect(button("Zapisz zdarzenie")).toHaveCount(0);
+    for (const [action, stage, consent] of [
+      [
+        "Zarejestruj zaproszenie",
+        "Screening",
+        "Potwierdzam otrzymanie zaproszenia do etapu kwalifikacyjnego i ustawienie wskazanego etapu jako bieżącego.",
+      ],
+      [
+        "Zmień etap",
+        "Rozmowa techniczna",
+        "Potwierdzam rzeczywiste przejście do wskazanego etapu i ustawienie go jako bieżącego.",
+      ],
+    ]) {
+      await button(action).click();
+      await page.getByLabel("Nazwa etapu", { exact: true }).fill(stage);
+      await page.getByRole("checkbox", { name: consent, exact: true }).check();
+      await button("Zapisz zdarzenie").click();
+      await expect(button("Zapisz zdarzenie")).toHaveCount(0);
+    }
+    expect(await state()).toMatchObject({
+      status: "W rekrutacji",
+      current_stage: "Rozmowa techniczna",
+    });
+    for (const [module, trigger, label, name] of [
+      ["Firmy", "Dodaj firmę", "Nazwa firmy", `Firma ${mark}`],
+      ["Kontakty", "Dodaj kontakt", "Nazwa kontaktu", `Osoba ${mark}`],
+    ]) {
+      await navigate(module);
+      await button(trigger).click();
+      await page.getByLabel(label, { exact: true }).fill(name);
+      await button("Zapisz profil").click();
+      await expect(page).toHaveURL(/\/(companies|contacts)\/[0-9a-f-]+$/);
+      const relations = page.getByRole("region", {
+        name: "Powiązania",
+        exact: true,
+      });
+      await relations
+        .getByRole("button", { name: "Powiąż ze sprawą", exact: true })
+        .click();
+      await relations
+        .getByLabel("Wybierz sprawę", { exact: true })
+        .selectOption(caseId);
+      if (module === "Firmy")
+        await relations
+          .getByLabel("Rola firmy w sprawie", { exact: true })
+          .selectOption("employer");
+      await relations
+        .getByRole("button", { name: "Zapisz powiązanie", exact: true })
+        .click();
+      await expect(
+        relations.getByRole("heading", {
+          name: "Nowe powiązanie",
+          exact: true,
+        }),
+      ).toHaveCount(0);
+      await expect(relations).toContainText(title);
+    }
+    await navigate("Rekrutacje");
+    await page.getByRole("button", { name: title, exact: true }).click();
+    const preview = page.getByRole("dialog", {
+      name: "Podgląd sprawy",
+      exact: true,
+    });
+    await expect(preview).toContainText("W rekrutacji");
+    await preview
+      .getByRole("link", { name: "Otwórz pełną stronę", exact: true })
+      .click();
+    const relations = page.getByRole("region", {
+      name: "Powiązania",
+      exact: true,
+    });
+    await expect(relations).toContainText(`Firma ${mark}`);
+    await expect(relations).toContainText(`Osoba ${mark}`);
+    const titles = ["Anuluj", "Zachowaj", "Odłącz"].map((x) => `${x} ${mark}`);
+    for (const taskTitle of titles) {
+      await button("Dodaj zadanie").click();
+      await page.getByLabel("Tytuł zadania", { exact: true }).fill(taskTitle);
+      await button("Zapisz zadanie").click();
+      await expect(
+        page.getByRole("article", { name: taskTitle, exact: true }),
+      ).toBeVisible();
+    }
+    await navigate("Dashboard");
+    for (const taskTitle of titles)
+      await expect(page.getByText(taskTitle, { exact: true })).toBeVisible();
+    await navigate("Zadania");
+    for (const taskTitle of titles)
+      await expect(
+        page.getByRole("article", { name: taskTitle, exact: true }),
+      ).toContainText(title);
+    await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
+    await button("Zakończ sprawę").click();
+    await page
+      .getByLabel("Wynik zakończenia", { exact: true })
+      .selectOption({ label: "Odmowa firmy" });
+    await noOverflow();
+    await button("Pokaż podgląd zmian").click();
+    await noOverflow();
+    for (const [i, choice] of ["Anuluj", "Zachowaj", "Odłącz"].entries())
+      await page
+        .getByRole("group", { name: titles[i], exact: true })
+        .getByRole("radio", { name: choice, exact: true })
+        .check();
+    await page
+      .getByRole("checkbox", {
+        name: "Potwierdzam zakończenie sprawy i wskazany wynik.",
+        exact: true,
+      })
+      .check();
+    await button("Zatwierdź zakończenie").click();
+    await expect(button("Wznów sprawę")).toBeVisible();
+    expect((await state()).status).toBe("Zakończone");
+    await navigate("Zadania");
+    await expect(
+      page.getByRole("article", { name: titles[0], exact: true }),
+    ).toContainText("Anulowane");
+    await expect(
+      page.getByRole("article", { name: titles[1], exact: true }),
+    ).toContainText(title);
+    await expect(
+      page.getByRole("article", { name: titles[2], exact: true }),
+    ).not.toContainText(title);
+    await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
+    await button("Wznów sprawę").click();
+    await noOverflow();
+    await button("Pokaż podgląd zmian").click();
+    await noOverflow();
+    await page
+      .getByRole("checkbox", {
+        name: "Potwierdzam wznowienie tej samej sprawy i pokazany stan.",
+        exact: true,
+      })
+      .check();
+    await button("Zatwierdź wznowienie").click();
+    await expect(button("Zakończ sprawę")).toBeVisible();
+    await history
+      .getByRole("listitem")
+      .filter({ hasText: "Zarejestrowano aplikowanie" })
+      .getByRole("button", { name: "Skoryguj wpis", exact: true })
+      .click();
+    await page
+      .getByLabel("Data zdarzenia (opcjonalnie)", { exact: true })
+      .fill("2000-01-02");
+    await noOverflow();
+    await button("Pokaż podgląd zmian").click();
+    await noOverflow();
+    await page
+      .getByRole("checkbox", {
+        name: "Potwierdzam korektę i jej wpływ na bieżący status oraz etap.",
+        exact: true,
+      })
+      .check();
+    await button("Zatwierdź korektę").click();
+    await expect(history.locator("time[datetime='2000-01-02']")).toBeVisible();
+    await page.reload();
+    await expect(history.locator("time[datetime='2000-01-02']")).toBeVisible();
+    const facts = await client
+      .from("recruitment_case_event")
+      .select("kind,occurred_on")
+      .eq("case_id", caseId);
+    expect(facts.error).toBeNull();
+    expect(facts.data).toHaveLength(4);
+    expect(facts.data!.find((x) => x.kind === "application")!.occurred_on).toBe(
+      "2000-01-01",
+    );
+    const lifecycle = await client
+      .from("recruitment_case_lifecycle")
+      .select("kind")
+      .eq("case_id", caseId);
+    expect(lifecycle.error).toBeNull();
+    expect(lifecycle.data!.map((x) => x.kind)).toEqual(["close", "reopen"]);
+    await noOverflow();
+    await page.screenshot({
+      path: test.info().outputPath(`journey-${width}.png`),
+      fullPage: true,
+    });
+  });
+}

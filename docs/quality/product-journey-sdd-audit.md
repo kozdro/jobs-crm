@@ -1,0 +1,60 @@
+# Product Journey Audit — mapa SDD
+
+> **Raport historyczny:** stan po merge PR #21 (`637f330`), przed Product Journey UX Hardening. Wyniki i findings dotyczą tamtego kandydata. Brak podsumowania błędów Task następnie naprawiono, a nawigację sekcji detalu dodano w PR #22. Aktualne wyniki: [raport hardeningu](../technical/product-journey-hardening-report.md). Historyczne FAIL pozostają zachowane.
+
+
+Data: 2026-11-01. Kandydat: `637f330f6dc1215ad2479dd699b8814397e5b5de` (lokalny merge PR #21). Autor: `spec_audit`, rola spec-analyst, model/reasoning NOT EXPOSED, skill analyze-requirement. Zakres: analiza kontraktów i pokrycia; bez implementacji produktu, uruchamiania środowisk i decyzji za PO. Wyniki runtime należą do odrębnego raportu QA; poniższa analiza statyczna nie nadaje im PASS.
+
+## Kontrakt podróży
+
+Źródła zatwierdzenia: [DEC-052/054–060](../decisions/product-decisions.md), [BR](../domain/business-rules.md), [cykl życia](../domain/recruitment-lifecycle.md), [FR](../requirements/functional-requirements.md), [AC](acceptance-criteria.md), [UC/TC](scenarios.md), [traceability](traceability.md). DEC mają status APPROVED dla opisanych podzakresów; szeroki baseline MVP nie jest deklaracją wykonania całego produktu.
+
+| Odcinek | Zatwierdzony i wdrożony kontrakt do sprawdzenia | ID i istniejące testy |
+| --- | --- | --- |
+| Zapis | Ręczne utworzenie, opcjonalny URL/opis; Zapisane bez aplikacji; Zapisz zachowuje bieżący moduł | DEC-052; BR-001/021/029; FR-QC-001/002/009–011, AC-QC-009-01/010-01; UC/TC-001/029 (manualny podzakres); recruitment-capture.spec.ts |
+| Aplikacja/kontakt | Rejestracja rzeczywistego faktu; Kontakt rozpoczęty, bez zaproszenia/CV; data faktu odrębna od zapisu | DEC-054; BR-004/007/015/016; AC-LC-005-01/006-01/014-01, AC-HE-002-03; UC/TC-002/004; recruitment-lifecycle.spec.ts |
+| Zaproszenie/etap | Kwalifikujące zaproszenie atomowo ustawia W rekrutacji i indywidualny etap; dalszy kontakt nie cofa; brak globalnych szablonów | DEC-055; BR-005/006; AC-LC-007-01/008-01/011-01/012-01/013-01, AC-LC-005-02/006-02; UC/TC-005/009 |
+| Firma/osoba | Jawne relacje M:N, role pracodawca/agencja; brak inferencji pracodawcy, uczestnictwa i komunikacji; owner-only dedup bez merge | DEC-058; BR-001/002/018/019/027/028/030; FR-CC-001–011 w granicach kontraktu; UC/TC-006/008/014/025 częściowo; companies-contacts.spec.ts |
+| Zadania | Ogólne albo jedna własna sprawa, opcjonalny dzień; jawne wykonanie/anulowanie/restore, audyt; rekord spójny w module, sprawie i Dashboardzie | DEC-060; AC-TN-001-01/002-01/002-02/003-01; UC/TC-030; recruitment-tasks.spec.ts |
+| Zakończenie | Wymagany wynik bez domyślnego; każdy otwarty Task anuluj/zachowaj/odłącz, atomowo i z audytem relacji; Calendar guard pozostaje | DEC-057/060; BR-008/011; AC-LC-016-03/016-04/018-03, AC-TN-011-01/011-02; UC/TC-012 tylko Task |
+| Wznowienie | Jawny preview stanu z ważnych faktów, poprzednie zakończenia zachowane; bez reaktywacji anulowanych/wykonanych Task i bez odtwarzania odłączonych relacji | DEC-057/060; BR-010; AC-LC-017-02/019-03, AC-TN-002-02; UC/TC-013; recruitment-closure-reopening.spec.ts |
+| Korekty | Zachowanie oryginału/audytu; data nie steruje bieżącym etapem; osierocenie blokuje bez kaskady; korekta zamkniętej sprawy jej nie wznawia | DEC-056/057; BR-007/015/016; AC-HE-002-05/003-04, AC-LC-015-02/015-03/015-04/017-03; recruitment-history-corrections.spec.ts |
+| Workspace/powrót | Ten sam zbiór Kanban/lista, filtry przed paginacją, cztery statusy, etap osobno, read-only drawer i rzeczywisty kontekst powrotu | DEC-059; AC-RW-005-01/006-01–03/009-01–02; UC/TC-027 częściowo; recruitment-workspace.spec.ts |
+| Dashboard/nawigacja/mobile | Prywatny landing bez onboardingu, neutralne otwarte Task i globalny manual capture w istniejących modułach; działanie formularzy, focus i powrotów w małym viewport | DEC-051/052/053/060; FR-DB-001/008, AC-TN-003-01, FR-QC-001; UC/TC-024/033 częściowo; recruitment-ui-foundation.spec.ts i testy modułów |
+
+## Braki pokrycia podróży — priorytety QA
+
+To luki scenariuszy audytowych, nie potwierdzone defekty produktu. Istnieją testy modułowe i przekrojowe, lecz ich suma nie dowodzi jednej kompletnej sesji na tej samej sprawie. W szczególności test trzech rozstrzygnięć Task zaczyna od fixture sprawy Zapisane; test close/reopen/close nie dowodzi odrębnie całego łańcucha firmy, filtrów Workspace i zadań.
+
+| Priorytet | Scenariusz wymagający jawnego dowodu w audycie |
+| --- | --- |
+| P1 | Jedna sprawa utworzona przez UI → aplikacja i kontakt → zaproszenie/zmiana etapu → firma i osoba → trzy otwarte zadania → close z trzema rozstrzygnięciami → reopen → korekta faktu i zakończenia → reload. Sprawdzaj identyczne ID i stan w pełnym detalu, drawerze, Kanbanie, liście, katalogu, Tasks i Dashboardzie. |
+| P1 | Korekta nazwy etapu/void na zakończonej sprawie z zachowanym Task, potem reopen: stan z ważnych faktów, stary wynik i audyt pozostają, Task nie zmienia statusu ani relacji. Osierocające void ma odmowę bez zmian. |
+| P1 | Powrót z detalu po zmianie statusu lub relacji, gdy sprawa przestaje spełniać filtr Workspace: prawdziwy pusty wynik/usunięcie karty, bez starego podglądu; filtr nie zostaje arbitralnie zmieniony. |
+| P1 | Mobilny przebieg wszystkich kolejnych formularzy, wyborów BR-011 i korekt, również z długimi tytułami; po cancel/sukcesie poprawny focus, klikalne kontrolki, brak zasłonięcia przez shell. Oddziel viewport emulowany od fizycznej klawiatury/urządzenia. |
+| P2 | Powtórna nawigacja Dashboard → Task → sprawa po odłączeniu zadania: brak starego powiązania, audyt nadal pokazuje dawny kontekst. Sprawdzić również brak fałszywego pustego stanu przy błędzie odczytu. |
+| P2 | Dwie sprawy tej samej firmy, osoba powiązana z obiema: korekta/close jednej nie zmienia drugiej; relacja katalogowa nie generuje uczestnictwa w historii. |
+| P2 | Kontynuacja po konflikcie na drugiej karcie w środku pełnej podróży: wymagany nowy preview, zachowane drafty i brak duplikatów/reanimacji wcześniejszego zamiaru. Modułowe retry/recovery mają istniejące regresje; potrzebny dowód na przejściach między modułami. |
+
+## Planowane funkcje i nierozstrzygnięcia
+
+| Brak | Klasyfikacja na tym kandydacie | Bramka/źródło |
+| --- | --- | --- |
+| Calendar: planowanie, przełożenie, uczestnicy, odbyte/anulowane/nieodbyte | Planowany zakres MVP poza wykonanymi slice'ami; zaproszenie do etapu nie jest przyszłym terminem spotkania | FR-HE-006–013; UC/TC-010/011/022/028; OPEN-021/030/037. Calendar część OPEN-029 nadal nierozstrzygnięta; pełny TC-012 pozostaje częściowy. |
+| Reminders/sugestie/in-app/e-mail | Planowany zakres; wykluczony przez DEC-060, brak jest zgodny ze slice'em | FR-TN-004–010; UC/TC-023/037; OPEN-008/009 i rozliczenie przypomnień OPEN-040. Bez domyślnych progów, zgód i wysyłki. |
+| DnD/operacyjny drawer | Planowany zakres; świadomie wyłączony DEC-059 | FR-RW-008; UC/TC-021 częściowo; OPEN-017/028. Wymaga kierunków, dialogów i równoważnej obsługi klawiaturą, bez dowolnego PATCH statusu. |
+| Pełny Dashboard | Zadania neutralne są wykonanym podzakresem. Terminy, sugestie, aktywność i statystyki są nadal przyszłe; stały poradnik capture na src/app/dashboard/page.tsx nie jest operacyjną sekcją tych danych | FR-DB-002–006; OPEN-008/021/037/039/040; nie deklarować pełnego TC-024 PASS. |
+| Pełna nawigacja siedmiu modułów i Global Search | Docelowy kontrakt MVP, bez kompletu działających obszarów na tym etapie | FR-NV-001–003, FR-GS; UC/TC-024/034 częściowo; OPEN-017/038. Nie liczyć planowanego linku jako wdrożonej funkcji. |
+| Pełne dokumenty, import, kanały aplikacji, globalne etapy | Przyszły zakres; manualna podróż nie dowodzi pełnych UC-002/003/009/014/017/018/029 | Odpowiednie FR-DO/IM/LC; OPEN-003/006/007/010/022/023/025/026/027/035/036. |
+
+Publiczne bramki Auth/privacy/OPS oraz OPEN-005/013/032/041–046 pozostają; audyt lokalny ich nie zamyka. OPEN-033 nadal dla pełnej macierzy urządzeń i AT. Historyczne raporty opisują wcześniejsze SHA; ich PASS nie przenosi się automatycznie na merge #21. Zlecenie audytu nie upoważnia do merge, deploymentu ani persistent DEV.
+
+## Rekomendacja kolejnego przyrostu — PROPOSED
+
+Najpierw usunąć potwierdzone przez bieżący runtime defekty integralności lub blokady pełnej podróży i utrwalić przekrojową regresję. Same braki przyszłych funkcji nie są takimi defektami.
+
+Następny przyrost produktowy: **Calendar Core z integracją zakończenia sprawy i sekcją nadchodzących wydarzeń Dashboardu**. Uzasadnienie: dziś można zarejestrować zaproszenie/etap, lecz nie zaplanować i rozliczyć faktycznej rozmowy; Calendar zamyka ten kolejny krok użytkownika i pozostałą część BR-011/TC-012. Wymaga decyzji PO o OPEN-021/029/030/037 i minimalnym kontrakcie terminu/uczestników/rozliczenia. Zakres i wybór nie są zatwierdzone tym raportem.
+
+Reminders po Calendar Core: dopiero wtedy wspólna semantyka terminów i jawne preferencje pozwolą rozstrzygnąć OPEN-009/040; bez automatycznej komunikacji w obecnym przyroście. DnD później: skraca istniejące operacje, lecz nie uzupełnia brakującego zaplanowania rozmowy i wymaga złożonej macierzy walidacji. Jeśli runtime ujawni istotne tarcie w obecnych przejściach, mniejszy przyrost spójności Dashboard/Workspace może poprzedzić Calendar.
+
+Weryfikacja tego dokumentu: **PASS_STATIC** odczyt wskazanych źródeł i tytułów/wybranych przepływów istniejących testów; **NOT RUN** testy aplikacji przez tego autora. Zmieniony plik: wyłącznie ten raport. Brak nowych DEC/ADR, FR/AC i zmian zachowania.
