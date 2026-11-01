@@ -44,3 +44,7 @@ Frontend reviewer wykazał konflikt z blanket hash scrub w browser adapterze. Is
 ## Aktualizacja decyzji PO po wykonaniu hardeningu
 
 PO jawnie zaakceptował kontrakt P1/P2/P3: [DEC-061](../decisions/product-decisions.md). Kontrakt jest APPROVED; implementacja NOT IMPLEMENTED i wymaga osobnego zadania. Wcześniejsze PROPOSED/BLOCKED_DECISION w tym packecie opisują historyczne wejścia do implementacji hardeningu, a nie aktualny stan akceptacji kontraktu. Dodanie audytu po PR #21 i zapis tej decyzji są wyłącznie zmianą dokumentacji, bez zmiany produktu lub wykonania migracji.
+
+## Ponowne potwierdzenie granic przez PO — 2026-11-01
+
+[DEC-061](../decisions/product-decisions.md) nadal zatwierdza wyłącznie kontrakt P1/P2/P3. Pełne Działanie: **osobne zadanie i osobny PR po odrębnej autoryzacji, bez implementacji w PR #22**. W przyszłych packetach i niezależnym review obowiązują Discovery/Blueprint/Technical Discovery/DEC/ADR, brak automatycznej rejestracji faktów przez wybór Sytuacji oraz **zakaz dodatkowego przechowywania prywatnych payloadów w przeglądarce bez osobnej zgody PO**. Obecny dopisek to wyłącznie zapis SDD potwierdzenia PO; nie autoryzuje kodu, storage, migracji, merge lub deploymentu.
