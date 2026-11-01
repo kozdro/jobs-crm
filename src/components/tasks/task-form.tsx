@@ -172,6 +172,31 @@ export function TaskForm({
       onSubmit={submit}
       className="min-w-0 space-y-5"
     >
+      {Object.keys(errors).length > 0 && (
+        <div
+          role="alert"
+          aria-label="Podsumowanie błędów zadania"
+          className="space-y-2 rounded-md border border-destructive bg-card p-4 text-sm text-destructive"
+        >
+          <p className="font-semibold">Sprawdź dane zadania</p>
+          <ul className="list-disc space-y-1 pl-5">
+            {Object.entries(errors).map(([field, message]) => (
+              <li key={field}>
+                <a
+                  href={`#${id}-${field}`}
+                  className="ui-link inline-flex min-h-11 items-center [overflow-wrap:anywhere]"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    document.getElementById(`${id}-${field}`)?.focus();
+                  }}
+                >
+                  {message}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       <fieldset
         disabled={mutation.pending || mutation.uncertain || mutation.stale}
         className="min-w-0 space-y-5"

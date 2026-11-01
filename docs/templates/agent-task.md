@@ -15,6 +15,18 @@
 
 Nie wpisuj fikcyjnych identyfikatorów. Agent ma najpierw zidentyfikować konkretne zapisy z repozytorium.
 
+## Obowiązkowa zgodność kanoniczna
+
+Przed implementacją orchestrator i autor wypełniają macierz; niezależny reviewer sprawdza ją ponownie na finalnym kandydacie. Sam brak źródła w task packecie nie oznacza braku obowiązującej decyzji.
+
+| Źródło kanoniczne i lokalizacja | Status / dokładny zatwierdzony zakres | Plan i test zachowujący decyzję | Odstępstwo / źródło jawnej zgody PO albo BLOCKED |
+| --- | --- | --- | --- |
+| Product Discovery / DEC i provenance | | | |
+| UX Blueprint / wybory UX / flow contracts | | | |
+| Technical Discovery / obowiązujące ADR (z uwzględnieniem zastąpień) | | | |
+
+Nie zmieniaj ani nie pomijaj zatwierdzonej decyzji pod pretekstem MVP, uproszczenia lub ograniczonego slice'a. Częściowa implementacja zachowuje jawny nieukończony zakres docelowego kontraktu. Konflikt, brak wejścia lub nowy kontrakt atomowego zapisu: przedstaw PO i zatrzymaj zależną część; kontynuuj niezależne poprawki. `Nie dotyczy` wymaga uzasadnienia. Rekomendacja, status review ani test nie zastępują zgody PO.
+
 ## Handoff harnessu
 
 - **Rola / identyfikator sesji / autor:**

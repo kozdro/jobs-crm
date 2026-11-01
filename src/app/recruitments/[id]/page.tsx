@@ -68,9 +68,32 @@ export default async function RecruitmentDetailPage({
   return (
     <Workspace userId={user.id} title={item.title}>
       <WorkspaceReturnLink userId={user.id} token={workspaceReturnToken} />
+      <nav
+        aria-label="Sekcje sprawy"
+        className="mb-5 flex flex-wrap gap-x-5 gap-y-1 rounded-md border border-border bg-card px-4 py-2 text-sm"
+      >
+        {[
+          ["case-details", "Dane sprawy"],
+          ["case-relations", "Powiązania"],
+          ["case-tasks", "Zadania"],
+          ["case-lifecycle", "Zakończenie i kontynuacja"],
+          ["case-actions", "Działania"],
+          ["case-history", "Historia"],
+        ].map(([target, label]) => (
+          <a
+            key={target}
+            href={`#${target}`}
+            className="ui-link inline-flex min-h-11 items-center"
+          >
+            {label}
+          </a>
+        ))}
+      </nav>
       <section className="min-w-0" aria-label="Zapisane dane sprawy">
-        <CaseContent item={item} />
-        <div className="mt-5">
+        <div id="case-details" tabIndex={-1} className="scroll-mt-6">
+          <CaseContent item={item} />
+        </div>
+        <div id="case-relations" tabIndex={-1} className="mt-5 scroll-mt-6">
           <RelationsPanel
             key={`${user.id}:${item.id}`}
             userId={user.id}
@@ -78,7 +101,7 @@ export default async function RecruitmentDetailPage({
             contextId={item.id}
           />
         </div>
-        <div className="mt-5">
+        <div id="case-tasks" tabIndex={-1} className="mt-5 scroll-mt-6">
           <TasksPanel
             key={`${user.id}:${item.id}`}
             userId={user.id}
@@ -86,25 +109,31 @@ export default async function RecruitmentDetailPage({
             caseTitle={item.title}
           />
         </div>
-        <LifecycleActions
-          key={`${user.id}:${item.id}`}
-          userId={user.id}
-          caseId={item.id}
-          status={item.status}
-        />
-        <CaseEventForm
-          userId={user.id}
-          caseId={item.id}
-          status={item.status}
-          stageVersion={item.stage_version}
-        />
-        <CaseHistory
-          key={`${user.id}:${item.id}:${historyPage}`}
-          userId={user.id}
-          caseId={item.id}
-          result={history}
-          workspaceReturnToken={workspaceReturnToken}
-        />
+        <div id="case-lifecycle" tabIndex={-1} className="scroll-mt-6">
+          <LifecycleActions
+            key={`${user.id}:${item.id}`}
+            userId={user.id}
+            caseId={item.id}
+            status={item.status}
+          />
+        </div>
+        <div id="case-actions" tabIndex={-1} className="scroll-mt-6">
+          <CaseEventForm
+            userId={user.id}
+            caseId={item.id}
+            status={item.status}
+            stageVersion={item.stage_version}
+          />
+        </div>
+        <div id="case-history" tabIndex={-1} className="scroll-mt-6">
+          <CaseHistory
+            key={`${user.id}:${item.id}:${historyPage}`}
+            userId={user.id}
+            caseId={item.id}
+            result={history}
+            workspaceReturnToken={workspaceReturnToken}
+          />
+        </div>
       </section>
     </Workspace>
   );

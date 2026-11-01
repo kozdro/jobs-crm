@@ -1,0 +1,7 @@
+{
+  "status": "FAIL_SETUP",
+  "beforeTargetCreation": true,
+  "reason": "Docker binary unavailable on manually reduced PATH; preserved PATH + explicit Node prefix used on retry",
+  "rawSha256": "0164ec921893845e6bde66fa9038b28fc4a78c159651c46c94687c95a832ba14",
+  "exit": 1
+}

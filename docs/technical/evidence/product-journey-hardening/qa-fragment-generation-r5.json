@@ -1,0 +1,16 @@
+[
+  {
+    "caseLabel": "detail/direct-entry",
+    "previousGeneration": 1793553391792.3,
+    "currentGeneration": 1793553391905.9,
+    "ownerUnchanged": true,
+    "hashPresent": false
+  },
+  {
+    "caseLabel": "detail/same-document-suffix",
+    "previousGeneration": 1793553391905.9,
+    "currentGeneration": 1793553391905.9,
+    "ownerUnchanged": true,
+    "hashPresent": true
+  }
+]

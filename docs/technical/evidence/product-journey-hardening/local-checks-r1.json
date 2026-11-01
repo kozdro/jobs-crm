@@ -1,0 +1,68 @@
+{
+  "candidate": "eb461e453a9277fa24ce03e46b2afc3b32f42513",
+  "unit_application": {
+    "status": "PASS",
+    "tests": 474,
+    "command": "node node_modules/vitest/vitest.mjs run",
+    "exit": 0
+  },
+  "unit_scripts": {
+    "status": "PASS",
+    "tests": 87,
+    "command": "node --test scripts/db/*.test.ts scripts/auth/*.test.ts scripts/recruitment/*.test.ts scripts/local-dev/*.test.ts",
+    "exit": 0
+  },
+  "typecheck": {
+    "status": "PASS",
+    "command": "/Users/kozdro/.volta/tools/image/node/24.22.2/bin/node node_modules/next/dist/bin/next typegen && /Users/kozdro/.volta/tools/image/node/24.22.2/bin/node node_modules/typescript/bin/tsc --noEmit && /Users/kozdro/.volta/tools/image/node/24.22.2/bin/node node_modules/typescript/bin/tsc -p tsconfig.f2.json",
+    "exit": 0
+  },
+  "lint": {
+    "status": "PASS",
+    "command": "node node_modules/eslint/bin/eslint.js . --max-warnings=0",
+    "exit": 0
+  },
+  "format": {
+    "status": "PASS",
+    "command": "/Users/kozdro/.volta/tools/image/node/24.22.2/bin/node node_modules/prettier/bin/prettier.cjs --check src tests scripts experiments db '*.ts' '*.mjs' package.json components.json pnpm-workspace.yaml .prettierrc.json .github/workflows/app-ci.yml",
+    "exit": 0
+  },
+  "harness": {
+    "status": "PASS",
+    "tests": 21,
+    "exit": 0,
+    "commands": [
+      "python3 harness/scripts/sync.py --check",
+      "python3 harness/scripts/check.py",
+      "python3 -m unittest discover -s harness/scripts -p 'test_*.py' -v"
+    ]
+  },
+  "boundaries": {
+    "status": "PASS_R2",
+    "command": "node scripts/test-boundaries.mjs",
+    "exit": 0,
+    "history": "R1 FAIL_SETUP fixture copied dependency symlink; local real dependencies resolved; product unchanged"
+  },
+  "canary": {
+    "status": "PASS_R3",
+    "command": "node scripts/test-canary.mjs",
+    "exit": 0,
+    "history": "R2 invoked before dependency copy completed; module not found; setup resolved before R3"
+  },
+  "final_code_candidate": "0f93627cd2af6818487568a93499077d6b3688e5",
+  "unit_application_final": {
+    "status": "PASS",
+    "tests": 534,
+    "exit": 0
+  },
+  "final_lint_format_typecheck": {
+    "status": "PASS",
+    "exit": 0
+  },
+  "final_code_test_candidate": "4941924df40d7affbcd90d2a721f9f80ed6d7199",
+  "final_test_types_lint": {
+    "status": "PASS",
+    "command": "/Users/kozdro/.volta/tools/image/node/24.22.2/bin/node node_modules/typescript/bin/tsc --noEmit && /Users/kozdro/.volta/tools/image/node/24.22.2/bin/node node_modules/typescript/bin/tsc -p tsconfig.f2.json && /Users/kozdro/.volta/tools/image/node/24.22.2/bin/node node_modules/eslint/bin/eslint.js tests/e2e/recruitment-product-journey-navigation.spec.ts --max-warnings=0",
+    "exit": 0
+  }
+}

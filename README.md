@@ -50,3 +50,7 @@ Companies & Contacts — DEC-058: prywatne firmy/kontakty i jawne relacje ze spr
 Recruitment Workspace — DEC-059: [kontrakt i plan](docs/technical/recruitment-workspace-analysis.md), [UX](docs/ux/recruitment-workspace-slice.md), [raport wykonania](docs/technical/recruitment-workspace-report.md) i [QA](docs/technical/recruitment-workspace-qa.md). Zatwierdzone 1A/2A: read-only Kanban/lista, filtry i podgląd. Bez DnD, nowych operacji lifecycle, merge i deploymentu.
 
 Tasks Core: [raport wykonania, QA i niezależne review](docs/technical/tasks-core-report.md).
+
+Product Journey UX Hardening: [zgodność, zmiany i wyniki](docs/technical/product-journey-hardening-report.md). Zachowane cztery kroki i pięć opcjonalnych Sytuacji; pełne Działanie ma [osobny kontrakt zatwierdzony DEC-061](docs/technical/quick-capture-atomic-action-proposal.md), bez implementacji rozszerzenia; implementacja pozostaje osobnym zadaniem PO.
+
+Historyczny Product Journey Audit po PR #21: [raport](docs/quality/product-journey-audit.md), [browser QA](docs/quality/product-journey-browser-audit.md), [mapa SDD](docs/quality/product-journey-sdd-audit.md). Wyniki baseline zachowane; aktualny stan napraw jest w raporcie hardeningu.

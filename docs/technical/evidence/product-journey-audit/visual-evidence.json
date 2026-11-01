@@ -1,0 +1,20 @@
+[
+  {
+    "file": "task-error-summary-375.png",
+    "width": 375,
+    "height": 1552,
+    "sha256": "55fcd4793df50086caf7c0dddb932c8fa73f623294eeb8fff93663bac2824b56"
+  },
+  {
+    "file": "journey-375.png",
+    "width": 375,
+    "height": 4864,
+    "sha256": "fca34f13ad75eb5f6659be2b5e68f7030dafae260e5f4b1ba68a12182bdb42cc"
+  },
+  {
+    "file": "journey-1440.png",
+    "width": 1440,
+    "height": 3973,
+    "sha256": "e1b9ba07aa34a89aeb6104740fb8f0cff9426073be01d31b0c7d27e901bcc072"
+  }
+]

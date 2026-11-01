@@ -1,0 +1,62 @@
+# End-to-End Product Journey Audit
+
+Data: 2026-11-01. Kandydat produktu: `637f330f6dc1215ad2479dd699b8814397e5b5de`, merge PR #21. GitHub connector potwierdził merged=true, merged_at=2026-11-01T14:49:21Z i identyczny merge_commit_sha. Lokalny checkout przed pracą czysty. Audyt nie autoryzuje implementacji funkcji, merge ani deploymentu.
+
+## Plan i odpowiedzialność
+
+Zastosowane procedury: analyze-requirement → plan-slice → verify-acceptance → review-change. Zakres zmian ograniczony do testu QA i raportów. Kod produktu i decyzje pozostają na wskazanym SHA.
+
+| Właściciel | Zakres | DoD |
+| --- | --- | --- |
+| Orchestrator | ten raport, tożsamość PR/kandydata, synteza i niezależny review przez wrapper | Priorytety, rozdzielenie dowodów i rekomendacji |
+| spec-analyst | product-journey-sdd-audit.md | FR/AC/BR/DEC/UC/OPEN, planowane funkcje i luki scenariuszy |
+| qa-engineer | recruitment-product-journey-audit.spec.ts, product-journey-browser-audit.md, własne artefakty | Rzeczywisty production HTTPS browser, świeży izolowany target, syntetyczne dane, ochrona zasobów |
+| Niezależny frontend reviewer | osobny rodzic read-only przez harness/scripts/review.py | Ocena adekwatności testów i ustaleń; bez edycji i uruchamiania testów |
+
+Model i reasoning agentów: dziedziczone, dokładne identyfikatory nieudostępnione. Bez dalszej delegacji przez autorów. Reviewer wrapper korzysta z własnej natywnej delegacji zgodnie z delivery.
+
+Scenariusz: zapisanie → aplikowanie/kontakt → zaproszenie/etapy → firma/osoba → zadania → zakończenie z rozstrzygnięciami → wznowienie → korekty. Dodatkowo odczyty Workspace, Dashboard, nawigacja, emulacja mobilna i zgodność projekcji. Testy istniejące dostarczają negatywne przypadki RLS, idempotencji, historii i współbieżności; nowy test łączy moduły.
+
+Wpływ analizowany: relacje M:N, integralność historii, brak fikcyjnych faktów, atomowość BR-011, odświeżanie odczytów, powrót z detalu, prywatność A/B i mobilne formularze. Import, Global Search i dokumenty nie są implementowane w tym audycie. Brak nowych ADR lub decyzji PO. Calendar/Reminders/DnD i pełny Dashboard wymagają osobnego zakresu; rekomendacje mają status PROPOSED.
+
+## Wyniki
+
+**Podróż w wykonanym zakresie działa; nie potwierdzono blokady integralności danych.** Pozostaje drobny defekt UX P3. To nie jest pełna akceptacja całego MVP ani certyfikacja dostępności.
+
+| Kontrola | Wynik bieżącego audytu |
+| --- | --- |
+| Production build / migracje | PASS, exit 0 / 14 migracji |
+| Rzeczywiste integracje Auth/Data API/PostgreSQL/RLS | PASS 133/133, bez skips; powtórzone w focused run |
+| Pełna suite production HTTPS Chromium | FAIL 118/120: wszystkie 118 istniejących PASS; 2 nowe FAIL przez przedwczesny odczyt testu przy „Zapisywanie…” |
+| Poprawione podróże 1440/375 i reprodukcja formularza | PASS 3/3, osobna selekcja, natural exit 0; nie pełny rerun 120 testów |
+| Fizyczny mobile / Safari / Firefox / AT / rzeczywisty zoom | NOT RUN; 375 px to viewport desktop Chromium |
+| Unit/lint/typecheck całego repo | NOT RUN w tym audycie; bez zmian kodu produktu, wykonano production build i realne testy |
+
+Potwierdzono jedną sprawę: zapis bez fikcyjnej aplikacji → rzeczywiste fakty aplikacji/kontaktu → zaproszenie/etap → jawne powiązania firmy i osoby → trzy zadania → atomowe anuluj/zachowaj/odłącz → odczyty Tasks/Dashboard/Workspace → wznowienie bez reaktywowania anulowanego i odtwarzania odłączonego zadania → korekta z oryginałem, rewizją i zachowanym bieżącym stanem. Zakres szczegółowych asercji i ograniczenia: raport QA i test. Korekty zakończeń/unieważnienia i odmowy osierocenia mają odrębne testy modułowe; nie twierdzimy, że wszystkie kombinacje przeszły w jednej sesji użytkownika.
+
+
+Wyniki runtime: [raport QA](product-journey-browser-audit.md). Mapa kontraktów i siedem scenariuszy przekrojowych: [analiza SDD](product-journey-sdd-audit.md). Wyniki historyczne PR #21 nie zastępują testów bieżącego kandydata.
+
+Niezależny review R2: osobny rodzic read-only i natywny generic subagent + canonical role frontend-reviewer. Wrapper exit 0, changedFiles=[], identyczny fingerprint `1c97564dfd764ec08790179be2591677d8199a744f44dd4071eba1cfe370d71e`; manifest 897 plików bez rozbieżności. [Findings](../../.harness-artifacts/product-journey-audit/independent-review-r2.md), [receipt](../../.harness-artifacts/product-journey-audit/independent-review-r2-receipt.json). R2: PASS_STATIC analizy SDD, FAIL adekwatności pełnego testu cross-module. QA uzupełnia odczyty po close/reopen/correction; późniejsze wyniki nie kasują pierwotnej oceny. Runtime nie był wykonywany przez reviewera. Pierwszy wrapper bez .git w kopii: NOT RUN, exit 1; po inicjalizacji pustego lokalnego .git kopii R2 działał bez zmiany polityki read-only.
+
+| Priorytet | Klasyfikacja | Ustalenie i działanie |
+| --- | --- | --- |
+| P3 | Defekt zgodności UX, static + runtime | `src/components/tasks/task-form.tsx:142`: błędy pól i focus są, ale brak podsumowania błędów wymaganego przez `docs/ux/blueprint.md:101`. Dodać podsumowanie z odnośnikami w osobnym zatwierdzonym zadaniu. Bez napraw w audycie. Potwierdzone dwa błędy pól, focus pierwszego i brak summary w Chromium; [PNG](../../.harness-artifacts/product-journey-audit/task-error-summary-375.png). |
+| P1 | Luka dowodów R2 | Nowy test początkowo nie sprawdzał pełnego stanu po close/reopen/correction. Uzupełniany test i focused runtime, nie defekt produktu. |
+| P2 | Luka dalszych scenariuszy | Łączone korekty na zamkniętej sprawie, sprawa wypadająca z aktywnego filtra, dwie sprawy tej samej firmy i konflikt drugiej karty wymagają osobnych regresji; modułowe testy nie dowodzą całych wariantów. |
+| P2 | Planowane funkcje / UX | Pełny operacyjny Dashboard, siedem działających obszarów i Global Search nie są ukończone. Neutralna lista otwartych zadań oraz brak Calendar/Reminders/DnD są zgodne z granicami DEC-059/060; brak tych funkcji nie jest regresją PR #21. |
+
+## Następny przyrost — PROPOSED
+
+Po usunięciu ewentualnych potwierdzonych blokad runtime: **Calendar Core + nadchodzące wydarzenia Dashboardu + rozstrzygnięcia wydarzeń przy zakończeniu sprawy**. Uzupełnia brakującą czynność po zaproszeniu: zaplanowanie i rozliczenie rozmowy; domyka część BR-011/TC-012 dotyczącą CalendarEvent. Najpierw analiza i decyzje PO dla OPEN-021/029/030/037, bez dopowiadania terminów, uczestników i automatycznych działań.
+
+Reminders wymagają dalszych decyzji o terminach i preferencjach (OPEN-009/040). DnD usprawnia istniejące działania, lecz nie uzupełnia nowego kroku podróży; wymaga osobnej macierzy przejść i równoważnej obsługi klawiaturą. Drobny hardening formularzy i przekrojowych regresji może poprzedzić Calendar; sam brak pełnego Dashboardu nie uzasadnia ogłoszenia regresji.
+
+
+Review R3: FAIL_STATIC P2 nieotwartej sekcji Zakończone w nowym teście, pozostałe uzupełnienia R2 statycznie adekwatne. Review R4: **PASS_STATIC wyłącznie poprawki rozwinięcia Zakończone**, hash testu `8b18c1986834100185e55902a571d95a8683b37de61817071bd3a2a1b6bb644c`. [Findings R3](../../.harness-artifacts/product-journey-audit/independent-review-r3.md), [R4](../../.harness-artifacts/product-journey-audit/independent-review-r4.md), [receipt R4](../../.harness-artifacts/product-journey-audit/independent-review-r4-receipt.json). Oba wrappery exit0, changedFiles=[] i identyczne fingerprinty przed/po; R4 `9b2bc80de189376fa21d10ca4abc28afaecd9d6ff029d588d7c89f8dcdfd4497`. Reviewer nie weryfikował Git ref kopii bez historii; tożsamość produktu wiąże manifest orchestratora/QA, nie deklaracja reviewera. R4 nie potwierdza wyłączności delty ani całego manifestu. P3 produktu pozostaje otwarty.
+
+Mobilna okazja UX **P2 / PROPOSED**: na 375 px detal ze zaledwie dwoma zadaniami i dwiema relacjami ma ok. 4864 px wysokości; działania lifecycle i historia są poniżej dużych paneli relacji/zadań. [Zrzut](../../.harness-artifacts/product-journey-audit/journey-375.png). Rozważyć skróty do sekcji i ograniczenie ciężaru powtarzalnych kontrolek/paginacji; nie stwierdzono blokady zapisu ani poziomego overflow. Sam zrzut nie mierzy czasu lub trudności użytkownika.
+
+Zmiany: jeden nowy test E2E, trzy raporty audytu i bezpieczne artefakty. Brak modyfikacji śledzonego kodu produktu, schematu, FR/AC/BR/DEC lub ADR. Audit-only findings nie zostały naprawione ani zamienione w APPROVED.
+
+Ochrona środowisk: **PASS** — zachowano 44/44 kontenery, 227/227 volumes i 10/10 networks bazowych; brak dodanych/utraconych zasobów, pozostałości własnego projektu 0. [Preservation](../../.harness-artifacts/product-journey-audit/resource-preservation.json), [cleanup](../../.harness-artifacts/product-journey-audit/owned-cleanup-complete.json). Nie uruchamiano poleceń persistent DEV. HEAD i śledzone pliki produktu bez zmian. `git diff --check` PASS; format nowego testu sprawdzony przez QA.

@@ -1,0 +1,188 @@
+{
+  "auditCandidate": "637f330f6dc1215ad2479dd699b8814397e5b5de",
+  "importedIntoPR": 22,
+  "sourceOwnership": "Authored by this assistant and its agents during prior audit; not third-party changes",
+  "currentRegression": "tests/e2e/recruitment-product-journey-hardening.spec.ts",
+  "files": [
+    {
+      "source": ".harness-artifacts/product-journey-audit/containers-before.txt",
+      "destination": "docs/technical/evidence/product-journey-audit/containers-before.txt",
+      "sha256": "6494a23a9ab6c9c82662321c61da173a781926988d00a36101336412e168eace",
+      "preservedByteForByte": true
+    },
+    {
+      "source": ".harness-artifacts/product-journey-audit/failed-build-evidence.json",
+      "destination": "docs/technical/evidence/product-journey-audit/failed-build-evidence.json",
+      "sha256": "63cb14172f736d552a81a150d0fc6e0dadce23427076e1222528fe015307c42f",
+      "preservedByteForByte": true
+    },
+    {
+      "source": ".harness-artifacts/product-journey-audit/focused-suite-evidence.json",
+      "destination": "docs/technical/evidence/product-journey-audit/focused-suite-evidence.json",
+      "sha256": "20d1a54c94a66ec8be22081e73b41c452ebbfc14ee97478aade9669ace74bbd4",
+      "preservedByteForByte": true
+    },
+    {
+      "source": ".harness-artifacts/product-journey-audit/full-recruitment-product-journe-62efe-ons-across-modules-at-375px-error-context.md",
+      "destination": "docs/technical/evidence/product-journey-audit/full-recruitment-product-journe-62efe-ons-across-modules-at-375px-error-context.md",
+      "sha256": "20bc2c398eb0ae95444c6ea6c7ee8150cac4c0f8d8ec235c8d6d48c97b0c2d83",
+      "preservedByteForByte": true
+    },
+    {
+      "source": ".harness-artifacts/product-journey-audit/full-recruitment-product-journe-fa8ce-ns-across-modules-at-1440px-error-context.md",
+      "destination": "docs/technical/evidence/product-journey-audit/full-recruitment-product-journe-fa8ce-ns-across-modules-at-1440px-error-context.md",
+      "sha256": "b8bc1ec3591aa643237c45de2277e9bc04213c5d7b3285f2a7f8607e9ccb0d9b",
+      "preservedByteForByte": true
+    },
+    {
+      "source": ".harness-artifacts/product-journey-audit/full-suite-evidence.json",
+      "destination": "docs/technical/evidence/product-journey-audit/full-suite-evidence.json",
+      "sha256": "3de1e21a7f88b03687aa4939083c981a3a887c995fb048061eb0550a79e53aba",
+      "preservedByteForByte": true
+    },
+    {
+      "source": ".harness-artifacts/product-journey-audit/independent-review-r2-receipt.json",
+      "destination": "docs/technical/evidence/product-journey-audit/independent-review-r2-receipt.json",
+      "sha256": "953469affb53b4b7690da791d74a7f2d1d90d7dc9d734d0e28cfc8ca3b51915e",
+      "preservedByteForByte": true
+    },
+    {
+      "source": ".harness-artifacts/product-journey-audit/independent-review-r2.md",
+      "destination": "docs/technical/evidence/product-journey-audit/independent-review-r2.md",
+      "sha256": "1caa7fe28055c794b3fd31c7ca6c95e7a7f66d2b7f423b46a76e8401c9ccdad8",
+      "preservedByteForByte": true
+    },
+    {
+      "source": ".harness-artifacts/product-journey-audit/independent-review-r3-receipt.txt",
+      "destination": "docs/technical/evidence/product-journey-audit/independent-review-r3-receipt.txt",
+      "sha256": "016529e215a99a163396bbe307a81f7ac9cccabcbe66cc2dec21b9bc6956b9a5",
+      "preservedByteForByte": true
+    },
+    {
+      "source": ".harness-artifacts/product-journey-audit/independent-review-r3.md",
+      "destination": "docs/technical/evidence/product-journey-audit/independent-review-r3.md",
+      "sha256": "4bdc90d4304ffdd3399c21296ec4682fa27ad3c6789d3b42511574a6cc33e7b1",
+      "preservedByteForByte": true
+    },
+    {
+      "source": ".harness-artifacts/product-journey-audit/independent-review-r4-receipt.json",
+      "destination": "docs/technical/evidence/product-journey-audit/independent-review-r4-receipt.json",
+      "sha256": "d8bedfdb0da98e7ef3ca671c641feffd6d3c2960381252595faa63ac50150556",
+      "preservedByteForByte": true
+    },
+    {
+      "source": ".harness-artifacts/product-journey-audit/independent-review-r4.md",
+      "destination": "docs/technical/evidence/product-journey-audit/independent-review-r4.md",
+      "sha256": "de0b12b5a63df6c15e2980ecd434951176b89ecfeb3a97fe17a67cdfe8ac9db0",
+      "preservedByteForByte": true
+    },
+    {
+      "source": ".harness-artifacts/product-journey-audit/journey-1440.png",
+      "destination": "docs/technical/evidence/product-journey-audit/journey-1440.png",
+      "sha256": "e1b9ba07aa34a89aeb6104740fb8f0cff9426073be01d31b0c7d27e901bcc072",
+      "preservedByteForByte": true
+    },
+    {
+      "source": ".harness-artifacts/product-journey-audit/journey-375.png",
+      "destination": "docs/technical/evidence/product-journey-audit/journey-375.png",
+      "sha256": "fca34f13ad75eb5f6659be2b5e68f7030dafae260e5f4b1ba68a12182bdb42cc",
+      "preservedByteForByte": true
+    },
+    {
+      "source": ".harness-artifacts/product-journey-audit/journey-test-r1.ts",
+      "destination": "docs/technical/evidence/product-journey-audit/journey-test-r1.ts.txt",
+      "sha256": "8af1dfcba063cb2410f7c44b000389c79e926d930f96b74d4caa59c184ab9341",
+      "preservedByteForByte": true
+    },
+    {
+      "source": ".harness-artifacts/product-journey-audit/networks-before.txt",
+      "destination": "docs/technical/evidence/product-journey-audit/networks-before.txt",
+      "sha256": "22b6ff49cebbb5a0b57b79bf95a29009a6194c315ab7332e76a7d7f9affc7da8",
+      "preservedByteForByte": true
+    },
+    {
+      "source": ".harness-artifacts/product-journey-audit/owned-cleanup-complete.json",
+      "destination": "docs/technical/evidence/product-journey-audit/owned-cleanup-complete.json",
+      "sha256": "033c7b72920e432732bfaae366277e3cf0cb2c0b898b62a2d62033f08784c737",
+      "preservedByteForByte": true
+    },
+    {
+      "source": ".harness-artifacts/product-journey-audit/resource-preservation.json",
+      "destination": "docs/technical/evidence/product-journey-audit/resource-preservation.json",
+      "sha256": "94d55481db6a4fb24024a8a9be9e2cc5a33890e1510190133427aab7beb72027",
+      "preservedByteForByte": true
+    },
+    {
+      "source": ".harness-artifacts/product-journey-audit/runtime-after-manifest.json",
+      "destination": "docs/technical/evidence/product-journey-audit/runtime-after-manifest.json",
+      "sha256": "16fa039dbf1260f36c17163162825d427c0ee432dfe362cd79870350bc0b4add",
+      "preservedByteForByte": true
+    },
+    {
+      "source": ".harness-artifacts/product-journey-audit/runtime-manifest.json",
+      "destination": "docs/technical/evidence/product-journey-audit/runtime-manifest.json",
+      "sha256": "04a39e88b50c26e5843eee1eb6e80cb9f5784fd55e78194805598a5a71893a62",
+      "preservedByteForByte": true
+    },
+    {
+      "source": ".harness-artifacts/product-journey-audit/task-error-summary-375.png",
+      "destination": "docs/technical/evidence/product-journey-audit/task-error-summary-375.png",
+      "sha256": "55fcd4793df50086caf7c0dddb932c8fa73f623294eeb8fff93663bac2824b56",
+      "preservedByteForByte": true
+    },
+    {
+      "source": ".harness-artifacts/product-journey-audit/visual-evidence.json",
+      "destination": "docs/technical/evidence/product-journey-audit/visual-evidence.json",
+      "sha256": "9d654d478a8d5fd33bb562189ad0be24303143d35b906d9cfd700f633f315880",
+      "preservedByteForByte": true
+    },
+    {
+      "source": ".harness-artifacts/product-journey-audit/volumes-before.txt",
+      "destination": "docs/technical/evidence/product-journey-audit/volumes-before.txt",
+      "sha256": "cd5dccb7dc422b3bc921412f37e83e20164ed0fd250f983ce242f823096a142c",
+      "preservedByteForByte": true
+    },
+    {
+      "source": "tests/e2e/recruitment-product-journey-audit.spec.ts",
+      "destination": "docs/technical/evidence/product-journey-audit/recruitment-product-journey-audit.spec.ts.txt",
+      "sha256": "8b18c1986834100185e55902a571d95a8683b37de61817071bd3a2a1b6bb644c",
+      "preservedByteForByte": true
+    },
+    {
+      "source": "docs/quality/product-journey-audit.md",
+      "destination": "docs/quality/product-journey-audit.md",
+      "sourceSha256": "319573ad08a91694ecc1086e8dca5df499a0766bcb8a9758c1c3c6839b7ae79f",
+      "importedSha256": "3b9ce3c9da3eecce5c8729182bf3ebbcbd22fcfda41b8df666e2964440f1fc6e",
+      "adaptations": [
+        "historical banner",
+        "relocated links",
+        "archived test reference"
+      ],
+      "originalReportArchive": "docs/technical/evidence/product-journey-audit/original-product-journey-audit.md.txt"
+    },
+    {
+      "source": "docs/quality/product-journey-browser-audit.md",
+      "destination": "docs/quality/product-journey-browser-audit.md",
+      "sourceSha256": "80da282d67ad5602a477fdc5fc8e471ef8b3dab9bf64565f2c821b0b46f0b034",
+      "importedSha256": "487214e43e0548906a52de8f6a48675433bb13c1955cf0693649019de315bff3",
+      "adaptations": [
+        "historical banner",
+        "relocated links",
+        "archived test reference"
+      ],
+      "originalReportArchive": "docs/technical/evidence/product-journey-audit/original-product-journey-browser-audit.md.txt"
+    },
+    {
+      "source": "docs/quality/product-journey-sdd-audit.md",
+      "destination": "docs/quality/product-journey-sdd-audit.md",
+      "sourceSha256": "32a1b22287b71141ba8c077e66794b47aae80bc6bc7c7f103aaff71c87e30981",
+      "importedSha256": "e6cfab12517a2c1326a5d358bf0dd41554f41d1201d3ea5d46f53cd3cb2d24ee",
+      "adaptations": [
+        "historical banner",
+        "relocated links",
+        "archived test reference"
+      ],
+      "originalReportArchive": "docs/technical/evidence/product-journey-audit/original-product-journey-sdd-audit.md.txt"
+    }
+  ]
+}

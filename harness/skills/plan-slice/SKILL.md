@@ -9,6 +9,8 @@ description: Przygotuj mały plan wykonania zatwierdzonego slice'a Jobs CRM z de
 
 **Źródła:** [szablon zadania](../../../docs/templates/agent-task.md), [delivery](../../workflows/delivery.md), [plan techniczny](../../../docs/technical/implementation-plan.md), [bramki](../../../docs/technical/gates-and-impacts.md), [strategia QA](../../../docs/quality/test-strategy.md), [AC](../../../docs/quality/acceptance-criteria.md), [scenariusze](../../../docs/quality/scenarios.md), odpowiedni moduł, UX i ADR.
 
+Przed kodem wypełnij macierz zgodności task packetu: Discovery/provenance i DEC, UX Blueprint/flow contracts oraz Technical Discovery/obowiązujące ADR. Podaj lokalizacje, statusy i test zachowujący każdą dotkniętą decyzję. Nie pomijaj zatwierdzonego projektu dla MVP; nowe odstępstwo lub kontrakt atomowy wymaga jawnej decyzji PO. Orchestrator sprawdza tę zgodność przed handoff implementacji.
+
 1. Sprawdź rzeczywisty zakres autoryzacji i blokujące OPEN. Nie żądaj ponownie zgody na prace już zlecone. Nie traktuj zgody na plan jako zgody na kod produktu.
 2. Wyznacz najmniejszy przeglądalny rezultat, listę plików, zależności, ryzyka, odwracalność oraz obszary poza zakresem.
 3. Dobierz role według delivery. Angażuj `qa-engineer` teraz: AC → przypadki pozytywne, negatywne, brzegowe i regresje → poziom testu → środowisko i komenda, o ile już istnieje. QA pisze testy; developer zachowuje odpowiedzialność za testy jednostkowe własnego kodu.

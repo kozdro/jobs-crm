@@ -1,0 +1,55 @@
+{
+  "runId": 41344447946,
+  "jobId": 124961257294,
+  "sourceSha": "01b6167a1a5d5b2bfdba4b2a37048d19778e1613",
+  "job": "F3 native Auth and browser integration",
+  "step": "Complete F3 synthetic Auth and HTTPS browser suite",
+  "stepConclusion": "failure",
+  "cleanupConclusion": "success",
+  "stages": {
+    "productionBuild": {
+      "exit": 0,
+      "sha256": "d43fa4fc22f154d53f310eec420aa06a5d3b683ef9b853c15c1b01a37f9e369e"
+    },
+    "authSdkIntegration": {
+      "exit": 0,
+      "tests": 13,
+      "passed": 13,
+      "failed": 0,
+      "skipped": 0
+    },
+    "authHttpsBrowser": {
+      "exit": 1,
+      "passed": 9,
+      "failed": 1,
+      "sha256": "8c13ae50990e165ad670596636f3c0383defcd35119d7eb87ea8359d6990c572",
+      "observations": [
+        "F3_REFRESH_FAULT_OBSERVATION",
+        "F3_BFCACHE_OBSERVATION"
+      ],
+      "missingExpectedObservation": "F3_SIGNUP_UI_OBSERVATION",
+      "rawPlaywrightOutput": "withheld by repository safety policy"
+    }
+  },
+  "isolatedReproduction": {
+    "sourceSha": "01b6167a1a5d5b2bfdba4b2a37048d19778e1613",
+    "targetId": "run-e0fc7271",
+    "method": "An ephemeral checkout of the exact source SHA used a separate loopback F3 port range because the default local F3 port was already occupied by another disposable target. Temporary AUTH-14 instrumentation recorded only allowlisted stage, route, auth status, alert category, SDK error class, and logout-response presence; no credentials, token values, raw browser output, or persistent DEV resources were collected.",
+    "test": "AUTH-14 signup/PKCE browser flow",
+    "failurePoint": "settledLogin after local logout and same-context callback",
+    "safeObservation": {
+      "errorName": "AuthRefreshDiscardedError",
+      "route": "account",
+      "authStatus": "unauthenticated",
+      "alertCategory": "auth-error",
+      "logoutResponse": "missing"
+    },
+    "interpretation": "A concurrent refresh result was discarded after local Auth state had changed. The local session was already absent, but the account UI surfaced the discarded refresh as a logout failure and stayed on the account route, so AUTH-14 did not reach its signup UI observation."
+  },
+  "resolution": {
+    "rule": "Only the public Supabase isAuthRefreshDiscardedError result from signOut with scope local is normalized to error:null; errors for global and others, all other errors, and scope validation are preserved.",
+    "authProtectionChanged": false,
+    "assertionsWeakened": false,
+    "testsSkipped": false
+  }
+}

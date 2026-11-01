@@ -48,3 +48,15 @@ Przed zatwierdzeniem pokaż właścicielowi dopasowania po identycznej znormaliz
 Zwykły sukces zamyka kreator, zachowuje bieżący ekran i pokazuje toast z „Otwórz sprawę”. „Zapisz i dodaj kolejną” daje pusty kreator. Błąd zachowuje dane i klucz; nie pokazuje sukcesu. X/Escape i anulowanie z danymi wymagają potwierdzenia odrzucenia, tło nie zamyka. Klawiatura, focus i pełnoekranowy mobile podlegają QA.
 
 **PARTIAL COVERAGE:** FR/AC-QC-001 (brak siedmiu modułów), LC-004 (bez lifecycle), RW-005/009 (lista i pełna minimalna strona, bez Kanbana/drawera), AD-002 (tylko te prywatne dane) i UC/TC-001/029/034. FR-QC-008, Smart Import, import plików oraz pozostałe lifecycle/relacje są poza PR; to nie zmniejsza publicznego MVP. Wyniki testów są odrębne od zatwierdzenia: [raport slice'a](../technical/recruitment-case-first-slice-report.md).
+
+## Product Journey UX Hardening — zgodność, 2026-11-01
+
+[Analiza źródeł i granic](../technical/product-journey-hardening-analysis.md) oraz [task packet](../technical/product-journey-hardening-task.md). Krok Sytuacja realizuje opcjonalny wybór z Blueprint §3: Zapisana oferta, Wykonana aplikacja, Kontakt, Spontaniczna kandydatura, Inna / bez określenia. Można przejść bez wyboru. Wartość jest wyłącznie kontekstem prezentacyjnym szkicu i podsumowania; nie trafia do DTO, nie tworzy typu/statusu/faktu i nie ustala kierunku kontaktu. Powrót między krokami ją zachowuje, a odrzucenie/zapis i dodanie kolejnej zeruje. Sam wybór podlega ochronie niezapisanych zmian.
+
+Pozostaje sekwencja Sytuacja → Dane → Działanie → Podsumowanie i istniejący save-only DEC-052. Docelowy opcjonalny zapis rzeczywistego działania z Blueprint/F04 nadal obowiązuje, ale nie jest ukończony przez ten hardening. Łączny zapis create+fakt+status wymaga jawnego zatwierdzenia kontraktu atomowego, duplikatów i recovery; brak zgody nie oznacza anulowania projektu ani pozwolenia na dwa nieatomowe requesty. Rejestracja faktów na istniejącej sprawie DEC-054 pozostaje osobną świadomą czynnością.
+
+## Atomowe Działanie — kontrakt zatwierdzony DEC-061, implementacja osobno
+
+PO 2026-11-01: **„Akceptuję kontrakt P1/P2/P3; implementacja pozostaje osobnym zadaniem.”** [DEC-061](../decisions/product-decisions.md) zatwierdza [dokładny kontrakt](../technical/quick-capture-atomic-action-proposal.md): jedna nowa sprawa i zero/jeden jawny fakt save_only/application/contact_inbound/contact_outbound w jednej transakcji; pełny zamiar, owner-scoped receipt/recovery, duplikaty przed mutacją z jawną zgodą na odrębną nową sprawę, legacy compatibility i świadomy UX czterech kroków. Save-only pozostaje zawsze dostępne; Sytuacja nie potwierdza faktów ani statusu. To rozszerzenie kontraktu DEC-052/054, nie przepisanie historii pierwszego slice'a.
+
+**Kontrakt APPROVED, funkcja NOT IMPLEMENTED / NOT RUN.** Bieżący hardening nie realizuje złożonego zapisu. Implementacja, SQL/migracje i testy jego nowych AC wymagają osobnego zadania; brak zgody na merge/deployment. Nie przyznawać pełnym FR/AC-QC lub UC/TC PASS na podstawie samej akceptacji. OPEN-002/024/026/037 rozstrzygnięto wyłącznie częściowo; zakres poza P1/P2/P3 i publiczne bramki pozostają.

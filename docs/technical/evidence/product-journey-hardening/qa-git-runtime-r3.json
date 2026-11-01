@@ -1,0 +1,7 @@
+{
+  "candidate": "0dc53edbf23f30d4c05a97cc0a761fc81d5f9243",
+  "runtime": "/private/tmp/jobs-crm-hardening-focused-20261101",
+  "regularFiles": 904,
+  "differencesAfterReversingAdapters": [],
+  "note": "Snapshot extracted from exact candidate Git archive;4declared adapters only"
+}

@@ -1,0 +1,20 @@
+{
+  "containers": {
+    "baseline": 44,
+    "preserved": 44,
+    "missing": [],
+    "addedCount": 0
+  },
+  "volumes": {
+    "baseline": 227,
+    "preserved": 227,
+    "missing": [],
+    "addedCount": 0
+  },
+  "networks": {
+    "baseline": 10,
+    "preserved": 10,
+    "missing": [],
+    "addedCount": 0
+  }
+}

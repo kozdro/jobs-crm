@@ -1,0 +1,22 @@
+{
+  "containers": {
+    "baseline": 44,
+    "preserved": 44,
+    "missingIds": [],
+    "addedCount": 0
+  },
+  "volumes": {
+    "baseline": 227,
+    "preserved": 227,
+    "missingIds": [],
+    "addedCount": 0
+  },
+  "networks": {
+    "baseline": 10,
+    "preserved": 10,
+    "missingIds": [],
+    "addedCount": 0
+  },
+  "ownedProjectRemainingContainers": [],
+  "ownedProjectId": "jobs-crm-recruitment-980577-c6301c0e561a"
+}

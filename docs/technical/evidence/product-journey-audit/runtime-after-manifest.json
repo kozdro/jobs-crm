@@ -1,0 +1,39 @@
+{
+  "productSha": "637f330f6dc1215ad2479dd699b8814397e5b5de",
+  "identicalFiles": 892,
+  "differences": [
+    {
+      "path": "playwright.recruitment.config.ts",
+      "sourceSha256": "24f51be94e5a1547c664f9477909ce846efc9f239ade94dc96890e89f0242af6",
+      "runtimeSha256": "d699edadca6e6ae6cd974b57e229784114eda597681854b74d218e6b0e102652",
+      "normalizedEqual": null
+    },
+    {
+      "path": "scripts/recruitment/cleanup-plan.ts",
+      "sourceSha256": "42661e07b2d86b48afbd9ba3c02d046667937445913dab824ce597406556809b",
+      "runtimeSha256": "aeea7b08110d74d3b35a23aa66fb3d2e8c8e0c150f854d375d9b0bf3bbbe2397",
+      "normalizedEqual": true
+    },
+    {
+      "path": "scripts/recruitment/target.ts",
+      "sourceSha256": "7bec84b1fb29ba85ff0325d652651a54101bbbf1ae4fd4a855e2b8cbc5227e4a",
+      "runtimeSha256": "66cf9273527874c74675947ac7664696d1ecf6e3b60b9334c46df646ee156fa9",
+      "normalizedEqual": true
+    },
+    {
+      "path": "supabase/recruitment-config.toml",
+      "sourceSha256": "7e2fe03700482259594a2a84cbdb99ac422a2185d9c94c0a0b63f6152743f2a0",
+      "runtimeSha256": "7ad3b27ff0c3eac70b9531501fd6cbc0497a9ec344b53c28f24f13e94ba29167",
+      "normalizedEqual": true
+    }
+  ],
+  "expectedDifferences": [
+    "scripts/recruitment/target.ts",
+    "scripts/recruitment/cleanup-plan.ts",
+    "supabase/recruitment-config.toml",
+    "playwright.recruitment.config.ts"
+  ],
+  "testSha256": "8b18c1986834100185e55902a571d95a8683b37de61817071bd3a2a1b6bb644c",
+  "testRuntimeEqual": true,
+  "focusedConfigAdapter": "testMatch narrowed to recruitment-product-journey-audit.spec.ts only"
+}
