@@ -271,6 +271,65 @@ test("QC006/007 duplicate warning exposes only own matches; cancel makes no chan
   expect(records.some((row) => row.id === first.id)).toBe(true);
 });
 
+test("opening a duplicate protects a confirmed unsaved action until explicit abandon", async ({
+  page,
+}) => {
+  await login(page, a);
+  await page.goto(`${target.appOrigin}/recruitments`);
+  const title = `Confirmed duplicate draft ${randomUUID()}`;
+  const existing = await complete(page, title);
+  const dialog = await openCapture(page);
+  await dataStep(dialog, title, "Opis szkicu z potwierdzonym działaniem");
+  await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
+  await dialog
+    .getByRole("radio", { name: "Rzeczywiście aplikowano", exact: true })
+    .check();
+  await dialog
+    .getByRole("checkbox", {
+      name: "Potwierdzam, że to działanie rzeczywiście miało miejsce",
+      exact: true,
+    })
+    .check();
+  await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
+  await dialog.getByRole("button", { name: "Zapisz", exact: true }).click();
+  const duplicateLink = dialog.getByRole("link", { name: title, exact: true });
+  await expect(duplicateLink).toHaveAttribute(
+    "href",
+    `/recruitments/${existing.id}`,
+  );
+
+  await duplicateLink.click();
+  const discard = page.getByRole("alertdialog", { name: "Odrzucić zmiany?" });
+  await expect(discard).toBeVisible();
+  await expect(page).toHaveURL(`${target.appOrigin}/recruitments`);
+  await discard
+    .getByRole("button", { name: "Kontynuuj edycję", exact: true })
+    .click();
+  await expect(discard).not.toBeVisible();
+  await expect(dialog).toBeVisible();
+  await expect(
+    dialog.getByRole("heading", { name: "Podsumowanie", exact: true }),
+  ).toBeVisible();
+  await expect(
+    dialog.getByText("Rzeczywiście aplikowano", { exact: true }),
+  ).toBeVisible();
+
+  await duplicateLink.click();
+  await expect(discard).toBeVisible();
+  await discard
+    .getByRole("button", { name: "Odrzuć zmiany", exact: true })
+    .click();
+  await expect(page).toHaveURL(
+    `${target.appOrigin}/recruitments/${existing.id}`,
+  );
+  await expect(
+    page.getByRole("heading", { name: title, exact: true }),
+  ).toBeVisible();
+  expect((await persisted(a, title)).map((item) => item.id)).toEqual([
+    existing.id,
+  ]);
+});
+
 test("UC029 partial: save-and-add-next clears fields/action and uses a new independent intent", async ({
   page,
 }) => {

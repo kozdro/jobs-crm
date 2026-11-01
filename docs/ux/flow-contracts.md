@@ -1,6 +1,6 @@
 # Jobs CRM — UX Blueprint: kontrakty przepływów i stanów
 
-**Status:** DRAFT, 2026-10-28. **Podstawa:** [blueprint](blueprint.md), [screen blueprints](screen-blueprints.md), [otwarte decyzje](../decisions/open-questions.md). 
+**Status:** DRAFT, 2026-10-28. **Podstawa:** [blueprint](blueprint.md), [screen blueprints](screen-blueprints.md), [otwarte decyzje](../decisions/open-questions.md).
 To opis UX i sprawdzeń prototypu, nie nowy FR/AC ani zatwierdzenie procesów domenowych.
 
 ## Konwencja
@@ -124,21 +124,21 @@ Każdy przepływ opisuje: wejście → decyzję użytkownika → stan po zapisie
 
 ## Macierz stanów interakcji
 
-| Stan | Jak go pokazać | Ochrona przed błędem |
-|---|---|---|
-| Pusty ekran | Rzeczywisty brak danych; kontekstowe CTA | Bez fikcyjnych rekordów |
-| Loading | Skeleton/spinner z opisem zakresu | Bez fałszywego potwierdzenia |
-| Brak wyników | Komunikat i możliwość resetu kryteriów (jeśli istnieją) | Bez modyfikacji danych |
-| Walidacja | Błąd przy polu + zwięzłe podsumowanie | Nie odrzucaj poprawnych pól |
-| Zapis w toku | Widoczny stan, blokada duplikowania zatwierdzenia | Bez podwójnego rekordu |
-| Sukces | Toast i jasna akcja do kontekstu | Dopiero po realnym potwierdzeniu |
-| Awaria | Błąd i możliwa bezpieczna retry tylko według zatwierdzonej semantyki | Nie zgaduj efektu transakcji |
-| Konflikt | Pokaż, który rekord się zmienił i wymagaj decyzji | Bez cichego nadpisania |
-| Niezapisane zmiany | Potwierdź odrzucenie przy wyjściu/zmianie kontekstu | Zachowaj dane przy powrocie |
-| Brak uprawnień | Neutralny komunikat bez prywatnych szczegółów | Nie ujawniaj istnienia danych |
-| Zdarzenie po terminie | „Wymaga rozliczenia” | Nie zmieniaj na odbyte |
-| Duplikat | Wskazanie podobnych spraw i jawny wybór | Bez automatycznego merge |
-| Nieznana data | Neutralne „Data zdarzenia nieznana” | Bez daty zastępczej |
+| Stan                  | Jak go pokazać                                                       | Ochrona przed błędem             |
+| --------------------- | -------------------------------------------------------------------- | -------------------------------- |
+| Pusty ekran           | Rzeczywisty brak danych; kontekstowe CTA                             | Bez fikcyjnych rekordów          |
+| Loading               | Skeleton/spinner z opisem zakresu                                    | Bez fałszywego potwierdzenia     |
+| Brak wyników          | Komunikat i możliwość resetu kryteriów (jeśli istnieją)              | Bez modyfikacji danych           |
+| Walidacja             | Błąd przy polu + zwięzłe podsumowanie                                | Nie odrzucaj poprawnych pól      |
+| Zapis w toku          | Widoczny stan, blokada duplikowania zatwierdzenia                    | Bez podwójnego rekordu           |
+| Sukces                | Toast i jasna akcja do kontekstu                                     | Dopiero po realnym potwierdzeniu |
+| Awaria                | Błąd i możliwa bezpieczna retry tylko według zatwierdzonej semantyki | Nie zgaduj efektu transakcji     |
+| Konflikt              | Pokaż, który rekord się zmienił i wymagaj decyzji                    | Bez cichego nadpisania           |
+| Niezapisane zmiany    | Potwierdź odrzucenie przy wyjściu/zmianie kontekstu                  | Zachowaj dane przy powrocie      |
+| Brak uprawnień        | Neutralny komunikat bez prywatnych szczegółów                        | Nie ujawniaj istnienia danych    |
+| Zdarzenie po terminie | „Wymaga rozliczenia”                                                 | Nie zmieniaj na odbyte           |
+| Duplikat              | Wskazanie podobnych spraw i jawny wybór                              | Bez automatycznego merge         |
+| Nieznana data         | Neutralne „Data zdarzenia nieznana”                                  | Bez daty zastępczej              |
 
 ## Lista kontrolna prototypu (manualna, NIE WYKONANO)
 
@@ -165,7 +165,6 @@ Późniejsze zlecenie PO §13.2, [DEC-052](../decisions/product-decisions.md), w
 
 Na detalu własnej istniejącej sprawy użytkownik rejestruje aplikowanie lub kontakt inbound/outbound. Formularz nie sugeruje wykonania na podstawie URL/nazwy, wymaga świadomego potwierdzenia faktu, pozwala podać dzień bez godziny albo pozostawić datę nieznaną i uprzedza o braku edycji/usuwania. Nie dodaje kanału, opisu komunikacji, osoby ani CV. Anulowanie nie zapisuje niczego; błąd zachowuje dane, niepewny wynik pozwala sprawdzić/ponowić ten sam zamiar, bez obietnicy niezapisanego sukcesu. Po potwierdzonym zapisie detal/lista pokazują Kontakt rozpoczęty i jeden fakt. Jedna historia, znane daty najnowsze pierwsze i osobny obszar nieznanych dat, czas zapisu dostępny oddzielnie. OPEN-004 przed publicznym udostępnieniem; korekty i reszta F04 nadal poza 3A.
 
-
 ## Lokalny kontrakt 3B — DEC-055, rozszerzenie F04/F06
 
 Na istniejącym detalu przycisk „Zarejestruj zaproszenie” otwiera jawny formularz: indywidualna nazwa etapu, opcjonalny dzień otrzymania zaproszenia, potwierdzenie rzeczywistego kwalifikującego zaproszenia i ustawienia wskazanego etapu jako bieżącego. Nie jest to termin spotkania ani potwierdzenie odbioru aplikacji. Zapis ustawia W rekrutacji atomowo z historią i etapem.
@@ -184,12 +183,14 @@ APPROVED w podzakresie: menu wpisu → Skoryguj (dzień/unknown, kierunek albo d
 
 ## Product Journey UX Hardening — zachowanie istniejącego kontraktu
 
-Sytuacja Quick Capture ma pięć opcjonalnych intencji z Blueprint §3, zachowanych w szkicu i jego podsumowaniu; brak wyboru jest prawidłowy. Nie tworzy faktów i nie zmienia statusów. Cztery kroki późniejszego DEC-052 pozostają; docelowe Działanie z F04 jest implementacyjnie nieukończone: kontrakt atomowego zapisu zatwierdzono w DEC-061, a implementacja pozostaje osobnym zadaniem. [Analiza zgodności](../technical/product-journey-hardening-analysis.md).
+Ten zapis opisuje wykonanie hardeningu przed osobną implementacją DEC-061. Aktualny status atomowego Działania: [raport implementacji i QA](../technical/quick-capture-atomic-action-implementation.md).
+
+Sytuacja Quick Capture ma pięć opcjonalnych intencji z Blueprint §3, zachowanych w szkicu i jego podsumowaniu; brak wyboru jest prawidłowy. Nie tworzy faktów i nie zmienia statusów. Cztery kroki późniejszego DEC-052 pozostają; raport hardeningu poprzedza osobne wykonanie Działania z F04. [Analiza zgodności](../technical/product-journey-hardening-analysis.md).
 
 TaskForm ma podsumowanie wszystkich błędów walidacji i odnośniki ustawiające focus we właściwym polu, równolegle do błędów inline; bez zmiany walidacji, draftu i protokołu zapisu. Detal sprawy ma nawigację „Sekcje sprawy” do istniejących danych, powiązań, zadań, zakończenia i kontynuacji, działań oraz historii. Natywne kotwice nie ukrywają informacji, nie filtrują historii i nie zmieniają kolejności ani semantyki sekcji.
 
 ## F02/F04 — kontrakt atomowego Działania, DEC-061
 
-**Kontrakt P1/P2/P3 APPROVED przez PO 2026-11-01; implementacja NOT IMPLEMENTED / NOT RUN, osobne zadanie.** [DEC-061](../decisions/product-decisions.md), [zaakceptowany kontrakt i hash wersji](../technical/quick-capture-atomic-action-proposal.md). Cztery kroki pozostają: Sytuacja → Dane → Działanie → Podsumowanie. Zatwierdzony docelowy wybór to save-only albo jawnie potwierdzona rzeczywista aplikacja/kontakt inbound/outbound z dniem/unknown jak 3A, niezależnie od intencji Sytuacji. Summary rozdziela wskazówkę i rzeczywisty skutek; sukces obejmuje atomowo całą komendę albo zero efektów. Duplikaty, full-intent recovery, dirty/cancel i save-next mają kontrakt P2/P3, bez zapisu faktu do dopasowanej istniejącej sprawy i bez automatycznej inferencji.
+**Kontrakt P1/P2/P3 APPROVED przez PO 2026-11-01; implementacja osobno autoryzowana 2026-11-01.** [DEC-061](../decisions/product-decisions.md), [zaakceptowany kontrakt i hash wersji](../technical/quick-capture-atomic-action-proposal.md). Cztery kroki pozostają: Sytuacja → Dane → Działanie → Podsumowanie. Zatwierdzony docelowy wybór to save-only albo jawnie potwierdzona rzeczywista aplikacja/kontakt inbound/outbound z dniem/unknown jak 3A, niezależnie od intencji Sytuacji. Summary rozdziela wskazówkę i rzeczywisty skutek; sukces obejmuje atomowo całą komendę albo zero efektów. Duplikaty, full-intent recovery, dirty/cancel i save-next mają kontrakt P2/P3, bez zapisu faktu do dopasowanej istniejącej sprawy i bez automatycznej inferencji. [Aktualny status wykonania, QA i review](../technical/quick-capture-atomic-action-implementation.md).
 
 Obecny działający save-only nie jest pełną realizacją F04. Akceptacja nie uruchamia nowej komendy, migracji ani deploymentu; nie zmienia starych wyników QA i nie ustanawia retencji/TTL, nowych kanałów, CV/uczestników lub polityki Calendar.

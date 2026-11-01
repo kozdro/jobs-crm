@@ -467,3 +467,98 @@ test("DEC-061 committed response loss recovers the immutable fact receipt withou
   expect(recoveredCase[0].id).toBe(committedCase[0].id);
   expect(await readOwnEvents(committedCase[0].id)).toHaveLength(1);
 });
+
+test("DEC-061 refuses a receipt for a different intent and preserves the frozen draft", async ({
+  page,
+}) => {
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments`);
+  const title = `Current frozen intent ${randomUUID()}`;
+  const description = `Current private description ${randomUUID()}`;
+  const previousTitle = `Previous receipt intent ${randomUUID()}`;
+  const previousCaseId = randomUUID();
+  let requestId = "";
+  let postCount = 0;
+  let getCount = 0;
+  await page.route("**/recruitments/commands**", async (route) => {
+    const request = route.request();
+    if (request.method() === "POST") {
+      postCount++;
+      requestId = (request.postDataJSON() as { requestId: string }).requestId;
+      await route.fulfill({
+        status: 409,
+        contentType: "application/json",
+        body: JSON.stringify({ error: "idempotency_conflict" }),
+      });
+      return;
+    }
+    getCount++;
+    expect(new URL(request.url()).searchParams.get("requestId")).toBe(
+      requestId,
+    );
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        kind: "receipt",
+        receipt: {
+          requestId,
+          contractVersion: 1,
+          intent: {
+            title: previousTitle,
+            description: null,
+            sourceUrl: null,
+            action: { kind: "save_only" },
+          },
+          intentFingerprint: "a".repeat(32),
+          case: {
+            id: previousCaseId,
+            title: previousTitle,
+            description: null,
+            source_url: null,
+            status: "Zapisane",
+            current_stage: null,
+            stage_version: 0,
+            created_at: "2026-01-01T12:00:00.000Z",
+          },
+          event: null,
+          recordedAt: "2026-01-01T12:00:00.001Z",
+        },
+      }),
+    });
+  });
+  const dialog = await openCapture(page);
+  await enterData(dialog, title, description);
+  await dialog
+    .getByRole("radio", { name: "Zapisz tylko sprawę", exact: true })
+    .check();
+  await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
+  await dialog.getByRole("button", { name: "Zapisz", exact: true }).click();
+  await expect(dialog.getByRole("alert")).toContainText(
+    "dotyczy innych danych",
+  );
+  await dialog
+    .getByRole("button", { name: "Sprawdź wynik zapisu", exact: true })
+    .click();
+  await expect(dialog.getByRole("alert")).toContainText(
+    "nie potwierdzono go jako zapisanego",
+  );
+  await expect(dialog.getByText(title, { exact: true })).toBeVisible();
+  await expect(dialog.getByText(description, { exact: true })).toBeVisible();
+  await expect(
+    dialog.getByText(previousTitle, { exact: true }),
+  ).not.toBeVisible();
+  expect(postCount).toBe(1);
+  expect(getCount).toBe(1);
+  expect(
+    await page.evaluate(() =>
+      JSON.parse(
+        sessionStorage.getItem("jobs-crm.manual-case.pending") ?? "null",
+      ),
+    ),
+  ).toEqual({ ownerId: a.id, requestId });
+  await expectNoPrivateBrowserPersistence(page, requestId, [
+    title,
+    description,
+  ]);
+});

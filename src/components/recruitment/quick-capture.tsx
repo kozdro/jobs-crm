@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@base-ui/react/button";
@@ -16,6 +16,7 @@ import { getRecruitmentCaseByRequestId } from "@/modules/recruitment/application
 import type {
   QuickCaptureAction,
   QuickCaptureAtomicInput,
+  QuickCaptureAtomicIntent,
   QuickCaptureAtomicReceipt,
   QuickCaptureAtomicResult,
 } from "@/modules/recruitment/domain/quick-capture-atomic";
@@ -59,6 +60,25 @@ type AtomicCaptureCommand = Pick<
   "contractVersion" | "requestId" | "intent"
 >;
 type AtomicCaptureReceipt = QuickCaptureAtomicReceipt;
+function sameAtomicIntent(
+  left: QuickCaptureAtomicIntent,
+  right: QuickCaptureAtomicIntent,
+) {
+  if (
+    left.title !== right.title ||
+    left.description !== right.description ||
+    left.sourceUrl !== right.sourceUrl ||
+    left.action.kind !== right.action.kind
+  )
+    return false;
+  if (left.action.kind === "save_only")
+    return right.action.kind === "save_only";
+  return (
+    right.action.kind !== "save_only" &&
+    left.action.occurredOn === right.action.occurredOn &&
+    left.action.factConfirmed === right.action.factConfirmed
+  );
+}
 function isAtomicReceipt(
   value: unknown,
   requestId: string,
@@ -143,6 +163,9 @@ function CaptureSession({ userId }: { userId: string }) {
   const [sessionLive, setSessionLive] = useState(true);
   const [open, setOpen] = useState(false);
   const [discard, setDiscard] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(
+    null,
+  );
   const [step, setStep] = useState(0);
   const [situation, setSituation] = useState("");
   const [title, setTitle] = useState("");
@@ -282,6 +305,17 @@ function CaptureSession({ userId }: { userId: string }) {
         )
           throw new Error("Malformed receipt recovery response");
         const receipt = envelope.receipt;
+        if (
+          frozenRef.current &&
+          !sameAtomicIntent(receipt.intent, frozenRef.current.intent)
+        ) {
+          setUncertain(true);
+          setRetryAvailable(false);
+          setError(
+            "Wynik wcześniejszego zapisu dotyczy innych danych. Zachowano bieżący szkic i identyfikator; nie potwierdzono go jako zapisanego.",
+          );
+          return;
+        }
         success(receipt.case, false, receipt.intent.action);
         return;
       }
@@ -460,6 +494,28 @@ function CaptureSession({ userId }: { userId: string }) {
     setOpen(true);
     setDiscard(true);
   }
+  function guardDuplicateNavigation(
+    event: MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) {
+    if (
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    )
+      return;
+    if (pendingRef.current || recovering) {
+      event.preventDefault();
+      return;
+    }
+    if (dirty || uncertain) {
+      event.preventDefault();
+      setPendingNavigation(href);
+      setDiscard(true);
+    }
+  }
   async function save(addNext = false, allowDuplicate = false) {
     if (pendingRef.current || !liveRef.current || recovering) return;
     const lifetime = lifetimeRef.current;
@@ -580,7 +636,15 @@ function CaptureSession({ userId }: { userId: string }) {
         )
       ) {
         const receipt = (result as { receipt: AtomicCaptureReceipt }).receipt;
-        success(receipt.case, addNext, receipt.intent.action);
+        if (sameAtomicIntent(receipt.intent, command.intent)) {
+          success(receipt.case, addNext, receipt.intent.action);
+        } else {
+          setUncertain(true);
+          setRetryAvailable(false);
+          report(
+            "Wynik zapisu dotyczy innych danych. Zachowano bieżący szkic i identyfikator; nie potwierdzono go jako zapisanego.",
+          );
+        }
       } else {
         setUncertain(true);
         report("Nie potwierdzono wyniku zapisu. Ponów tę samą operację.");
@@ -1112,6 +1176,12 @@ function CaptureSession({ userId }: { userId: string }) {
                       <li key={item.id}>
                         <Link
                           href={`/recruitments/${item.id}`}
+                          onClick={(event) =>
+                            guardDuplicateNavigation(
+                              event,
+                              `/recruitments/${item.id}`,
+                            )
+                          }
                           className="inline-flex min-h-11 items-center break-words underline underline-offset-4 [overflow-wrap:anywhere]"
                         >
                           {item.title}
@@ -1257,6 +1327,7 @@ function CaptureSession({ userId }: { userId: string }) {
                 if (details.reason === "escape-key")
                   details.event.stopPropagation();
                 setDiscard(value);
+                if (!value) setPendingNavigation(null);
               }}
             >
               <AlertDialog.Portal>
@@ -1291,6 +1362,7 @@ function CaptureSession({ userId }: { userId: string }) {
                         event.preventDefault();
                         setDiscard(false);
                         setOpen(false);
+                        setPendingNavigation(null);
                         // Viewing the list is not abandoning or rolling back this intent.
                         if (
                           window.location.pathname === "/recruitments" &&
@@ -1305,17 +1377,23 @@ function CaptureSession({ userId }: { userId: string }) {
                     </Link>
                   )}
                   <div className="mt-5 flex flex-wrap gap-3">
-                    <AlertDialog.Close className={buttonClass}>
+                    <AlertDialog.Close
+                      className={buttonClass}
+                      onClick={() => setPendingNavigation(null)}
+                    >
                       {uncertain ? "Wróć do zapisu" : "Kontynuuj edycję"}
                     </AlertDialog.Close>
                     <Button
                       type="button"
                       className={primaryClass}
                       onClick={() => {
+                        const destination = pendingNavigation;
                         setDiscard(false);
                         setOpen(false);
                         if (uncertain) clearStoredIntent();
+                        setPendingNavigation(null);
                         resetDraft();
+                        if (destination) router.push(destination);
                       }}
                     >
                       {uncertain ? "Porzuć ten zapis" : "Odrzuć zmiany"}

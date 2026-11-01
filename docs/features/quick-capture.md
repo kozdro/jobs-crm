@@ -2,6 +2,8 @@
 
 **Stan:** `BASELINED` (decyzje UX `APPROVED`). **Aktor:** użytkownik z dowolnego modułu. **FR:** `FR-QC-001`–`FR-QC-012`.
 
+**Aktualizacja wykonania DEC-061 (2026-11-02):** osobno autoryzowany slice P1/P2/P3 został zaimplementowany; bieżące pokrycie, wyniki QA i otwarte review/CI są w [raporcie implementacji](../technical/quick-capture-atomic-action-implementation.md). Historyczna akceptacja samego kontraktu pozostaje opisana niżej i w [DEC-061](../decisions/product-decisions.md).
+
 ## Cel
 
 Szybko rejestrować prawdziwy kontekst nowej sprawy bez utraty miejsca pracy, bez automatycznego wysyłania aplikacji, łączenia spraw i bez wymuszania pełnej informacji już na początku.
@@ -38,7 +40,6 @@ Lifecycle, Company/Contact, Case Links, Import, History. `OPEN-002/OPEN-011/OPEN
 
 [ADR-0006](../decisions/adr/0006-allowlisted-smart-import.md) zastępuje wcześniejszą intencję automatycznego pobierania ze wszystkich publicznych URL. Konkretnych domen jeszcze nie zatwierdzono (`OPEN-011`). Użytkownik nadal może dodać adres z dowolnej strony bez automatycznej ekstrakcji.
 
-
 ## Manual Quick Capture — zatwierdzony pierwszy slice (DEC-052)
 
 Źródło: PO, zadanie z 2026-10-29; [dokładny kontrakt](../technical/recruitment-case-first-slice.md). W tym zakresie wejście „Dodaj”/„Dodaj ręcznie” istnieje w realnym minimalnym shellu, bez atrap pozostałych modułów. Sytuacja → Dane → Działanie → Podsumowanie; żadna zmiana kroku nie zapisuje danych. Dane: nazwa 1–160 znaków po trim, opcjonalny pojedynczy HTTP(S), opis do 2000 w „Więcej szczegółów”. Nie wymagaj pracodawcy, stanowiska, kontaktu ani CV. Działanie: wyłącznie „Zapisz tylko sprawę”; stan `Zapisane`, bez historii aplikacji/kontaktu.
@@ -59,4 +60,4 @@ Pozostaje sekwencja Sytuacja → Dane → Działanie → Podsumowanie i istniej�
 
 PO 2026-11-01: **„Akceptuję kontrakt P1/P2/P3; implementacja pozostaje osobnym zadaniem.”** [DEC-061](../decisions/product-decisions.md) zatwierdza [dokładny kontrakt](../technical/quick-capture-atomic-action-proposal.md): jedna nowa sprawa i zero/jeden jawny fakt save_only/application/contact_inbound/contact_outbound w jednej transakcji; pełny zamiar, owner-scoped receipt/recovery, duplikaty przed mutacją z jawną zgodą na odrębną nową sprawę, legacy compatibility i świadomy UX czterech kroków. Save-only pozostaje zawsze dostępne; Sytuacja nie potwierdza faktów ani statusu. To rozszerzenie kontraktu DEC-052/054, nie przepisanie historii pierwszego slice'a.
 
-**Kontrakt APPROVED, funkcja NOT IMPLEMENTED / NOT RUN.** Bieżący hardening nie realizuje złożonego zapisu. Implementacja, SQL/migracje i testy jego nowych AC wymagają osobnego zadania; brak zgody na merge/deployment. Nie przyznawać pełnym FR/AC-QC lub UC/TC PASS na podstawie samej akceptacji. OPEN-002/024/026/037 rozstrzygnięto wyłącznie częściowo; zakres poza P1/P2/P3 i publiczne bramki pozostają.
+**Historyczny status akceptacji:** kontrakt APPROVED przez PO 2026-11-01; pierwotna odpowiedź nie autoryzowała implementacji. Późniejsze osobne zlecenie autoryzowało wykonanie P1/P2/P3, opisane w [raporcie implementacji](../technical/quick-capture-atomic-action-implementation.md). OPEN-002/024/026/037 pozostają rozstrzygnięte wyłącznie częściowo; zakres poza P1/P2/P3 i publiczne bramki pozostają.

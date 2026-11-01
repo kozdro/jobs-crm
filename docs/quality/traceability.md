@@ -311,12 +311,12 @@ Bez nowych FR/AC i zmiany ich znaczenia: FR/AC-QC-002/006/007/009/010/011 (czter
 
 | Szczegółowe AC | Pokrycie wymagane | Wynik local QA |
 |---|---|---|
-| AC-QC-061-01 | cztery warianty akcji, status, brak etapu i niezależność Sytuacji | PASS: unit + integracje + browser E2E; pełny runner 153/153 + 137/137 |
-| AC-QC-061-02 | transaction rollback, pełny intent, replay/conflict i równoległe użycie requestId | PASS: rollback/concurrency/replay/conflict w izolowanej bazie; objęte 153/153 integracjami |
-| AC-QC-061-03 | owner-scoped immutable recovery, brak fałszywego rollbacku, kompatybilność legacy/history | PASS: receipt, unknown outcome, legacy compatibility i refresh recovery; 153/153 + 137/137 |
-| AC-QC-061-04 | warning bez mutacji, świadoma nowa sprawa, pełny matchset/intent, wyścig | PASS: matchset, acknowledgement, brak mutacji i duplicate race; objęte 153/153 integracjami oraz 137/137 browser E2E |
-| AC-QC-061-05 | cztery kroki, explicit action/confirmation, summary, dirty/error/save-next | PASS: dedicated unit/UI, 137/137 browser E2E |
+| AC-QC-061-01 | cztery warianty akcji, status, brak etapu i niezależność Sytuacji | PASS: unit + integracje + browser E2E; pełny runner 155/155 + 139/139 |
+| AC-QC-061-02 | transaction rollback, pełny intent, replay/conflict i równoległe użycie requestId | PASS: rollback/concurrency/replay/PT409 conflict w izolowanej bazie; objęte 155/155 integracjami |
+| AC-QC-061-03 | owner-scoped immutable recovery, brak fałszywego rollbacku, kompatybilność legacy/history | PASS: receipt mismatch protection, unknown outcome, legacy compatibility, refresh/history replay; 155/155 + 139/139 |
+| AC-QC-061-04 | warning bez mutacji, świadoma nowa sprawa, pełny matchset/intent, wyścig | PASS: matchset, acknowledgement, brak mutacji i duplicate race; objęte 155/155 integracjami oraz 139/139 browser E2E |
+| AC-QC-061-05 | cztery kroki, explicit action/confirmation, summary, dirty/error/save-next | PASS: dedicated unit/UI, dirty-navigation regression and 139/139 browser E2E |
 | AC-QC-061-06 | brak prywatnego payloadu w browser storage/URL/logach/artefaktach | PASS: Asercje storage/URL/logów i build artifacts; skan 24 browser files i 15 HTML/RSC files |
-| AC-QC-061-07 | A/B/anon, direct Data API/RPC, spoofing, grants/RLS/invoker | PASS: rzeczywisty local Auth/Data API i bezpośredni RPC A/B/anon; objęte 153/153 integracjami |
+| AC-QC-061-07 | A/B/anon, direct Data API/RPC, spoofing, grants/RLS/invoker | PASS: rzeczywisty local Auth/Data API i bezpośredni RPC/schema GET/POST/PATCH/DELETE A/B/anon; objęte 155/155 integracjami |
 
 Wyniki, dokładne komendy, nieudane próby i ograniczenia: [raport slice'a](../technical/quick-capture-atomic-action-implementation.md). Lokalny runner zakończony PASS na izolowanym targetcie. Niezależne review i hosted CI pozostają osobnymi bramkami do finalnego raportu. CalendarEvent/pełny TC-012/TC-024 i publiczne bramki pozostają odrębne.

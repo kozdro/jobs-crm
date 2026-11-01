@@ -7,6 +7,7 @@ import { readRecruitmentTarget } from "../../../scripts/recruitment/target.ts";
 import {
   createAccounts,
   denied,
+  errorCode,
   request,
   type Reply,
 } from "../rls/data-api.ts";
@@ -22,6 +23,12 @@ const api = (
   method = "GET",
   body?: unknown,
 ) => request(target, token, path, method, body, {}, "public");
+const privateApi = (
+  token: string | undefined,
+  path: string,
+  method = "GET",
+  body?: unknown,
+) => request(target, token, path, method, body, {}, "recruitment_private");
 const db = () =>
   postgres({ ...target.db, max: 1, ssl: false, onnotice: () => {} });
 const warsawToday = () => {
@@ -123,7 +130,8 @@ function receipt(reply: Reply): Receipt {
   return result.receipt;
 }
 function conflict(reply: Reply) {
-  denied(reply);
+  assert.equal(reply.status, 409, "Expected an HTTP 409 intent conflict");
+  assert.equal(errorCode(reply), "PT409", "Expected the PT409 conflict code");
 }
 async function countRows(
   ownerId: string,
@@ -165,6 +173,39 @@ async function receiptRows(ownerId: string, requestId: string) {
       select receipt from recruitment_private.recruitment_case_capture_receipt
       where owner_id = ${ownerId} and request_id = ${requestId}::uuid`;
     return Array.from(rows);
+  } finally {
+    await connection.end();
+  }
+}
+
+async function captureHistorySnapshot(ownerId: string, caseId: string) {
+  const connection = db();
+  try {
+    const cases = await connection`
+      select id, owner_id, request_id, status, current_stage, stage_version, case_revision
+      from public.recruitment_case
+      where owner_id = ${ownerId} and id = ${caseId}::uuid`;
+    const facts = await connection`
+      select id, owner_id, request_id, case_id, kind, direction, occurred_on, revision, voided
+      from public.recruitment_case_event_current
+      where owner_id = ${ownerId} and case_id = ${caseId}::uuid
+      order by id`;
+    const corrections = await connection`
+      select id, request_id, event_id, operation, revision, occurred_on, direction
+      from public.recruitment_case_event_revision
+      where owner_id = ${ownerId} and case_id = ${caseId}::uuid
+      order by id`;
+    const lifecycle = await connection`
+      select id, request_id, kind, cycle, expected_case_revision, resulting_status
+      from public.recruitment_case_lifecycle
+      where owner_id = ${ownerId} and case_id = ${caseId}::uuid
+      order by expected_case_revision, id`;
+    return {
+      cases: Array.from(cases),
+      facts: Array.from(facts),
+      corrections: Array.from(corrections),
+      lifecycle: Array.from(lifecycle),
+    };
   } finally {
     await connection.end();
   }
@@ -397,15 +438,76 @@ test(
             false,
           );
         }
-        const privateRelation = await api(
-          a.token,
-          "/rest/v1/recruitment_case_capture_receipt?select=*",
+      },
+    );
+
+    await t.test(
+      "private receipt schema rejects owner, B and anonymous read/write verbs; replay remains immutable",
+      async () => {
+        const table = "/rest/v1/recruitment_case_capture_receipt";
+        const requestIdForInsert = randomUUID();
+        const attemptedReceipt = {
+          ...first,
+          requestId: requestIdForInsert,
+        };
+        const attemptedInsert = {
+          owner_id: a.id,
+          request_id: requestIdForInsert,
+          contract_version: first.contractVersion,
+          intent: first.intent,
+          intent_fingerprint: first.intentFingerprint,
+          case_id: first.case.id,
+          event_id: first.event?.id ?? null,
+          receipt: attemptedReceipt,
+        };
+        const filter = `?owner_id=eq.${a.id}&request_id=eq.${requestId}`;
+        const cleanup = db();
+        try {
+          for (const token of [a.token, b.token, undefined]) {
+            denied(await privateApi(token, `${table}?select=*`));
+            denied(await privateApi(token, table, "POST", attemptedInsert));
+            denied(
+              await privateApi(token, `${table}${filter}`, "PATCH", {
+                recorded_at: "2099-01-01T00:00:00.000Z",
+              }),
+            );
+            denied(await privateApi(token, `${table}${filter}`, "DELETE"));
+          }
+        } finally {
+          try {
+            await cleanup`
+              delete from recruitment_private.recruitment_case_capture_receipt
+              where owner_id = ${a.id}::uuid and request_id = ${requestIdForInsert}::uuid
+            `;
+          } finally {
+            await cleanup.end();
+          }
+        }
+
+        assert.deepEqual(
+          await receiptRows(a.id, requestIdForInsert),
+          [],
+          "Direct Data API INSERT must not create a receipt",
         );
-        denied(privateRelation);
+        const replay = successful(
+          await api(a.token, rpc, "POST", command(requestId, intent)),
+        );
+        assert.equal(replay.kind, "replayed");
+        assert.deepEqual((replay as { receipt: Receipt }).receipt, first);
+        const recovered = await api(a.token, recoveryRpc, "POST", {
+          p_request_id: requestId,
+        });
+        assert.equal(recovered.status, 200);
+        assert.deepEqual(recovered.body, { kind: "receipt", receipt: first });
         assert.equal(
-          JSON.stringify(privateRelation.body).includes(first.intent.title),
-          false,
+          (await countRows(a.id, requestId, "recruitment_case")).length,
+          1,
         );
+        assert.equal(
+          (await countRows(a.id, requestId, "recruitment_case_event")).length,
+          1,
+        );
+        assert.equal((await receiptRows(a.id, requestId)).length, 1);
       },
     );
 
@@ -764,5 +866,168 @@ test(
         }
       },
     );
+  },
+);
+
+test(
+  "DEC-061 P1/P2: original atomic receipt replays unchanged after fact correction, close and reopen",
+  { timeout: 120_000 },
+  async () => {
+    const [a] = await createAccounts(target);
+    const requestId = randomUUID();
+    const intent = body(`History replay ${randomUUID()}`, {
+      kind: "application",
+      occurredOn: null,
+      factConfirmed: true,
+    });
+    const original = receipt(
+      await api(a.token, rpc, "POST", command(requestId, intent)),
+    );
+    assert.ok(original.event);
+
+    const correctionPreviewReply = await api(
+      a.token,
+      "/rest/v1/rpc/preview_recruitment_case_correction",
+      "POST",
+      {
+        p_case_id: original.case.id,
+        p_event_id: original.event.id,
+        p_operation: "correct",
+        p_occurred_on: "2001-02-03",
+        p_direction: null,
+        p_stage_name: null,
+      },
+    );
+    assert.equal(correctionPreviewReply.status, 200);
+    const correctionPreview = correctionPreviewReply.body as {
+      caseRevision: number;
+      eventRevision: number;
+      blockedBy: unknown[];
+    };
+    assert.deepEqual(correctionPreview.blockedBy, []);
+    const corrected = await api(
+      a.token,
+      "/rest/v1/rpc/correct_recruitment_case_event",
+      "POST",
+      {
+        p_request_id: randomUUID(),
+        p_case_id: original.case.id,
+        p_event_id: original.event.id,
+        p_operation: "correct",
+        p_expected_case_revision: correctionPreview.caseRevision,
+        p_expected_event_revision: correctionPreview.eventRevision,
+        p_occurred_on: "2001-02-03",
+        p_direction: null,
+        p_stage_name: null,
+      },
+    );
+    assert.equal(corrected.status, 200);
+    assert.equal((corrected.body as { kind: string }).kind, "created");
+
+    const close = {
+      p_case_id: original.case.id,
+      p_operation: "close",
+      p_closure_id: null,
+      p_outcome: "Inny",
+      p_occurred_on: null,
+      p_offer_confirmed: false,
+    };
+    const closePreviewReply = await api(
+      a.token,
+      "/rest/v1/rpc/preview_recruitment_case_lifecycle",
+      "POST",
+      close,
+    );
+    assert.equal(closePreviewReply.status, 200);
+    const closePreview = closePreviewReply.body as {
+      caseRevision: number;
+      closureRevision: number;
+      status: string;
+    };
+    assert.equal(closePreview.status, "Zakończone");
+    const closed = await api(
+      a.token,
+      "/rest/v1/rpc/confirm_recruitment_case_lifecycle",
+      "POST",
+      {
+        ...close,
+        p_request_id: randomUUID(),
+        p_expected_case_revision: closePreview.caseRevision,
+        p_expected_closure_revision: closePreview.closureRevision,
+      },
+    );
+    assert.equal(closed.status, 200);
+    assert.equal((closed.body as { kind: string }).kind, "created");
+
+    const reopen = {
+      p_case_id: original.case.id,
+      p_operation: "reopen",
+      p_closure_id: null,
+      p_outcome: null,
+      p_occurred_on: null,
+      p_offer_confirmed: false,
+    };
+    const reopenPreviewReply = await api(
+      a.token,
+      "/rest/v1/rpc/preview_recruitment_case_lifecycle",
+      "POST",
+      reopen,
+    );
+    assert.equal(reopenPreviewReply.status, 200);
+    const reopenPreview = reopenPreviewReply.body as {
+      caseRevision: number;
+      closureRevision: number;
+      status: string;
+    };
+    assert.equal(reopenPreview.status, "Kontakt rozpoczęty");
+    const reopened = await api(
+      a.token,
+      "/rest/v1/rpc/confirm_recruitment_case_lifecycle",
+      "POST",
+      {
+        ...reopen,
+        p_request_id: randomUUID(),
+        p_expected_case_revision: reopenPreview.caseRevision,
+        p_expected_closure_revision: reopenPreview.closureRevision,
+      },
+    );
+    assert.equal(reopened.status, 200);
+    assert.equal((reopened.body as { kind: string }).kind, "created");
+
+    const beforeReplay = await captureHistorySnapshot(a.id, original.case.id);
+    const receiptBeforeReplay = await receiptRows(a.id, requestId);
+    assert.equal(beforeReplay.cases.length, 1);
+    assert.equal(beforeReplay.cases[0].status, "Kontakt rozpoczęty");
+    assert.ok(Number(beforeReplay.cases[0].case_revision) >= 3);
+    assert.equal(beforeReplay.facts.length, 1);
+    assert.equal(
+      beforeReplay.facts[0].occurred_on instanceof Date
+        ? beforeReplay.facts[0].occurred_on.toISOString().slice(0, 10)
+        : beforeReplay.facts[0].occurred_on,
+      "2001-02-03",
+    );
+    assert.equal(beforeReplay.facts[0].revision, 1);
+    assert.equal(beforeReplay.corrections.length, 1);
+    assert.deepEqual(
+      beforeReplay.lifecycle.map((entry) => entry.kind),
+      ["close", "reopen"],
+    );
+
+    const replay = successful(
+      await api(a.token, rpc, "POST", command(requestId, intent)),
+    );
+    assert.equal(replay.kind, "replayed");
+    assert.deepEqual((replay as { receipt: Receipt }).receipt, original);
+    const recovered = await api(a.token, recoveryRpc, "POST", {
+      p_request_id: requestId,
+    });
+    assert.equal(recovered.status, 200);
+    assert.deepEqual(recovered.body, { kind: "receipt", receipt: original });
+    assert.deepEqual(
+      await captureHistorySnapshot(a.id, original.case.id),
+      beforeReplay,
+      "Receipt replay must not revert correction/lifecycle projections or add events",
+    );
+    assert.deepEqual(await receiptRows(a.id, requestId), receiptBeforeReplay);
   },
 );
