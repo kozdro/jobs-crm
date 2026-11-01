@@ -55,6 +55,74 @@ describe("AUTH-02/06 browser adapter URL boundary", () => {
     );
   });
 
+  it.each([
+    "#case-details",
+    "#case-relations",
+    "#case-tasks",
+    "#case-lifecycle",
+    "#case-actions",
+    "#case-history",
+  ])(
+    "preserves the exact allowed detail section %s without enabling URL sessions",
+    (hash) => {
+      const replaceState = vi.fn();
+      vi.stubGlobal("window", {
+        location: {
+          pathname: "/recruitments/00000000-0000-4000-8000-000000000001",
+          search: "?historyPage=2",
+          hash,
+        },
+        history: { state: { __NA: true }, replaceState },
+      });
+      getBrowserClient();
+      expect(replaceState).not.toHaveBeenCalled();
+      expect(mocks.createBrowserClient).toHaveBeenCalledOnce();
+      expect(mocks.createBrowserClient.mock.calls[0][2].auth).toEqual({
+        detectSessionInUrl: false,
+      });
+    },
+  );
+
+  it.each([
+    ["/account", "#case-history"],
+    ["/login", "#case-details"],
+    ["/auth/callback", "#case-actions"],
+    ["/recruitments/not-a-uuid", "#case-history"],
+    ["/recruitments/00000000-0000-4000-8000-000000000001/", "#case-history"],
+    [
+      "/recruitments/00000000-0000-4000-8000-000000000001",
+      "#access_token=untrusted&refresh_token=untrusted",
+    ],
+    [
+      "/recruitments/00000000-0000-4000-8000-000000000001",
+      "#case-history&access_token=untrusted",
+    ],
+    ["/recruitments/00000000-0000-4000-8000-000000000001", "#%63ase-history"],
+    ["/recruitments/00000000-0000-4000-8000-000000000001", "#history"],
+  ])(
+    "scrubs untrusted or non-detail fragments before SDK initialization: %s %s",
+    (pathname, hash) => {
+      const state = { __NA: true };
+      const replaceState = vi.fn();
+      vi.stubGlobal("window", {
+        location: { pathname, search: "?historyPage=2", hash },
+        history: { state, replaceState },
+      });
+      getBrowserClient();
+      expect(replaceState).toHaveBeenCalledExactlyOnceWith(
+        state,
+        "",
+        `${pathname}?historyPage=2`,
+      );
+      expect(replaceState.mock.invocationCallOrder[0]).toBeLessThan(
+        mocks.createBrowserClient.mock.invocationCallOrder[0],
+      );
+      expect(
+        mocks.createBrowserClient.mock.calls[0][2].auth.detectSessionInUrl,
+      ).toBe(false);
+    },
+  );
+
   it("does not rewrite a clean URL and never enables automatic session detection", () => {
     const replaceState = vi.fn();
     vi.stubGlobal("window", {

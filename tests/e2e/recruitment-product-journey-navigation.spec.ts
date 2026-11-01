@@ -1,0 +1,203 @@
+/** Blueprint F05 / DEC059: local section navigation preserves drafts and return context.
+ * ADR0012: only exact public case section fragments may survive Auth SDK bootstrap.
+ */
+import { randomUUID } from "node:crypto";
+import { expect, test } from "@playwright/test";
+import { readRecruitmentTarget } from "../../scripts/recruitment/target.ts";
+import { account, login as sdkLogin } from "../integration/auth/fixtures.ts";
+
+for (const width of [1440, 1024, 768, 375]) {
+  test(`Case section navigation keeps dirty tasks and filtered Workspace return at ${width}px`, async ({
+    page,
+  }) => {
+    const target = await readRecruitmentTarget(
+      process.env.RECRUITMENT_TARGET_ID!,
+    );
+    const user = await account(target);
+    const { client } = await sdkLogin(target, user);
+    const title = `Navigation ${randomUUID()}`;
+    const created = await client.rpc("create_recruitment_case", {
+      p_request_id: randomUUID(),
+      p_title: title,
+    });
+    expect(created.error).toBeNull();
+    const caseId = created.data.case.id as string;
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(`${target.appOrigin}/login`);
+    await page.getByLabel("E-mail", { exact: true }).fill(user.email);
+    await page.getByLabel("Hasło", { exact: true }).fill(user.password);
+    await page
+      .getByRole("button", { name: "Zaloguj się", exact: true })
+      .click();
+    await expect(page).toHaveURL(`${target.appOrigin}/dashboard`);
+    await page.goto(
+      `${target.appOrigin}/recruitments?view=list&sort=oldest&status=Zapisane&closedOpen=1`,
+    );
+    await expect(
+      page.getByRole("button", { name: "Lista", exact: true }),
+    ).toHaveAttribute("aria-pressed", "true");
+    await expect(
+      page.getByRole("combobox", { name: "Sortowanie", exact: true }),
+    ).toHaveValue("oldest");
+    await page.getByRole("button", { name: title, exact: true }).click();
+    const contextURL = page.url();
+    const drawer = page.getByRole("dialog", {
+      name: "Podgląd sprawy",
+      exact: true,
+    });
+    await drawer
+      .getByRole("link", { name: "Otwórz pełną stronę", exact: true })
+      .click();
+    await expect(page).toHaveURL(
+      new RegExp(`/recruitments/${caseId}\\?workspaceReturn=`),
+    );
+    const detailURL = page.url();
+    const nav = page.getByRole("navigation", {
+      name: "Sekcje sprawy",
+      exact: true,
+    });
+    const historyLink = nav.getByRole("link", {
+      name: "Historia",
+      exact: true,
+    });
+    await historyLink.focus();
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(`${detailURL}#case-history`);
+    await page.reload();
+    await expect(nav).toBeVisible();
+    await expect(page).toHaveURL(`${detailURL}#case-history`);
+    const actions = nav.getByRole("link", { name: "Działania", exact: true });
+    await actions.focus();
+    await page.keyboard.press("Enter");
+    await expect(page.locator("#case-actions")).toBeFocused();
+    const sectionPosition = await page
+      .locator("#case-actions")
+      .evaluate((element) => {
+        const rect = element.getBoundingClientRect();
+        return { top: rect.top, bottom: rect.bottom, viewport: innerHeight };
+      });
+    expect(sectionPosition.top).toBeGreaterThanOrEqual(0);
+    expect(sectionPosition.top).toBeLessThan(sectionPosition.viewport);
+    await page
+      .getByRole("button", { name: "Dodaj zadanie", exact: true })
+      .click();
+    const form = page.getByRole("form", { name: "Nowe zadanie", exact: true });
+    const draft = `Niezapisane ${randomUUID()}`;
+    await form.getByLabel("Tytuł zadania", { exact: true }).fill(draft);
+    await historyLink.focus();
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(`${detailURL}#case-history`);
+    await expect(form.getByLabel("Tytuł zadania", { exact: true })).toHaveValue(
+      draft,
+    );
+    const tasksLink = nav.getByRole("link", { name: "Zadania", exact: true });
+    await tasksLink.focus();
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(`${detailURL}#case-tasks`);
+    await page.goBack();
+    await expect(page).toHaveURL(`${detailURL}#case-history`);
+    await expect(form.getByLabel("Tytuł zadania", { exact: true })).toHaveValue(
+      draft,
+    );
+    await page.goForward();
+    await expect(page).toHaveURL(`${detailURL}#case-tasks`);
+    await expect(form.getByLabel("Tytuł zadania", { exact: true })).toHaveValue(
+      draft,
+    );
+    const stored = await client
+      .from("recruitment_task")
+      .select("id")
+      .eq("owner_id", user.id);
+    expect(stored.error).toBeNull();
+    expect(stored.data).toEqual([]);
+    expect(
+      await page.evaluate(() => ({
+        inner: innerWidth,
+        scroll: document.documentElement.scrollWidth,
+      })),
+    ).toEqual({ inner: width, scroll: width });
+    await page.screenshot({
+      path: test.info().outputPath(`detail-navigation-${width}.png`),
+      fullPage: true,
+    });
+    await form
+      .getByRole("button", { name: "Anuluj edycję", exact: true })
+      .click();
+    await form
+      .getByRole("button", { name: "Odrzuć zmiany", exact: true })
+      .click();
+    await expect(form).toHaveCount(0);
+    await page
+      .getByRole("link", { name: "Wróć do listy spraw", exact: true })
+      .click();
+    await expect(page).toHaveURL(contextURL);
+    await expect(
+      page.getByRole("button", { name: "Lista", exact: true }),
+    ).toHaveAttribute("aria-pressed", "true");
+    await expect(
+      page.getByRole("combobox", { name: "Sortowanie", exact: true }),
+    ).toHaveValue("oldest");
+    await expect(
+      page.getByRole("button", { name: title, exact: true }),
+    ).toBeVisible();
+  });
+}
+
+test("Case section fragment allowlist never accepts attacker Auth fragments or changes the owner", async ({
+  page,
+}) => {
+  const target = await readRecruitmentTarget(
+    process.env.RECRUITMENT_TARGET_ID!,
+  );
+  const owner = await account(target);
+  const attacker = await account(target);
+  const { client } = await sdkLogin(target, owner);
+  const { session } = await sdkLogin(target, attacker);
+  const created = await client.rpc("create_recruitment_case", {
+    p_request_id: randomUUID(),
+    p_title: `Fragment ${randomUUID()}`,
+  });
+  expect(created.error).toBeNull();
+  const ownDetail = `/recruitments/${created.data.case.id as string}`;
+  await page.goto(`${target.appOrigin}/login`);
+  await page.getByLabel("E-mail", { exact: true }).fill(owner.email);
+  await page.getByLabel("Hasło", { exact: true }).fill(owner.password);
+  await page.getByRole("button", { name: "Zaloguj się", exact: true }).click();
+  await expect(page).toHaveURL(`${target.appOrigin}/dashboard`);
+  const authFragment = new URLSearchParams({
+    access_token: session.access_token,
+    refresh_token: session.refresh_token,
+    token_type: "bearer",
+    expires_in: "60",
+    type: "recovery",
+  }).toString();
+  for (const [path, fragment] of [
+    [ownDetail, authFragment],
+    [ownDetail, `case-history&${authFragment}`],
+    ["/account", authFragment],
+    ["/account", `case-history&${authFragment}`],
+    ["/account", "case-history"],
+  ]) {
+    try {
+      await page.goto(`${target.appOrigin}${path}#${fragment}`);
+    } catch {
+      throw new Error(
+        "Synthetic fragment navigation failed; sensitive URL withheld",
+      );
+    }
+    await expect(
+      page.getByRole("button", { name: "Dodaj", exact: true }),
+    ).toBeVisible();
+    await expect.poll(() => Boolean(new URL(page.url()).hash)).toBe(false);
+    const response = await page.request.get(`${target.appOrigin}/auth/user`);
+    expect(response.status()).toBe(200);
+    const identity = await response.json();
+    expect(identity.user.id).toBe(owner.id);
+  }
+  const visible = await client
+    .from("recruitment_case")
+    .select("id")
+    .eq("id", created.data.case.id);
+  expect(visible.error).toBeNull();
+  expect(visible.data).toHaveLength(1);
+});

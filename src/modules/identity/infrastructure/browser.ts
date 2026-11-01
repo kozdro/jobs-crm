@@ -7,12 +7,18 @@ import {
   type LogoutScope,
 } from "@/modules/identity/application/validation";
 import { getPublicAuthConfig } from "@/shared/public/auth-config";
+import { isCaseSectionFragment } from "@/shared/validation/case-section-fragment";
 
 /** The SDK owns browser storage, refresh and tab coordination. */
 export function getBrowserClient() {
   // PKCE is exchanged only by the server callback. Never let an untrusted URL
   // fragment initialize a session on any browser surface, including /account.
-  if (typeof window !== "undefined" && window.location.hash) {
+  // Only exact, non-auth section anchors on a UUID case detail URL may remain.
+  if (
+    typeof window !== "undefined" &&
+    window.location.hash &&
+    !isCaseSectionFragment(window.location.pathname, window.location.hash)
+  ) {
     window.history.replaceState(
       window.history.state,
       "",

@@ -4,7 +4,7 @@
 
 ## Zgodność i zakres
 
-[Task packet i kontrola przed implementacją](product-journey-hardening-task.md), [analiza kanoniczna](product-journey-hardening-analysis.md). Nie zmieniono DEC, ADR, zatwierdzonych FR/AC/BR ani docelowego projektu Blueprint. Wybory sytuacji5 z Blueprint§3, cztery kroki z późniejszego DEC-052, działanie save-only bez inferencji faktów. Pełne opcjonalne Działanie pozostaje docelowe i jawnie nieukończone: create+fakt+status/duplikaty/recovery wymagają kontraktu do zatwierdzenia PO. Pytanie przekazane PO asynchronicznie; odpowiedź ani zgoda nie są domniemane.
+[Task packet i kontrola przed implementacją](product-journey-hardening-task.md), [analiza kanoniczna](product-journey-hardening-analysis.md). Nie zmieniono DEC, ADR, zatwierdzonych FR/AC/BR ani docelowego projektu Blueprint. Wybory sytuacji5 z Blueprint§3, cztery kroki z późniejszego DEC-052, działanie save-only bez inferencji faktów. Pełne opcjonalne Działanie pozostaje docelowe i jawnie nieukończone: create+fakt+status/duplikaty/recovery wymagają kontraktu do zatwierdzenia PO. PO odpowiedział: „Przed rozszerzeniem Działania przygotować w tym zadaniu szczegółowy kontrakt atomowy do mojej akceptacji; niezależny UX realizować dalej.” Powstaje [szczegółowa propozycja](quick-capture-atomic-action-proposal.md); nie jest to akceptacja implementacji atomowego Działania.
 
 Wykonane UI: rzeczywisty opcjonalny wybór Sytuacji, jego zachowanie/reset i dirty guard, kontekst w podsumowaniu bez zmiany DTO; summary błędów Task i link→field focus bez zmiany walidacji; natywne skróty sekcji detalu bez ukrywania, filtrowania lub przestawiania danych.
 
@@ -16,4 +16,4 @@ Harness sync/check PASS; `python3 -m unittest discover -s harness/scripts -p 'te
 
 Autorzy: hardening_spec (analiza), hardening_frontend (UI), hardening_qa (E2E i izolowany runtime), orchestrator/root (proces/packet/integracja/dokumentacja). Model/reasoning dziedziczone NOT EXPOSED; zakresy rozłączne. Niezależne review planowane przez osobny rodzic read-only wrapper frontend i backend procesu, z obowiązkiem kontroli kanonicznych decyzji.
 
-Brak nowych zależności, migracji, Auth, polityki biznesowej i automatyzacji działań konta. Ryzyka/luki: pełny docelowy QC wymaga wejść PO; fizyczny telefon/AT osobno NOT RUN; planowane Calendar/Reminders/DnD i pełne publiczne bramki nie są częścią tego przyrostu.
+Brak nowych zależności, migracji, mechanizmu Auth, polityki biznesowej i automatyzacji działań konta. Po review zakres obejmuje ścisłą allowlistę legalnych kotwic detalu w istniejącym guardzie URL; wymagany osobny security review, bez zmiany obsługi tokenów/sesji i uprawnień. Ryzyka/luki: pełny docelowy QC wymaga wejść PO; fizyczny telefon/AT osobno NOT RUN; planowane Calendar/Reminders/DnD i pełne publiczne bramki nie są częścią tego przyrostu.

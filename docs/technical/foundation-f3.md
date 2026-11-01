@@ -136,3 +136,9 @@ Nie nadpisano awarii wynikiem PASS: R1 browser3PASS/3FAIL (callback internal por
 ## Następny biznesowy slice
 
 PROPOSED: mały ręczny RecruitmentCase/Quick Capture z odczytem wyłącznie własnych danych, po zatwierdzeniu modelu/OPEN-002 i DATA-01 oraz osobnym zleceniu. Bez uruchamiania F4/RPC importu, workera i Storage produktu w F3. Publiczne wydanie nadal wymaga właściwych polityk kont i pozostałych release gates.
+
+## Product Journey Hardening — legalne kotwice detalu
+
+Wymagany powyżej przegląd użycia `#sekcja` obejmuje wyłącznie sześć dokładnych fragmentów `#case-details`, `#case-relations`, `#case-tasks`, `#case-lifecycle`, `#case-actions`, `#case-history` na dokładnej trasie `/recruitments/<UUID>`. Guard nie dekoduje wartości ani nie interpretuje ich jako Auth. Inny fragment, dopisany token, inna trasa lub niepoprawny UUID nadal powoduje usunięcie fragmentu przed inicjalizacją SDK, z zachowaniem query i history.state. `detectSessionInUrl:false`, PKCE/server callback, sesje i RLS pozostają obowiązujące. To uzupełnienie legalnej lokalnej nawigacji, bez zmiany DEC-051/ADR-0012.
+
+[Plan i źródła](product-journey-hardening-task.md), [raport z zakresem testów/security review](product-journey-hardening-report.md). Nowe unit testują exact allowlist i scrub-before-SDK, QA rzeczywistą nawigację i odrzucenie fragmentów tokenowych na detalu/account. Historyczne wyniki F3 powyżej nie stanowią wykonania tych nowych testów. Oficjalna dokumentacja sprawdzona przez Context7: [React useId](https://react.dev/reference/react/useId), [Supabase SSR0.12.7](https://github.com/supabase/ssr/tree/v0.12.7); changelog sprawdzono 2026-11-01 bez zmiany wersji bibliotek.
