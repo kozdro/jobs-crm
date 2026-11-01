@@ -2,6 +2,7 @@
  * ADR0012: only exact public case section fragments may survive Auth SDK bootstrap.
  */
 import { randomUUID } from "node:crypto";
+import { writeFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 import { readRecruitmentTarget } from "../../scripts/recruitment/target.ts";
 import { account, login as sdkLogin } from "../integration/auth/fixtures.ts";
@@ -167,7 +168,7 @@ for (const width of [1440, 1024, 768, 375]) {
   });
 }
 
-test("Case section fragment allowlist never accepts attacker Auth fragments or changes the owner", async ({
+test("Case section fragment allowlist blocks Auth bootstrap injection and same-document owner changes", async ({
   page,
 }) => {
   const target = await readRecruitmentTarget(
@@ -195,15 +196,26 @@ test("Case section fragment allowlist never accepts attacker Auth fragments or c
     expires_in: "60",
     type: "recovery",
   }).toString();
-  for (const [path, fragment] of [
-    [ownDetail, authFragment],
-    [ownDetail, `case-history&${authFragment}`],
-    ["/account", authFragment],
-    ["/account", `case-history&${authFragment}`],
-    ["/account", "case-history"],
-  ]) {
+  const proofs: {
+    caseLabel: string;
+    phase: string;
+    previousGeneration: number;
+    currentGeneration: number;
+    ownerUnchanged: boolean;
+    hashPresent: boolean;
+  }[] = [];
+  const verifyOwner = async () => {
+    const response = await page.request.get(`${target.appOrigin}/auth/user`);
+    expect(response.status()).toBe(200);
+    const identity = await response.json();
+    expect(identity.user.id).toBe(owner.id);
+    return identity.user.id === owner.id;
+  };
+  const safeNavigate = async (path: string, fragment?: string) => {
     try {
-      await page.goto(`${target.appOrigin}${path}#${fragment}`);
+      await page.goto(
+        `${target.appOrigin}${path}${fragment ? `#${fragment}` : ""}`,
+      );
     } catch {
       throw new Error(
         "Synthetic fragment navigation failed; sensitive URL withheld",
@@ -212,11 +224,64 @@ test("Case section fragment allowlist never accepts attacker Auth fragments or c
     await expect(
       page.getByRole("button", { name: "Dodaj", exact: true }),
     ).toBeVisible();
-    await expect.poll(() => Boolean(new URL(page.url()).hash)).toBe(false);
-    const response = await page.request.get(`${target.appOrigin}/auth/user`);
-    expect(response.status()).toBe(200);
-    const identity = await response.json();
-    expect(identity.user.id).toBe(owner.id);
+  };
+  const recordProof = async (
+    caseLabel: string,
+    phase: string,
+    previousGeneration: number,
+  ) => {
+    proofs.push({
+      caseLabel,
+      phase,
+      previousGeneration,
+      currentGeneration: await page.evaluate(() => performance.timeOrigin),
+      ownerUnchanged: await verifyOwner(),
+      hashPresent: Boolean(new URL(page.url()).hash),
+    });
+    await writeFile(
+      test.info().outputPath("fragment-bootstrap-owner-proof.json"),
+      JSON.stringify(proofs, null, 2),
+    );
+  };
+  for (const [caseLabel, path, fragment] of [
+    ["detail/plain-token", ownDetail, authFragment],
+    ["detail/anchor-token-suffix", ownDetail, `case-history&${authFragment}`],
+    ["account/plain-token", "/account", authFragment],
+    ["account/anchor-token-suffix", "/account", `case-history&${authFragment}`],
+    ["account/noncase-anchor", "/account", "case-history"],
+  ]) {
+    // A new document initializes the SDK: all non-allowlisted fragments must
+    // be scrubbed before bootstrap and may never replace the verified owner.
+    await safeNavigate("/dashboard");
+    const dashboardGeneration = await page.evaluate(
+      () => performance.timeOrigin,
+    );
+    await safeNavigate(path, fragment);
+    await expect
+      .poll(() => Boolean(new URL(page.url()).hash), {
+        message: `Bootstrap fragment scrubbing: ${caseLabel}`,
+      })
+      .toBe(false);
+    await recordProof(caseLabel, "bootstrap", dashboardGeneration);
+    expect(proofs.at(-1)!.currentGeneration).not.toBe(dashboardGeneration);
+    // Native same-document hash navigation does not initialize the SDK. The
+    // security invariant here is owner stability, not an invented hashchange
+    // scrub promise. A later full reload must apply the bootstrap guard again.
+    const currentGeneration = await page.evaluate(() => performance.timeOrigin);
+    await safeNavigate(path, fragment);
+    await recordProof(caseLabel, "same-document", currentGeneration);
+    expect(proofs.at(-1)!.currentGeneration).toBe(currentGeneration);
+    await page.reload();
+    await expect(
+      page.getByRole("button", { name: "Dodaj", exact: true }),
+    ).toBeVisible();
+    await expect
+      .poll(() => Boolean(new URL(page.url()).hash), {
+        message: `Reload fragment scrubbing: ${caseLabel}`,
+      })
+      .toBe(false);
+    await recordProof(caseLabel, "reload", currentGeneration);
+    expect(proofs.at(-1)!.currentGeneration).not.toBe(currentGeneration);
   }
   const visible = await client
     .from("recruitment_case")
