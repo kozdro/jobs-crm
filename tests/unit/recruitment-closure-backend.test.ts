@@ -203,12 +203,10 @@ describe("DEC060 complete closure replay identity", () => {
   it.each([undefined, []])(
     "normalizes absent/empty task fields without choosing legacy replay %j",
     async (arrays) => {
-      const rpc = vi
-        .fn()
-        .mockResolvedValue({
-          data: { kind: "replayed", entry, revision: null },
-          error: null,
-        });
+      const rpc = vi.fn().mockResolvedValue({
+        data: { kind: "replayed", entry, revision: null },
+        error: null,
+      });
       const command = {
         ...input,
         ...(arrays === undefined
@@ -236,12 +234,10 @@ describe("DEC060 complete closure replay identity", () => {
         expected_task_snapshot: [`${id}:0`],
         task_resolutions: [{ taskId: id, action: "cancel" }],
       };
-      const rpc = vi
-        .fn()
-        .mockResolvedValue({
-          data: { kind: "replayed", entry: taskEntry, revision: null },
-          error: null,
-        });
+      const rpc = vi.fn().mockResolvedValue({
+        data: { kind: "replayed", entry: taskEntry, revision: null },
+        error: null,
+      });
       const command = {
         ...input,
         ...(arrays === undefined

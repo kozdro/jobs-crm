@@ -277,14 +277,30 @@ test("DEC060 closure requires each choice and atomically cancels, keeps and deta
       exact: true,
     })
     .check();
-  await expect(
-    page.getByRole("button", { name: "Zatwierdź zakończenie", exact: true }),
-  ).toBeDisabled();
+  await page
+    .getByRole("button", { name: "Zatwierdź zakończenie", exact: true })
+    .click();
+  await expect(page.getByRole("alert")).toContainText("każde");
+  expect((await caseState(c)).status).toBe("Zapisane");
+  expect(
+    (
+      await c.client
+        .from("recruitment_case_lifecycle")
+        .select("id")
+        .eq("case_id", c.id)
+    ).data,
+  ).toHaveLength(0);
   for (const [index, label] of ["Anuluj", "Zachowaj", "Odłącz"].entries())
     await page
       .getByRole("group", { name: titles[index], exact: true })
       .getByRole("radio", { name: label, exact: true })
       .check();
+  await page
+    .getByRole("checkbox", {
+      name: "Potwierdzam zakończenie sprawy i wskazany wynik.",
+      exact: true,
+    })
+    .check();
   const sent = page.waitForRequest(
     (request) =>
       request.url().endsWith("/recruitments/lifecycle-commands") &&
