@@ -3,7 +3,7 @@
  * Broader create+action stays blocked pending PO atomic-contract decision.
  */
 import { randomUUID } from "node:crypto";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { readRecruitmentTarget } from "../../scripts/recruitment/target.ts";
 import { account, login as sdkLogin } from "../integration/auth/fixtures.ts";
 
