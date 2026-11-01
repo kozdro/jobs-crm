@@ -54,7 +54,7 @@ function readPending(userId: string, caseId: string) {
   }
 }
 const changedIntentMessage =
-  "Zachowane dane operacji zmieniły się. Nie potwierdzono wyniku ani nie wysłano ponowienia. Zachowano bieżący zapis oczekujący.";
+  "Zachowane dane operacji zmieniły się. Nie potwierdzono zgodności wyniku z bieżącym zamiarem. Zachowano bieżący zapis oczekujący.";
 function commandIntent(
   userId: string,
   caseId: string,

@@ -520,7 +520,7 @@ test("DEC060 lost three-choice closure reply recovers the original receipt and r
       recoveryGets++;
   });
   const guardWarning =
-    "Zachowane dane operacji zmieniły się. Nie potwierdzono wyniku ani nie wysłano ponowienia. Zachowano bieżący zapis oczekujący.";
+    "Zachowane dane operacji zmieniły się. Nie potwierdzono zgodności wyniku z bieżącym zamiarem. Zachowano bieżący zapis oczekujący.";
   let holdRecoveryReply = false;
   let recoveryReplyHeld = false;
   let releaseRecoveryReply = () => {};
