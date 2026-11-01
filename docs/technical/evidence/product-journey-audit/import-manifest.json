@@ -157,7 +157,8 @@
         "historical banner",
         "relocated links",
         "archived test reference"
-      ]
+      ],
+      "originalReportArchive": "docs/technical/evidence/product-journey-audit/original-product-journey-audit.md.txt"
     },
     {
       "source": "docs/quality/product-journey-browser-audit.md",
@@ -168,7 +169,8 @@
         "historical banner",
         "relocated links",
         "archived test reference"
-      ]
+      ],
+      "originalReportArchive": "docs/technical/evidence/product-journey-audit/original-product-journey-browser-audit.md.txt"
     },
     {
       "source": "docs/quality/product-journey-sdd-audit.md",
@@ -179,7 +181,8 @@
         "historical banner",
         "relocated links",
         "archived test reference"
-      ]
+      ],
+      "originalReportArchive": "docs/technical/evidence/product-journey-audit/original-product-journey-sdd-audit.md.txt"
     }
   ]
 }
