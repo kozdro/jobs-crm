@@ -50,3 +50,5 @@ Companies & Contacts — DEC-058: prywatne firmy/kontakty i jawne relacje ze spr
 Recruitment Workspace — DEC-059: [kontrakt i plan](docs/technical/recruitment-workspace-analysis.md), [UX](docs/ux/recruitment-workspace-slice.md), [raport wykonania](docs/technical/recruitment-workspace-report.md) i [QA](docs/technical/recruitment-workspace-qa.md). Zatwierdzone 1A/2A: read-only Kanban/lista, filtry i podgląd. Bez DnD, nowych operacji lifecycle, merge i deploymentu.
 
 Tasks Core: [raport wykonania, QA i niezależne review](docs/technical/tasks-core-report.md).
+
+Product Journey UX Hardening: [zgodność, zmiany i wyniki](docs/technical/product-journey-hardening-report.md). Zachowane cztery kroki i pięć opcjonalnych Sytuacji; pełne Działanie ma [osobny kontrakt PROPOSED do akceptacji PO](docs/technical/quick-capture-atomic-action-proposal.md), bez implementacji rozszerzenia.

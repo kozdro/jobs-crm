@@ -1,0 +1,12 @@
+{
+  "candidate": "eb461e453a9277fa24ce03e46b2afc3b32f42513",
+  "runtime": "/private/tmp/jobs-crm-hardening-runtime-20261101",
+  "trackedFiles": 928,
+  "reversibleAdapters": [
+    "scripts/recruitment/target.ts",
+    "scripts/recruitment/cleanup-plan.ts",
+    "supabase/recruitment-config.toml"
+  ],
+  "differencesAfterReversingAdapters": [],
+  "note": "QA report is live documentation, not runtime product code"
+}

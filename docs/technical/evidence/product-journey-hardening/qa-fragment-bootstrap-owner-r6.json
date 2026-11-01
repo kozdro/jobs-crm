@@ -1,0 +1,122 @@
+[
+  {
+    "caseLabel": "detail/plain-token",
+    "phase": "bootstrap",
+    "previousGeneration": 1793553619898.6,
+    "currentGeneration": 1793553619950.1,
+    "ownerUnchanged": true,
+    "hashPresent": false
+  },
+  {
+    "caseLabel": "detail/plain-token",
+    "phase": "same-document",
+    "previousGeneration": 1793553619950.1,
+    "currentGeneration": 1793553619950.1,
+    "ownerUnchanged": true,
+    "hashPresent": true
+  },
+  {
+    "caseLabel": "detail/plain-token",
+    "phase": "reload",
+    "previousGeneration": 1793553619950.1,
+    "currentGeneration": 1793553620084.9,
+    "ownerUnchanged": true,
+    "hashPresent": false
+  },
+  {
+    "caseLabel": "detail/anchor-token-suffix",
+    "phase": "bootstrap",
+    "previousGeneration": 1793553620157.3,
+    "currentGeneration": 1793553620237.8,
+    "ownerUnchanged": true,
+    "hashPresent": false
+  },
+  {
+    "caseLabel": "detail/anchor-token-suffix",
+    "phase": "same-document",
+    "previousGeneration": 1793553620237.8,
+    "currentGeneration": 1793553620237.8,
+    "ownerUnchanged": true,
+    "hashPresent": true
+  },
+  {
+    "caseLabel": "detail/anchor-token-suffix",
+    "phase": "reload",
+    "previousGeneration": 1793553620237.8,
+    "currentGeneration": 1793553620357.9,
+    "ownerUnchanged": true,
+    "hashPresent": false
+  },
+  {
+    "caseLabel": "account/plain-token",
+    "phase": "bootstrap",
+    "previousGeneration": 1793553620431.9,
+    "currentGeneration": 1793553620551.1,
+    "ownerUnchanged": true,
+    "hashPresent": false
+  },
+  {
+    "caseLabel": "account/plain-token",
+    "phase": "same-document",
+    "previousGeneration": 1793553620551.1,
+    "currentGeneration": 1793553620551.1,
+    "ownerUnchanged": true,
+    "hashPresent": true
+  },
+  {
+    "caseLabel": "account/plain-token",
+    "phase": "reload",
+    "previousGeneration": 1793553620551.1,
+    "currentGeneration": 1793553620687.6,
+    "ownerUnchanged": true,
+    "hashPresent": false
+  },
+  {
+    "caseLabel": "account/anchor-token-suffix",
+    "phase": "bootstrap",
+    "previousGeneration": 1793553620777.5,
+    "currentGeneration": 1793553620827.1,
+    "ownerUnchanged": true,
+    "hashPresent": false
+  },
+  {
+    "caseLabel": "account/anchor-token-suffix",
+    "phase": "same-document",
+    "previousGeneration": 1793553620827.1,
+    "currentGeneration": 1793553620827.1,
+    "ownerUnchanged": true,
+    "hashPresent": true
+  },
+  {
+    "caseLabel": "account/anchor-token-suffix",
+    "phase": "reload",
+    "previousGeneration": 1793553620827.1,
+    "currentGeneration": 1793553620930.4,
+    "ownerUnchanged": true,
+    "hashPresent": false
+  },
+  {
+    "caseLabel": "account/noncase-anchor",
+    "phase": "bootstrap",
+    "previousGeneration": 1793553620999.3,
+    "currentGeneration": 1793553621093.5,
+    "ownerUnchanged": true,
+    "hashPresent": false
+  },
+  {
+    "caseLabel": "account/noncase-anchor",
+    "phase": "same-document",
+    "previousGeneration": 1793553621093.5,
+    "currentGeneration": 1793553621093.5,
+    "ownerUnchanged": true,
+    "hashPresent": true
+  },
+  {
+    "caseLabel": "account/noncase-anchor",
+    "phase": "reload",
+    "previousGeneration": 1793553621093.5,
+    "currentGeneration": 1793553621180.8,
+    "ownerUnchanged": true,
+    "hashPresent": false
+  }
+]

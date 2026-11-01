@@ -1,0 +1,66 @@
+[
+  {
+    "file": "detail-navigation-375.png",
+    "sha256": "6706d4615dfed41b0588add4ba016c9f7a462f1d3d19afc6058e6f9b273cadc7",
+    "width": 375,
+    "height": 3360,
+    "inspectedBy": "hardening_qa",
+    "status": "PASS scoped visual inspection, not WCAG certification"
+  },
+  {
+    "file": "task-error-summary-1440.png",
+    "sha256": "b3a6f9547d9cc3e784d53c0cfe8127e7005789076ea4ca7cb96190f88c719fe9",
+    "width": 1440,
+    "height": 1463,
+    "inspectedBy": "hardening_qa",
+    "status": "PASS scoped visual inspection, not WCAG certification"
+  },
+  {
+    "file": "journey-375.png",
+    "sha256": "f8116f4e46b772279a08e76a939d1daaed4f4c29d24141460ec60847593182a6",
+    "width": 375,
+    "height": 5042,
+    "inspectedBy": "hardening_qa",
+    "status": "PASS scoped visual inspection, not WCAG certification"
+  },
+  {
+    "file": "detail-navigation-1440.png",
+    "sha256": "2e780e3d2775b88243d8666e6fb62920f79cb473fd0c26266a575da5d02211be",
+    "width": 1440,
+    "height": 2529,
+    "inspectedBy": "hardening_qa",
+    "status": "PASS scoped visual inspection, not WCAG certification"
+  },
+  {
+    "file": "task-error-summary-375.png",
+    "sha256": "0aae031f7bbed306c789ce38710999f103ce363955325289544939531eed552a",
+    "width": 375,
+    "height": 1726,
+    "inspectedBy": "hardening_qa",
+    "status": "PASS scoped visual inspection, not WCAG certification"
+  },
+  {
+    "file": "detail-navigation-1024.png",
+    "sha256": "7d865fff84692c25c0d2a4ab96d503afc2217a5f579d73549dbd7b2a2ef65b6a",
+    "width": 1024,
+    "height": 2577,
+    "inspectedBy": "hardening_qa",
+    "status": "PASS scoped visual inspection, not WCAG certification"
+  },
+  {
+    "file": "journey-1440.png",
+    "sha256": "9db5a68c44a20c305631441c2fce281870eff8adcddefb40c73b709e73981584",
+    "width": 1440,
+    "height": 4055,
+    "inspectedBy": "hardening_qa",
+    "status": "PASS scoped visual inspection, not WCAG certification"
+  },
+  {
+    "file": "detail-navigation-768.png",
+    "sha256": "ec1587713f866cad5b63706322dd6d3d4db29be299b42db2f4f53d9b14781d66",
+    "width": 768,
+    "height": 2998,
+    "inspectedBy": "hardening_qa",
+    "status": "PASS scoped visual inspection, not WCAG certification"
+  }
+]

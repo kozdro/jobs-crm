@@ -88,3 +88,5 @@ Wykonanie: [raport](technical/recruitment-lifecycle-3c-report.md) i [QA](technic
 Wyniki Companies & Contacts: lokalnie PASS333+87unit,105/105integracje,92/92productionHTTPSbrowser, naturalexit0, niezależne review PASS i44/44wcześniejsze zasoby zachowane. Ograniczenia i historyczneFAIL pozostają w raporcie/QA; hostedCI odrębnie dla dokładnego PRhead.
 
 Tasks Core: [raport wykonania, QA i niezależne review](technical/tasks-core-report.md).
+
+Product Journey UX Hardening: [raport](technical/product-journey-hardening-report.md), [macierz zgodności i task packet](technical/product-journey-hardening-task.md), [QA](quality/product-journey-hardening-qa.md) i [kontrakt atomowego Działania — PROPOSED](technical/quick-capture-atomic-action-proposal.md). Nie zmienia kanonicznych decyzji i nie wdraża złożonego zapisu bez akceptacji PO.
