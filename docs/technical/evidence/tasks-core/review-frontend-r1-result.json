@@ -1,0 +1,15 @@
+{
+  "candidate": "9810e8c56d5f590384582d6bdefb5deacaf024a7",
+  "base": "910582aa220594f51db70869e3d6e6a166b18766",
+  "role": "frontend-reviewer",
+  "finalMessage": "**FAIL \u2014 niezale\u017cny frontend review** kandydata `9810e8c56d5f590384582d6bdefb5deacaf024a7` wzgl\u0119dem `910582aa220594f51db70869e3d6e6a166b18766`.\n\nUruchomiono dok\u0142adnie jednego reviewera: **generic subagent + canonical role** `frontend-reviewer`, bez dalszej delegacji. Nie zmieniono plik\u00f3w ani nie uruchomiono test\u00f3w.\n\nPotwierdzone defekty:\n\n- **P2 \u2014 [tasks-panel.tsx:329](/private/tmp/jobs-crm-tasks-review-r1/src/components/tasks/tasks-panel.tsx:329):** otw\u00f3rz formularz dodawania, wpisz draft, nast\u0119pnie wykonaj/anuluj istniej\u0105ce zadanie. Wsp\u00f3lny callback zamyka formularz, trac\u0105c draft, a tak\u017ce recovery niepewnego zapisu. Narusza DEC-060. Rozdzieli\u0107 callbacki zapisu nowego zadania i istniej\u0105cego wiersza.\n- **P2 \u2014 [hooks.ts:59](/private/tmp/jobs-crm-tasks-review-r1/src/components/tasks/hooks.ts:59):** zamknij spraw\u0119, anuluj\u0105c lub od\u0142\u0105czaj\u0105c zadania. Samo `router.refresh()` nie od\u015bwie\u017ca lokalnego odczytu panelu: pozostaj\u0105 stare statusy i relacje. Narusza AC-TN-003-01, AC-TN-011-01 i DEC-060. Jawnie uniewa\u017cni\u0107 odczyt zada\u0144 po zamkni\u0119ciu sprawy.\n- **P2 \u2014 [tasks-panel.tsx:443](/private/tmp/jobs-crm-tasks-review-r1/src/components/tasks/tasks-panel.tsx:443):** po utracie odpowiedzi na zmian\u0119 statusu przejd\u017a na nast\u0119pn\u0105 stron\u0119 listy. Odmontowanie wiersza usuwa zapami\u0119tan\u0105 intencj\u0119 i mo\u017cliwo\u015b\u0107 recovery tym samym kluczem. Narusza DEC-060. Chroni\u0107 paginacj\u0119 albo przechowywa\u0107 intencje ponad wierszami.\n\n**Ograniczenia dowod\u00f3w:** testy runtime pozostaj\u0105 RUNNING wed\u0142ug przekazanego statusu; reviewer ich nie wykonywa\u0142. Przegl\u0105darka, urz\u0105dzenia i technologie asystuj\u0105ce: NOT RUN. Pe\u0142ny TC-012: NOT RUN. Statyczny review nie potwierdza runtime PASS.",
+  "wrapperEvidence": [
+    {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "e00f3e427ed07a13ffabd26e751699b29599fba40199ca5fd18c2111b213f6b3",
+      "candidateAfter": "e00f3e427ed07a13ffabd26e751699b29599fba40199ca5fd18c2111b213f6b3"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+diff --git a/src/components/recruitment/lifecycle.tsx b/src/components/recruitment/lifecycle.tsx
+index a533e08..ae383bb 100644
+--- a/src/components/recruitment/lifecycle.tsx
++++ b/src/components/recruitment/lifecycle.tsx
+@@ -54,7 +54,7 @@ function readPending(userId: string, caseId: string) {
+   }
+ }
+ const changedIntentMessage =
+-  "Zachowane dane operacji zmieniły się. Nie potwierdzono wyniku ani nie wysłano ponowienia. Zachowano bieżący zapis oczekujący.";
++  "Zachowane dane operacji zmieniły się. Nie potwierdzono zgodności wyniku z bieżącym zamiarem. Zachowano bieżący zapis oczekujący.";
+ function commandIntent(
+   userId: string,
+   caseId: string,
+diff --git a/tests/e2e/recruitment-tasks.spec.ts b/tests/e2e/recruitment-tasks.spec.ts
+index 222d702..786e3be 100644
+--- a/tests/e2e/recruitment-tasks.spec.ts
++++ b/tests/e2e/recruitment-tasks.spec.ts
+@@ -520,7 +520,7 @@ test("DEC060 lost three-choice closure reply recovers the original receipt and r
+       recoveryGets++;
+   });
+   const guardWarning =
+-    "Zachowane dane operacji zmieniły się. Nie potwierdzono wyniku ani nie wysłano ponowienia. Zachowano bieżący zapis oczekujący.";
++    "Zachowane dane operacji zmieniły się. Nie potwierdzono zgodności wyniku z bieżącym zamiarem. Zachowano bieżący zapis oczekujący.";
+   let holdRecoveryReply = false;
+   let recoveryReplyHeld = false;
+   let releaseRecoveryReply = () => {};

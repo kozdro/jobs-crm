@@ -1,0 +1,8 @@
+{
+  "productionCandidate": "8e09b6d7a04b3f4aa65df5199afed47cf6cdf413",
+  "selection": "DEC060 edit, future day|DEC060 lost three-choice closure reply",
+  "expectedTestCount": 2,
+  "testSource": "Current-core regression file copied alone; application, SQL and old production build unchanged",
+  "testSha256": "4222e54f180fb6f6c91b40bee82e3ad60ae1af815da88a1ffe947ed4578e9bfb",
+  "scope": "Deliberate old-artifact RED sensitivity only, not final candidate acceptance"
+}

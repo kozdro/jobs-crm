@@ -1,0 +1,3 @@
+$ prettier --check src tests scripts experiments db *.ts *.mjs package.json components.json pnpm-workspace.yaml .prettierrc.json .github/workflows/app-ci.yml
+Checking formatting...
+All matched files use Prettier code style!

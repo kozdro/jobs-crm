@@ -1,0 +1,15 @@
+--- source/scripts/recruitment/cleanup-plan.ts
++++ runtime/scripts/recruitment/cleanup-plan.ts
+@@ -41,9 +41,9 @@
+   },
+ ) {
+   const ports: Readonly<Record<string, string>> = policy?.publishedPorts ?? {
+-    "5432/tcp": "56622",
+-    "8000/tcp": "56621",
+-    "8025/tcp": "56624",
++    "5432/tcp": "57522",
++    "8000/tcp": "57521",
++    "8025/tcp": "57524",
+   };
+   for (const c of inventory.containers) {
+     if (

@@ -1,0 +1,4 @@
+$ node scripts/test-canary.mjs
+PASS FQA-06 browser assets, generated HTML/RSC/segments and scanner positive control.
+PASS FQA-06 production HTML, RSC, DOM and captured process/browser logs.
+PASS FQA-05/06 invalid env build rejects without disclosing its value.

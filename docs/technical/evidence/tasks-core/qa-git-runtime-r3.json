@@ -1,0 +1,1007 @@
+{
+  "candidate": "b184bc76a395c70804971a46075b9175bb56721a",
+  "sourceRuntimeFiles": 250,
+  "trackedCompared": 249,
+  "generatedNotTracked": [
+    "next-env.d.ts"
+  ],
+  "status": "PASS",
+  "checks": [
+    {
+      "path": ".node-version",
+      "gitMatchesSource": true
+    },
+    {
+      "path": ".prettierrc.json",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "components.json",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/0000_recruitment_validation.sql",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/0001_recruitment_case.sql",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/0002_recruitment_access_and_create.sql",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/0003_recruitment_intent_before_warning.sql",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/0004_recruitment_url_canonical_boundary.sql",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/0005_recruitment_url_constraint_revalidation.sql",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/0006_recruitment_numeric_host_parity.sql",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/0007_recruitment_lifecycle_3a.sql",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/0008_recruitment_lifecycle_3b.sql",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/0009_history_corrections_integrity.sql",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/0010_recruitment_lifecycle_3c.sql",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/0011_companies_contacts.sql",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/0012_catalog_intent_guard.sql",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/0013_tasks_core.sql",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0000_snapshot.json",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0001_snapshot.json",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0002_snapshot.json",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0003_snapshot.json",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0004_snapshot.json",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0005_snapshot.json",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0006_snapshot.json",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0007_snapshot.json",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0008_snapshot.json",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0009_snapshot.json",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0010_snapshot.json",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0011_snapshot.json",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0012_snapshot.json",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0013_snapshot.json",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/_journal.json",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "db/recruitment/schema.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "drizzle.f2.config.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "drizzle.recruitment.config.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "eslint.config.mjs",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "next.config.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "package.json",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "playwright.auth.config.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "playwright.config.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "playwright.recruitment.config.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "postcss.config.mjs",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/auth/cleanup-plan.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/auth/cleanup-plan.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/auth/cleanup.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/auth/f3-target.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/auth/integration.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/auth/output-safety.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/auth/output-safety.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/auth/runner.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/db/cleanup-targets.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/db/cleanup-targets.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/db/cleanup.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/db/cli.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/db/docker-cli-contract.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/db/docker-guard.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/db/docker-guard.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/db/f2.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/db/preflight-validation.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/db/preflight-validation.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/db/service-versions.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/local-dev/acceptance.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/local-dev/cli.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/local-dev/control.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/local-dev/docker-endpoint.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/local-dev/environment.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/local-dev/guards.qa.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/local-dev/logs.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/local-dev/migrations.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/local-dev/migrations.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/local-dev/platform.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/local-dev/private-files.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/local-dev/security-hardening.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/local-dev/studio-guard.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/local-dev/target.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/local-dev/validation.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/recruitment/cleanup-plan.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/recruitment/cleanup-plan.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/recruitment/cleanup.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/recruitment/runner.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/recruitment/target.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/recruitment/validation.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/recruitment/validation.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/test-boundaries.mjs",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/test-canary.mjs",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/test-fixture.mjs",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "scripts/ui-candidates.mjs",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/account/page.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/auth/callback/route.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/auth/password/route.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/auth/user/route.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/catalog/commands/route.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/companies/[id]/page.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/companies/page.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/contacts/[id]/page.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/contacts/page.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/dashboard/page.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/forgot-password/page.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/globals.css",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/health/ready/route.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/layout.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/login/page.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/page.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/recruitments/[id]/not-found.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/recruitments/[id]/page.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/recruitments/commands/route.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/recruitments/history-commands/route.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/recruitments/lifecycle-commands/route.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/recruitments/page.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/recruitments/workspace-data/route.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/reset-password/page.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/signup/page.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/tasks/commands/route.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/app/tasks/page.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/auth/account-session.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/auth/auth-form.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/auth/auth-shell.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/auth/feedback.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/companies-contacts/catalog.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/companies-contacts/client.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/companies-contacts/common.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/companies-contacts/hooks.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/companies-contacts/intent.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/companies-contacts/profile-form.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/companies-contacts/relations.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/companies-contacts/styles.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/recruitment/case-content.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/recruitment/case-event-form.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/recruitment/case-history.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/recruitment/event-intent.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/recruitment/history-corrections.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/recruitment/history-intent.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/recruitment/intent.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/recruitment/lifecycle-intent.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/recruitment/lifecycle.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/recruitment/quick-capture.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/recruitment/recovery-session.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/recruitment/recruitment-workspace.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/recruitment/saved-case-notice.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/recruitment/workspace-navigation.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/recruitment/workspace-return-link.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/recruitment/workspace.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/tasks/client.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/tasks/common.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/tasks/events.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/tasks/hooks.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/tasks/task-form.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/tasks/tasks-panel.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/ui/LICENSE",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/ui/badge.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/ui/card.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/ui/styles.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/workspace/account-menu.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/workspace/app-shell.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/components/workspace/sidebar.tsx",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/lib/utils.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/modules/companies-contacts/application/catalog.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/modules/companies-contacts/domain/catalog.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/modules/identity/application/validation.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/modules/identity/infrastructure/browser.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/modules/identity/infrastructure/http.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/modules/identity/infrastructure/server.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/modules/recruitment/application/case-events.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/modules/recruitment/application/cases.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/modules/recruitment/application/history-corrections.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/modules/recruitment/application/lifecycle.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/modules/recruitment/application/tasks.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/modules/recruitment/application/workspace-read.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/modules/recruitment/domain/case-events.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/modules/recruitment/domain/history-corrections.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/modules/recruitment/domain/lifecycle.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/modules/recruitment/domain/recruitment-case.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/modules/recruitment/domain/tasks.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/modules/recruitment/domain/workspace.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/proxy.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/shared/public/auth-config.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/shared/server/env.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/shared/validation/auth-config.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/shared/validation/env.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "src/shared/validation/origin.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "supabase/.gitignore",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "supabase/config.toml",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "supabase/f3-config.toml",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "supabase/local-dev-config.toml",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "supabase/recruitment-config.toml",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/e2e/auth-flows.spec.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/e2e/companies-contacts.spec.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/e2e/foundation-smoke.spec.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/e2e/recruitment-capture.spec.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/e2e/recruitment-closure-reopening.spec.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/e2e/recruitment-history-corrections.spec.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/e2e/recruitment-lifecycle.spec.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/e2e/recruitment-tasks.spec.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/e2e/recruitment-ui-foundation.spec.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/e2e/recruitment-workspace.spec.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/e2e/ui-rendered-audit.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/integration/auth/fixtures.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/integration/auth/sdk-cases.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/integration/migrations/checks.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/integration/recruitment/closure-reopening.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/integration/recruitment/companies-contacts.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/integration/recruitment/direct-insert-race.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/integration/recruitment/history-corrections.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/integration/recruitment/lifecycle-upgrade.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/integration/recruitment/lifecycle.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/integration/recruitment/recruitment.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/integration/recruitment/stages.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/integration/recruitment/tasks.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/integration/recruitment/url-parity.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/integration/recruitment/workspace.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/integration/rls/catalog.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/integration/rls/data-api.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/integration/rls/f2.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/integration/rls/matrix.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/auth-browser.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/auth-callback.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/auth-config.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/auth-password.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/auth-server.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/auth-ui.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/auth-validation.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/companies-contacts/catalog.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/companies-contacts/repository.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/companies-contacts-proxy.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/companies-contacts-ui.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/env.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/history-corrections-backend.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/recruitment-closure-backend.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/recruitment-closure-command.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/recruitment-command.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/recruitment-domain.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/recruitment-event-ui.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/recruitment-history-ui.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/recruitment-lifecycle-command.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/recruitment-lifecycle-domain.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/recruitment-lifecycle-ui.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/recruitment-tasks-backend.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/recruitment-tasks-command.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/recruitment-ui.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/recruitment-workspace-ui.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/tasks-ui.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/workspace-read-route.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/workspace-read.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tests/unit/workspace-ui.test.ts",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tsconfig.f2.json",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "tsconfig.json",
+      "gitMatchesSource": true
+    },
+    {
+      "path": "vitest.config.ts",
+      "gitMatchesSource": true
+    }
+  ]
+}

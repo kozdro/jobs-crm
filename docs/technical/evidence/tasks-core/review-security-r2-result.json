@@ -1,0 +1,16 @@
+{
+  "candidate": "4e1b12cca02dab99f21d261c99213da47d6e0b54",
+  "base": "910582aa220594f51db70869e3d6e6a166b18766",
+  "role": "security-reviewer",
+  "finalMessage": "**PASS_STATIC \u2014 brak potwierdzonych findings P0\u2013P3 w zakresie security review.**\n\nPotwierdzi\u0142em HEAD przed i po review: `4e1b12cca02dab99f21d261c99213da47d6e0b54`, baza `910582aa220594f51db70869e3d6e6a166b18766`. Drzewo robocze pozosta\u0142o czyste.\n\nUruchomiono dok\u0142adnie jednego **generic subagent + canonical role `security-reviewer`**, bez dalszej delegacji. Reviewer przeczyta\u0142 wymagane instrukcje, skill `review-change`, analiz\u0119 Tasks Core i pe\u0142ny diff.\n\nWcze\u015bniejsze P2 s\u0105 **zamkni\u0119te statycznie**:\n\n| Finding | Dow\u00f3d poprawki |\n|---|---|\n| Bypass kontroli replay przez pomini\u0119te tablice | `src/modules/recruitment/application/lifecycle.ts:269`; `db/recruitment/migrations/0013_tasks_core.sql:301` i `:352` |\n| Utrata draftu/niepewnego zamiaru po zapisie innego wiersza | `src/components/tasks/tasks-panel.tsx:349` |\n| Nieaktualne zadania sprawy po zamkni\u0119ciu | `src/components/recruitment/lifecycle.tsx:206` i `:786` |\n| Utrata recovery przez paginacj\u0119 | `src/components/tasks/tasks-panel.tsx:158`, `:334`, `:456`, `:469` |\n\nPoprawka SQL42702 jest sp\u00f3jna statycznie: odr\u0119bne `resolution_value` i jawny alias `item(value)` w `0013_tasks_core.sql:237\u2013245`. Nie znaleziono potwierdzonej regresji izolacji w\u0142a\u015bcicieli, RLS/grants, audytu/recovery, atomowo\u015bci ani guarda Calendar.\n\n**Ograniczenia:** nie zmieniono plik\u00f3w i nie uruchomiono test\u00f3w. Runtime review: **NOT RUN**. Zewn\u0119trzna weryfikacja R2 nadal **RUNNING**, bez deklaracji PASS. Wykonanie SQL, testy Auth/JWT/Data API, wsp\u00f3\u0142bie\u017cno\u015bci, rollback i regresje przegl\u0105darkowe pozostaj\u0105 wymaganymi dowodami przed zamkni\u0119ciem delivery.",
+  "wrapperEvidence": [
+    {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "933c9145d3577d50169c3501b9314b3acec31e68c1b6b8de5aaa65b7ba84b45a",
+      "candidateAfter": "933c9145d3577d50169c3501b9314b3acec31e68c1b6b8de5aaa65b7ba84b45a"
+    }
+  ],
+  "warnings": []
+}

@@ -1,0 +1,195 @@
+{
+  "productionCandidate": "2adf74a0b554bb560f22be6743733af129f0a7d6",
+  "targetId": "tasks-r4",
+  "status": "PASS",
+  "viewportChecks": [
+    {
+      "viewport": 1440,
+      "requestedWidth": 1440,
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "visualViewportWidth": 1440,
+      "focused": true,
+      "visibleHit": true,
+      "button": {
+        "x": 310,
+        "y": 490,
+        "width": 132.8125,
+        "height": 44
+      },
+      "height": 900,
+      "textScale": "default",
+      "status": "PASS"
+    },
+    {
+      "viewport": 1024,
+      "requestedWidth": 1024,
+      "innerWidth": 1024,
+      "scrollWidth": 1024,
+      "visualViewportWidth": 1024,
+      "focused": true,
+      "visibleHit": true,
+      "button": {
+        "x": 310,
+        "y": 490,
+        "width": 132.8125,
+        "height": 44
+      },
+      "height": 900,
+      "textScale": "default",
+      "status": "PASS"
+    },
+    {
+      "viewport": 768,
+      "requestedWidth": 768,
+      "innerWidth": 768,
+      "scrollWidth": 768,
+      "visualViewportWidth": 768,
+      "focused": true,
+      "visibleHit": true,
+      "button": {
+        "x": 310,
+        "y": 438,
+        "width": 132.8125,
+        "height": 44
+      },
+      "height": 900,
+      "textScale": "default",
+      "status": "PASS"
+    },
+    {
+      "viewport": 375,
+      "requestedWidth": 375,
+      "innerWidth": 375,
+      "scrollWidth": 375,
+      "visualViewportWidth": 375,
+      "focused": true,
+      "visibleHit": true,
+      "button": {
+        "x": 54,
+        "y": 427.5,
+        "width": 132.8125,
+        "height": 44
+      },
+      "height": 900,
+      "textScale": "default",
+      "status": "PASS"
+    },
+    {
+      "viewport": 375,
+      "innerWidth": 375,
+      "scrollWidth": 375,
+      "visualViewportWidth": 375,
+      "focused": true,
+      "visibleHit": true,
+      "button": {
+        "x": 106,
+        "y": 373,
+        "width": 163,
+        "height": 154
+      },
+      "height": 900,
+      "textScale": "200%",
+      "method": "Root html font-size200%: rem text and spacing enlarge; fixed-px hints do not. Not browser zoom.",
+      "fontsBefore": {
+        "rootFontSize": "16px",
+        "titleInput": {
+          "fontSize": "16px",
+          "lineHeight": "24px"
+        },
+        "titleHint": {
+          "fontSize": "13px",
+          "lineHeight": "19.5px"
+        },
+        "saveButton": {
+          "fontSize": "14px",
+          "lineHeight": "20px"
+        }
+      },
+      "fontsAfter": {
+        "rootFontSize": "32px",
+        "titleInput": {
+          "fontSize": "32px",
+          "lineHeight": "48px"
+        },
+        "titleHint": {
+          "fontSize": "13px",
+          "lineHeight": "19.5px"
+        },
+        "saveButton": {
+          "fontSize": "28px",
+          "lineHeight": "40px"
+        }
+      },
+      "status": "PASS"
+    },
+    {
+      "viewport": 375,
+      "innerWidth": 375,
+      "scrollWidth": 375,
+      "visualViewportWidth": 375,
+      "focused": true,
+      "visibleHit": true,
+      "button": {
+        "x": 54,
+        "y": 421,
+        "width": 231.625,
+        "height": 58
+      },
+      "height": 900,
+      "textScale": "200% element fonts and numeric line-height",
+      "method": "Snapshot computed font-size and numeric line-height for every non-html HTML element, then set each to2x; html root/padding rem constant. CSS simulation, not browser zoom; SVG icons not explicitly enlarged.",
+      "styledElements": 109,
+      "fontsBefore": {
+        "rootFontSize": "16px",
+        "titleInput": {
+          "fontSize": "16px",
+          "lineHeight": "24px"
+        },
+        "titleHint": {
+          "fontSize": "13px",
+          "lineHeight": "19.5px"
+        },
+        "saveButton": {
+          "fontSize": "14px",
+          "lineHeight": "20px"
+        }
+      },
+      "fontsAfter": {
+        "rootFontSize": "16px",
+        "titleInput": {
+          "fontSize": "32px",
+          "lineHeight": "48px"
+        },
+        "titleHint": {
+          "fontSize": "26px",
+          "lineHeight": "39px"
+        },
+        "saveButton": {
+          "fontSize": "28px",
+          "lineHeight": "40px"
+        }
+      },
+      "status": "PASS"
+    }
+  ],
+  "screenshots": [
+    "qa-visual-r7-tasks-1440.png",
+    "qa-visual-r7-form-1440.png",
+    "qa-visual-r7-form-1024.png",
+    "qa-visual-r7-form-768.png",
+    "qa-visual-r7-form-375.png",
+    "qa-visual-r7-form-375-rem200.png",
+    "qa-visual-r7-form-375-alltext200.png",
+    "qa-visual-r7-closure-choices-1440.png",
+    "qa-visual-r7-detached-audit-1440.png",
+    "qa-visual-r7-tasks-audit-375.png"
+  ],
+  "scope": "Real Chromium on production HTTPS; synthetic fixtures, no physical-device or assistive-technology claim",
+  "serverOutput": {
+    "bytes": 154,
+    "sha256": "f6c5166a2cccfb5c5890732754008d4ceedcdfdccee271a9fe829156536e0dc8",
+    "counts": {},
+    "observations": []
+  }
+}

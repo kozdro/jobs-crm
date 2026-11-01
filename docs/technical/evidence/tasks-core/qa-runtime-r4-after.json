@@ -1,0 +1,1259 @@
+{
+  "candidate": "8e09b6d7a04b3f4aa65df5199afed47cf6cdf413",
+  "comparison": "Runtime after fullR4 versus frozen Git8e09 and original pre-run hashes; current core intentionally contains later fixes and is not compared as the old source",
+  "trackedCompared": 249,
+  "generated": [
+    {
+      "path": "next-env.d.ts",
+      "unchanged": true
+    }
+  ],
+  "status": "PASS",
+  "checks": [
+    {
+      "path": ".node-version",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": ".prettierrc.json",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "components.json",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/0000_recruitment_validation.sql",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/0001_recruitment_case.sql",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/0002_recruitment_access_and_create.sql",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/0003_recruitment_intent_before_warning.sql",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/0004_recruitment_url_canonical_boundary.sql",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/0005_recruitment_url_constraint_revalidation.sql",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/0006_recruitment_numeric_host_parity.sql",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/0007_recruitment_lifecycle_3a.sql",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/0008_recruitment_lifecycle_3b.sql",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/0009_history_corrections_integrity.sql",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/0010_recruitment_lifecycle_3c.sql",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/0011_companies_contacts.sql",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/0012_catalog_intent_guard.sql",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/0013_tasks_core.sql",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0000_snapshot.json",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0001_snapshot.json",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0002_snapshot.json",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0003_snapshot.json",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0004_snapshot.json",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0005_snapshot.json",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0006_snapshot.json",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0007_snapshot.json",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0008_snapshot.json",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0009_snapshot.json",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0010_snapshot.json",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0011_snapshot.json",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0012_snapshot.json",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0013_snapshot.json",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/_journal.json",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "db/recruitment/schema.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "drizzle.f2.config.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "drizzle.recruitment.config.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "eslint.config.mjs",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "next.config.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "package.json",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "playwright.auth.config.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "playwright.config.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "playwright.recruitment.config.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "postcss.config.mjs",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/auth/cleanup-plan.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/auth/cleanup-plan.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/auth/cleanup.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/auth/f3-target.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/auth/integration.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/auth/output-safety.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/auth/output-safety.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/auth/runner.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/db/cleanup-targets.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/db/cleanup-targets.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/db/cleanup.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/db/cli.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/db/docker-cli-contract.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/db/docker-guard.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/db/docker-guard.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/db/f2.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/db/preflight-validation.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/db/preflight-validation.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/db/service-versions.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/local-dev/acceptance.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/local-dev/cli.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/local-dev/control.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/local-dev/docker-endpoint.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/local-dev/environment.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/local-dev/guards.qa.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/local-dev/logs.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/local-dev/migrations.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/local-dev/migrations.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/local-dev/platform.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/local-dev/private-files.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/local-dev/security-hardening.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/local-dev/studio-guard.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/local-dev/target.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/local-dev/validation.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/recruitment/cleanup-plan.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/recruitment/cleanup-plan.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/recruitment/cleanup.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/recruitment/runner.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/recruitment/target.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/recruitment/validation.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/recruitment/validation.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/test-boundaries.mjs",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/test-canary.mjs",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/test-fixture.mjs",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "scripts/ui-candidates.mjs",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/account/page.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/auth/callback/route.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/auth/password/route.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/auth/user/route.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/catalog/commands/route.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/companies/[id]/page.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/companies/page.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/contacts/[id]/page.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/contacts/page.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/dashboard/page.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/forgot-password/page.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/globals.css",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/health/ready/route.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/layout.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/login/page.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/page.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/recruitments/[id]/not-found.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/recruitments/[id]/page.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/recruitments/commands/route.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/recruitments/history-commands/route.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/recruitments/lifecycle-commands/route.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/recruitments/page.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/recruitments/workspace-data/route.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/reset-password/page.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/signup/page.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/tasks/commands/route.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/app/tasks/page.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/auth/account-session.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/auth/auth-form.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/auth/auth-shell.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/auth/feedback.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/companies-contacts/catalog.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/companies-contacts/client.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/companies-contacts/common.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/companies-contacts/hooks.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/companies-contacts/intent.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/companies-contacts/profile-form.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/companies-contacts/relations.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/companies-contacts/styles.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/recruitment/case-content.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/recruitment/case-event-form.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/recruitment/case-history.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/recruitment/event-intent.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/recruitment/history-corrections.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/recruitment/history-intent.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/recruitment/intent.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/recruitment/lifecycle-intent.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/recruitment/lifecycle.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/recruitment/quick-capture.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/recruitment/recovery-session.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/recruitment/recruitment-workspace.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/recruitment/saved-case-notice.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/recruitment/workspace-navigation.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/recruitment/workspace-return-link.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/recruitment/workspace.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/tasks/client.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/tasks/common.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/tasks/events.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/tasks/hooks.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/tasks/task-form.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/tasks/tasks-panel.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/ui/LICENSE",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/ui/badge.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/ui/card.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/ui/styles.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/workspace/account-menu.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/workspace/app-shell.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/components/workspace/sidebar.tsx",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/lib/utils.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/modules/companies-contacts/application/catalog.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/modules/companies-contacts/domain/catalog.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/modules/identity/application/validation.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/modules/identity/infrastructure/browser.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/modules/identity/infrastructure/http.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/modules/identity/infrastructure/server.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/modules/recruitment/application/case-events.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/modules/recruitment/application/cases.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/modules/recruitment/application/history-corrections.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/modules/recruitment/application/lifecycle.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/modules/recruitment/application/tasks.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/modules/recruitment/application/workspace-read.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/modules/recruitment/domain/case-events.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/modules/recruitment/domain/history-corrections.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/modules/recruitment/domain/lifecycle.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/modules/recruitment/domain/recruitment-case.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/modules/recruitment/domain/tasks.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/modules/recruitment/domain/workspace.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/proxy.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/shared/public/auth-config.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/shared/server/env.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/shared/validation/auth-config.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/shared/validation/env.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "src/shared/validation/origin.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "supabase/.gitignore",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "supabase/config.toml",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "supabase/f3-config.toml",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "supabase/local-dev-config.toml",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "supabase/recruitment-config.toml",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/e2e/auth-flows.spec.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/e2e/companies-contacts.spec.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/e2e/foundation-smoke.spec.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/e2e/recruitment-capture.spec.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/e2e/recruitment-closure-reopening.spec.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/e2e/recruitment-history-corrections.spec.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/e2e/recruitment-lifecycle.spec.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/e2e/recruitment-tasks.spec.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/e2e/recruitment-ui-foundation.spec.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/e2e/recruitment-workspace.spec.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/e2e/ui-rendered-audit.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/integration/auth/fixtures.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/integration/auth/sdk-cases.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/integration/migrations/checks.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/integration/recruitment/closure-reopening.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/integration/recruitment/companies-contacts.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/integration/recruitment/direct-insert-race.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/integration/recruitment/history-corrections.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/integration/recruitment/lifecycle-upgrade.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/integration/recruitment/lifecycle.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/integration/recruitment/recruitment.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/integration/recruitment/stages.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/integration/recruitment/tasks.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/integration/recruitment/url-parity.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/integration/recruitment/workspace.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/integration/rls/catalog.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/integration/rls/data-api.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/integration/rls/f2.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/integration/rls/matrix.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/auth-browser.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/auth-callback.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/auth-config.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/auth-password.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/auth-server.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/auth-ui.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/auth-validation.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/companies-contacts/catalog.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/companies-contacts/repository.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/companies-contacts-proxy.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/companies-contacts-ui.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/env.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/history-corrections-backend.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/recruitment-closure-backend.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/recruitment-closure-command.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/recruitment-command.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/recruitment-domain.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/recruitment-event-ui.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/recruitment-history-ui.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/recruitment-lifecycle-command.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/recruitment-lifecycle-domain.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/recruitment-lifecycle-ui.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/recruitment-tasks-backend.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/recruitment-tasks-command.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/recruitment-ui.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/recruitment-workspace-ui.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/tasks-ui.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/workspace-read-route.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/workspace-read.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tests/unit/workspace-ui.test.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tsconfig.f2.json",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "tsconfig.json",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    },
+    {
+      "path": "vitest.config.ts",
+      "runtimeUnchanged": true,
+      "gitMatchesNormalizedRuntime": true
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "targetId": "tasks-r3",
+  "status": "FAIL",
+  "viewportChecks": [],
+  "screenshots": [],
+  "scope": "Real Chromium on production HTTPS; synthetic fixtures, no physical-device or assistive-technology claim",
+  "focusedDiagnostic": {
+    "scope": "All13 Tasks browser plus affected UI Foundation navigation regression only",
+    "exit": 1,
+    "bytes": 3732,
+    "sha256": "e2830b743683d535adf68357e2152b601e2459d466a2455d77309ddf4231d9eb",
+    "counts": {
+      "failed": 1,
+      "passed": 13
+    },
+    "observations": []
+  },
+  "error": "Focused browser diagnostic must exit naturally with success\n\n1 !== 0\n",
+  "serverOutput": {
+    "bytes": 154,
+    "sha256": "23c5fe1afa64b494c7bf885cd7ce84ac45b83572be7c20a769e6580669f67fb7",
+    "counts": {},
+    "observations": []
+  }
+}

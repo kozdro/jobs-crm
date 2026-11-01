@@ -1,0 +1,16 @@
+{
+  "candidate": "4e1b12cca02dab99f21d261c99213da47d6e0b54",
+  "base": "910582aa220594f51db70869e3d6e6a166b18766",
+  "role": "frontend-reviewer",
+  "finalMessage": "**FAIL \u2014 review statyczne.** Dok\u0142adny HEAD: `4e1b12cca02dab99f21d261c99213da47d6e0b54`, baza: `910582aa220594f51db70869e3d6e6a166b18766`. Kandydat i czyste drzewo pozosta\u0142y niezmienione.\n\nUruchomiono dok\u0142adnie jednego **generic subagent + canonical role `frontend-reviewer`**, bez dalszej delegacji. Odczytano wymagane instrukcje, skill `review-change`, analiz\u0119 Tasks Core i pe\u0142ny diff.\n\n**P2 \u2014 test zamkni\u0119cia nie dociera do w\u0142a\u015bciwych asercji.**  \n[tests/e2e/recruitment-tasks.spec.ts:280](/private/tmp/jobs-crm-tasks-review-r2/tests/e2e/recruitment-tasks.spec.ts:280)\n\n- Test oczekuje nieaktywnego przycisku przy brakuj\u0105cych rozstrzygni\u0119ciach, ale komponent blokuje przycisk tylko podczas zapisu; brak wybor\u00f3w obs\u0142uguje walidacj\u0105.\n- Nast\u0119pnie wybory radiowe zeruj\u0105 potwierdzenie w [lifecycle.tsx:602](/private/tmp/jobs-crm-tasks-review-r2/src/components/recruitment/lifecycle.tsx:602). Test nie potwierdza ponownie, wi\u0119c \u017c\u0105danie zamkni\u0119cia nie zostanie wys\u0142ane.\n- **Skutek:** brak wykonanej w tym scenariuszu weryfikacji trzech rozstrzygni\u0119\u0107, natychmiastowych zmian DOM i odrzucenia replay bez tablic.\n- **Kontrakt:** DEC-060, AC-TN-011-01/02, AC-TN-003-01, zakres Tasks TC-012.\n- **Naprawa:** sprawdzi\u0107 walidacj\u0119 brakuj\u0105cych wybor\u00f3w i brak zapisu, nast\u0119pnie wybra\u0107 rozstrzygni\u0119cia, ponownie potwierdzi\u0107 i zachowa\u0107 dalsze asercje.\n\nWcze\u015bniejsze trzy frontendowe P2: **CLOSED_STATIC** \u2014 osobny callback zachowuje draft/recovery tworzenia; invalidacja owner/case od\u015bwie\u017ca zadania po zamkni\u0119ciu i recovery; chronione wiersze oraz wstrzymanie odczyt\u00f3w/paginacji zachowuj\u0105 niepewne operacje. Bez dodatkowych potwierdzonych defekt\u00f3w implementacji frontendowej.\n\nPoprawka alias\u00f3w SQL wygl\u0105da poprawnie statycznie; nie stanowi certyfikacji backendu ani security.\n\n**Runtime: NOT RUN w tej sesji.** Nie zmieniono plik\u00f3w ani nie uruchomiono test\u00f3w. Zewn\u0119trzne R2 pozostaje **RUNNING**, bez deklaracji PASS. Pe\u0142ny TC-012 z Calendar pozostaje poza wykonaniem.",
+  "wrapperEvidence": [
+    {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "933c9145d3577d50169c3501b9314b3acec31e68c1b6b8de5aaa65b7ba84b45a",
+      "candidateAfter": "933c9145d3577d50169c3501b9314b3acec31e68c1b6b8de5aaa65b7ba84b45a"
+    }
+  ],
+  "warnings": []
+}

@@ -1,0 +1,23 @@
+{
+  "targetId": "tasks-r3",
+  "status": "PASS",
+  "viewportChecks": [],
+  "screenshots": [],
+  "scope": "Real Chromium on production HTTPS; synthetic fixtures, no physical-device or assistive-technology claim",
+  "focusedDiagnostic": {
+    "scope": "All14 Tasks browser plus affected UI Foundation navigation regression only",
+    "exit": 0,
+    "bytes": 2407,
+    "sha256": "15c09469b78a750f4464194938b9079f55b733af23775637c5515e72fc8d0b4d",
+    "counts": {
+      "passed": 15
+    },
+    "observations": []
+  },
+  "serverOutput": {
+    "bytes": 153,
+    "sha256": "3e9a418c18d501a8d8751bcecd7ea973ae6499687dcdcd3e6aaa1b8e1b6a743a",
+    "counts": {},
+    "observations": []
+  }
+}

@@ -1,0 +1,36 @@
+--- source/supabase/recruitment-config.toml
++++ runtime/supabase/recruitment-config.toml
+@@ -4,7 +4,7 @@
+ 
+ [api]
+ enabled = true
+-port = 56621
++port = 57521
+ # Product tables in public are owned exclusively by db/recruitment Drizzle history.
+ # This profile never applies the synthetic foundation_poc migrations.
+ schemas = ["public"]
+@@ -13,8 +13,8 @@
+ auto_expose_new_tables = false
+ 
+ [db]
+-port = 56622
+-shadow_port = 56620
++port = 57522
++shadow_port = 57520
+ major_version = 17
+ health_timeout = "3m"
+ 
+@@ -34,11 +34,11 @@
+ 
+ [studio]
+ enabled = false
+-port = 56623
++port = 57523
+ 
+ [local_smtp]
+ enabled = true
+-port = 56624
++port = 57524
+ 
+ [storage]
+ enabled = false

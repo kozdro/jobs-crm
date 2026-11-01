@@ -1,0 +1,48 @@
+{
+  "candidate": "ca9944de2df8cb794c956dc64e587dc597a22738",
+  "node": "24.22.2",
+  "pnpm": "12.16.1",
+  "checks": [
+    {
+      "command": "pnpm test:unit",
+      "status": "PASS",
+      "log": "unit-final-r8.log",
+      "candidate": "ca9944de2df8cb794c956dc64e587dc597a22738"
+    },
+    {
+      "command": "pnpm typecheck",
+      "status": "PASS",
+      "log": "typecheck-final-r8.log",
+      "candidate": "ca9944de2df8cb794c956dc64e587dc597a22738"
+    },
+    {
+      "command": "pnpm lint",
+      "status": "PASS",
+      "log": "lint-final-r8.log",
+      "candidate": "ca9944de2df8cb794c956dc64e587dc597a22738"
+    },
+    {
+      "command": "pnpm format:check",
+      "status": "PASS",
+      "log": "format-final-r8.log",
+      "candidate": "ca9944de2df8cb794c956dc64e587dc597a22738"
+    },
+    {
+      "command": "pnpm test:boundaries",
+      "status": "PASS",
+      "log": "boundaries-r7.log",
+      "candidate": "2adf74a0b554bb560f22be6743733af129f0a7d6"
+    },
+    {
+      "command": "pnpm test:canary",
+      "status": "PASS",
+      "log": "canary-r7.log",
+      "candidate": "2adf74a0b554bb560f22be6743733af129f0a7d6"
+    }
+  ],
+  "unitCounts": {
+    "application": 474,
+    "scripts": 87
+  },
+  "copyOnlyDelta": "qa-copy-only-r8.diff"
+}

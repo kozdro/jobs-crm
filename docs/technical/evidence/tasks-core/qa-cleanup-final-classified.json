@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "scope": "Guarded owned resources removed; all baseline resources preserved; unrelated additions retained untouched",
+  "targetId": "tasks-r4",
+  "guardedCleanupExit": 0,
+  "baselineCount": 44,
+  "afterCount": 47,
+  "preservedBaselineCount": 44,
+  "missingBaselineCount": 0,
+  "unrelatedAddedCount": 3,
+  "globalInventoryEquality": "FAIL -3 unrelated additions, original receipt retained qa-cleanup-final.json",
+  "ownedRemainingCounts": {
+    "containers": 0,
+    "volumes": 0,
+    "networks": 0
+  },
+  "cleanupReceiptSha256": "43ecdce277d8cfa989dc445987401d5c3f493e70aac5c6ddee05d252f387dcf3"
+}
