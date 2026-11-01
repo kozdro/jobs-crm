@@ -18,6 +18,7 @@ export type LifecycleIntent = {
   caseId: string;
   requestId: string;
   command?: ConfirmLifecycleInput;
+  invalidCommand?: true;
 };
 const record = (value: unknown): value is Record<string, unknown> =>
   Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -165,12 +166,17 @@ export function parseLifecycleIntent(
       caseId,
       requestId: value.requestId as string,
     };
+    if (Object.prototype.hasOwnProperty.call(value, "command"))
+      result.invalidCommand = true;
     if (record(value.command)) {
       const parsed = parseLifecycleInput(value.command, true);
       if (
         parsed.success &&
         "requestId" in parsed.data &&
-        [9, 11].includes(Object.keys(value.command).length) &&
+        (value.command.expectedTaskSnapshot === undefined ||
+          isTaskSnapshot(value.command.expectedTaskSnapshot)) &&
+        (value.command.taskResolutions === undefined ||
+          isTaskResolutions(value.command.taskResolutions)) &&
         parsed.data.caseId === caseId &&
         parsed.data.requestId === result.requestId &&
         Object.entries(parsed.data).every(
@@ -179,8 +185,10 @@ export function parseLifecycleIntent(
             JSON.stringify((value.command as Record<string, unknown>)[key]) ===
               JSON.stringify(entry),
         )
-      )
+      ) {
         result.command = parsed.data;
+        delete result.invalidCommand;
+      }
     }
     return result;
   } catch {
@@ -234,6 +242,32 @@ export function lifecycleResultMatches(
       : value.original?.outcome === command.outcome &&
         value.original.occurredOn === command.occurredOn &&
         value.original.offerConfirmed === command.offerConfirmed)
+  );
+}
+/** Invalid present commands are quarantined, never downgraded to legacy
+ * identifier-only recovery. Genuine old envelopes can confirm only taskless
+ * receipts because they predate the Task closure contract. */
+export function lifecycleRecoveryMatches(
+  result: { entry?: unknown; revision?: unknown },
+  intent: LifecycleIntent,
+): boolean {
+  if (intent.invalidCommand) return false;
+  if (intent.command) return lifecycleResultMatches(result, intent.command);
+  if (result.entry !== undefined && result.entry !== null) {
+    const value = result.entry;
+    return (
+      isLifecycleEntry(value) &&
+      value.case_id === intent.caseId &&
+      value.request_id === intent.requestId &&
+      (value.expected_task_snapshot ?? []).length === 0 &&
+      (value.task_resolutions ?? []).length === 0
+    );
+  }
+  const value = result.revision;
+  return (
+    isClosureRevision(value) &&
+    value.case_id === intent.caseId &&
+    value.request_id === intent.requestId
   );
 }
 /** A delayed response must not consume a newer intention in the same tab. */

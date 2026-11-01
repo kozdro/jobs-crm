@@ -26,10 +26,10 @@ function formatEventDay(day: string) {
 import {
   clearMatchingLifecycleIntent,
   isClosureRevision,
-  isLifecycleEntry,
   isLifecyclePreview,
   lifecycleIntentStorageKey,
   lifecycleResultMatches,
+  lifecycleRecoveryMatches,
   parseLifecycleIntent,
   persistAndFreezeLifecycleIntent,
   type LifecycleIntent,
@@ -787,7 +787,13 @@ export function LifecycleRecovery({
     router.refresh();
   }
   async function resolve(retry: boolean) {
-    if (busy.current || !intent || (retry && !intent.command)) return;
+    if (
+      busy.current ||
+      !intent ||
+      intent.invalidCommand ||
+      (retry && !intent.command)
+    )
+      return;
     const saved = intent;
     const requestEpoch = epoch.current;
     const current = () => alive.current && epoch.current === requestEpoch;
@@ -802,16 +808,7 @@ export function LifecycleRecovery({
       );
       if (!current()) return;
       if (login(response)) return;
-      const matched =
-        body &&
-        (saved.command
-          ? lifecycleResultMatches(body, saved.command)
-          : (isLifecycleEntry(body.entry) &&
-              body.entry.case_id === caseId &&
-              body.entry.request_id === saved.requestId) ||
-            (isClosureRevision(body.revision) &&
-              body.revision.case_id === caseId &&
-              body.revision.request_id === saved.requestId));
+      const matched = body && lifecycleRecoveryMatches(body, saved);
       if (response.ok && matched)
         complete(
           saved,
@@ -846,7 +843,13 @@ export function LifecycleRecovery({
             "Zachowano poprzedni zamiar zmiany cyklu. Sprawdź jego wynik przed nową operacją."}
         </p>
       )}
-      {intent && !intent.command && (
+      {intent?.invalidCommand && (
+        <p className="text-sm leading-6 text-warning">
+          Nie można bezpiecznie odtworzyć danych wcześniejszej operacji.
+          Zachowano oczekujący zapis; nie potwierdzimy go ani nie ponowimy.
+        </p>
+      )}
+      {intent && !intent.command && !intent.invalidCommand && (
         <p className="text-sm leading-6 text-warning">
           Dostępny jest wyłącznie odczyt wyniku. Nie ponowimy nieprawidłowego
           ani zmienionego payloadu.
@@ -856,13 +859,13 @@ export function LifecycleRecovery({
         <div className="flex flex-wrap gap-3">
           <button
             type="button"
-            disabled={pending}
+            disabled={pending || intent.invalidCommand}
             onClick={() => void resolve(false)}
             className={buttonStyles.secondary}
           >
             Sprawdź wcześniejszy zapis cyklu
           </button>
-          {intent.command && (
+          {intent.command && !intent.invalidCommand && (
             <button
               type="button"
               disabled={pending}

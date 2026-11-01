@@ -54,6 +54,11 @@ export function taskResultMatches(
     (command.operation !== "create" || task.status === "Do zrobienia")
   );
 }
+/** A confirmed receipt creates a revision barrier before another write. A
+ * delayed list read for an older revision (or another task) cannot lift it. */
+export function taskReadAcknowledges(task: Task, receipt: Task): boolean {
+  return task.id === receipt.id && task.revision >= receipt.revision;
+}
 export async function taskRequest(
   userId: string,
   query: Record<string, string | number | boolean> | TaskCommand,

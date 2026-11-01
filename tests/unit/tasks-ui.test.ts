@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   isTask,
   taskResultMatches,
+  taskReadAcknowledges,
   formatTaskDay,
   type TaskCommand,
 } from "@/components/tasks/client";
@@ -13,6 +14,7 @@ import { TasksPanel, TaskValues } from "@/components/tasks/tasks-panel";
 import {
   isLifecyclePreview,
   lifecycleResultMatches,
+  lifecycleRecoveryMatches,
   parseLifecycleIntent,
 } from "@/components/recruitment/lifecycle-intent";
 import type {
@@ -48,6 +50,88 @@ const create: TaskCommand = {
 const render = (value: Parameters<typeof renderToStaticMarkup>[0]) =>
   renderToStaticMarkup(value);
 describe("Tasks Core UI contracts", () => {
+  it.each(["expectedTaskSnapshot", "taskResolutions"] as const)(
+    "preserves a valid ten-key command when only %s is omitted",
+    (omitted) => {
+      const command: ConfirmLifecycleInput = {
+        operation: "close",
+        caseId,
+        closureId: null,
+        outcome: "Nie aplikowano",
+        occurredOn: null,
+        offerConfirmed: false,
+        requestId,
+        expectedCaseRevision: 2,
+        expectedClosureRevision: 0,
+        expectedTaskSnapshot: [`${taskId}:0`],
+        taskResolutions: [{ taskId, action: "detach" }],
+      };
+      const partial = { ...command };
+      delete partial[omitted];
+      const parsed = parseLifecycleIntent(
+        JSON.stringify({ ownerId: owner, caseId, requestId, command: partial }),
+        owner,
+        caseId,
+      );
+      expect(parsed?.command).toEqual(partial);
+    },
+  );
+  it.each([
+    null,
+    {
+      operation: "close",
+      caseId,
+      closureId: null,
+      outcome: "Nie aplikowano",
+      occurredOn: null,
+      offerConfirmed: false,
+      requestId,
+      expectedCaseRevision: 2,
+      expectedClosureRevision: 0,
+      expectedTaskSnapshot: [`${taskId}:0`],
+      taskResolutions: [{ taskId, action: "delete" }],
+    },
+  ])(
+    "quarantines a present-invalid command rather than treating it as legacy: %j",
+    (command) => {
+      const parsed = parseLifecycleIntent(
+        JSON.stringify({ ownerId: owner, caseId, requestId, command }),
+        owner,
+        caseId,
+      );
+      expect(parsed).toMatchObject({
+        ownerId: owner,
+        caseId,
+        requestId,
+        invalidCommand: true,
+      });
+      expect(parsed?.command).toBeUndefined();
+    },
+  );
+
+  it("keeps an acknowledged write behind its exact task revision barrier until a fresh read", () => {
+    const receipt = {
+      ...task,
+      revision: 1,
+      description: "Potwierdzona zmiana",
+    };
+    expect(taskReadAcknowledges(task, receipt)).toBe(false);
+    expect(taskReadAcknowledges({ ...receipt, id: owner }, receipt)).toBe(
+      false,
+    );
+    expect(taskReadAcknowledges(receipt, receipt)).toBe(true);
+    expect(taskReadAcknowledges({ ...receipt, revision: 2 }, receipt)).toBe(
+      true,
+    );
+    const secondReceipt = {
+      ...receipt,
+      revision: 2,
+      status: "Wykonane" as const,
+    };
+    expect(taskReadAcknowledges(receipt, secondReceipt)).toBe(false);
+    expect(taskReadAcknowledges(secondReceipt, secondReceipt)).toBe(true);
+  });
+
   it("treats omitted task intent as empty during recovery without consuming a taskful receipt", () => {
     const legacy: ConfirmLifecycleInput = {
       operation: "close",
@@ -103,6 +187,55 @@ describe("Tasks Core UI contracts", () => {
       ),
     ).toBe(false);
     expect(lifecycleResultMatches({ entry }, command)).toBe(true);
+    const legacyEnvelope = { ownerId: owner, caseId, requestId };
+    expect(lifecycleRecoveryMatches({ entry }, legacyEnvelope)).toBe(false);
+    expect(
+      lifecycleRecoveryMatches(
+        {
+          entry: { ...entry, expected_task_snapshot: [], task_resolutions: [] },
+        },
+        legacyEnvelope,
+      ),
+    ).toBe(true);
+    const absentTaskFields = { ...entry };
+    delete absentTaskFields.expected_task_snapshot;
+    delete absentTaskFields.task_resolutions;
+    expect(
+      lifecycleRecoveryMatches({ entry: absentTaskFields }, legacyEnvelope),
+    ).toBe(true);
+    for (const malformed of [
+      null,
+      { ...command, taskResolutions: [{ taskId, action: "delete" }] },
+    ]) {
+      const invalid = parseLifecycleIntent(
+        JSON.stringify({ ...legacyEnvelope, command: malformed }),
+        owner,
+        caseId,
+      );
+      expect(invalid?.invalidCommand).toBe(true);
+      expect(lifecycleRecoveryMatches({ entry }, invalid!)).toBe(false);
+      expect(
+        lifecycleRecoveryMatches({ entry: absentTaskFields }, invalid!),
+      ).toBe(false);
+    }
+    for (const omitted of [
+      "expectedTaskSnapshot",
+      "taskResolutions",
+    ] as const) {
+      const partial = { ...command };
+      delete partial[omitted];
+      const parsed = parseLifecycleIntent(
+        JSON.stringify({ ...legacyEnvelope, command: partial }),
+        owner,
+        caseId,
+      );
+      expect(parsed?.command).toEqual(partial);
+      expect(lifecycleRecoveryMatches({ entry }, parsed!)).toBe(false);
+    }
+    expect(
+      lifecycleRecoveryMatches({ entry }, { ...legacyEnvelope, command }),
+    ).toBe(true);
+
     expect(
       lifecycleResultMatches(
         {

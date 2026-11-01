@@ -87,7 +87,7 @@ describe("Lifecycle intent identity and uncertain result recovery", () => {
           ownerId,
           caseId,
         ),
-      ).toEqual(ids);
+      ).toEqual({ ...ids, invalidCommand: true });
     expect(parseLifecycleIntent(JSON.stringify(ids), ownerId, caseId)).toEqual(
       ids,
     );

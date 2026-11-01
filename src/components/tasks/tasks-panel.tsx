@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Task, TaskAudit } from "@/modules/recruitment/domain/tasks";
 import { buttonStyles } from "@/components/ui/styles";
-import { formatTaskDay, isTask } from "./client";
+import { formatTaskDay, isTask, taskReadAcknowledges } from "./client";
 import { useTaskMutation, useTaskRead } from "./hooks";
 import { TaskMutationFeedback, TaskReadFeedback } from "./common";
 import { TaskForm } from "./task-form";
@@ -140,17 +140,23 @@ function TaskRow({
   userId,
   task,
   onSaved,
+  onReload,
   onActivityChange,
 }: {
   userId: string;
   task: Task;
   onSaved: () => void;
+  onReload: () => void;
   onActivityChange: (taskId: string, editing: boolean) => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [audit, setAudit] = useState(false);
+  const [awaitingRead, setAwaitingRead] = useState<Task | null>(null);
+  const refreshing =
+    awaitingRead !== null && !taskReadAcknowledges(task, awaitingRead);
   const editTrigger = useRef<HTMLButtonElement>(null);
-  const mutation = useTaskMutation(userId, () => {
+  const mutation = useTaskMutation(userId, (receipt) => {
+    setAwaitingRead(receipt);
     setEditing(false);
     onActivityChange(task.id, false);
     onSaved();
@@ -167,8 +173,10 @@ function TaskRow({
     mutation.pending,
     mutation.uncertain,
   ]);
-  const disabled = mutation.pending || mutation.uncertain || mutation.stale;
+  const disabled =
+    refreshing || mutation.pending || mutation.uncertain || mutation.stale;
   const statusChange = (status: Task["status"]) => {
+    if (disabled) return;
     onActivityChange(task.id, true);
     void mutation.send({
       operation: "set-status",
@@ -181,6 +189,7 @@ function TaskRow({
   return (
     <article
       aria-label={task.title}
+      aria-busy={refreshing || mutation.pending}
       className="min-w-0 py-5 [overflow-wrap:anywhere]"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -263,7 +272,22 @@ function TaskRow({
           </button>
         </div>
       )}
-      <TaskMutationFeedback mutation={mutation} onReload={onSaved} />
+      {refreshing && (
+        <div className="mt-3 space-y-2 text-sm" role="status">
+          <p>
+            Oczekiwanie na aktualne dane po potwierdzonym zapisie. Kolejna
+            zmiana będzie dostępna po ich pobraniu.
+          </p>
+          <button
+            type="button"
+            className={buttonStyles.secondary}
+            onClick={onReload}
+          >
+            Pobierz aktualne dane zadania
+          </button>
+        </div>
+      )}
+      <TaskMutationFeedback mutation={mutation} onReload={onReload} />
       {editing && (
         <section className="mt-4 rounded-md border border-border bg-background p-4 sm:p-5">
           <h4 className="mb-4 font-semibold">Edycja zadania</h4>
@@ -271,7 +295,8 @@ function TaskRow({
             key={`${task.id}:${task.revision}`}
             userId={userId}
             task={task}
-            onSaved={() => {
+            onSaved={(receipt) => {
+              setAwaitingRead(receipt);
               setEditing(false);
               onActivityChange(task.id, false);
               onSaved();
@@ -284,7 +309,7 @@ function TaskRow({
             onReload={() => {
               setEditing(false);
               onActivityChange(task.id, false);
-              onSaved();
+              onReload();
             }}
           />
         </section>
@@ -442,6 +467,7 @@ export function TasksPanel({
                   userId={userId}
                   task={task}
                   onSaved={completeRow}
+                  onReload={reload}
                   onActivityChange={updateActivity}
                 />
               ))}

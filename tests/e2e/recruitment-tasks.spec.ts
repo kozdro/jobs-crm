@@ -175,13 +175,93 @@ test("DEC060 edit, future day, explicit completion/cancellation/restore and visi
   await page
     .getByLabel("Opis (opcjonalnie)", { exact: true })
     .fill("Poprawiony opis syntetyczny");
-  await page
-    .getByRole("button", { name: "Zapisz zmiany", exact: true })
-    .click();
-  await expect(row).toContainText("Poprawiony opis syntetyczny");
-  await row
-    .getByRole("button", { name: "Oznacz jako wykonane", exact: true })
-    .click();
+  let holdReads = false;
+  let observedHeldReads = 0;
+  let releaseRead = () => {};
+  let barrier: Promise<void> = Promise.resolve();
+  const holdListRead = () => {
+    holdReads = true;
+    observedHeldReads = 0;
+    barrier = new Promise<void>((resolve) => {
+      releaseRead = resolve;
+    });
+  };
+  const releaseListRead = () => {
+    holdReads = false;
+    releaseRead();
+  };
+  await page.route("**/tasks/commands?**", async (route) => {
+    const url = new URL(route.request().url());
+    if (
+      holdReads &&
+      route.request().method() === "GET" &&
+      !url.searchParams.has("caseOptions") &&
+      !url.searchParams.has("taskId") &&
+      !url.searchParams.has("requestId")
+    ) {
+      observedHeldReads++;
+      await barrier;
+    }
+    return route.continue();
+  });
+  holdListRead();
+  try {
+    const edited = page.waitForResponse(
+      (response) =>
+        response.url().endsWith("/tasks/commands") &&
+        response.request().method() === "POST" &&
+        response.request().postDataJSON().operation === "edit",
+    );
+    await page
+      .getByRole("button", { name: "Zapisz zmiany", exact: true })
+      .click();
+    const reply = await edited;
+    expect(reply.status()).toBe(200);
+    expect((await reply.json()).task.revision).toBe(1);
+    await expect(
+      page.getByRole("form", { name: "Edycja zadania", exact: true }),
+    ).toHaveCount(0);
+    await expect.poll(() => observedHeldReads).toBeGreaterThan(0);
+    await expect(
+      row.getByRole("button", { name: "Oznacz jako wykonane", exact: true }),
+    ).toBeDisabled();
+    await expect(
+      row.getByRole("button", { name: "Edytuj zadanie", exact: true }),
+    ).toBeDisabled();
+  } finally {
+    releaseListRead();
+  }
+  await expect(
+    row.getByText("Poprawiony opis syntetyczny", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    row.getByRole("button", { name: "Oznacz jako wykonane", exact: true }),
+  ).toBeEnabled();
+  holdListRead();
+  try {
+    const changed = page.waitForResponse(
+      (response) =>
+        response.url().endsWith("/tasks/commands") &&
+        response.request().method() === "POST" &&
+        response.request().postDataJSON().operation === "set-status",
+    );
+    await row
+      .getByRole("button", { name: "Oznacz jako wykonane", exact: true })
+      .click();
+    const reply = await changed;
+    expect(reply.request().postDataJSON().expectedRevision).toBe(1);
+    expect(reply.status()).toBe(200);
+    expect((await reply.json()).task.revision).toBe(2);
+    await expect.poll(() => observedHeldReads).toBeGreaterThan(0);
+    await expect(
+      row.getByRole("button", { name: "Oznacz jako wykonane", exact: true }),
+    ).toBeDisabled();
+    await expect(
+      row.getByRole("button", { name: "Edytuj zadanie", exact: true }),
+    ).toBeDisabled();
+  } finally {
+    releaseListRead();
+  }
   await expect(row).toContainText("Wykonane");
   await row
     .getByRole("button", { name: "Przywróć do zrobienia", exact: true })
@@ -429,17 +509,49 @@ test("DEC060 lost three-choice closure reply recovers the original receipt and r
     expect(dialog.type()).toBe("beforeunload");
     await dialog.accept();
   });
-  for (const variant of ["omitted", "explicit-empty"] as const) {
+  let recoveryGets = 0;
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (
+      request.method() === "GET" &&
+      url.pathname === "/recruitments/lifecycle-commands" &&
+      url.searchParams.get("requestId") === requestId
+    )
+      recoveryGets++;
+  });
+  for (const variant of [
+    "omitted",
+    "explicit-empty",
+    "only-snapshot-omitted",
+    "only-resolutions-omitted",
+    "invalid-action",
+    "null-command",
+    "legacy-envelope",
+  ] as const) {
     const modified = JSON.parse(originalPending!) as {
-      command: Record<string, unknown>;
+      command?: Record<string, unknown> | null;
     };
+    const command = modified.command!;
     if (variant === "omitted") {
-      delete modified.command.expectedTaskSnapshot;
-      delete modified.command.taskResolutions;
+      delete command.expectedTaskSnapshot;
+      delete command.taskResolutions;
+    } else if (variant === "explicit-empty") {
+      command.expectedTaskSnapshot = [];
+      command.taskResolutions = [];
+    } else if (variant === "only-snapshot-omitted") {
+      delete command.expectedTaskSnapshot;
+    } else if (variant === "only-resolutions-omitted") {
+      delete command.taskResolutions;
+    } else if (variant === "invalid-action") {
+      (
+        command.taskResolutions as { taskId: string; action: string }[]
+      )[0].action = "not-approved";
+    } else if (variant === "null-command") {
+      modified.command = null;
     } else {
-      modified.command.expectedTaskSnapshot = [];
-      modified.command.taskResolutions = [];
+      delete modified.command;
     }
+    const getsBefore = recoveryGets;
     const altered = JSON.stringify(modified);
     await page.evaluate(
       ({ key, value }) => sessionStorage.setItem(key, value),
@@ -451,12 +563,48 @@ test("DEC060 lost three-choice closure reply recovers the original receipt and r
       exact: true,
     });
     await expect(recover).toBeVisible();
-    await recover.click();
-    await expect(
-      page.getByRole("status").filter({ hasText: "Nie potwierdzono wyniku." }),
-    ).toHaveText(
-      "Nie potwierdzono wyniku. Pusty odczyt nie oznacza cofnięcia zapisu. Zachowano ten sam zamiar.",
-    );
+    if (variant === "invalid-action" || variant === "null-command") {
+      await expect(recover).toBeDisabled();
+      await expect(
+        page.getByText(
+          "Nie można bezpiecznie odtworzyć danych wcześniejszej operacji. Zachowano oczekujący zapis; nie potwierdzimy go ani nie ponowimy.",
+          { exact: true },
+        ),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("button", {
+          name: "Ponów wcześniejszy zapis cyklu",
+          exact: true,
+        }),
+      ).toHaveCount(0);
+      expect(recoveryGets).toBe(getsBefore);
+    } else {
+      const queried = page.waitForResponse((response) => {
+        const url = new URL(response.url());
+        return (
+          response.request().method() === "GET" &&
+          url.pathname === "/recruitments/lifecycle-commands" &&
+          url.searchParams.get("requestId") === requestId
+        );
+      });
+      await recover.click();
+      expect((await queried).status()).toBe(200);
+      await expect(
+        page
+          .getByRole("status")
+          .filter({ hasText: "Nie potwierdzono wyniku." }),
+      ).toHaveText(
+        "Nie potwierdzono wyniku. Pusty odczyt nie oznacza cofnięcia zapisu. Zachowano ten sam zamiar.",
+      );
+      expect(recoveryGets).toBe(getsBefore + 1);
+      if (variant === "legacy-envelope")
+        await expect(
+          page.getByRole("button", {
+            name: "Ponów wcześniejszy zapis cyklu",
+            exact: true,
+          }),
+        ).toHaveCount(0);
+    }
     expect(
       await page.evaluate(
         ({ key, value }) => sessionStorage.getItem(key) === value,
