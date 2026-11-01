@@ -1,0 +1,16 @@
+{
+  "candidate": "b184bc76a395c70804971a46075b9175bb56721a",
+  "base": "910582aa220594f51db70869e3d6e6a166b18766",
+  "role": "security-reviewer",
+  "finalMessage": "**PASS_STATIC** \u2014 kandydat `b184bc76a395c70804971a46075b9175bb56721a`, baza `910582aa220594f51db70869e3d6e6a166b18766`.\n\nUruchomiono dok\u0142adnie jednego natywnego **generic subagent + canonical role** `security-reviewer`, bez dalszej delegacji. Zastosowano `review-change`. Brak potwierdzonych findings P0\u2013P3 w ocenionym zakresie bezpiecze\u0144stwa base..HEAD.\n\n- **Poprzedni P2 E2E: zamkni\u0119ty statycznie.** Test sprawdza brak wybor\u00f3w, `Zapisane` i zero zamkni\u0119\u0107, nast\u0119pnie wybiera trzy opcje i zaznacza ACK na ko\u0144cu. Dalsze asercje DOM, danych i replay `409` s\u0105 zachowane i osi\u0105galne.\n- **R2\u2192HEAD:** dok\u0142adnie trzy wskazane pliki testowe, bez zmian produktu. Katalog wymaga dok\u0142adnie dziesi\u0119ciu zatwierdzonych tabel oraz RLS ka\u017cdej; trzeci diff zawiera wy\u0142\u0105cznie formatowanie.\n- Niezale\u017cny security review obj\u0105\u0142 owner/RLS, Data API, audyt/recovery, atomowo\u015b\u0107 zamkni\u0119cia, replay, Calendar guard oraz prywatno\u015b\u0107 BFF. Regresje oceniono jako adekwatne statycznie.\n- `git diff --check`: **PASS**; working tree czysty. Nie modyfikowano plik\u00f3w ani nie uruchamiano test\u00f3w.\n\n**Runtime: NOT RUN przez reviewer\u00f3w.** Zg\u0142oszone R3 integration/browser pozostaj\u0105 RUNNING, nie PASS; wymaganej weryfikacji nie mo\u017cna jeszcze zamkn\u0105\u0107.\n\nReceipt wrappera z `changedFiles: []` i r\u00f3wnymi `candidateBefore`/`candidateAfter` powstaje po zako\u0144czeniu tej sesji \u2014 jego wyniku jeszcze nie zaobserwowano.",
+  "wrapperEvidence": [
+    {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "fe20821998f71c178a51fd03e5ac29ae97edfb6be5336bc2849d03204505d298",
+      "candidateAfter": "fe20821998f71c178a51fd03e5ac29ae97edfb6be5336bc2849d03204505d298"
+    }
+  ],
+  "warnings": []
+}

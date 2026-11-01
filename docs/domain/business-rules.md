@@ -1,5 +1,7 @@
 # Reguły biznesowe (BR) — kanoniczny katalog
 
+**Tasks Core, DEC-060 (2026-11-01):** BR-011 dla zadań: anuluj zmienia na Anulowane z relacją; zachowaj utrzymuje otwarte z relacją; odłącz pozostawia otwarte ogólne z audytem poprzedniej relacji. Każdy wybór atomowo z zamknięciem i kontrolą współbieżności. Task przy zakończonej sprawie nie wznawia sprawy; wznowienie sprawy nie przywraca statusów Task. CalendarEvent nadal wymagają przyszłej integracji, fail-closed guard zachowany. [Kontrakt](../technical/tasks-core-analysis.md).
+
 **Stan:** `BASELINED`. Każda reguła to interpretacja zatwierdzonego baseline'u; nierozstrzygnięte szczegóły zawierają odniesienia `OPEN`. Reguły dotyczą zachowania, nie technologii.
 
 | ID | Reguła (`APPROVED`) | Źródło |

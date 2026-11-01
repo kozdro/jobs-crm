@@ -1,5 +1,9 @@
 # Technical Discovery — pozostałe bramki i analiza wpływu
 
+## Tasks Core — DEC-060, 2026-11-01
+
+DATA-01 rozszerzone wyłącznie o zatwierdzony kontrakt Tasks Core i audyt relacji; OPEN-002/029/037/040 częściowo rozstrzygnięte. SEC-02 obejmuje Task/projekcje/komendy/audyt/recovery i relacje przez realne Auth/JWT/Data API A/B/anon, direct writes i RPC. QA-01 wymaga atomowego BR-011, retry/rollback/stale taskset/concurrency, upgrade bez fikcyjnego backfillu i regresji 3C/Workspace. Guard przyszłego CalendarEvent pozostaje fail-closed. Bez workerów, nowych zależności, cloud i persistent DEV. Pełne publiczne SEC/OPS/privacy oraz sugestie/przypomnienia/kalendarz nadal osobno. [Kontrakt i plan](tasks-core-analysis.md).
+
 **Stan:** OPEN / VALIDATION REQUIRED dla szczegółów. Wybrane technologie są APPROVED, ale nie przesądzają odrębnych reguł domenowych. Identyfikatory OPEN zachowujemy i nie kasujemy.
 
 ## Mapa OPEN do zamknięcia

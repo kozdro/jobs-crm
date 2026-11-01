@@ -1,5 +1,17 @@
 # Requirements Traceability — FR → AC → UC/TC
 
+## Tasks Core — DEC-060, 2026-11-01
+
+| FR / AC | Plan / zakres | Stan wykonania |
+|---|---|---|
+| TN-001/002, AC-TN-001-01/002-01/002-02 | TC-030: ogólne/sprawa, pola, statusy/restore, closed-case, audyt | Wyniki w raporcie Tasks Core |
+| TN-003, AC-TN-003-01 | TC-030, UX-010/005/001: lista, kontekst, neutralny Dashboard; bez pełnej definicji pilności DB-002 | Wyniki w raporcie Tasks Core |
+| TN-011/LC-018, AC-TN-011-01/011-02 i LC-018-03 | Część TC-012: atomowe wybory, audit, concurrency/replay/rollback, zachowany Calendar guard | Pełny TC-012 z wydarzeniem nadal NOT RUN |
+| AD-002, BR-030 | A/B/anon list/ID/audit/recovery/relacje, bezpośredni Data API/RPC | Wyniki w raporcie Tasks Core |
+| TN-004/005/007–010, UC-037 | Przypomnienia/sugestie i zależne OPEN-008/009/040 | NOT RUN / poza slice'em |
+
+[Kontrakt i plan](../technical/tasks-core-analysis.md). Historyczne wpisy 3C bez Tasks zachowano; DEC-060 rozszerza wyłącznie część Task BR-011, nie integrację Calendar.
+
 **Stan:** `BASELINED` (powiązania planistyczne). Macierz służy do szybkiego doboru kontekstu dla agenta. **Każde AC jest kryterium na papierze, a TC oznacza jedynie plan testu, nie potwierdzony wynik.**
 
 - **FR/AC** — zatwierdzone zachowanie i jego weryfikacja.

@@ -1,0 +1,16 @@
+{
+  "candidate": "b184bc76a395c70804971a46075b9175bb56721a",
+  "base": "910582aa220594f51db70869e3d6e6a166b18766",
+  "role": "backend-reviewer",
+  "finalMessage": "**PASS_STATIC \u2014 backend re-review** kandydata `b184bc76a395c70804971a46075b9175bb56721a`, wzgl\u0119dem bazy `910582aa220594f51db70869e3d6e6a166b18766`.\n\nUruchomiono dok\u0142adnie jednego natywnego subagenta: **generic subagent + canonical role** `backend-reviewer`. Zaczekano na findings; bez dalszej delegacji.\n\n- **Brak nowych potwierdzonych findings P0\u2013P3** w pe\u0142nym ocenionym zakresie backendu.\n- **Poprzedni P2: CLOSED_STATIC.** Sekwencja E2E sprawdza brak wybor\u00f3w, status `Zapisane` i zero zamkni\u0119\u0107, nast\u0119pnie wybiera trzy opcje i ponownie zaznacza ACK. Zachowane p\u00f3\u017aniejsze asercje DOM, skutk\u00f3w i replay s\u0105 statycznie osi\u0105galne.\n- **Asercja katalogu: CLOSED_STATIC.** Wymaga dok\u0142adnie dziesi\u0119ciu zatwierdzonych tabel; kontrola RLS nadal obejmuje ka\u017cd\u0105 z nich.\n- R2\u2192HEAD zawiera dok\u0142adnie trzy wskazane pliki test\u00f3w. Zmiana unit jest wy\u0142\u0105cznie formatowaniem; brak zmian produktu.\n\nPodstawa: DEC-060, FR/AC-TN-001\u2013003/TN-011, FR/AC-LC-018, AC-AD-002, BR-011/030. Pe\u0142ny TC-012/Calendar pozostaje poza wykonaniem.\n\n**Runtime: NOT RUN przez reviewera.** R3 pozostaje RUNNING wed\u0142ug przekazanego statusu; wymagane dowody runtime nadal warunkuj\u0105 zamkni\u0119cie zadania.\n\nNie zmieniono plik\u00f3w. Ko\u0144cowy SHA jest identyczny, `git status` pusty. Receipt zewn\u0119trznego wrappera z `changedFiles: []` i r\u00f3wnymi fingerprintami powstaje po zako\u0144czeniu tej sesji \u2014 jeszcze go nie zaobserwowano.",
+  "wrapperEvidence": [
+    {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "fe20821998f71c178a51fd03e5ac29ae97edfb6be5336bc2849d03204505d298",
+      "candidateAfter": "fe20821998f71c178a51fd03e5ac29ae97edfb6be5336bc2849d03204505d298"
+    }
+  ],
+  "warnings": []
+}

@@ -84,6 +84,8 @@ Każdy przepływ opisuje: wejście → decyzję użytkownika → stan po zapisie
 
 ## F09: Zadania, sugestie i powiadomienia (UC-023/030/037; UX-001/010)
 
+**Lokalny Tasks Core — DEC-060:** świadome create/edit/status/restore, wspólny formularz i tylko sprawa z kontekstu; no-term i przyszły dzień poprawne. Lista/kontekst/Dashboard pokazują istniejące rekordy, audyt odtwarza wcześniejsze relacje. Brak automatycznego wznowienia zakończonej sprawy. Przy close każdy otwarty Task otrzymuje anuluj/zachowaj/odłącz; preview/confirm/konflikt/recovery zgodnie z [kontraktem](../technical/tasks-core-analysis.md). Sugestie i przypomnienia opisane poniżej pozostają przyszłym zakresem, nie działającą funkcją core.
+
 - Zadanie bez terminu jest prawidłowe. Pokazuj je w swoim kontekście bez błędnego „zaległe”.
 - Dashboard rozdziela wymagające uwagi zadania/wydarzenia od sugestii regułowych; sugestia może prowadzić do formularza utworzenia zadania, ale sama zadaniem nie jest.
 - Brak odpowiedzi w CRM nie dowodzi faktycznego milczenia kontaktu.

@@ -1,0 +1,10 @@
+{
+  "visualCandidate": "2adf74a0b554bb560f22be6743733af129f0a7d6",
+  "currentCandidate": "ca9944de2df8cb794c956dc64e587dc597a22738",
+  "delta": "Exactly2literal-lines: lifecycle mismatch message and E2E expected same literal; no behavior/styles changes",
+  "diffSha256": "57def906c2272b3428eeb13687aaa78b96daa65c582fd9a2c50361974ab38894",
+  "visualReceipt": "qa-visual-receipt-r7.json",
+  "browserZoom": "NOT RUN",
+  "assistiveTechnology": "NOT RUN",
+  "physicalDevices": "NOT RUN"
+}

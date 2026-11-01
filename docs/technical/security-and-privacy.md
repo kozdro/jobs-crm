@@ -1,5 +1,9 @@
 # Bezpieczeństwo, prywatność i threat model
 
+## Tasks Core — zakres DEC-060
+
+Nowe powierzchnie: Task lista/direct ID, audit i recovery, relacja case, komendy Task oraz payload rozstrzygnięć close. SEC-02 wymaga właściciela z zaufanego Auth, RLS w bazie i invoker views/RPC, ochrony zapisu również poza BFF, braku cudzych ID/count/metadanych oraz odmowy spoof ownera/relacji. Preview nie nadaje uprawnień. Zmiana zbioru/wersji Task wymaga konfliktu; decyzje i close atomowe z retry/payload conflict oraz audytem wcześniejszej relacji. Nie dodawać PII do logów i trwałego browser storage. Istniejące CSRF/origin/cache/token guardy pozostają wymagane. Niezależne security review na zamrożonym kandydacie; wyniki osobno. [Kontrakt](tasks-core-analysis.md). Bez zmian Auth i publicznych polityk, powiadomień i kalendarza; przyszły Calendar guard zachowany.
+
 **Zatwierdzono:** Supabase-native Auth/SSR zgodnie z [ADR-0012](../decisions/adr/0012-supabase-native-auth-sessions-rls.md), 2026-10-29: samoobsługowa rejestracja, e-mail/hasło + Google OAuth, reset e-mailem, wiele urządzeń, bez własnego MFA; Data API/JWT/RLS, private Storage, eksport CSV/XLSX i samoobsługowe usunięcie konta w źródłowym zakresie. **VALIDATION REQUIRED:** przyszła implementacja i ustawienia polityk, nie runtime PASS tego zadania.
 
 ## Model zagrożeń

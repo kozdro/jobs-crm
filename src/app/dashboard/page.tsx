@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TasksPanel } from "@/components/tasks/tasks-panel";
 import { redirect } from "next/navigation";
 import { ArrowRight, Bookmark, FileText, Link2 } from "lucide-react";
 import { Workspace } from "@/components/recruitment/workspace";
@@ -14,6 +15,9 @@ export default async function DashboardPage() {
       title="Dashboard"
       description="Twoja przestrzeń do porządkowania rekrutacji."
     >
+      <div className="mb-8">
+        <TasksPanel key={user.id} userId={user.id} compact />
+      </div>
       <section className="ui-panel max-w-4xl p-6 sm:p-9">
         <Bookmark
           aria-hidden="true"

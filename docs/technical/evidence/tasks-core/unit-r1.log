@@ -1,0 +1,182 @@
+$ vitest run && node --test scripts/db/*.test.ts scripts/auth/*.test.ts scripts/recruitment/*.test.ts scripts/local-dev/*.test.ts
+
+ RUN  v5.0.5 /private/tmp/jobs-crm-tasks-core
+
+
+ Test Files  30 passed (30)
+      Tests  449 passed (449)
+   Start at  13:13:52
+   Duration  1.82s (import 58%, transform 26%, tests 14%, worker 1%)
+
+    Isolate  30 workers spawned · ~122ms startup each (spawn + environment, per file)
+             at least ~401ms faster with isolate: false — reuses workers across files instead of one per file
+
+✔ interrupted db-only startup plans exact owned resources without requiring Auth/API/mail (1.032917ms)
+✔ network-only startup and repeated cleanup with all resources absent are accepted (0.124ms)
+✔ stopped or not-yet-started owned container may have no effective network/ports (0.084708ms)
+✔ partial inventory must match every recorded immutable container identity (0.294166ms)
+✔ foreign labels, extra networks, unsafe binds and unexpected ports never produce a deletion plan (0.177333ms)
+✔ similar volume names or missing ownership labels cannot authorize volume removal (0.135875ms)
+✔ unowned network, wildcard binding or foreign endpoint blocks entire cleanup plan (0.123917ms)
+✔ ordinary build/server logs and exact publishable anon key produce only bounded summaries (5.6085ms)
+✔ session JWT fragmented across process chunks fails without reflecting its value (0.271042ms)
+✔ private server credentials, serialized refresh token and synthetic passwords fail closed (0.282583ms)
+✔ oversized logs cannot silently truncate away a secret after the bounded capture limit (0.087ms)
+✔ browser artifact private-value scan rejects secret bytes and allows public SDK code (0.1175ms)
+✔ TAP and Playwright counts plus whitelisted observation values are retained safely (2.772ms)
+✔ structured observations cannot smuggle unknown credential or arbitrary text fields (0.151208ms)
+✔ zero or partial reporter evidence cannot give successful Auth measurement acceptance (0.2215ms)
+✔ native no-store exclusion requires its actual CDP reason and cannot claim the restore handler passed (0.535458ms)
+✔ cleanup ignores evidence and keeps every manifest-bearing target for validation (23.954167ms)
+✔ cleanup attempts later targets after earlier failure and fails with redacted aggregate (1.026ms)
+✖ actual Docker CLI serialization for all four pinned services and Auth-only bootstrap (58.067084ms)
+✔ unnamed bootstrap contract denies other image/command/identity/lifetime/ports (1.11225ms)
+✖ actual Docker run lifecycle receives wait headers before start and finishes owned Auth bootstrap (12.317708ms)
+✖ actual Docker cold pulls match the pinned Supabase service fallback sources (31.727834ms)
+✔ guard explicitly rewrites blank IP before Docker container create (0.845708ms)
+✔ guard refuses unowned create (0.189667ms)
+✔ guard refuses explicit wildcard bind (0.135959ms)
+✔ guard refuses wrong port and host binds (0.14025ms)
+✔ guard refuses privileged and foreign network modes (0.165375ms)
+✔ guard rejects hostbind traversal and additional networks/volume sharing (0.254708ms)
+✔ guard rejects case aliases handled case-insensitively by Docker Go decoder (0.121042ms)
+✔ guard rejects non-ASCII object keys before Docker Unicode case folding (0.41275ms)
+✔ real Docker CLI empty optional arrays are allowed; nonempty devices/caps remain denied (0.193292ms)
+✔ private services have no published ports added (0.314583ms)
+✔ real Unix transport rewrites request and forwards streaming response without logs (102.621667ms)
+✔ guard diagnostics contain only method and canonical route without query or IDs (10.077084ms)
+✔ exec privilege aliases and sensitive reads enforce exact owned-container scope (23.666125ms)
+✔ guard close destroys an original Docker stream after its downstream client aborts (119.194666ms)
+✔ client abort and guard close during delayed ownership cannot create a late Docker upgrade socket (107.220833ms)
+✔ F3 opt-in port profile permits only its exact loopback mail/API/DB ports (0.589958ms)
+✔ FQA10 manifest accepts exact owned target (0.658166ms)
+✔ FQA10 wrong project/path/owner/port/config hash refused (0.260417ms)
+✔ FQA10 only exact loopback PostgreSQL endpoint accepted (0.186958ms)
+✔ FQA10 DB identity and patched PostgreSQL17 enforced (0.106542ms)
+✔ FQA10 immutable container IDs and image IDs enforced (0.13125ms)
+✔ FQA10 effective wildcard rejected despite loopback requested/default network (0.200417ms)
+✔ FQA10 wrong actual mapped DB/API port rejected (0.080084ms)
+✔ empty public bootstrap cannot expose objects or user CREATE (0.219875ms)
+✔ ambiguous Docker environment refuses before invoking any Docker command (168.028667ms)
+✔ remote context is refused after local metadata lookup and before daemon info (438.090541ms)
+✔ all daemon inspection commands use the verified Unix host with context cleared (449.558459ms)
+✔ QA: DEV ports are disjoint from F2/F3/Recruitment test target ports (0.569375ms)
+✔ QA: exact manifest accepts only matching checkout/config/target identity (0.726875ms)
+✔ QA: reset requires exact target and explains data loss (0.26925ms)
+✔ QA: valid inventory generates only exact owned cleanup targets (1.019583ms)
+✔ QA: foreign identities, images, endpoints, volumes and attachments refuse full plan (0.741667ms)
+✔ QA: missing services refuse reuse rather than creating an empty replacement (0.107042ms)
+✔ QA: complete target must retain actual PostgreSQL data volume mount (0.104333ms)
+✔ QA: partial cleanup also refuses host binds and initial startup refuses unpinned images (0.210666ms)
+✔ QA: complete target must publish required service endpoints (1.278584ms)
+✔ QA: DEV profile enables Studio/mail without changing test profiles (14.907125ms)
+✔ QA: occupied loopback port refuses without touching the listener (9.734292ms)
+✔ QA: missing Docker and remote daemon produce bounded actionable failures (522.540125ms)
+✔ QA: CLI version guard rejects an incompatible process before touching Docker (503.410458ms)
+✔ Local DEV migrations reject cloud, CI and alternate endpoints before connecting (1.102333ms)
+✖ fresh bootstrap and checkpoint-bound approved prefix/full histories are accepted (1.659916ms)
+✔ nonempty ledger never silently adopts missing or changed schema checkpoint (0.503625ms)
+✔ deleted, reordered, modified and ahead history cannot be repaired automatically (0.260083ms)
+✔ development logs withhold auth callback query, tokens and passwords (0.694291ms)
+✔ reset requires explicit exact project ID (0.27775ms)
+✔ private Supabase env stays explicitly empty so Next dotenv cannot refill it (0.508625ms)
+✔ diagnostic writes and appends never follow symlinks (21.357125ms)
+✔ control endpoint requires private owned directory and an actual private socket (4.89825ms)
+✔ partial reset accepts only exact pinned AutoRemove gotrue migrate bootstrap (1.06175ms)
+✔ pinned Studio snippets bind becomes an owned persistent volume without host access (1.047584ms)
+✔ Studio mapping refuses other host paths, modes, destinations, images and services (6.680792ms)
+✔ interrupted db-only startup plans exact owned resources without requiring Auth/API/mail (1.060125ms)
+✔ network-only startup and repeated cleanup with all resources absent are accepted (0.128625ms)
+✔ stopped or not-yet-started owned container may have no effective network/ports (0.096208ms)
+✔ partial inventory must match every recorded immutable container identity (2.988791ms)
+✔ foreign labels, extra networks, unsafe binds and unexpected ports never produce a deletion plan (0.271959ms)
+✔ similar volume names or missing ownership labels cannot authorize volume removal (0.171833ms)
+✔ unowned network, wildcard binding or foreign endpoint blocks entire cleanup plan (0.13375ms)
+✔ project names stay within CLI limit even for the longest allowed target ID (0.6935ms)
+✔ oversized pre-start failure receipts are eligible only for guarded retirement (3.411333ms)
+✔ product manifest binds exact profile, owner, target and checkpoint (5.537625ms)
+✔ fresh, upgrade prefix and exact repeated migration histories are allowed (0.232208ms)
+✔ deleted, reordered, altered or ahead ledgers and changed migration sources are refused (1.527166ms)
+✔ new product Docker profile allows only its own ports/network, preserving F2/F3 isolation (8.81475ms)
+ℹ tests 87
+ℹ suites 0
+ℹ pass 83
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1398.968667
+
+✖ failing tests:
+
+test at scripts/db/docker-cli-contract.test.ts:17:1
+✖ actual Docker CLI serialization for all four pinned services and Auth-only bootstrap (58.067084ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 7
+  
+      at TestContext.<anonymous> (file:///private/tmp/jobs-crm-tasks-core/scripts/db/docker-cli-contract.test.ts:131:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 7,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/db/docker-cli-contract.test.ts:191:1
+✖ actual Docker run lifecycle receives wait headers before start and finishes owned Auth bootstrap (12.317708ms)
+  Error: spawn docker ENOENT
+      at ChildProcess._handle.onexit (node:internal/child_process:316:19)
+      at onErrorNT (node:internal/child_process:554:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'spawn docker',
+    path: 'docker',
+    spawnargs: [ 'run', '--rm', '--network', 'network-contract', '--label', 'com.supabase.cli.project=jobs-crm-f2-contract-aabbccddeeff', '--label', 'com.docker.compose.project=jobs-crm-f2-contract-aabbccddeeff', 'public.ecr.aws/supabase/gotrue:v2.197.0', 'gotrue', 'migrate' ],
+    cmd: 'docker run --rm --network network-contract --label com.supabase.cli.project=jobs-crm-f2-contract-aabbccddeeff --label com.docker.compose.project=jobs-crm-f2-contract-aabbccddeeff public.ecr.aws/supabase/gotrue:v2.197.0 gotrue migrate',
+    stdout: '',
+    stderr: ''
+  }
+
+test at scripts/db/docker-cli-contract.test.ts:314:1
+✖ actual Docker cold pulls match the pinned Supabase service fallback sources (31.727834ms)
+  Error: spawn docker ENOENT
+      at ChildProcess._handle.onexit (node:internal/child_process:316:19)
+      at onErrorNT (node:internal/child_process:554:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'spawn docker',
+    path: 'docker',
+    spawnargs: [ 'pull', 'supabase/postgres:17.11.0.006' ],
+    cmd: 'docker pull supabase/postgres:17.11.0.006',
+    stdout: '',
+    stderr: ''
+  }
+
+test at scripts/local-dev/migrations.test.ts:82:1
+✖ fresh bootstrap and checkpoint-bound approved prefix/full histories are accepted (1.659916ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  14 !== 13
+  
+      at TestContext.<anonymous> (file:///private/tmp/jobs-crm-tasks-core/scripts/local-dev/migrations.test.ts:83:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 14,
+    expected: 13,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+[ELIFECYCLE] Command failed with exit code 1.

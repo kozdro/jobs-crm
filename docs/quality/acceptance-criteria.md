@@ -156,6 +156,20 @@
 
 ## TN — Tasks & Notifications
 
+### Doprecyzowania Tasks Core — DEC-060 APPROVED, 2026-11-01
+
+| ID | Kryterium | FR |
+|---|---|---|
+| AC-TN-001-01 | Użytkownik tworzy, odczytuje i edytuje własne zadanie ogólne lub przy jednej własnej sprawie, także zakończonej. Żadna operacja Task nie wznawia sprawy. | FR-TN-001 |
+| AC-TN-002-01 | Tytuł 1–160 znaków po trim, opis opcjonalny do 2000; prawidłowy opcjonalny dzień terminu także przyszły, bez godziny/alarmu. Brak terminu nie oznacza zaległości. | FR-TN-002 |
+| AC-TN-002-02 | Nowe zadanie ma Do zrobienia; wykonanie/anulowanie i przywrócenie z Wykonane/Anulowane są jawne. Upływ czasu ani wznowienie sprawy nie zmieniają statusu Task. | FR-TN-002 |
+| AC-TN-003-01 | Ten sam rekord jest dostępny w Zadaniach i przy przypisanej sprawie; Dashboard pokazuje rzeczywiste otwarte zadania bez domyślnej reguły pilności. Formularz z kontekstu wskazuje tylko sprawę; błąd odczytu nie udaje pustej listy. | FR-TN-003 |
+| AC-TN-011-01 | Każde otwarte zadanie przy close wymaga wyboru: anuluj = Anulowane z relacją, zachowaj = otwarte z relacją, odłącz = otwarte ogólne. Wszystkie wybory i close atomowe; audyt zachowuje wybór i wcześniejszą relację również po odłączeniu. | FR-TN-011 |
+| AC-TN-011-02 | Zmiana zbioru lub wersji zadań po preview wymaga konfliktu i nowego potwierdzenia. Retry zgodnego zamiaru nie powiela skutków; odmienny payload tego samego klucza jest odrzucany. Awaria transakcji nie pozostawia częściowych skutków. | FR-TN-011 |
+| AC-LC-018-03 | Integracja Task zastępuje część Task guarda 3C realnym BR-011. Pojawienie się przyszłych CalendarEvent bez ich integracji nadal blokuje close; obejście guarda nie jest realizacją kryterium. | FR-LC-018 |
+
+AC-AD-002 obejmuje Task/listę/direct ID/relacje/audyt/recovery i bezpośredni Data API: A pozytywnie, B/anon bez danych i metadanych, brak owner spoofing i cudzych relacji. Pełny TC-012 z wydarzeniem nadal poza core. Wykonane wyniki osobno od tych kryteriów.
+
 | ID | Test akceptacji (Given / When / Then, opisowo) | Powiązany FR |
 |---|---|---|
 | **AC-TN-001** | Użytkownik może zapisać zadanie bez sprawy oraz inne zadanie przypisane do istniejącej sprawy. | FR-TN-001 |

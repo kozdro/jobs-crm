@@ -1,0 +1,2 @@
+{"node":"v24.22.2","execPath":"/Users/kozdro/.volta/tools/image/node/24.22.2/bin/node"}
+12.16.1

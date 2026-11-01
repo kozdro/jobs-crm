@@ -1,0 +1,32 @@
+{
+  "scope": "Read-only diagnostic on already verified owned disposable target; not an RLS authorization proof",
+  "browserStatus": 503,
+  "browserKind": "unavailable",
+  "caseProjection": [
+    {
+      "status": "Zakończone",
+      "case_revision": 1
+    }
+  ],
+  "closureCount": 1,
+  "resolutionActions": [
+    "keep",
+    "detach",
+    "cancel"
+  ],
+  "actualJsonbObjectKeyOrders": [
+    [
+      "action",
+      "taskId"
+    ],
+    [
+      "action",
+      "taskId"
+    ],
+    [
+      "action",
+      "taskId"
+    ]
+  ],
+  "bug": "Raw JSON.stringify compared semantic resolution objects with different key insertion order"
+}

@@ -1,0 +1,10 @@
+{
+  "scope": "Two new regressions on unchanged8e09production artifact: held-read stale controls and omitted pendingstorage fields, RED sensitivity only",
+  "exit": 1,
+  "bytes": 3685,
+  "sha256": "40d621f699eec009bb146cf427c880ddee68ea26d2712e7782caeed5b27940b5",
+  "counts": {
+    "failed": 2
+  },
+  "observations": []
+}

@@ -1,0 +1,15 @@
+{
+  "candidate": "9810e8c56d5f590384582d6bdefb5deacaf024a7",
+  "base": "910582aa220594f51db70869e3d6e6a166b18766",
+  "role": "security-reviewer",
+  "finalMessage": "**PASS_STATIC** \u2014 niezale\u017cny security review nie wykaza\u0142 potwierdzonych findings P0\u2013P3.\n\nUruchomiono dok\u0142adnie jednego natywnego subagenta: **generic subagent + canonical role `security-reviewer`**, bez dalszej delegacji. Odczytano wymagane instrukcje, workflow, rol\u0119, skill `review-change` i kontrakt DEC-060.\n\nOceniono kandydata `9810e8c56d5f590384582d6bdefb5deacaf024a7` wzgl\u0119dem bazy `910582aa220594f51db70869e3d6e6a166b18766`, obejmuj\u0105c:\n\n- RLS, grants, RPC, triggery i ochron\u0119 przed direct DML/IDOR;\n- atomowe zamykanie, konflikty, replay i Calendar guard;\n- CSRF, to\u017csamo\u015b\u0107, prywatne nag\u0142\u00f3wki, cookies oraz recovery bez dodatkowego trwa\u0142ego storage tre\u015bci.\n\nNie zmieniono plik\u00f3w ani nie uruchomiono test\u00f3w. Runtime pozostaje **RUNNING wed\u0142ug przekazanego stanu**, a pe\u0142ny TC-012/Calendar \u2014 **NOT RUN**. Wynik statyczny nie zast\u0119puje wymaganej weryfikacji runtime ani nie zamyka DoD.",
+  "wrapperEvidence": [
+    {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "e00f3e427ed07a13ffabd26e751699b29599fba40199ca5fd18c2111b213f6b3",
+      "candidateAfter": "e00f3e427ed07a13ffabd26e751699b29599fba40199ca5fd18c2111b213f6b3"
+    }
+  ]
+}

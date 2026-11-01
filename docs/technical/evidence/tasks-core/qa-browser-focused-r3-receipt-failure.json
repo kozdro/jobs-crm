@@ -1,0 +1,10 @@
+{
+  "scope": "All13 Tasks browser plus affected UI Foundation navigation regression only",
+  "exit": 1,
+  "bytes": 1410,
+  "sha256": "403f1432a379cfd4ed2cb30392b70ea6f02b6a77fce5a2b19c16b9debc830b2b",
+  "counts": {
+    "failed": 1
+  },
+  "observations": []
+}

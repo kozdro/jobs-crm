@@ -1,0 +1,179 @@
+{
+  "productionCandidate": "5a1bc07a2b637646913f72dabb9ba5c1610fdf19",
+  "targetId": "tasks-r4",
+  "status": "FAIL",
+  "viewportChecks": [
+    {
+      "viewport": 1440,
+      "requestedWidth": 1440,
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "visualViewportWidth": 1440,
+      "focused": true,
+      "visibleHit": true,
+      "button": {
+        "x": 310,
+        "y": 490,
+        "width": 132.8125,
+        "height": 44
+      },
+      "height": 900,
+      "textScale": "default",
+      "status": "PASS"
+    },
+    {
+      "viewport": 1024,
+      "requestedWidth": 1024,
+      "innerWidth": 1024,
+      "scrollWidth": 1024,
+      "visualViewportWidth": 1024,
+      "focused": true,
+      "visibleHit": true,
+      "button": {
+        "x": 310,
+        "y": 490,
+        "width": 132.8125,
+        "height": 44
+      },
+      "height": 900,
+      "textScale": "default",
+      "status": "PASS"
+    },
+    {
+      "viewport": 768,
+      "requestedWidth": 768,
+      "innerWidth": 768,
+      "scrollWidth": 768,
+      "visualViewportWidth": 768,
+      "focused": true,
+      "visibleHit": true,
+      "button": {
+        "x": 310,
+        "y": 438,
+        "width": 132.8125,
+        "height": 44
+      },
+      "height": 900,
+      "textScale": "default",
+      "status": "PASS"
+    },
+    {
+      "viewport": 375,
+      "requestedWidth": 375,
+      "innerWidth": 375,
+      "scrollWidth": 375,
+      "visualViewportWidth": 375,
+      "focused": true,
+      "visibleHit": true,
+      "button": {
+        "x": 54,
+        "y": 427.5,
+        "width": 132.8125,
+        "height": 44
+      },
+      "height": 900,
+      "textScale": "default",
+      "status": "PASS"
+    },
+    {
+      "viewport": 375,
+      "innerWidth": 375,
+      "scrollWidth": 444,
+      "visualViewportWidth": 375,
+      "focused": true,
+      "visibleHit": true,
+      "button": {
+        "x": 106,
+        "y": 406,
+        "width": 263.625,
+        "height": 88
+      },
+      "height": 900,
+      "textScale": "200%",
+      "status": "FAIL"
+    }
+  ],
+  "screenshots": [
+    "qa-visual-r6-diagnostic-tasks-1440.png",
+    "qa-visual-r6-diagnostic-form-1440.png",
+    "qa-visual-r6-diagnostic-form-1024.png",
+    "qa-visual-r6-diagnostic-form-768.png",
+    "qa-visual-r6-diagnostic-form-375.png",
+    "qa-visual-r6-diagnostic-form-375-text200.png"
+  ],
+  "scope": "Real Chromium on production HTTPS; synthetic fixtures, no physical-device or assistive-technology claim",
+  "overflowElements": [
+    {
+      "tag": "BUTTON",
+      "className": "ui-button ui-button-ghost",
+      "role": null,
+      "text": "Poprzednie sprawy",
+      "x": 106,
+      "right": 427.1875,
+      "width": 321.1875,
+      "fontSize": "28px",
+      "whiteSpace": "normal",
+      "minWidth": "auto",
+      "maxWidth": "none"
+    },
+    {
+      "tag": "BUTTON",
+      "className": "ui-button ui-button-ghost",
+      "role": null,
+      "text": "Następne sprawy",
+      "x": 106,
+      "right": 402.328125,
+      "width": 296.328125,
+      "fontSize": "28px",
+      "whiteSpace": "normal",
+      "minWidth": "auto",
+      "maxWidth": "none"
+    },
+    {
+      "tag": "BUTTON",
+      "className": "ui-button ui-button-secondary",
+      "role": null,
+      "text": "Oznacz jako wykonane",
+      "x": 73,
+      "right": 444,
+      "width": 371,
+      "fontSize": "28px",
+      "whiteSpace": "normal",
+      "minWidth": "auto",
+      "maxWidth": "none"
+    },
+    {
+      "tag": "BUTTON",
+      "className": "ui-button ui-button-ghost",
+      "role": null,
+      "text": "Pokaż audyt zadania",
+      "x": 73,
+      "right": 412.875,
+      "width": 339.875,
+      "fontSize": "28px",
+      "whiteSpace": "normal",
+      "minWidth": "auto",
+      "maxWidth": "none"
+    },
+    {
+      "tag": "BUTTON",
+      "className": "ui-button ui-button-secondary",
+      "role": null,
+      "text": "Poprzednia strona",
+      "x": 73,
+      "right": 383.265625,
+      "width": 310.265625,
+      "fontSize": "28px",
+      "whiteSpace": "normal",
+      "minWidth": "auto",
+      "maxWidth": "none"
+    }
+  ],
+  "error": "Actual375 text200 reflow/focus failed; measured metrics and overflow descriptors retained",
+  "serverOutput": {
+    "bytes": 153,
+    "sha256": "c5d26fffd1608cb0e259d984a058946acb042e910aabf2e5334b473d82cc55a7",
+    "counts": {},
+    "observations": []
+  }
+}

@@ -271,6 +271,7 @@ try {
       "tests/integration/recruitment/closure-reopening.test.ts",
       "tests/integration/recruitment/companies-contacts.test.ts",
       "tests/integration/recruitment/workspace.test.ts",
+      "tests/integration/recruitment/tasks.test.ts",
     ],
     env,
     "business-integration",

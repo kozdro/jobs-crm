@@ -1,0 +1,15 @@
+{
+  "candidate": "9810e8c56d5f590384582d6bdefb5deacaf024a7",
+  "base": "910582aa220594f51db70869e3d6e6a166b18766",
+  "role": "backend-reviewer",
+  "finalMessage": "**FAIL \u2014 jeden potwierdzony statycznie finding P2.**\n\n**P2 \u2014 pomini\u0119cie p\u00f3l Tasks omija kontrol\u0119 zgodno\u015bci payloadu replay.**  \nLokalizacja: [lifecycle.ts:270](/private/tmp/jobs-crm-tasks-review-r1/src/modules/recruitment/application/lifecycle.ts:270).\n\nReprodukcja:\n\n1. Zamknij spraw\u0119 z zadaniem T przez nowy RPC, u\u017cywaj\u0105c klucza K, snapshotu `[T:0]` i decyzji `cancel`.\n2. Pon\u00f3w \u017c\u0105danie z K i identycznymi polami lifecycle, pomijaj\u0105c `expectedTaskSnapshot` oraz `taskResolutions`.\n3. BFF wybierze legacy RPC, kt\u00f3ry por\u00f3wnuje wy\u0142\u0105cznie dawne pola i zwraca `replayed` \u2014 [0010:235](/private/tmp/jobs-crm-tasks-review-r1/db/recruitment/migrations/0010_recruitment_lifecycle_3c.sql:235). Nowy RPC odrzuci\u0142by taki payload jako konflikt.\n\n**Skutek:** odmienny payload otrzymuje potwierdzenie sukcesu, naruszaj\u0105c DEC-060 i AC-TN-011-02. Nie stwierdzono dodatkowej mutacji ani dost\u0119pu do cudzych danych.\n\n**Naprawa:** ujednolici\u0107 kontrol\u0119 replay obu RPC, r\u00f3wnie\u017c dla bezpo\u015bredniego API; brak p\u00f3l Tasks traktowa\u0107 jako puste tablice i por\u00f3wnywa\u0107 z zapisan\u0105 intencj\u0105. Doda\u0107 regresj\u0119 obu wej\u015b\u0107.\n\nReview wykona\u0142 dok\u0142adnie jeden **generic subagent + canonical role `backend-reviewer`**, bez dalszej delegacji, dla kandydata `9810e8c56d5f590384582d6bdefb5deacaf024a7` wzgl\u0119dem bazy `910582aa220594f51db70869e3d6e6a166b18766`.\n\nNie zmieniono plik\u00f3w ani nie uruchomiono test\u00f3w. Reprodukcja runtime: **NOT RUN**; zewn\u0119trzne testy: **RUNNING**; pe\u0142ny TC-012: **NOT RUN**. Wynik dotyczy statycznego review backendu.",
+  "wrapperEvidence": [
+    {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "e00f3e427ed07a13ffabd26e751699b29599fba40199ca5fd18c2111b213f6b3",
+      "candidateAfter": "e00f3e427ed07a13ffabd26e751699b29599fba40199ca5fd18c2111b213f6b3"
+    }
+  ]
+}

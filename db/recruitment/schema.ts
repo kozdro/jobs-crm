@@ -197,6 +197,12 @@ export const recruitmentCaseLifecycle = pgTable(
     offerConfirmed: boolean("offer_confirmed").notNull(),
     expectedCaseRevision: integer("expected_case_revision").notNull(),
     cycle: integer("cycle").notNull(),
+    expectedTaskSnapshot: jsonb("expected_task_snapshot")
+      .default(sql`'[]'::jsonb`)
+      .notNull(),
+    taskResolutions: jsonb("task_resolutions")
+      .default(sql`'[]'::jsonb`)
+      .notNull(),
     previousStatus: text("previous_status").notNull(),
     previousStage: text("previous_stage"),
     resultingStatus: text("resulting_status").notNull(),
@@ -411,6 +417,108 @@ export const catalogCommand = pgTable(
     index("catalog_command_audit_idx").on(
       t.ownerId,
       t.targetId,
+      t.recordedAt,
+      t.id,
+    ),
+  ],
+).enableRLS();
+
+/** DEC-060: owner-private task projection and immutable command/audit ledger. */
+export const recruitmentTask = pgTable(
+  "recruitment_task",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    title: text("title").notNull(),
+    description: text("description"),
+    dueOn: date("due_on"),
+    status: text("status").default("Do zrobienia").notNull(),
+    caseId: uuid("case_id"),
+    revision: integer("revision").default(0).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    unique("recruitment_task_owner_id_unique").on(t.ownerId, t.id),
+    foreignKey({
+      name: "recruitment_task_owner_fk",
+      columns: [t.ownerId],
+      foreignColumns: [authUsers.id],
+    }),
+    foreignKey({
+      name: "recruitment_task_owned_case_fk",
+      columns: [t.ownerId, t.caseId],
+      foreignColumns: [recruitmentCase.ownerId, recruitmentCase.id],
+    }),
+    check(
+      "recruitment_task_title_valid",
+      sql`char_length(${t.title}) BETWEEN 1 AND 160 AND ${t.title}=public.recruitment_trim(${t.title})`,
+    ),
+    check(
+      "recruitment_task_description_valid",
+      sql`${t.description} IS NULL OR char_length(${t.description})<=2000`,
+    ),
+    check(
+      "recruitment_task_status_valid",
+      sql`${t.status} IN ('Do zrobienia','Wykonane','Anulowane')`,
+    ),
+    check("recruitment_task_revision_valid", sql`${t.revision}>=0`),
+    check(
+      "recruitment_task_day_valid",
+      sql`${t.dueOn} IS NULL OR (${t.dueOn}>=DATE '0001-01-01' AND ${t.dueOn}<=DATE '9999-12-31')`,
+    ),
+    index("recruitment_task_owner_order_idx").on(t.ownerId, t.createdAt, t.id),
+    index("recruitment_task_owner_case_idx").on(
+      t.ownerId,
+      t.caseId,
+      t.status,
+      t.id,
+    ),
+  ],
+).enableRLS();
+export const recruitmentTaskCommand = pgTable(
+  "recruitment_task_command",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    requestId: uuid("request_id").notNull(),
+    taskId: uuid("task_id").notNull(),
+    payload: jsonb("payload").notNull(),
+    result: jsonb("result").notNull(),
+    operation: text("operation").notNull(),
+    beforeValues: jsonb("before_values"),
+    afterValues: jsonb("after_values").notNull(),
+    closureId: uuid("closure_id"),
+    recordedAt: timestamp("recorded_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    unique("recruitment_task_command_owner_request_unique").on(
+      t.ownerId,
+      t.requestId,
+    ),
+    foreignKey({
+      name: "recruitment_task_command_owned_task_fk",
+      columns: [t.ownerId, t.taskId],
+      foreignColumns: [recruitmentTask.ownerId, recruitmentTask.id],
+    }),
+    foreignKey({
+      name: "recruitment_task_command_closure_fk",
+      columns: [t.closureId],
+      foreignColumns: [recruitmentCaseLifecycle.id],
+    }),
+    index("recruitment_task_command_audit_idx").on(
+      t.ownerId,
+      t.taskId,
       t.recordedAt,
       t.id,
     ),

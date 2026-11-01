@@ -1,0 +1,1258 @@
+{
+  "candidate": "ca9944de2df8cb794c956dc64e587dc597a22738",
+  "status": "PASS",
+  "trackedCount": 250,
+  "generatedNextEnvUntrackedEqual": true,
+  "files": [
+    {
+      "path": ".node-version",
+      "sha256": "9185b9f67843cabfa8054f65ce47ce0b52036b0bfe07ae5a6b834d97cc127140",
+      "equal": true
+    },
+    {
+      "path": ".prettierrc.json",
+      "sha256": "0031e1a7cc75e23ef5afba3f633d3592ec49e1dbeec1b73f4e0366f8b151483c",
+      "equal": true
+    },
+    {
+      "path": "components.json",
+      "sha256": "449959727318bce299300e4f249ba4e9e89a9f7bb00ce48f5abb02941a64d72a",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/0000_recruitment_validation.sql",
+      "sha256": "640ae10d48af84a1468b2a764c8a13ea68eda21bf25a1be8cfbb4361e24573bd",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/0001_recruitment_case.sql",
+      "sha256": "d17053c59a8063e54db97e4c30fda7f05d0e2eb52ff65e07089acf1bf2b159e6",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/0002_recruitment_access_and_create.sql",
+      "sha256": "2ee4db5cc11271c8ba34aacf0dfab86100231111a3446bdea78e2e91e99a747a",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/0003_recruitment_intent_before_warning.sql",
+      "sha256": "a09fe0b3d0596da51e36faf0c2efe63a049daa2b20648100811b79b77ed03347",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/0004_recruitment_url_canonical_boundary.sql",
+      "sha256": "844601688ef784e4f8bba3fb04708833c99bfdd6f20b611b3caa7b1d0f8fe1d2",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/0005_recruitment_url_constraint_revalidation.sql",
+      "sha256": "7bdd45f5b6dd031525fd42cf2ca0b133ccf8c54d57e04b702d810852ba98ab90",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/0006_recruitment_numeric_host_parity.sql",
+      "sha256": "c01abf7026b3117ea5e62e1d17a918b5b15ddb1716a690bf44c4678d1cd34b82",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/0007_recruitment_lifecycle_3a.sql",
+      "sha256": "98b608140bb16d923390b0cfa355ebbc417dd159f1732e8135dbadf9de948924",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/0008_recruitment_lifecycle_3b.sql",
+      "sha256": "60afefbba42c329bfd07a1a552e8b397da6bf725281c58e36fcbf80347f6af18",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/0009_history_corrections_integrity.sql",
+      "sha256": "085d8146b32709cb4c2d8d0a7213f173ba55fa921694d8588fc6f40525fbb583",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/0010_recruitment_lifecycle_3c.sql",
+      "sha256": "64e3063626831448967f0358883afa3e8a110f8e3dd4029f0b9810d238bad9ca",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/0011_companies_contacts.sql",
+      "sha256": "61836b881f1acbaab4370f85abd9a9087ca01713c9df7103188c34fedc67689c",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/0012_catalog_intent_guard.sql",
+      "sha256": "bcd6f346bb3b831ded2be7d4c26d62830bdc8a31d3ccc818208554bc227acf6a",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/0013_tasks_core.sql",
+      "sha256": "cae9145f2fdee25d5ca843ea8f62ff0df37952b86835a452b1122160d6a86fdb",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0000_snapshot.json",
+      "sha256": "69a3653d19a33546cac79eec6640fe3b96acc33988827fc8d34afbbf4fa58268",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0001_snapshot.json",
+      "sha256": "9ef6f556a87789eb46f306114190a5c09b3757cf786c311066074ee283263d74",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0002_snapshot.json",
+      "sha256": "3869672e2c71a5d51b210db9b07d96a64c5ab9fcd26c6a936c487dae7d83fdd0",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0003_snapshot.json",
+      "sha256": "472cc857fbfd80afd7db7c67ae9c2feff55438449cbe423f6c396833056c75ec",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0004_snapshot.json",
+      "sha256": "1b15585de111f2286e6f2eeb3fbe7e31850a304c1a64c1fc62ac4ec1d0388bc5",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0005_snapshot.json",
+      "sha256": "26e9929e9da76a6d0ace47ceba470005bd6b9e39f2ba68d56e0091c9fb6b8745",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0006_snapshot.json",
+      "sha256": "d334c661617c10a88c267e78136da8af3a0bc18bcf8e3bbde3dd7849242a052e",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0007_snapshot.json",
+      "sha256": "9ebfcb02ffabee33192c77061a4986752205fbefecffc1ee7fc4f400fd6783af",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0008_snapshot.json",
+      "sha256": "508809a0f83510a8abd6fd3fe65a1d8e08e1ff8c0b0a7efec66ebf7f5696b1c8",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0009_snapshot.json",
+      "sha256": "9681e0bfc356176f32261c0e7910e93325a633dbd710b0f891c6f604b10dba46",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0010_snapshot.json",
+      "sha256": "fcccbaa71fab5830c1143267bfe1d464ebfc37ce9d797fa620a2e2d3d50dd34a",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0011_snapshot.json",
+      "sha256": "d30b2e53031afc6fc676ab559b9172643562ae04aa20abe97c3116e41f2092fd",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0012_snapshot.json",
+      "sha256": "517046c69234002e26e7510c96372bf1d8711ea54b6ba417968581cc3f407cea",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0013_snapshot.json",
+      "sha256": "13c28f7d1179a144e60d547f5c3eb8267bb47d750f16728e4c150b028bb0c5b5",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/_journal.json",
+      "sha256": "cbd2a1459562411d30c15b37b1ceb588a04d22ec077dc07bf3785ee196bd2c05",
+      "equal": true
+    },
+    {
+      "path": "db/recruitment/schema.ts",
+      "sha256": "959f0e9ccb2bdfed5e31324007d8ecbdde42dc8600c0a3a52efbd93e9b6f8256",
+      "equal": true
+    },
+    {
+      "path": "drizzle.f2.config.ts",
+      "sha256": "eca3993c6afedbb130651a592fd41a5da4e415be290afa0bfbe18d7fbeca523e",
+      "equal": true
+    },
+    {
+      "path": "drizzle.recruitment.config.ts",
+      "sha256": "19f3ada4321bfc6aad7cb6041e1c35795759d6aa16b8d827f014155494b8671c",
+      "equal": true
+    },
+    {
+      "path": "eslint.config.mjs",
+      "sha256": "4d36a50931cf6a8b08d152d6f001e7a687b6b920e4c9194766ec7fce4f6ddc78",
+      "equal": true
+    },
+    {
+      "path": "next.config.ts",
+      "sha256": "f610d584bddddf556cddfa670bb90e7bfaf37f112a465d84265065891e55e77a",
+      "equal": true
+    },
+    {
+      "path": "package.json",
+      "sha256": "cf20153ba3cde84a57092506a93403e9ba8291c040533623eb8541d478153968",
+      "equal": true
+    },
+    {
+      "path": "playwright.auth.config.ts",
+      "sha256": "7668bc37575a2bf6d7ad44dabf063e92a692a94c9ca5daa9105b6093ddb2e38b",
+      "equal": true
+    },
+    {
+      "path": "playwright.config.ts",
+      "sha256": "407967281ba5bfaac7b279c82f5ba5720d4e4056e550b712f4b97e11f8605ac7",
+      "equal": true
+    },
+    {
+      "path": "playwright.recruitment.config.ts",
+      "sha256": "24f51be94e5a1547c664f9477909ce846efc9f239ade94dc96890e89f0242af6",
+      "equal": true
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "sha256": "afc82319ba1403253e9616e8919e8aa2c113eb0b17db75d23c875a24767f3fe5",
+      "equal": true
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "sha256": "552846223c1832abb4e5ed43c0ec1c50777634f2d55616997699b2632b88f8d1",
+      "equal": true
+    },
+    {
+      "path": "postcss.config.mjs",
+      "sha256": "dfac7ac2d86d326a0e5adb024e7943c181393ed17a5fcb8f0315b24c7da6ddde",
+      "equal": true
+    },
+    {
+      "path": "scripts/auth/cleanup-plan.test.ts",
+      "sha256": "b8f8cdeea8a1aaa1ec2bbcd78298bfa43a5c2c2e2c3908e4276da1aedc58df23",
+      "equal": true
+    },
+    {
+      "path": "scripts/auth/cleanup-plan.ts",
+      "sha256": "acbf23b2d643141595d5ba5fae2d4b9993836727e28e3bf302360ff934dcbdd1",
+      "equal": true
+    },
+    {
+      "path": "scripts/auth/cleanup.ts",
+      "sha256": "9a954901d33949422648d2ba9b48d80d789623df61220bcc3f73aa3aeb7d9cc9",
+      "equal": true
+    },
+    {
+      "path": "scripts/auth/f3-target.ts",
+      "sha256": "551052f292730e8dfe9d36c3da9aec4b09a3aeec797f7fe2db9ee3b4b5e8cae1",
+      "equal": true
+    },
+    {
+      "path": "scripts/auth/integration.ts",
+      "sha256": "4f28304273e212672bea44c16b98ce99557b23becb63ed6199682bbc2e7d0765",
+      "equal": true
+    },
+    {
+      "path": "scripts/auth/output-safety.test.ts",
+      "sha256": "aebfa03fa0962fdb091ca039fa0785030047cd69eb750c408282907468bdd883",
+      "equal": true
+    },
+    {
+      "path": "scripts/auth/output-safety.ts",
+      "sha256": "5364fb102548cbd4bd5e822dac3763db6321835584687b85ba053c34fba20743",
+      "equal": true
+    },
+    {
+      "path": "scripts/auth/runner.ts",
+      "sha256": "c159c67be7d99a2414dc12c4a681842614b391ba65ac2736eb2aaf7f23fb6a46",
+      "equal": true
+    },
+    {
+      "path": "scripts/db/cleanup-targets.test.ts",
+      "sha256": "20905e442ba4f3388b92ccb05f548321a48c662a907e9c5a23c0d37bdcd176a1",
+      "equal": true
+    },
+    {
+      "path": "scripts/db/cleanup-targets.ts",
+      "sha256": "535a2890144a31d4fec2076407d2a48152a6cba5f529aef356e22801deeb814a",
+      "equal": true
+    },
+    {
+      "path": "scripts/db/cleanup.ts",
+      "sha256": "7e98aafe0877b6e1b02535f44b7e6602d9b45f370e46bd84e8f018f6a7781fc0",
+      "equal": true
+    },
+    {
+      "path": "scripts/db/cli.ts",
+      "sha256": "0a31491b6a029c767a21bcdd5bd10868be64b22820184e01e56f5f53aae34d63",
+      "equal": true
+    },
+    {
+      "path": "scripts/db/docker-cli-contract.test.ts",
+      "sha256": "9370f08ca7660f23e63aeae39745fbf5d65f16b07e2461a79f2a0d5a9533fbfc",
+      "equal": true
+    },
+    {
+      "path": "scripts/db/docker-guard.test.ts",
+      "sha256": "a67be98d29c6f9c2754ae8f65868531bf07b2dc0697b4798e1c555245ff94533",
+      "equal": true
+    },
+    {
+      "path": "scripts/db/docker-guard.ts",
+      "sha256": "7b39c904e0d8caf7ca6578ee0c63b15f1e1d7757024eceaddc7c6a384632264e",
+      "equal": true
+    },
+    {
+      "path": "scripts/db/f2.ts",
+      "sha256": "4d289663584ff22fe4a4641f4121ac6780c43cd44877544145f5e4471c1e1f5a",
+      "equal": true
+    },
+    {
+      "path": "scripts/db/preflight-validation.test.ts",
+      "sha256": "27123c0149c8a73461a4be5e7a689b6f4b975f269541b0cf4df3b5bb59cb25f8",
+      "equal": true
+    },
+    {
+      "path": "scripts/db/preflight-validation.ts",
+      "sha256": "06ccba5a9c9ce8c9c35b8f239e52f3230f5c54345a8ab2ee12ee94addbba4267",
+      "equal": true
+    },
+    {
+      "path": "scripts/db/service-versions.ts",
+      "sha256": "e357ae8eaa39a3169099fabec265a250500b2f2b93b7b5e262f6ba6f6a7bb3ef",
+      "equal": true
+    },
+    {
+      "path": "scripts/local-dev/acceptance.ts",
+      "sha256": "3f4208a3bd5e18e3a7e4fc06236cb7060fc17c5e69959b4e4b0993f985865b33",
+      "equal": true
+    },
+    {
+      "path": "scripts/local-dev/cli.ts",
+      "sha256": "6213e4049657d44bddd4a71cf1ab62b80524d28ab4fc390554380ebd82e9f8af",
+      "equal": true
+    },
+    {
+      "path": "scripts/local-dev/control.ts",
+      "sha256": "a19aee111f735f6f8e774d116146959f041a2f887b8e77327aa3cb6f6c1eebb3",
+      "equal": true
+    },
+    {
+      "path": "scripts/local-dev/docker-endpoint.test.ts",
+      "sha256": "0355523ea767a54953e5158f8703ca2dc6497e25c861bd9e3875b18d7dd1157d",
+      "equal": true
+    },
+    {
+      "path": "scripts/local-dev/environment.ts",
+      "sha256": "faafdd8fd585c5b679de0e792d99fe253b104cdb9a3d2483a23d850eba9ea182",
+      "equal": true
+    },
+    {
+      "path": "scripts/local-dev/guards.qa.test.ts",
+      "sha256": "51950f361c31185175f09a00ff215e058597f16ea449a1b7b438b3f0caced834",
+      "equal": true
+    },
+    {
+      "path": "scripts/local-dev/logs.ts",
+      "sha256": "57b7a41603433a908115464348ef1006b23de0a78b100650f8f1b9cfa1dddfa4",
+      "equal": true
+    },
+    {
+      "path": "scripts/local-dev/migrations.test.ts",
+      "sha256": "58a309d92832abbbd67a74af355fa4cf6d7905532299b7f197c949c1dd81718d",
+      "equal": true
+    },
+    {
+      "path": "scripts/local-dev/migrations.ts",
+      "sha256": "0cfa6af26a100dba1db42506bf8f01b97efaa23195f046eefd9f4acf844274ef",
+      "equal": true
+    },
+    {
+      "path": "scripts/local-dev/platform.test.ts",
+      "sha256": "0276c2f6c2c5b5b940836f7f1dc226948f9982fa5a56e853d298381d4a038cf6",
+      "equal": true
+    },
+    {
+      "path": "scripts/local-dev/private-files.ts",
+      "sha256": "764192a0735ff1f15d011a643ad21ab2e3449b388fd50bb24b1e1b4e31cadf1b",
+      "equal": true
+    },
+    {
+      "path": "scripts/local-dev/security-hardening.test.ts",
+      "sha256": "2f40b03a2cb2515b246d188986fe2a6cd1b89f1e75cc2878a5552e08d15ebd39",
+      "equal": true
+    },
+    {
+      "path": "scripts/local-dev/studio-guard.test.ts",
+      "sha256": "c13ede847a707268602c8dee7ebd97e07f7065114069229b053f92626b3528a5",
+      "equal": true
+    },
+    {
+      "path": "scripts/local-dev/target.ts",
+      "sha256": "facfe80a0c6d4dd67fb914b53f49af44881151ea6a6da1111d11e8e48c23edbc",
+      "equal": true
+    },
+    {
+      "path": "scripts/local-dev/validation.ts",
+      "sha256": "37fcd43fdf090f87ff917b98deefe3f534ca8087a532441eec1df8236a55ace7",
+      "equal": true
+    },
+    {
+      "path": "scripts/recruitment/cleanup-plan.test.ts",
+      "sha256": "0c63ca349cd1e8c955a9a8bbf40ba559fa2a661362f8b728ce2a2ef09cbc00ce",
+      "equal": true
+    },
+    {
+      "path": "scripts/recruitment/cleanup-plan.ts",
+      "sha256": "42661e07b2d86b48afbd9ba3c02d046667937445913dab824ce597406556809b",
+      "equal": true
+    },
+    {
+      "path": "scripts/recruitment/cleanup.ts",
+      "sha256": "e2fb855944ce15478707b3c50e29c38f647ebf4e9bf4344f9af0c5c26a920eeb",
+      "equal": true
+    },
+    {
+      "path": "scripts/recruitment/runner.ts",
+      "sha256": "0683287011ba9d710f4caa435ec84a53321a166e47de5226f5571706fb3d9f0e",
+      "equal": true
+    },
+    {
+      "path": "scripts/recruitment/target.ts",
+      "sha256": "7bec84b1fb29ba85ff0325d652651a54101bbbf1ae4fd4a855e2b8cbc5227e4a",
+      "equal": true
+    },
+    {
+      "path": "scripts/recruitment/validation.test.ts",
+      "sha256": "7ad319d3657fcea44397a162ae386f841e344187b44082fea16683f7fca2449a",
+      "equal": true
+    },
+    {
+      "path": "scripts/recruitment/validation.ts",
+      "sha256": "c9e8eeb9fd573f475e82275e32138dfadc05aba74f68995b472297bf6b520174",
+      "equal": true
+    },
+    {
+      "path": "scripts/test-boundaries.mjs",
+      "sha256": "375f26267ba037244ca993757dce97d53248688839f5133a9a1e40a6edc78e2f",
+      "equal": true
+    },
+    {
+      "path": "scripts/test-canary.mjs",
+      "sha256": "08e2121dc1d6069edd814e59f9836a65a85a1c5116a21ddf7d17ef9330a4b97d",
+      "equal": true
+    },
+    {
+      "path": "scripts/test-fixture.mjs",
+      "sha256": "7a3a47f02390404225edf9593f06eae707ef0a6f68da2d9f0b9dce642753356d",
+      "equal": true
+    },
+    {
+      "path": "scripts/ui-candidates.mjs",
+      "sha256": "1ff0ae06e8a4811663e41dd3229367c508716f043b2d3d57200d6739221cc4b9",
+      "equal": true
+    },
+    {
+      "path": "src/app/account/page.tsx",
+      "sha256": "7e05e31972523c699a999341fa3255eaf1b81d873636a517aad710af66d925f5",
+      "equal": true
+    },
+    {
+      "path": "src/app/auth/callback/route.ts",
+      "sha256": "6c064f068182b1dbe9b4147fe8984f3c9b204e12537e984d207a9910c3d8f252",
+      "equal": true
+    },
+    {
+      "path": "src/app/auth/password/route.ts",
+      "sha256": "918c289add854a383b0a0c55b12aa96fd23a79affb8edc7b19ac44ed9cc03569",
+      "equal": true
+    },
+    {
+      "path": "src/app/auth/user/route.ts",
+      "sha256": "219f228d471a30e5301805ee28d393fba1820e68345eb688b0bf148d3356ec89",
+      "equal": true
+    },
+    {
+      "path": "src/app/catalog/commands/route.ts",
+      "sha256": "2e1c774b4b3b8cf0e09970adec334becdbac3e6b2fb48cf70f04bdb86aaf3a18",
+      "equal": true
+    },
+    {
+      "path": "src/app/companies/[id]/page.tsx",
+      "sha256": "9b8f93c8180020ddf2fee569e627bbb96d4f7b0b49d4fa07ef20c4f3a1089b08",
+      "equal": true
+    },
+    {
+      "path": "src/app/companies/page.tsx",
+      "sha256": "28723ed20c92555cc1929102b6a05708eb4d4fd6f65aa0244e0e6dcbd2cf06e0",
+      "equal": true
+    },
+    {
+      "path": "src/app/contacts/[id]/page.tsx",
+      "sha256": "51583fe2eb245d5a208ea0aefde4d718d4cd33e080eb990ead879a778e59754a",
+      "equal": true
+    },
+    {
+      "path": "src/app/contacts/page.tsx",
+      "sha256": "3ac3c81552988eb9ace5e4948df0a150dfea0fc2e38270b6e04a1790503a2ec7",
+      "equal": true
+    },
+    {
+      "path": "src/app/dashboard/page.tsx",
+      "sha256": "847ffab0881e7a662741775b951d496a529292f1b6b8c22123d30a6d4cd2a499",
+      "equal": true
+    },
+    {
+      "path": "src/app/forgot-password/page.tsx",
+      "sha256": "7d9c7ab31aeb7d41bfcef87f2200d4e5bbd1a6c05c72b117f9ad72ba2226b9f4",
+      "equal": true
+    },
+    {
+      "path": "src/app/globals.css",
+      "sha256": "2ab4d3214338ef414682e758d6608ffcc6924b2d8738951df007baebcd0cb2bd",
+      "equal": true
+    },
+    {
+      "path": "src/app/health/ready/route.ts",
+      "sha256": "9dbc1884714fe0cb1815a77fc2882ac0432f769ffe6b6ddf23e2f1eae06d60c8",
+      "equal": true
+    },
+    {
+      "path": "src/app/layout.tsx",
+      "sha256": "16dbfb50aad88e5279d9b8d1789256fee64607ab2883842feaaef975385e5e37",
+      "equal": true
+    },
+    {
+      "path": "src/app/login/page.tsx",
+      "sha256": "c138a59d2ad2f238d761888a3236fd612f2fa1ef611989fd6febea6cf8729802",
+      "equal": true
+    },
+    {
+      "path": "src/app/page.tsx",
+      "sha256": "393912b3ffa3af589456582418c9f50dfba6e176a3b6750c753df4437d33a67a",
+      "equal": true
+    },
+    {
+      "path": "src/app/recruitments/[id]/not-found.tsx",
+      "sha256": "e3ca4840d6d92cb381a93deaacc9d8a98102e88dbae1a308bc058a15ca8efcd3",
+      "equal": true
+    },
+    {
+      "path": "src/app/recruitments/[id]/page.tsx",
+      "sha256": "9798e52e9243bb7978038c01b68f605026d2170791cb46ef38ef1ca8f432a259",
+      "equal": true
+    },
+    {
+      "path": "src/app/recruitments/commands/route.ts",
+      "sha256": "34660c9d87d678735f0b8665f40de4487a5416c7c5b48e65c42e28f9abe0a8cd",
+      "equal": true
+    },
+    {
+      "path": "src/app/recruitments/history-commands/route.ts",
+      "sha256": "3787d4d329ff917eaff04744b9169b2afaf127e5907b99ae8099a6b73774fb57",
+      "equal": true
+    },
+    {
+      "path": "src/app/recruitments/lifecycle-commands/route.ts",
+      "sha256": "20e023c9fa91e3c291156b5604d0bf0f27145ac8c3a64dad39ffbba1cb09d590",
+      "equal": true
+    },
+    {
+      "path": "src/app/recruitments/page.tsx",
+      "sha256": "20e798447b686c1dbd702cbd7da0e25de076cefe092407ab8d21c664ca365bde",
+      "equal": true
+    },
+    {
+      "path": "src/app/recruitments/workspace-data/route.ts",
+      "sha256": "64b070f88c08dd7236e7a252c740924909ba74f5271fccf31d4c935d162a7684",
+      "equal": true
+    },
+    {
+      "path": "src/app/reset-password/page.tsx",
+      "sha256": "e8dfe0304588fd6ea28aee7ded35399dc3360b5c4e00e174c673e6d09d59b00d",
+      "equal": true
+    },
+    {
+      "path": "src/app/signup/page.tsx",
+      "sha256": "ef2bbed656fe11b6cb798b5fe20f7fa33c5d7db6ba909c51958054efae164918",
+      "equal": true
+    },
+    {
+      "path": "src/app/tasks/commands/route.ts",
+      "sha256": "ebd32d8e0e30f79817848dfd4b4257b0b6763e2a006c7a6a58de197c5f90ce72",
+      "equal": true
+    },
+    {
+      "path": "src/app/tasks/page.tsx",
+      "sha256": "96851e6fcea34580357b84a346f7df5f489d88dac2225d974423cd4354019834",
+      "equal": true
+    },
+    {
+      "path": "src/components/auth/account-session.tsx",
+      "sha256": "f68cec6fe8a58ec25a8f1239dbfd0e65208fe6dfc4b047947a7a8d59bcfcd3ca",
+      "equal": true
+    },
+    {
+      "path": "src/components/auth/auth-form.tsx",
+      "sha256": "623f9b8c6fb2b18f1058aa5a6a85d26c580324b9f78956a218a3bda87634baa9",
+      "equal": true
+    },
+    {
+      "path": "src/components/auth/auth-shell.tsx",
+      "sha256": "d5f91b05cb4c296b0411214b3f2f805629a3b3bd2e18405a5498d07a09a889df",
+      "equal": true
+    },
+    {
+      "path": "src/components/auth/feedback.tsx",
+      "sha256": "2dc19a0f4cc9fe10495f6cfd3e66c9af453f467081641c4745d1d7e74e32aaba",
+      "equal": true
+    },
+    {
+      "path": "src/components/companies-contacts/catalog.tsx",
+      "sha256": "6b50fe83df0c6f1e779a8cc234157428cf1fc84757a7c305a318abe78fef5da4",
+      "equal": true
+    },
+    {
+      "path": "src/components/companies-contacts/client.ts",
+      "sha256": "9df15a68dfd090378ead7719bef5af8615e5848bacd3fc3344229455c0c2ab8d",
+      "equal": true
+    },
+    {
+      "path": "src/components/companies-contacts/common.tsx",
+      "sha256": "cb0da1ed43a82bf33515114a014219a41b22c1928c3c3d1009944ebe1bd0cf36",
+      "equal": true
+    },
+    {
+      "path": "src/components/companies-contacts/hooks.ts",
+      "sha256": "7323a5bc4685275e6abd47ce01d5ef67ae18aafbbdd4037ada02fdae5ef13d17",
+      "equal": true
+    },
+    {
+      "path": "src/components/companies-contacts/intent.ts",
+      "sha256": "81a4820b9a068e569e138d09bdcbe0f276063bcb6f7adda0a514a837a3529a8b",
+      "equal": true
+    },
+    {
+      "path": "src/components/companies-contacts/profile-form.tsx",
+      "sha256": "8a509c0fb80ff5c7e5c489da8e2ee855a91284ad8e0e2010fdc7f33d6b0873ea",
+      "equal": true
+    },
+    {
+      "path": "src/components/companies-contacts/relations.tsx",
+      "sha256": "7a112e102f5e9b12c7a141ce598a98136131c5eb886d2a7b943300569b8f33ac",
+      "equal": true
+    },
+    {
+      "path": "src/components/companies-contacts/styles.ts",
+      "sha256": "26ec34b64c0cd50f3203a39d7f2eeede471776671fbb94f93771c04f83f21a8c",
+      "equal": true
+    },
+    {
+      "path": "src/components/recruitment/case-content.tsx",
+      "sha256": "4171d71b16b0f223ff9f3c3e6852a5619b1365d83d5d72eab460631384483dfe",
+      "equal": true
+    },
+    {
+      "path": "src/components/recruitment/case-event-form.tsx",
+      "sha256": "f6f8814de48caac6d80365ac0a1e18ef5bf16b838267eba8b3233ca8305b31dd",
+      "equal": true
+    },
+    {
+      "path": "src/components/recruitment/case-history.tsx",
+      "sha256": "c306019c7ec4aa8019abfae92dc61fd77ea651aedb66b68262d587220ff3d5af",
+      "equal": true
+    },
+    {
+      "path": "src/components/recruitment/event-intent.ts",
+      "sha256": "37e37384fcaeb34d0d67e0f222955e30cbea8794ecd0bcb00d470d241cb19033",
+      "equal": true
+    },
+    {
+      "path": "src/components/recruitment/history-corrections.tsx",
+      "sha256": "eb41aea67860ac44f3f3705895a2487da9b5c5974b8b65044914d39263b42e0e",
+      "equal": true
+    },
+    {
+      "path": "src/components/recruitment/history-intent.ts",
+      "sha256": "47250de4c6af879f67b4cdeffaef8f9103747ee908461fc3229409b6862d02cc",
+      "equal": true
+    },
+    {
+      "path": "src/components/recruitment/intent.ts",
+      "sha256": "0ba6f5dd3d1e51feb3cf136187986e7254bac5936afd68140cac6ffe771968e2",
+      "equal": true
+    },
+    {
+      "path": "src/components/recruitment/lifecycle-intent.ts",
+      "sha256": "532c0650d8e755a1156ed8ce88125c6bfc7d39b6f0cc6f8a07461c9447810c02",
+      "equal": true
+    },
+    {
+      "path": "src/components/recruitment/lifecycle.tsx",
+      "sha256": "f02f0daf3dba54c859c35ef7d405d77d25fdd7690a32583d867c0783dc23679f",
+      "equal": true
+    },
+    {
+      "path": "src/components/recruitment/quick-capture.tsx",
+      "sha256": "14242b79f40af078b6983b22897a532bc50c7d536e83bacc0dcea1d035689bcf",
+      "equal": true
+    },
+    {
+      "path": "src/components/recruitment/recovery-session.ts",
+      "sha256": "a73df7c37a88c64bfa7caba1cbde6281d4e9ff6930198af938a92bb9513b8cef",
+      "equal": true
+    },
+    {
+      "path": "src/components/recruitment/recruitment-workspace.tsx",
+      "sha256": "22dca500d4d162dc2b3df2fa19c8a66c799dbca38d78b546e32e786f98872d44",
+      "equal": true
+    },
+    {
+      "path": "src/components/recruitment/saved-case-notice.tsx",
+      "sha256": "2c1a55d9825e2a697f78867bf218184336b025e775c957b2283e688270b9d382",
+      "equal": true
+    },
+    {
+      "path": "src/components/recruitment/workspace-navigation.ts",
+      "sha256": "8d9cf3a7443d3ad1fb1c81772d36021732ab0c4240d1720b7826db75af6eea63",
+      "equal": true
+    },
+    {
+      "path": "src/components/recruitment/workspace-return-link.tsx",
+      "sha256": "a1792e9a79027e90d40aa550add4e43586dae5aa30b6f8cb10aa92865f1ced18",
+      "equal": true
+    },
+    {
+      "path": "src/components/recruitment/workspace.tsx",
+      "sha256": "04b3e3ad31e8a477a6bf3d566aa0b2853500807625c88f53cdc5ced826272bc2",
+      "equal": true
+    },
+    {
+      "path": "src/components/tasks/client.ts",
+      "sha256": "0e5f8234f6556a3ef597c4cdb0c5ba329468c685e99e080a540b145cdfd9e9a2",
+      "equal": true
+    },
+    {
+      "path": "src/components/tasks/common.tsx",
+      "sha256": "be5f9f6a3d6a3a48231523b80b73f240a3e814dd358618712ba639f571a2f277",
+      "equal": true
+    },
+    {
+      "path": "src/components/tasks/events.ts",
+      "sha256": "3e094601f156139793798b5678beddcd8047f6d983ac50dfb9cac9ef77492bf7",
+      "equal": true
+    },
+    {
+      "path": "src/components/tasks/hooks.ts",
+      "sha256": "17f86dccb4aa0c5f6088d7bc802409e645d72ac47f0e4417e08c01d9c100596b",
+      "equal": true
+    },
+    {
+      "path": "src/components/tasks/styles.ts",
+      "sha256": "90ee0e54b197b41a1fb0cc90364352c638a9c9d4a0b039fccfe1b872b4df6d29",
+      "equal": true
+    },
+    {
+      "path": "src/components/tasks/task-form.tsx",
+      "sha256": "fb6f3092084b6f5b3b4e1bea80413b1b24a49200ed51ec5010fa643a0e2c96dc",
+      "equal": true
+    },
+    {
+      "path": "src/components/tasks/tasks-panel.tsx",
+      "sha256": "8c3f56670e088873397142991d7f89c52b9f80197fe581c9bc9901e72ebeeca8",
+      "equal": true
+    },
+    {
+      "path": "src/components/ui/LICENSE",
+      "sha256": "1564074e13439397221ffd522e2e504d56561994a23d371aa5e3ad43e4f5423f",
+      "equal": true
+    },
+    {
+      "path": "src/components/ui/badge.tsx",
+      "sha256": "355afa81ee5621e01c60b2f465a9f86c402afe769aba8213e33f87a97add5100",
+      "equal": true
+    },
+    {
+      "path": "src/components/ui/card.tsx",
+      "sha256": "6eab3ffeac8be0500a4aa234e3a7db44b409d9684a85f684105eb8def5a6058d",
+      "equal": true
+    },
+    {
+      "path": "src/components/ui/styles.ts",
+      "sha256": "a9545a06c42c804ea84b9db7017235b05301387a034443f43f7ccc531b1d02cc",
+      "equal": true
+    },
+    {
+      "path": "src/components/workspace/account-menu.tsx",
+      "sha256": "1b79e2c1bcbf36e5f37c287a29ff147ea6bf12ccf98dfa411214499060428190",
+      "equal": true
+    },
+    {
+      "path": "src/components/workspace/app-shell.tsx",
+      "sha256": "8ef9d8404fa5ab9904aa57054e33c9004b5e98fda78188df493298d7130e96dd",
+      "equal": true
+    },
+    {
+      "path": "src/components/workspace/sidebar.tsx",
+      "sha256": "1f29a287cfc47acb0bec84a5b37ce0cbcceff80722e3ddb63d5fb431d971d244",
+      "equal": true
+    },
+    {
+      "path": "src/lib/utils.ts",
+      "sha256": "d1f1e0d62cb8d8d1e04c26e14de842d8a151f75812d81b046c65b5d1fe8e4b27",
+      "equal": true
+    },
+    {
+      "path": "src/modules/companies-contacts/application/catalog.ts",
+      "sha256": "8fb16e4b5baa1ed48c0bba95923598bb70d6fb84bdcf7391f8879d9193d3911f",
+      "equal": true
+    },
+    {
+      "path": "src/modules/companies-contacts/domain/catalog.ts",
+      "sha256": "000129d46216f2ceae204876839305e4b3684ef6a2e525728e3de1826b52fbdd",
+      "equal": true
+    },
+    {
+      "path": "src/modules/identity/application/validation.ts",
+      "sha256": "fc6e572948ff97a8cdf033097a4b0da3964a5b6988db632a7af54e4da63e1e79",
+      "equal": true
+    },
+    {
+      "path": "src/modules/identity/infrastructure/browser.ts",
+      "sha256": "e1d5c99e9ce1c701c3a08a68e4da05799c32eabcb399dfb3dfc7eedecbee96c2",
+      "equal": true
+    },
+    {
+      "path": "src/modules/identity/infrastructure/http.ts",
+      "sha256": "b34e40e52e3fedd44eef381618998c26069e1e95e548685fa6a3fe9c0651f987",
+      "equal": true
+    },
+    {
+      "path": "src/modules/identity/infrastructure/server.ts",
+      "sha256": "e2e373632ad02931343e5e01df207d90b1b26043846f456b55b71c043589dccd",
+      "equal": true
+    },
+    {
+      "path": "src/modules/recruitment/application/case-events.ts",
+      "sha256": "64bf2af923a5bdfac04045b0515500076dcf359bc489806bd1f50cec3d5b734e",
+      "equal": true
+    },
+    {
+      "path": "src/modules/recruitment/application/cases.ts",
+      "sha256": "c6842059c7fd8c336a78f74fe86e70f6c5d432f1dff0852886b743aa7fc8b7b3",
+      "equal": true
+    },
+    {
+      "path": "src/modules/recruitment/application/history-corrections.ts",
+      "sha256": "81f5cd79475520d280cb2c3e334bdca1a92bd7875aeda9d7bee6f6eef285ab1c",
+      "equal": true
+    },
+    {
+      "path": "src/modules/recruitment/application/lifecycle.ts",
+      "sha256": "6c3e29fa1a5333983a7e04ca3d455be2577ac381ebb0b07c2c4ffdc595a3631a",
+      "equal": true
+    },
+    {
+      "path": "src/modules/recruitment/application/tasks.ts",
+      "sha256": "554d49767e3adbd89cde3fb419fe5b39a4f66d2735ec810c3dd812179d290c6d",
+      "equal": true
+    },
+    {
+      "path": "src/modules/recruitment/application/workspace-read.ts",
+      "sha256": "ff8e2a3fdd6a2787e6f170a5df1a5e7fef83c7702e4db729710f49ea9f12180c",
+      "equal": true
+    },
+    {
+      "path": "src/modules/recruitment/domain/case-events.ts",
+      "sha256": "de19cbd37bfe58a4820ba768ffa0a02abbc6018e9c62977044503fdd99d008a3",
+      "equal": true
+    },
+    {
+      "path": "src/modules/recruitment/domain/history-corrections.ts",
+      "sha256": "3c8c678f259c38b5aec37f1d656679a1cc88d30362c11614e35272b7fcb648a9",
+      "equal": true
+    },
+    {
+      "path": "src/modules/recruitment/domain/lifecycle.ts",
+      "sha256": "0c2495016563b7b7a31d1ac0d58d5b095b4c9795bb624c3590d79800ea2eb4db",
+      "equal": true
+    },
+    {
+      "path": "src/modules/recruitment/domain/recruitment-case.ts",
+      "sha256": "0fb80fa96499b7e23e41df6231cc322ecefffd50b066073807a690d06b0eddb3",
+      "equal": true
+    },
+    {
+      "path": "src/modules/recruitment/domain/tasks.ts",
+      "sha256": "21594a68b996d752f07fecf092c2b2e962b75464326d788710fdc4918c977f98",
+      "equal": true
+    },
+    {
+      "path": "src/modules/recruitment/domain/workspace.ts",
+      "sha256": "1179cf8b403710c7bc23e2dcfbc9bfa0309b14d25392b59812d9a38a934c7862",
+      "equal": true
+    },
+    {
+      "path": "src/proxy.ts",
+      "sha256": "f404bd67cd55f170dd18ae30226e01f6b99ddb637bd3217877514528d62da712",
+      "equal": true
+    },
+    {
+      "path": "src/shared/public/auth-config.ts",
+      "sha256": "7c4ba36eb8f08c4cbf2f66f831654ff7e5372a8e6f190cf8b31bd435c33e59c5",
+      "equal": true
+    },
+    {
+      "path": "src/shared/server/env.ts",
+      "sha256": "a93d853dcab7ca18d9ecde41cda620dd3a2fd6f4328312c7ff43d5004e59af50",
+      "equal": true
+    },
+    {
+      "path": "src/shared/validation/auth-config.ts",
+      "sha256": "5ee069c23ef87cd95beff06603f20f08bc3a752c1b66a23c722e03eb7504ee27",
+      "equal": true
+    },
+    {
+      "path": "src/shared/validation/env.ts",
+      "sha256": "a48ecb242157624450d146b67125697b78d029f252b793ab7445ceaff1af991a",
+      "equal": true
+    },
+    {
+      "path": "src/shared/validation/origin.ts",
+      "sha256": "8c3d2d1f6608b5650addbcbffa077bdb5dd3b514501b9fde0ddebc02bb088ad6",
+      "equal": true
+    },
+    {
+      "path": "supabase/.gitignore",
+      "sha256": "507699eb91144818edf61d3a079212cacf31d8db520eae428e3b48fcf0d6919c",
+      "equal": true
+    },
+    {
+      "path": "supabase/config.toml",
+      "sha256": "8ca0a571af57b505064f071944312fb3248b699cb99d44ac3da99bcc19e7138b",
+      "equal": true
+    },
+    {
+      "path": "supabase/f3-config.toml",
+      "sha256": "1e5e90fcb4ac91d6a3bc9ed109d1f09936bb7e656c265f643989b2f1f006dbfe",
+      "equal": true
+    },
+    {
+      "path": "supabase/local-dev-config.toml",
+      "sha256": "6031d17d106b746cb0dc7faf55caf8846c3794ab68af69e0ddfe3449794bf7d8",
+      "equal": true
+    },
+    {
+      "path": "supabase/recruitment-config.toml",
+      "sha256": "7e2fe03700482259594a2a84cbdb99ac422a2185d9c94c0a0b63f6152743f2a0",
+      "equal": true
+    },
+    {
+      "path": "tests/e2e/auth-flows.spec.ts",
+      "sha256": "3608af62975a0795f553e05b2527410ba57206e94f5bf393656cd89dede7ce87",
+      "equal": true
+    },
+    {
+      "path": "tests/e2e/companies-contacts.spec.ts",
+      "sha256": "f3ee709a2744c393f85468a02784a88d681052d5e148bbd382ecf0681a309b34",
+      "equal": true
+    },
+    {
+      "path": "tests/e2e/foundation-smoke.spec.ts",
+      "sha256": "5f4843a033e3862e8875aef39605878dabdef5caf99bddec73a50c528d7ff0c7",
+      "equal": true
+    },
+    {
+      "path": "tests/e2e/recruitment-capture.spec.ts",
+      "sha256": "636cfb99cd446f06c207dc68783cba781fbb7d6752b8ddc23eb8a460a87e61da",
+      "equal": true
+    },
+    {
+      "path": "tests/e2e/recruitment-closure-reopening.spec.ts",
+      "sha256": "b4f26f34da1eaca6cf2255d7bef08a2d2e7c3c144495650da293b6c07477713b",
+      "equal": true
+    },
+    {
+      "path": "tests/e2e/recruitment-history-corrections.spec.ts",
+      "sha256": "bdc6c2ffaac141ce4f8e5feb7cc3b899935317170a2f1c613d6c818ed8e4d9ba",
+      "equal": true
+    },
+    {
+      "path": "tests/e2e/recruitment-lifecycle.spec.ts",
+      "sha256": "06ba91545dde69150ed4ff8f9f87aea4f797a5b5ffb3b3c98dbf0b67a13c9826",
+      "equal": true
+    },
+    {
+      "path": "tests/e2e/recruitment-tasks.spec.ts",
+      "sha256": "2f43257acdc5b27c57baca063394e1ae0629e071d64f73892303d4a79f918d9c",
+      "equal": true
+    },
+    {
+      "path": "tests/e2e/recruitment-ui-foundation.spec.ts",
+      "sha256": "ffee551b2910cf8f4a9126d0b1e75914ec8a8bf420e40b9e0859e0cc9a002869",
+      "equal": true
+    },
+    {
+      "path": "tests/e2e/recruitment-workspace.spec.ts",
+      "sha256": "9f2a839834a6544bb049daa103e1395619804567a9ff742017a23db9e95d77e2",
+      "equal": true
+    },
+    {
+      "path": "tests/e2e/ui-rendered-audit.ts",
+      "sha256": "6da02ca0c5c66c24647b4fd83f7fc0728f79e9206fbaeb8af007097762b4939e",
+      "equal": true
+    },
+    {
+      "path": "tests/integration/auth/fixtures.ts",
+      "sha256": "b8813e29ea45028dc7e528957517ddf1d95f0df88fe787a2a9258f9230a52044",
+      "equal": true
+    },
+    {
+      "path": "tests/integration/auth/sdk-cases.ts",
+      "sha256": "f95895e69b11633982e6ba04160e47254eadc0c698b1d1a9f4961a881b6b59d2",
+      "equal": true
+    },
+    {
+      "path": "tests/integration/migrations/checks.ts",
+      "sha256": "3104480c9751b25afceb6ad201953a930f775543328bcf3d3bfcf9651488d798",
+      "equal": true
+    },
+    {
+      "path": "tests/integration/recruitment/closure-reopening.test.ts",
+      "sha256": "d5e7772241ec552294bedfadcbdc00f70bdd7038b22e16fe8d76183541dcbccc",
+      "equal": true
+    },
+    {
+      "path": "tests/integration/recruitment/companies-contacts.test.ts",
+      "sha256": "95a6007fc2a78161feee50e097819064dcbfeae68a53a1d24fbbad32029cbd1e",
+      "equal": true
+    },
+    {
+      "path": "tests/integration/recruitment/direct-insert-race.ts",
+      "sha256": "949a88668c52fbe9c8c18fc1494b14745acbf85bee8f626706034d8f58da28f3",
+      "equal": true
+    },
+    {
+      "path": "tests/integration/recruitment/history-corrections.test.ts",
+      "sha256": "4206dde3fca12b004c723122ed9a4fd190a3c752415d568f0cd0657efbc1b837",
+      "equal": true
+    },
+    {
+      "path": "tests/integration/recruitment/lifecycle-upgrade.ts",
+      "sha256": "36e273468c18527d1e282ec82c51ecda90fad99995a8351782c1e97d97b931c6",
+      "equal": true
+    },
+    {
+      "path": "tests/integration/recruitment/lifecycle.test.ts",
+      "sha256": "5b67bd006dc977da00cac28c3d3d7d8a984e1adebc76635a06747630228acaf7",
+      "equal": true
+    },
+    {
+      "path": "tests/integration/recruitment/recruitment.test.ts",
+      "sha256": "53693b5b836dfaca5e1b6078f9f626dff707eedbabf1b464ad09b8199e0fcb61",
+      "equal": true
+    },
+    {
+      "path": "tests/integration/recruitment/stages.test.ts",
+      "sha256": "9673c152ea3013a02380fb56bd8a73a9216016d2b235e86aa35664c0fff0bbf5",
+      "equal": true
+    },
+    {
+      "path": "tests/integration/recruitment/tasks.test.ts",
+      "sha256": "498b8d9e02f9774c579d161db9a4d31355f5b243ef84a7717975edf431fea150",
+      "equal": true
+    },
+    {
+      "path": "tests/integration/recruitment/url-parity.ts",
+      "sha256": "126feba491521d3609f96796a31529809f389138c8723734f48f68049350d054",
+      "equal": true
+    },
+    {
+      "path": "tests/integration/recruitment/workspace.test.ts",
+      "sha256": "e04fb491f9ffdcc77056f9c317d9ea528294508d2fe63d155725e59da32a05a2",
+      "equal": true
+    },
+    {
+      "path": "tests/integration/rls/catalog.ts",
+      "sha256": "28c5482efc465a511cd55321ccd32813a622512b96933ef900b5fa66d725cd1b",
+      "equal": true
+    },
+    {
+      "path": "tests/integration/rls/data-api.ts",
+      "sha256": "603d0504e08bae07b87104b49b73f5c52954229ebb5ea1ac57b5b74cc15feb6f",
+      "equal": true
+    },
+    {
+      "path": "tests/integration/rls/f2.test.ts",
+      "sha256": "0aeb7e71e328780dc8089a3052fd87b8ddd0045a30a3ddd003fc6f208eab88a7",
+      "equal": true
+    },
+    {
+      "path": "tests/integration/rls/matrix.ts",
+      "sha256": "eaceefe7e7c249e976b2e8eeb8e7f89f8521af7a88b7cd855de5d1ce71c5bacf",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/auth-browser.test.ts",
+      "sha256": "e73aa3237b846984c6dcede51f734e5fb15fbb72b1b74fcabcfafc3595d9d7ed",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/auth-callback.test.ts",
+      "sha256": "d650910b1c62de3529edb4a0db41f37a989feed99b039289f1777f1657fd82a6",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/auth-config.test.ts",
+      "sha256": "cbcaadeec6b9ffa1f70134c912b94d3f3edf7088e41dfd334596ebe9f7d59c0b",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/auth-password.test.ts",
+      "sha256": "2be96a4331aede742c3e1f346ab0ce481d82f8d996b27bb83f9ec5d0132d8b4d",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/auth-server.test.ts",
+      "sha256": "3b2bc1c532410b42bbbac540d6a67ed9ab40b7a0b287a64f807137ad1cfb1292",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/auth-ui.test.ts",
+      "sha256": "f3f8ee09b966b1b76696d9a61758713f95d8e6e127e6753cd2f70e28bc1db752",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/auth-validation.test.ts",
+      "sha256": "208c0ac6b2ed0e01fce0f44b6269b9e7150dabb031f3574943188ea2262ee5bc",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/companies-contacts/catalog.test.ts",
+      "sha256": "c71f3e14ea413f4adca4b97b440ca59b9d2946f958721e692b2fa48afac98ee2",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/companies-contacts/repository.test.ts",
+      "sha256": "45c866226fbc9b5394143ef54f322a852d70102684ccce7ba46f485e4f03440b",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/companies-contacts-proxy.test.ts",
+      "sha256": "8d4fa1a040eba4e7b162b02cd4e666c765ed7b230c554a8640ecb4e07f7241db",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/companies-contacts-ui.test.ts",
+      "sha256": "615859e2cb088a952b873245218521db1591a3361ea1455e60f64b028e6c6426",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/env.test.ts",
+      "sha256": "802ed8d79b47966e13587c36128b826bd4ef030e1d4ceb954a40b145817bb19c",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/history-corrections-backend.test.ts",
+      "sha256": "d03725dfa1d70390edbea1eccd6c562f46238b66d6a0cc8f99e00467a662ddb3",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/recruitment-closure-backend.test.ts",
+      "sha256": "4eaac03eedebf315eb4d4846e5ebfb01cd0921a960bdd136ceb56a8b7559146c",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/recruitment-closure-command.test.ts",
+      "sha256": "dc7301b812a879321a340c01bafe3007e863c0e2250f31807b577d067f2c21a1",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/recruitment-command.test.ts",
+      "sha256": "14f0253188b6560de138b7f505a49f346c2cb8ca27cc1b8469905ae0feb008dc",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/recruitment-domain.test.ts",
+      "sha256": "44e1265ca4a07291bc19ceb9ea89a1a4d2978f774560d4d1020517b2e21d19e9",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/recruitment-event-ui.test.ts",
+      "sha256": "7ceb6c2f4f3311860ccb1589a9574ebc75cf59acf3f68c37380ff14fe2c92887",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/recruitment-history-ui.test.ts",
+      "sha256": "65b61f155a61d7f3b01698bb15d6130abe580bcac22fbe1960772f019fc23de2",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/recruitment-lifecycle-command.test.ts",
+      "sha256": "a916599e752cb73466e86083fc889157adb6bdbf72ea0ea20b0b6f0939502f40",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/recruitment-lifecycle-domain.test.ts",
+      "sha256": "82a6f8f9ae7864ffa701741d7814f8676b70340e868726f58a4212a5eee3edda",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/recruitment-lifecycle-ui.test.ts",
+      "sha256": "9f8326fcd6d785af30b449c8625d992d3a77b7ad9dfc59eff69fa9cc94ff188e",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/recruitment-tasks-backend.test.ts",
+      "sha256": "ca492cbd3d0ee764f2f63705116d0c79352bf4735d1d3a8d409b6e0e8ab24894",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/recruitment-tasks-command.test.ts",
+      "sha256": "45b26cd08420f4904ea6bbdc06998c3c826e1b4453786bd9ab94fb085b182d5e",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/recruitment-ui.test.ts",
+      "sha256": "f280b110cce5798322ebb87ae630afb4198892ca7fddd7e1872365005d3fde46",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/recruitment-workspace-ui.test.ts",
+      "sha256": "9c2ee762ea4deba19e3b3b578a6a6a0ecd4fa0205ef7a242586a44e722a1f9b1",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/tasks-ui.test.ts",
+      "sha256": "fdc4caffd7a6c9005a79f5a7e78e78bccc09fd07e18dba68fdedc3426f703d35",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/workspace-read-route.test.ts",
+      "sha256": "c86bff7c049e29f2c8309d869ac34e72109335c56194863b565ade9aa166bfd9",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/workspace-read.test.ts",
+      "sha256": "fe9af56851b90b3309a890742d0ae8abbf6f386f95b8a9fde831061c0b762f7a",
+      "equal": true
+    },
+    {
+      "path": "tests/unit/workspace-ui.test.ts",
+      "sha256": "9968e283ea4e44c51438371e552628f8883a93818f397d5863bbf48a831b7d6e",
+      "equal": true
+    },
+    {
+      "path": "tsconfig.f2.json",
+      "sha256": "5df61ecc04c5dae69c9a19edd2cdd3d1b8307d7c2d22a4b349ceff9af2c153b9",
+      "equal": true
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "bdcd8ee84aeceee25cfb66121be26726b8bc06f0e79cee73b1917b3756c55efa",
+      "equal": true
+    },
+    {
+      "path": "vitest.config.ts",
+      "sha256": "4bc408c248fe13322582fa7f4dab98e08b3a01d45fca8102fab3a6c19d8fed6b",
+      "equal": true
+    }
+  ]
+}

@@ -201,6 +201,8 @@ Scenariusze są testami zgodności specyfikacji, nie dekoracją dokumentacji. W 
 
 ## UC-012 — Zamknięcie sprawy z otwartymi zadaniami
 
+**Tasks Core DEC-060 — zatwierdzony podscenariusz:** przygotuj otwarte zadania dla wszystkich trzech rozstrzygnięć, wykonane zadanie, zadanie ogólne oraz cudze zadanie. Przy close jawnie rozstrzygnij każde własne otwarte powiązane; sprawdź atomowe anuluj/zachowaj/odłącz i audyt relacji. Anulowanie formularza bez skutków. Nowe/zmienione zadanie od preview wymaga konfliktu i nowej decyzji, forced rollback nie pozostawia zmian, retry nie powiela skutków. Próba obejścia przez Data API odrzucona. Dodanie przyszłego CalendarEvent bez integracji nadal blokuje close. Pełny TC-012 poniżej wymaga wydarzenia i nadal nie jest pokryty przez task-only przyrost.
+
 **Test:** `TC-012` · **Wymagania:** `FR-LC-016`, `FR-LC-017`, `FR-LC-018`, `FR-TN-011`, `FR-RW-008` · **Reguły:** `BR-008`, `BR-010`, `BR-011`
 **Bramki:** `OPEN-001`, `OPEN-029`, `OPEN-040`
 
@@ -530,6 +532,8 @@ Scenariusze są testami zgodności specyfikacji, nie dekoracją dokumentacji. W 
 **Ważny test negatywny / błąd:** Nie pojawia się masowy import wielu URL-i ani rozszerzenie przeglądarki jako wymóg MVP.
 
 ## UC-030 — Zadania bez terminu i ich prezentacja
+
+**Tasks Core DEC-060 — zatwierdzony podscenariusz:** dodaj ogólne i powiązane zadanie, także przy zakończonej sprawie; sprawdź tytuł/limity/Unicode, opis, brak i przyszły termin. Otwórz moduł, kontekst sprawy i neutralny podgląd otwartych na Dashboardzie. Edytuj, wykonaj/anuluj, jawnie przywróć, odczytaj audyt; brak zmiany lifecycle sprawy i brak automatycznej komunikacji. Przypomnienie UC-037 nadal poza wykonaniem. Wyniki w raporcie Tasks Core, nie wynikają z tego planu.
 
 **Test:** `TC-030` · **Wymagania:** `FR-TN-001`, `FR-TN-002`, `FR-TN-003`, `FR-DB-002` · **Reguły:** `BR-011`, `BR-020`
 **Bramki:** `OPEN-002`, `OPEN-009`, `OPEN-040`

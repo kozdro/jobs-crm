@@ -1,5 +1,7 @@
 # Jobs CRM
 
+Tasks Core — DEC-060: [zatwierdzony kontrakt i plan](docs/technical/tasks-core-analysis.md), zadania ogólne/sprawa oraz atomowe anuluj/zachowaj/odłącz przy zamykaniu. Implementacja i osobny PR autoryzowane po merge #20; bez sugestii, przypomnień, kalendarza i publicznego wdrożenia.
+
 > **Status projektu:** F1/F2/F3 i pierwszy RecruitmentCase/Manual Quick Capture zmergowane; bez publicznego wdrożenia. [Wyniki i ograniczenia F3](docs/technical/foundation-f3.md).
 > **Stan na:** 2026-10-31. **Język dokumentacji:** polski.
 > Recruitment Lifecycle 3A (DEC-054): [kontrakt](docs/technical/recruitment-lifecycle-3a.md) i [wyniki weryfikacji](docs/technical/recruitment-lifecycle-3a-report.md); bez publicznego wdrożenia.
@@ -46,3 +48,5 @@ Wyniki 3C: [raport wykonania](docs/technical/recruitment-lifecycle-3c-report.md)
 Companies & Contacts — DEC-058: prywatne firmy/kontakty i jawne relacje ze sprawami, bez inferencji zdarzeń i auto-merge. [Kontrakt](docs/technical/companies-contacts-analysis.md), [raport](docs/technical/companies-contacts-report.md) i [QA](docs/technical/companies-contacts-qa.md). Lokalnie build,105/105 integracji,92/92 HTTPS browser oraz niezależne review PASS; bez publicznego wdrożenia.
 
 Recruitment Workspace — DEC-059: [kontrakt i plan](docs/technical/recruitment-workspace-analysis.md), [UX](docs/ux/recruitment-workspace-slice.md), [raport wykonania](docs/technical/recruitment-workspace-report.md) i [QA](docs/technical/recruitment-workspace-qa.md). Zatwierdzone 1A/2A: read-only Kanban/lista, filtry i podgląd. Bez DnD, nowych operacji lifecycle, merge i deploymentu.
+
+Tasks Core: [raport wykonania, QA i niezależne review](docs/technical/tasks-core-report.md).

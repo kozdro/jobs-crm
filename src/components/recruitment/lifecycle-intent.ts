@@ -9,6 +9,7 @@ import {
   type LifecyclePreview,
 } from "@/modules/recruitment/domain/lifecycle";
 import { isCalendarDate } from "@/modules/recruitment/domain/case-events";
+import { isTask } from "@/components/tasks/client";
 import { uuidPattern } from "@/modules/recruitment/domain/recruitment-case";
 
 export const lifecycleIntentStorageKey = "jobs-crm.lifecycle.pending";
@@ -17,6 +18,7 @@ export type LifecycleIntent = {
   caseId: string;
   requestId: string;
   command?: ConfirmLifecycleInput;
+  invalidCommand?: true;
 };
 const record = (value: unknown): value is Record<string, unknown> =>
   Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -30,6 +32,40 @@ const day = (value: unknown) =>
   value === null || (typeof value === "string" && isCalendarDate(value));
 const id = (value: unknown) =>
   typeof value === "string" && uuidPattern.test(value);
+function isTaskSnapshot(value: unknown): value is string[] {
+  return (
+    Array.isArray(value) &&
+    value.every((item) => {
+      if (typeof item !== "string") return false;
+      const parts = item.split(":");
+      return (
+        parts.length === 2 &&
+        id(parts[0]) &&
+        /^(0|[1-9][0-9]*)$/.test(parts[1]) &&
+        revision(Number(parts[1])) &&
+        Number(parts[1]) < 2147483647
+      );
+    }) &&
+    new Set(value.map((item) => item.split(":")[0].toLowerCase())).size ===
+      value.length
+  );
+}
+function isTaskResolutions(
+  value: unknown,
+): value is NonNullable<ConfirmLifecycleInput["taskResolutions"]> {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (item) =>
+        record(item) &&
+        Object.keys(item).length === 2 &&
+        id(item.taskId) &&
+        ["cancel", "keep", "detach"].includes(item.action as string),
+    ) &&
+    new Set(value.map((item) => item.taskId.toLowerCase())).size ===
+      value.length
+  );
+}
 export function isClosureValues(value: unknown): value is ClosureValues {
   return (
     record(value) &&
@@ -48,7 +84,15 @@ export function isLifecyclePreview(value: unknown): value is LifecyclePreview {
     (value.currentStage === null || typeof value.currentStage === "string") &&
     revision(value.cycle) &&
     (value.before === null || isClosureValues(value.before)) &&
-    (value.after === null || isClosureValues(value.after))
+    (value.after === null || isClosureValues(value.after)) &&
+    (value.openTasks === undefined ||
+      (Array.isArray(value.openTasks) && value.openTasks.every(isTask))) &&
+    (value.taskSnapshot === undefined ||
+      (Array.isArray(value.taskSnapshot) &&
+        value.taskSnapshot.every(
+          (item) =>
+            typeof item === "string" && /^[0-9a-f-]{36}:[0-9]+$/i.test(item),
+        )))
   );
 }
 export function isLifecycleEntry(value: unknown): value is LifecycleEntry {
@@ -73,7 +117,11 @@ export function isLifecycleEntry(value: unknown): value is LifecycleEntry {
     (value.resulting_stage === null ||
       typeof value.resulting_stage === "string") &&
     revision(value.revision) &&
-    (value.original === null || isClosureValues(value.original))
+    (value.original === null || isClosureValues(value.original)) &&
+    (value.expected_task_snapshot === undefined ||
+      isTaskSnapshot(value.expected_task_snapshot)) &&
+    (value.task_resolutions === undefined ||
+      isTaskResolutions(value.task_resolutions))
   );
 }
 export function isClosureRevision(value: unknown): value is ClosureRevision {
@@ -118,21 +166,29 @@ export function parseLifecycleIntent(
       caseId,
       requestId: value.requestId as string,
     };
+    if (Object.prototype.hasOwnProperty.call(value, "command"))
+      result.invalidCommand = true;
     if (record(value.command)) {
       const parsed = parseLifecycleInput(value.command, true);
       if (
         parsed.success &&
         "requestId" in parsed.data &&
-        Object.keys(value.command).length === 9 &&
+        (value.command.expectedTaskSnapshot === undefined ||
+          isTaskSnapshot(value.command.expectedTaskSnapshot)) &&
+        (value.command.taskResolutions === undefined ||
+          isTaskResolutions(value.command.taskResolutions)) &&
         parsed.data.caseId === caseId &&
         parsed.data.requestId === result.requestId &&
         Object.entries(parsed.data).every(
           ([key, entry]) =>
             value.command &&
-            (value.command as Record<string, unknown>)[key] === entry,
+            JSON.stringify((value.command as Record<string, unknown>)[key]) ===
+              JSON.stringify(entry),
         )
-      )
+      ) {
         result.command = parsed.data;
+        delete result.invalidCommand;
+      }
     }
     return result;
   } catch {
@@ -158,6 +214,22 @@ export function lifecycleResultMatches(
     );
   }
   const value = result.entry;
+  if (!isLifecycleEntry(value)) return false;
+  const sortResolutions = (
+    items: NonNullable<ConfirmLifecycleInput["taskResolutions"]>,
+  ) =>
+    items
+      .map((item) => [item.taskId.toLowerCase(), item.action] as const)
+      .sort(([a], [b]) => a.localeCompare(b));
+  // Omitted fields mean the legacy empty task intent, never a wildcard. A
+  // stored command with removed task fields must not consume a taskful receipt.
+  if (
+    JSON.stringify(value.expected_task_snapshot ?? []) !==
+      JSON.stringify(command.expectedTaskSnapshot ?? []) ||
+    JSON.stringify(sortResolutions(value.task_resolutions ?? [])) !==
+      JSON.stringify(sortResolutions(command.taskResolutions ?? []))
+  )
+    return false;
   // Entries may have a newer correction; compare the immutable original close values.
   return (
     isLifecycleEntry(value) &&
@@ -172,16 +244,93 @@ export function lifecycleResultMatches(
         value.original.offerConfirmed === command.offerConfirmed)
   );
 }
-/** A delayed response must not consume a newer intention in the same tab. */
+/** Invalid present commands are quarantined, never downgraded to legacy
+ * identifier-only recovery. Genuine old envelopes can confirm only taskless
+ * receipts because they predate the Task closure contract. */
+export function lifecycleRecoveryMatches(
+  result: { entry?: unknown; revision?: unknown },
+  intent: LifecycleIntent,
+): boolean {
+  if (intent.invalidCommand) return false;
+  if (intent.command) return lifecycleResultMatches(result, intent.command);
+  if (result.entry !== undefined && result.entry !== null) {
+    const value = result.entry;
+    return (
+      isLifecycleEntry(value) &&
+      value.case_id === intent.caseId &&
+      value.request_id === intent.requestId &&
+      (value.expected_task_snapshot ?? []).length === 0 &&
+      (value.task_resolutions ?? []).length === 0
+    );
+  }
+  const value = result.revision;
+  return (
+    isClosureRevision(value) &&
+    value.case_id === intent.caseId &&
+    value.request_id === intent.requestId
+  );
+}
+/** Compare the complete frozen intention, including the distinction between a
+ * genuine legacy envelope and a present command. Invalid commands never match. */
+export function lifecycleIntentsEquivalent(
+  current: LifecycleIntent,
+  expected: LifecycleIntent,
+): boolean {
+  if (
+    current.invalidCommand ||
+    expected.invalidCommand ||
+    current.ownerId !== expected.ownerId ||
+    current.caseId !== expected.caseId ||
+    current.requestId !== expected.requestId
+  )
+    return false;
+  if (!current.command || !expected.command)
+    return current.command === undefined && expected.command === undefined;
+  const canonical = (command: ConfirmLifecycleInput) => [
+    command.operation,
+    command.caseId,
+    command.closureId,
+    command.outcome,
+    command.occurredOn,
+    command.offerConfirmed,
+    command.requestId,
+    command.expectedCaseRevision,
+    command.expectedClosureRevision,
+    [...(command.expectedTaskSnapshot ?? [])],
+    (command.taskResolutions ?? [])
+      .map((item) => [item.taskId.toLowerCase(), item.action] as const)
+      .sort(([a], [b]) => a.localeCompare(b)),
+  ];
+  return (
+    JSON.stringify(canonical(current.command)) ===
+    JSON.stringify(canonical(expected.command))
+  );
+}
+/** Re-read storage at the dispatch/acknowledgement boundary; component state is
+ * not authority once another operation or corrupted payload replaced it. */
+export function isCurrentLifecycleIntent(
+  storage: Pick<Storage, "getItem">,
+  key: string,
+  expected: LifecycleIntent,
+): boolean {
+  try {
+    const current = parseLifecycleIntent(
+      storage.getItem(key),
+      expected.ownerId,
+      expected.caseId,
+    );
+    return current !== null && lifecycleIntentsEquivalent(current, expected);
+  } catch {
+    return false;
+  }
+}
+/** A delayed response must not consume a replaced intent with the same IDs. */
 export function clearMatchingLifecycleIntent(
   storage: Pick<Storage, "getItem" | "removeItem">,
   key: string,
   expected: LifecycleIntent,
 ): boolean {
-  const raw = storage.getItem(key);
-  if (raw === null) return true;
-  const current = parseLifecycleIntent(raw, expected.ownerId, expected.caseId);
-  if (!current || current.requestId !== expected.requestId) return false;
+  if (!isCurrentLifecycleIntent(storage, key, expected)) return false;
   storage.removeItem(key);
   return true;
 }
@@ -198,9 +347,14 @@ export function persistLifecycleIntent(
   const serialized = JSON.stringify(expected);
   try {
     const existing = storage.getItem(key);
-    if (existing !== null && existing !== serialized) return "conflict";
+    if (existing !== null)
+      return isCurrentLifecycleIntent(storage, key, expected)
+        ? "stored"
+        : "conflict";
     storage.setItem(key, serialized);
-    return storage.getItem(key) === serialized ? "stored" : "unavailable";
+    return isCurrentLifecycleIntent(storage, key, expected)
+      ? "stored"
+      : "unavailable";
   } catch {
     return "unavailable";
   }

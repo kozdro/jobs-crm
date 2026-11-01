@@ -1,0 +1,18 @@
+{
+  "candidate": "b184bc76a395c70804971a46075b9175bb56721a",
+  "base": "910582aa220594f51db70869e3d6e6a166b18766",
+  "role": "frontend-reviewer",
+  "finalMessage": "**PASS_STATIC \u2014 frontend re-review** dla HEAD `b184bc76a395c70804971a46075b9175bb56721a`, baza `910582aa220594f51db70869e3d6e6a166b18766`.\n\nUruchomiono dok\u0142adnie jednego **generic subagent + canonical role frontend-reviewer**, bez dalszej delegacji. Otrzymano findings po ocenie pe\u0142nego zakresu frontendowego base..HEAD.\n\n- **P2 z R2: CLOSED_STATIC.** [recruitment-tasks.spec.ts:274](/private/tmp/jobs-crm-tasks-review-r3/tests/e2e/recruitment-tasks.spec.ts:274) sprawdza brak wybor\u00f3w, status `Zapisane` i zero closure; nast\u0119pnie wybiera trzy opcje i zaznacza ACK ponownie. Statycznie umo\u017cliwia doj\u015bcie do zachowanych asercji DOM, replay `409`, stan\u00f3w zada\u0144 i audytu.\n- Delta `4e1b12c..HEAD`: dok\u0142adnie trzy wskazane pliki testowe, bez zmian produktu. Katalog wymaga dok\u0142adnie 10 zatwierdzonych tabel i RLS dla ka\u017cdej. Zmiana unit testu dotyczy wy\u0142\u0105cznie formatowania.\n- Poprzednie poprawki formularzy, invalidacji owner/case oraz ochrony pending/uncertain pozostaj\u0105 obecne. **Brak nowych potwierdzonych findings P0\u2013P3** w zakresie frontendowym.\n\n**Runtime: NOT RUN przez reviewer\u00f3w.** Przekazane wyniki QA nie by\u0142y ponownie wykonywane. R3 integration/browser pozostaje niepotwierdzone; PASS_STATIC nie zamyka bramki runtime. Pe\u0142ny TC-012/Calendar pozostaje poza wykonaniem.\n\nKontrola fingerprint przed/po zako\u0144czeniu review:\n\n```json\n{\"changedFiles\":[],\"fingerprintEquality\":true}\n```\n\nNie zmodyfikowano plik\u00f3w ani nie uruchomiono test\u00f3w.",
+  "wrapperEvidence": [
+    {
+      "reviewExecution": "COMPLETED",
+      "exitCode": 0,
+      "changedFiles": [],
+      "candidateBefore": "fe20821998f71c178a51fd03e5ac29ae97edfb6be5336bc2849d03204505d298",
+      "candidateAfter": "fe20821998f71c178a51fd03e5ac29ae97edfb6be5336bc2849d03204505d298"
+    }
+  ],
+  "warnings": [
+    "2026-11-01T12:28:10.293105Z  WARN codex_sandboxing::violation: recorded sandbox violation: resource=filesystem backend=seatbelt reason=operation_not_permitted path=unknown"
+  ]
+}

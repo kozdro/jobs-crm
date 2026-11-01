@@ -1,0 +1,19 @@
+{
+  "status": "FAIL",
+  "snapshot": "b184bc76a395c70804971a46075b9175bb56721a",
+  "failures": [
+    {
+      "externalArtifact": "qa-browser-r3-task-validation-error.md",
+      "sha256": "d48e2769602d219f172699b6f77999a157a9356c1312539ef7b2dc9cba4e635c",
+      "reason": "Test selector matched both intended required-resolution validation and empty Next route announcer. Required-choice validation was visibly present; closure positive path stopped at selector assertion.",
+      "errorDetails": "```\nError: expect(locator).toContainText(expected) failed\n\nLocator: getByRole('alert')\nExpected substring: \"ka\u017cde\"\nError: strict mode violation: getByRole('alert') resolved to 2 elements:\n    1) <p role=\"alert\" tabindex=\"-1\" class=\"rounded-md border border-destructive bg-destructive-surface p-3 text-sm leading-6 text-destructive outline-none focus:ring-2 focus:ring-ring\">Wybierz Anuluj, Zachowaj albo Od\u0142\u0105cz dla ka\u017cdego \u2026</p> aka getByText('Wybierz Anuluj, Zachowaj albo')\n    2) <div role=\"alert\" aria-live=\"assertive\" id=\"__next-route-announcer__\"></div> aka locator('[id=\"__next-route-announcer__\"]')\n\nCall log:\n  - Expect \"toContainText\" getByRole('alert') with timeout 5000ms\n  - waiting for getByRole('alert')\n\n```"
+    },
+    {
+      "externalArtifact": "qa-browser-r3-foundation-nav-error.md",
+      "sha256": "776f66936f74c57439ac175cc46b6cbe3d1d0b29efafe3f14daf50274ecf0388",
+      "reason": "Existing exact approved-route allowlist omitted newly approved /tasks link; navigation correctly exposed Tasks.",
+      "errorDetails": "```\nError: expect(received).toContain(expected) // indexOf\n\nExpected value: \"/tasks\"\nReceived array: [\"/dashboard\", \"/recruitments\", \"/companies\", \"/contacts\"]\n```"
+    }
+  ],
+  "rawDomPolicy": "Raw synthetic DOM contexts retained only in private external evidence folder; summary contains no DOM or Auth state"
+}

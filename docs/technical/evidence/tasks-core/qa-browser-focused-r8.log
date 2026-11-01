@@ -1,0 +1,22 @@
+
+Running 15 tests using 1 worker
+
+(node:94287) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/recruitment-tasks.spec.ts:132:1 › DEC060 empty Tasks and general task without deadline survive reload and appear on Dashboard (2.1s)
+  ✓   2 tests/e2e/recruitment-tasks.spec.ts:161:1 › DEC060 edit, future day, explicit completion/cancellation/restore and visible audit (1.8s)
+  ✓   3 tests/e2e/recruitment-tasks.spec.ts:296:1 › DEC060 common form presets only case context and task is the same record across views (1.4s)
+  ✓   4 tests/e2e/recruitment-tasks.spec.ts:334:1 › DEC060 closure requires each choice and atomically cancels, keeps and detaches with accessible audit (1.6s)
+  ✓   5 tests/e2e/recruitment-tasks.spec.ts:459:1 › DEC060 lost three-choice closure reply recovers the original receipt and resolves every task once (4.3s)
+  ✓   6 tests/e2e/recruitment-tasks.spec.ts:806:1 › DEC060 stale closure task snapshot requires refreshed preview and cannot silently close (1.6s)
+  ✓   7 tests/e2e/recruitment-tasks.spec.ts:835:1 › DEC060 tasks added and restored at a closed case never reopen it (1.5s)
+  ✓   8 tests/e2e/recruitment-tasks.spec.ts:864:1 › DEC060 failed task save preserves form and never reports a false success (850ms)
+  ✓   9 tests/e2e/recruitment-tasks.spec.ts:899:1 › DEC060 task forms remain usable by keyboard at 375, 768, 1024 and 1440 (1.5s)
+  ✓  10 tests/e2e/recruitment-tasks.spec.ts:939:1 › DEC060 saving another task preserves a new unsaved task draft (948ms)
+  ✓  11 tests/e2e/recruitment-tasks.spec.ts:973:1 › DEC060 another row save preserves an uncertain create and recovers its original request (960ms)
+  ✓  12 tests/e2e/recruitment-tasks.spec.ts:1033:1 › DEC060 complete task pagination and pending or uncertain row recovery retain the same command (1.5s)
+  ✓  13 tests/e2e/recruitment-tasks.spec.ts:1129:1 › DEC060 case picker reaches an owned case beyond its first 25 options (3.7s)
+  ✓  14 tests/e2e/recruitment-tasks.spec.ts:1156:1 › DEC060 BFF protects private Task list, ID, audit, request recovery and write origins (1.4s)
+  ✓  15 tests/e2e/recruitment-ui-foundation.spec.ts:266:1 › UI foundation empty state and responsive keyboard navigation restore focus (3.2s)
+
+  15 passed (33.8s)

@@ -1,0 +1,22 @@
+{
+  "originalArtifactsUnchanged": true,
+  "runs": [
+    {
+      "artifact": "qa-browser-focused-r3-first.json",
+      "selection": "All13 Tasks tests plus affected UI Foundation navigation test",
+      "observedTotal": 14,
+      "passed": 13,
+      "failed": 1,
+      "logSha256": "e2830b743683d535adf68357e2152b601e2459d466a2455d77309ddf4231d9eb"
+    },
+    {
+      "artifact": "qa-browser-focused-r3-receipt-failure.json",
+      "selection": "--grep DEC060 closure requires each choice (one test only)",
+      "observedTotal": 1,
+      "passed": 0,
+      "failed": 1,
+      "logSha256": "403f1432a379cfd4ed2cb30392b70ea6f02b6a77fce5a2b19c16b9debc830b2b",
+      "originalScopeCorrection": "Original receipt reused a hardcoded All13+nav label. This was a single-test BFF503 reproducer, not a14-test execution."
+    }
+  ]
+}

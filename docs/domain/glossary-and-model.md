@@ -1,5 +1,7 @@
 # Słownik i koncepcyjny model domenowy
 
+**Tasks Core — DEC-060 (2026-11-01):** Task ma własną tożsamość i właściciela, opcjonalną jedną RecruitmentCase, tytuł 1–160 po trim, opis do 2000, opcjonalny dzień terminu i status Do zrobienia/Wykonane/Anulowane. Jawne przywrócenie nie wznawia sprawy. Audyt zachowuje poprzednie wartości i relację, także po odłączeniu do ogólnego zadania. Zaufany czas rejestracji nie zastępuje dnia terminu. [Kontrakt](../technical/tasks-core-analysis.md).
+
 **Stan:** `BASELINED`. Zapisane tu fakty są `APPROVED`, o ile wyraźnie nie podano `OPEN`. **To nie jest schemat bazy danych.**
 
 ## Pojęcia

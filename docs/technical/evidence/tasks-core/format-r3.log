@@ -1,0 +1,5 @@
+$ prettier --check src tests scripts experiments db *.ts *.mjs package.json components.json pnpm-workspace.yaml .prettierrc.json .github/workflows/app-ci.yml
+Checking formatting...
+[warn] tests/unit/recruitment-closure-backend.test.ts
+[warn] Code style issues found in the above file. Run Prettier with --write to fix.
+[ELIFECYCLE] Command failed with exit code 1.

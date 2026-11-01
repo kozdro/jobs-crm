@@ -1,0 +1,13 @@
+{
+  "exit": 1,
+  "bytes": 11699,
+  "sha256": "3a4f48eb6aafc5af9b67b4cea551cb596e735542f5155136f51aca8e411528b5",
+  "counts": {
+    "tests": 51,
+    "passed": 40,
+    "failed": 11,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "observations": []
+}

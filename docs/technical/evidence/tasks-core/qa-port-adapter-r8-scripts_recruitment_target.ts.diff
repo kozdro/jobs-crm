@@ -1,0 +1,60 @@
+--- source/scripts/recruitment/target.ts
++++ runtime/scripts/recruitment/target.ts
+@@ -30,9 +30,9 @@
+ const state = join(root, ".recruitment-local");
+ const label = "jobs-crm.recruitment-local";
+ const publishedPorts = {
+-  "5432/tcp": "56622",
+-  "8000/tcp": "56621",
+-  "8025/tcp": "56624",
++  "5432/tcp": "57522",
++  "8000/tcp": "57521",
++  "8025/tcp": "57524",
+ };
+ const excluded =
+   "realtime,storage-api,imgproxy,postgres-meta,studio,edge-runtime,logflare,vector,supavisor";
+@@ -189,9 +189,9 @@
+     }
+   }
+   for (const [service, port, host] of [
+-    ["db", "5432/tcp", "56622"],
+-    ["kong", "8000/tcp", "56621"],
+-    ["inbucket", "8025/tcp", "56624"],
++    ["db", "5432/tcp", "57522"],
++    ["kong", "8000/tcp", "57521"],
++    ["inbucket", "8025/tcp", "57524"],
+   ]) {
+     if (
+       cs.find(
+@@ -242,7 +242,7 @@
+   if (existsSync(dir))
+     throw new Error("Recruitment target exists; inspect/cleanup explicitly");
+   const originalSocket = await localEngine();
+-  for (const port of [56621, 56622, 56624]) await freePort(port);
++  for (const port of [57521, 57522, 57524]) await freePort(port);
+   if ((await cli(root, ["--version"])).trim() !== "2.122.0")
+     throw new Error("Recruitment CLI pin mismatch");
+   const projectId = recruitmentProjectId(
+@@ -318,7 +318,7 @@
+     throw new Error("Recruitment creation not verified");
+   await inspectOwned(m);
+   const s = JSON.parse(await cli(m.workdir, ["status", "--output", "json"]));
+-  const url = assertEndpoints(s.DB_URL, s.API_URL, { api: 56621, db: 56622 });
++  const url = assertEndpoints(s.DB_URL, s.API_URL, { api: 57521, db: 57522 });
+   if (!s.ANON_KEY || !s.SERVICE_ROLE_KEY)
+     throw new Error("Recruitment fixture keys absent");
+   return {
+@@ -326,11 +326,11 @@
+     apiUrl: s.API_URL,
+     anonKey: s.ANON_KEY,
+     serviceRoleKey: s.SERVICE_ROLE_KEY,
+-    mailUrl: "http://127.0.0.1:56624",
++    mailUrl: "http://127.0.0.1:57524",
+     appOrigin: "https://127.0.0.1:3153",
+     db: {
+       host: "127.0.0.1",
+-      port: 56622,
++      port: 57522,
+       database: "postgres",
+       user: "postgres",
+       password: decodeURIComponent(url.password),

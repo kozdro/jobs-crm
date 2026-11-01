@@ -136,6 +136,8 @@ Każdy FR ma co najmniej jedno testowalne AC. Macierz powiązań ze scenariuszam
 
 ## TN — Tasks & Notifications
 
+**Doprecyzowanie DEC-060 (2026-11-01), APPROVED:** FR-TN-001/002/003/011 oraz FR-LC-018 otrzymują [lokalny kontrakt Tasks Core](../technical/tasks-core-analysis.md): tytuł 1–160 po trim, opis opcjonalny do 2000, termin opcjonalny dzień także przyszły; Do zrobienia/Wykonane/Anulowane i jawne przywrócenie. Zadania ogólne lub własna sprawa także zakończona, bez wznowienia. Lista, kontekst i neutralny podgląd otwartych na Dashboardzie bez definicji pilności. Rozstrzygnięcia anuluj/zachowaj/odłącz atomowo z close, kontrolą współbieżności i audytem. CalendarEvent nadal poza implementacją i chronione guardem BR-011. Pozostałe FR-TN przypomnień/sugestii i pełny FR-DB-002 pozostają szerszym zakresem; brak deklaracji ich wykonania.
+
 **Specyfikacja:** [Tasks & Notifications](../features/tasks-and-notifications.md)
 
 | ID | Wymaganie (`APPROVED`, MVP) | Powiązane `DEC/BR` | Bramka `OPEN` | Test akceptacyjny |

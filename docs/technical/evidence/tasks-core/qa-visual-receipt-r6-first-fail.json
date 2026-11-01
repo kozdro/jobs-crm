@@ -1,0 +1,94 @@
+{
+  "productionCandidate": "5a1bc07a2b637646913f72dabb9ba5c1610fdf19",
+  "targetId": "tasks-r4",
+  "status": "FAIL",
+  "viewportChecks": [
+    {
+      "viewport": 1440,
+      "requestedWidth": 1440,
+      "innerWidth": 1440,
+      "scrollWidth": 1440,
+      "visualViewportWidth": 1440,
+      "focused": true,
+      "visibleHit": true,
+      "button": {
+        "x": 310,
+        "y": 490,
+        "width": 132.8125,
+        "height": 44
+      },
+      "height": 900,
+      "textScale": "default",
+      "status": "PASS"
+    },
+    {
+      "viewport": 1024,
+      "requestedWidth": 1024,
+      "innerWidth": 1024,
+      "scrollWidth": 1024,
+      "visualViewportWidth": 1024,
+      "focused": true,
+      "visibleHit": true,
+      "button": {
+        "x": 310,
+        "y": 490,
+        "width": 132.8125,
+        "height": 44
+      },
+      "height": 900,
+      "textScale": "default",
+      "status": "PASS"
+    },
+    {
+      "viewport": 768,
+      "requestedWidth": 768,
+      "innerWidth": 768,
+      "scrollWidth": 768,
+      "visualViewportWidth": 768,
+      "focused": true,
+      "visibleHit": true,
+      "button": {
+        "x": 310,
+        "y": 438,
+        "width": 132.8125,
+        "height": 44
+      },
+      "height": 900,
+      "textScale": "default",
+      "status": "PASS"
+    },
+    {
+      "viewport": 375,
+      "requestedWidth": 375,
+      "innerWidth": 375,
+      "scrollWidth": 375,
+      "visualViewportWidth": 375,
+      "focused": true,
+      "visibleHit": true,
+      "button": {
+        "x": 54,
+        "y": 427.5,
+        "width": 132.8125,
+        "height": 44
+      },
+      "height": 900,
+      "textScale": "default",
+      "status": "PASS"
+    }
+  ],
+  "screenshots": [
+    "qa-visual-tasks-1440.png",
+    "qa-visual-form-1440.png",
+    "qa-visual-form-1024.png",
+    "qa-visual-form-768.png",
+    "qa-visual-form-375.png"
+  ],
+  "scope": "Real Chromium on production HTTPS; synthetic fixtures, no physical-device or assistive-technology claim",
+  "error": "The expression evaluated to a falsy value:\n\n  assert.ok(zoom.scrollWidth<=zoom.innerWidth+1)\n",
+  "serverOutput": {
+    "bytes": 153,
+    "sha256": "e1404cfb5445c3156c1899e63c9e91ea0c2741e1ad98cebab4c2012a174b4c78",
+    "counts": {},
+    "observations": []
+  }
+}

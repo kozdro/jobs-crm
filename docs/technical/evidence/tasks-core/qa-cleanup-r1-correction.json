@@ -1,0 +1,9 @@
+{
+  "originalReceiptSha256": "b84648cc364ad1767bab8a751b4c54c731a5dce257515c8b17e2427106bdd550",
+  "originalStatus": "FAIL",
+  "originalComparison": "44 all containers vs 28 running containers; not a valid identity comparison",
+  "correction": "44/44 baseline containers still present with docker ps -a; 16 were stopped throughout",
+  "correctedEvidence": "qa-baseline-r2-preflight.json",
+  "rawReceiptLocation": "/private/tmp/jobs-tasks-evidence/qa-cleanup-r1.json",
+  "note": "raw inventory contains unrelated resource names, kept outside repository"
+}

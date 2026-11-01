@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/private/tmp/jobs-crm-tasks-core/harness/scripts/review.py", line 108, in <module>
+    sys.exit(main())
+  File "/private/tmp/jobs-crm-tasks-core/harness/scripts/review.py", line 98, in main
+    raise ValueError('Candidate changed during preflight')
+ValueError: Candidate changed during preflight

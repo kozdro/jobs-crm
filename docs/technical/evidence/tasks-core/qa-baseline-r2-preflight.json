@@ -1,0 +1,14 @@
+{
+  "baseline": 44,
+  "presentBaseline": 44,
+  "missing": [],
+  "additional": [
+    "0c5359abc712 supabase_inbucket_jobs-crm-recruitment-0f5a98-62ba55559151",
+    "4dad08acf339 supabase_db_jobs-crm-recruitment-0f5a98-62ba55559151",
+    "cfd6560a3390 supabase_kong_jobs-crm-recruitment-0f5a98-62ba55559151",
+    "f160f968f70f supabase_auth_jobs-crm-recruitment-0f5a98-62ba55559151",
+    "fec01be3f593 supabase_rest_jobs-crm-recruitment-0f5a98-62ba55559151"
+  ],
+  "status": "PASS",
+  "previousCheckLimitation": "containers-after-r1.txt used docker ps (running only), whereas baseline used docker ps -a; that comparison was invalid and is preserved"
+}

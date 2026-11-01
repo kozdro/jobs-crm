@@ -1,5 +1,7 @@
 # Technical Discovery — architektura Jobs CRM
 
+Tasks Core — DEC-060 (2026-11-01): [kontrakt, analiza wpływu i plan](tasks-core-analysis.md). Pełne lokalne wykonanie z QA/review i osobnym PR autoryzowane; atomowe BR-011 dla Task z zachowaniem Calendar guard. Bez merge/deploymentu i persistent DEV.
+
 **Stan dokumentacji:** BASELINED (aktualizacja 2026-10-29). **Etap:** implementacja technicznych fundamentów SDD/AIDD. F1/F2 zmergowane; wykonane F2 — [lokalny PoC, instrukcje i bieżące dowody](foundation-f2.md). [Scaffold F1](foundation-f1.md) działa bez DB. F3/Auth i import RPC pozostają NOT RUN; kolejność zmienia [Foundation Plan](foundation-plan.md).
 
 ## Źródło decyzji i hierarchia

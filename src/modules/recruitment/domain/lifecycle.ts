@@ -1,3 +1,4 @@
+import type { Task, TaskResolution } from "./tasks";
 import { isCalendarDate, warsawToday } from "./case-events";
 import { uuidPattern } from "./recruitment-case";
 
@@ -31,8 +32,12 @@ export type ConfirmLifecycleInput = LifecycleInput & {
   requestId: string;
   expectedCaseRevision: number;
   expectedClosureRevision: number;
+  expectedTaskSnapshot?: string[];
+  taskResolutions?: TaskResolution[];
 };
 export type LifecyclePreview = {
+  openTasks?: Task[];
+  taskSnapshot?: string[];
   caseRevision: number;
   closureRevision: number;
   status: LifecycleStatus;
@@ -42,6 +47,8 @@ export type LifecyclePreview = {
   after: ClosureValues | null;
 };
 export type LifecycleEntry = {
+  expected_task_snapshot?: string[];
+  task_resolutions?: TaskResolution[];
   id: string;
   request_id: string;
   expected_case_revision: number;
@@ -93,7 +100,13 @@ export function parseLifecycleInput(
     "occurredOn",
     "offerConfirmed",
     ...(confirm
-      ? ["requestId", "expectedCaseRevision", "expectedClosureRevision"]
+      ? [
+          "requestId",
+          "expectedCaseRevision",
+          "expectedClosureRevision",
+          "expectedTaskSnapshot",
+          "taskResolutions",
+        ]
       : []),
   ];
   if (Object.keys(row).some((key) => !allowed.includes(key)))
@@ -146,6 +159,43 @@ export function parseLifecycleInput(
       row.expectedClosureRevision !== 0
     )
       errors.expectedClosureRevision = "Odśwież podgląd operacji.";
+    const snapshot = row.expectedTaskSnapshot ?? [];
+    const resolutions = row.taskResolutions ?? [];
+    if (
+      !Array.isArray(snapshot) ||
+      snapshot.some(
+        (x) =>
+          typeof x !== "string" ||
+          !/^[0-9a-fA-F-]{36}:[0-9]+$/.test(x) ||
+          !uuidPattern.test(x.split(":")[0]) ||
+          !Number.isSafeInteger(Number(x.split(":")[1])) ||
+          Number(x.split(":")[1]) >= 2147483647,
+      ) ||
+      new Set(snapshot).size !== snapshot.length
+    )
+      errors.expectedTaskSnapshot = "Odśwież podgląd zadań.";
+    if (
+      !Array.isArray(resolutions) ||
+      resolutions.some(
+        (x) =>
+          !x ||
+          typeof x !== "object" ||
+          Array.isArray(x) ||
+          Object.keys(x).some((k) => !["taskId", "action"].includes(k)) ||
+          typeof x.taskId !== "string" ||
+          !uuidPattern.test(x.taskId) ||
+          !["cancel", "keep", "detach"].includes(x.action),
+      ) ||
+      (Array.isArray(resolutions) &&
+        new Set(resolutions.map((x) => x?.taskId)).size !== resolutions.length)
+    )
+      errors.taskResolutions = "Rozstrzygnij każde otwarte zadanie.";
+    if (
+      row.operation !== "close" &&
+      ((Array.isArray(snapshot) && snapshot.length) ||
+        (Array.isArray(resolutions) && resolutions.length))
+    )
+      errors.taskResolutions = "Zadania rozstrzyga się przy zamykaniu sprawy.";
   }
   if (Object.keys(errors).length) return { success: false, errors };
   const data: LifecycleInput = {
@@ -164,6 +214,12 @@ export function parseLifecycleInput(
           requestId: row.requestId as string,
           expectedCaseRevision: row.expectedCaseRevision as number,
           expectedClosureRevision: row.expectedClosureRevision as number,
+          ...(row.expectedTaskSnapshot !== undefined
+            ? { expectedTaskSnapshot: row.expectedTaskSnapshot as string[] }
+            : {}),
+          ...(row.taskResolutions !== undefined
+            ? { taskResolutions: row.taskResolutions as TaskResolution[] }
+            : {}),
         }
       : data,
   };

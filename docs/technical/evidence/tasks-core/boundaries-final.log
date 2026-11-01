@@ -1,0 +1,8 @@
+$ node scripts/test-boundaries.mjs
+PASS FQA-06 snapshot excludes private, secrets, env and local F2/F3/product/DEV state.
+PASS FQA-02 strict typecheck sensitivity: rejected with expected diagnostic.
+PASS FQA-03 ESLint sensitivity: rejected with expected diagnostic.
+PASS FQA-03 Prettier sensitivity: rejected with expected diagnostic.
+PASS FQA-03 forbidden UI import sensitivity: rejected with expected diagnostic.
+PASS FQA-04 unauthorized public environment read: rejected with expected diagnostic.
+PASS FQA-04 server-only boundary: rejected with expected diagnostic.

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { invalidateTaskReads } from "@/components/tasks/events";
 import { buttonStyles, inputStyles } from "@/components/ui/styles";
 import {
   closureOutcomes,
@@ -24,11 +25,12 @@ function formatEventDay(day: string) {
 }
 import {
   clearMatchingLifecycleIntent,
+  isCurrentLifecycleIntent,
   isClosureRevision,
-  isLifecycleEntry,
   isLifecyclePreview,
   lifecycleIntentStorageKey,
   lifecycleResultMatches,
+  lifecycleRecoveryMatches,
   parseLifecycleIntent,
   persistAndFreezeLifecycleIntent,
   type LifecycleIntent,
@@ -51,15 +53,35 @@ function readPending(userId: string, caseId: string) {
     return null;
   }
 }
-function clearPending(userId: string, caseId: string, requestId: string) {
+const changedIntentMessage =
+  "Zachowane dane operacji zmieniły się. Nie potwierdzono zgodności wyniku z bieżącym zamiarem. Zachowano bieżący zapis oczekujący.";
+function commandIntent(
+  userId: string,
+  caseId: string,
+  command: ConfirmLifecycleInput,
+): LifecycleIntent & { command: ConfirmLifecycleInput } {
+  return { ownerId: userId, caseId, requestId: command.requestId, command };
+}
+function currentPending(expected: LifecycleIntent) {
   try {
-    return clearMatchingLifecycleIntent(sessionStorage, storageKey(caseId), {
-      ownerId: userId,
-      caseId,
-      requestId,
-    });
+    return isCurrentLifecycleIntent(
+      sessionStorage,
+      storageKey(expected.caseId),
+      expected,
+    );
   } catch {
-    return true;
+    return false;
+  }
+}
+function clearPending(expected: LifecycleIntent) {
+  try {
+    return clearMatchingLifecycleIntent(
+      sessionStorage,
+      storageKey(expected.caseId),
+      expected,
+    );
+  } catch {
+    return false;
   }
 }
 async function request(userId: string, query: string | object) {
@@ -142,6 +164,9 @@ export function LifecycleForm({
   const [offerConfirmed, setOfferConfirmed] = useState(false);
   const [preview, setPreview] = useState<LifecyclePreview | null>(null);
   const [confirmed, setConfirmed] = useState(false);
+  const [taskResolutions, setTaskResolutions] = useState<
+    Record<string, "cancel" | "keep" | "detach">
+  >({});
   const [pending, setPending] = useState(false);
   const [uncertain, setUncertain] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -195,10 +220,19 @@ export function LifecycleForm({
     setFieldErrors({});
     return parsed.data;
   }
-  function complete(command: ConfirmLifecycleInput) {
-    if (!alive.current || !clearPending(userId, caseId, command.requestId))
-      return;
+  function reportChangedIntent() {
+    setUncertain(true);
+    report(changedIntentMessage);
     announce(caseId);
+  }
+  function complete(command: ConfirmLifecycleInput) {
+    if (!alive.current) return;
+    if (!clearPending(commandIntent(userId, caseId, command))) {
+      reportChangedIntent();
+      return;
+    }
+    announce(caseId);
+    invalidateTaskReads(userId, caseId);
     router.refresh();
     onClose();
     requestAnimationFrame(() =>
@@ -237,6 +271,7 @@ export function LifecycleForm({
         );
         return;
       }
+      setTaskResolutions({});
       setPreview(body.preview);
     } catch {
       if (current())
@@ -253,6 +288,10 @@ export function LifecycleForm({
   async function save() {
     if (busy.current) return;
     let command = frozen.current;
+    if (command && !currentPending(commandIntent(userId, caseId, command))) {
+      reportChangedIntent();
+      return;
+    }
     if (!command) {
       const value = draft();
       if (!value || !preview) return;
@@ -264,11 +303,29 @@ export function LifecycleForm({
         report("Najpierw sprawdź wynik wcześniejszej zmiany cyklu.");
         return;
       }
+      if (
+        operation === "close" &&
+        preview.openTasks?.some((task) => !taskResolutions[task.id])
+      ) {
+        report(
+          "Wybierz Anuluj, Zachowaj albo Odłącz dla każdego otwartego zadania.",
+        );
+        return;
+      }
       command = {
         ...value,
         requestId: crypto.randomUUID(),
         expectedCaseRevision: preview.caseRevision,
         expectedClosureRevision: preview.closureRevision,
+        expectedTaskSnapshot:
+          operation === "close" ? (preview.taskSnapshot ?? []) : [],
+        taskResolutions:
+          operation === "close"
+            ? (preview.openTasks ?? []).map((task) => ({
+                taskId: task.id,
+                action: taskResolutions[task.id],
+              }))
+            : [],
       };
     }
     let persisted: ReturnType<typeof persistAndFreezeLifecycleIntent> =
@@ -291,6 +348,10 @@ export function LifecycleForm({
       );
       return;
     }
+    if (!currentPending(commandIntent(userId, caseId, command))) {
+      reportChangedIntent();
+      return;
+    }
     announce(caseId);
     const requestEpoch = epoch.current;
     const current = () => alive.current && epoch.current === requestEpoch;
@@ -308,10 +369,14 @@ export function LifecycleForm({
         response.status === 400 ||
         (response.status === 409 && body?.kind === "stale")
       ) {
-        if (!clearPending(userId, caseId, command.requestId)) return;
+        if (!clearPending(commandIntent(userId, caseId, command))) {
+          reportChangedIntent();
+          return;
+        }
         frozen.current = null;
         setUncertain(false);
         setPreview(null);
+        setTaskResolutions({});
         setConfirmed(false);
         announce(caseId);
         report(
@@ -341,6 +406,10 @@ export function LifecycleForm({
   async function recover() {
     const command = frozen.current;
     if (busy.current || !command) return;
+    if (!currentPending(commandIntent(userId, caseId, command))) {
+      reportChangedIntent();
+      return;
+    }
     const requestEpoch = epoch.current;
     const current = () => alive.current && epoch.current === requestEpoch;
     busy.current = true;
@@ -529,6 +598,63 @@ export function LifecycleForm({
             Bieżący etap po zmianie:{" "}
             <strong>{preview.currentStage ?? "Nie ustawiono etapu"}</strong>.
           </p>
+          {operation === "close" && (preview.openTasks?.length ?? 0) > 0 && (
+            <section
+              aria-label="Otwarte zadania przy zamknięciu"
+              className="space-y-4"
+            >
+              <h5 className="text-sm font-semibold">
+                Rozstrzygnij każde otwarte zadanie
+              </h5>
+              <p className="text-sm leading-6 text-muted-foreground">
+                Anuluj zmienia status na „Anulowane” i zachowuje powiązanie.
+                Zachowaj pozostawia zadanie otwarte przy zakończonej sprawie.
+                Odłącz pozostawia otwarte zadanie ogólne. Zmiany i audyt zapiszą
+                się razem z zakończeniem sprawy.
+              </p>
+              {preview.openTasks?.map((task) => (
+                <fieldset
+                  key={task.id}
+                  disabled={pending || uncertain}
+                  className="min-w-0 rounded-md border border-border p-3"
+                >
+                  <legend className="max-w-full px-1 text-sm font-semibold [overflow-wrap:anywhere]">
+                    {task.title}
+                  </legend>
+                  <div className="flex flex-wrap gap-x-5 gap-y-1">
+                    {(
+                      [
+                        ["cancel", "Anuluj"],
+                        ["keep", "Zachowaj"],
+                        ["detach", "Odłącz"],
+                      ] as const
+                    ).map(([action, label]) => (
+                      <label
+                        key={action}
+                        className="flex min-h-11 items-center gap-2 text-sm"
+                      >
+                        <input
+                          type="radio"
+                          name={`${id}-task-${task.id}`}
+                          value={action}
+                          checked={taskResolutions[task.id] === action}
+                          onChange={() => {
+                            setTaskResolutions((current) => ({
+                              ...current,
+                              [task.id]: action,
+                            }));
+                            setConfirmed(false);
+                          }}
+                          className="size-4 accent-primary"
+                        />
+                        {label}
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              ))}
+            </section>
+          )}
           <label className="flex min-h-11 items-start gap-3 text-sm leading-6">
             <input
               type="checkbox"
@@ -697,15 +823,31 @@ export function LifecycleRecovery({
     };
   }, [userId, caseId]);
   function complete(expected: LifecycleIntent, text: string) {
-    if (!clearPending(userId, caseId, expected.requestId)) return;
+    if (!clearPending(expected)) {
+      setIntent(readPending(userId, caseId));
+      setMessage(changedIntentMessage);
+      return;
+    }
     setIntent(null);
     setMessage(text);
     announce(caseId);
+    invalidateTaskReads(userId, caseId);
     router.refresh();
   }
   async function resolve(retry: boolean) {
-    if (busy.current || !intent || (retry && !intent.command)) return;
+    if (
+      busy.current ||
+      !intent ||
+      intent.invalidCommand ||
+      (retry && !intent.command)
+    )
+      return;
     const saved = intent;
+    if (!currentPending(saved)) {
+      setIntent(readPending(userId, caseId));
+      setMessage(changedIntentMessage);
+      return;
+    }
     const requestEpoch = epoch.current;
     const current = () => alive.current && epoch.current === requestEpoch;
     busy.current = true;
@@ -719,16 +861,7 @@ export function LifecycleRecovery({
       );
       if (!current()) return;
       if (login(response)) return;
-      const matched =
-        body &&
-        (saved.command
-          ? lifecycleResultMatches(body, saved.command)
-          : (isLifecycleEntry(body.entry) &&
-              body.entry.case_id === caseId &&
-              body.entry.request_id === saved.requestId) ||
-            (isClosureRevision(body.revision) &&
-              body.revision.case_id === caseId &&
-              body.revision.request_id === saved.requestId));
+      const matched = body && lifecycleRecoveryMatches(body, saved);
       if (response.ok && matched)
         complete(
           saved,
@@ -763,7 +896,13 @@ export function LifecycleRecovery({
             "Zachowano poprzedni zamiar zmiany cyklu. Sprawdź jego wynik przed nową operacją."}
         </p>
       )}
-      {intent && !intent.command && (
+      {intent?.invalidCommand && (
+        <p className="text-sm leading-6 text-warning">
+          Nie można bezpiecznie odtworzyć danych wcześniejszej operacji.
+          Zachowano oczekujący zapis; nie potwierdzimy go ani nie ponowimy.
+        </p>
+      )}
+      {intent && !intent.command && !intent.invalidCommand && (
         <p className="text-sm leading-6 text-warning">
           Dostępny jest wyłącznie odczyt wyniku. Nie ponowimy nieprawidłowego
           ani zmienionego payloadu.
@@ -773,13 +912,13 @@ export function LifecycleRecovery({
         <div className="flex flex-wrap gap-3">
           <button
             type="button"
-            disabled={pending}
+            disabled={pending || intent.invalidCommand}
             onClick={() => void resolve(false)}
             className={buttonStyles.secondary}
           >
             Sprawdź wcześniejszy zapis cyklu
           </button>
-          {intent.command && (
+          {intent.command && !intent.invalidCommand && (
             <button
               type="button"
               disabled={pending}
