@@ -1,0 +1,48 @@
+
+Running 1 test using 1 worker
+
+(node:91524) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+qa-history-trace:{"kind":"replaceState","targetIsWorkspace":false,"targetHasHash":false,"targetHasToken":false,"currentHash":false,"stateToken":false,"stack":"    at history.<computed> [as replaceState] (<anonymous>:39:39)     at 093mog9p_8_do.js:1:8680     at iE (093mog9p_8_do.js:1:113713)     at up (093mog9p_8_do.js:1:130290)"}
+qa-history-trace:{"kind":"replaceState","targetIsWorkspace":false,"targetHasHash":false,"targetHasToken":false,"currentHash":false,"stateToken":false,"stack":"    at history.<computed> [as replaceState] (<anonymous>:39:39)     at 093mog9p_8_do.js:1:8680     at iE (093mog9p_8_do.js:1:113713)     at up (093mog9p_8_do.js:1:130290)"}
+qa-history-trace:{"kind":"replaceState","targetIsWorkspace":true,"targetHasHash":false,"targetHasToken":false,"currentHash":false,"stateToken":false,"stack":"    at history.<computed> [as replaceState] (<anonymous>:39:39)     at 093mog9p_8_do.js:1:8680     at iE (093mog9p_8_do.js:1:113713)     at up (093mog9p_8_do.js:1:130290)"}
+qa-scroll-trace:{"args":[0,180],"yBefore":0,"maxY":410,"viewport":720,"rootVisible":true,"hashPresent":false,"stateToken":false}
+qa-link-trace:{"phase":"capture","kind":"full","hrefHash":false,"hrefToken":true,"locationHash":false,"locationToken":false,"stateToken":false,"y":180}
+qa-link-trace:{"phase":"microtask","kind":"full","hrefHash":false,"hrefToken":true,"locationHash":false,"locationToken":false,"stateToken":false,"y":180}
+qa-history-trace:{"kind":"replaceState","targetIsWorkspace":false,"targetHasHash":false,"currentHash":false,"stateToken":true,"stack":"    at history.<computed> (<anonymous>:39:39)     at window.history.replaceState (093mog9p_8_do.js:1:11039)     at remember (3wkwaf5vb9_w6.js:1:35476)     at onClick (3wkwaf5vb9_w6.js:1:26576)"}
+qa-history-trace:{"kind":"pushState","targetIsWorkspace":false,"targetHasHash":false,"targetHasToken":true,"currentHash":false,"stateToken":false,"stack":"    at history.<computed> (<anonymous>:39:39)     at window.history.pushState (093mog9p_8_do.js:1:10945)     at 093mog9p_8_do.js:1:8646     at iE (093mog9p_8_do.js:1:113713)"}
+qa-link-trace:{"phase":"capture","kind":"back","hrefHash":true,"hrefToken":false,"locationHash":false,"locationToken":true,"stateToken":false,"y":0}
+qa-link-trace:{"phase":"microtask","kind":"back","hrefHash":true,"hrefToken":false,"locationHash":false,"locationToken":true,"stateToken":false,"y":0}
+qa-history-trace:{"kind":"pushState","targetIsWorkspace":true,"targetHasHash":true,"targetHasToken":false,"currentHash":false,"stateToken":false,"stack":"    at history.<computed> (<anonymous>:39:39)     at window.history.pushState (093mog9p_8_do.js:1:10945)     at 093mog9p_8_do.js:1:8646     at iE (093mog9p_8_do.js:1:113713)"}
+qa-history-trace:{"kind":"replaceState","targetIsWorkspace":true,"targetHasHash":false,"targetHasToken":false,"currentHash":true,"stateToken":false,"stack":"    at history.<computed> (<anonymous>:39:39)     at window.history.replaceState (093mog9p_8_do.js:1:11039)     at c_ (26njffucxvapp.js:78:33404)     at 3ld91gg0ocyn9.js:1:162299"}
+qa-scroll-final:{"y":0,"maxY":410,"hashPresent":false,"stateToken":false,"root":{"x":264,"y":199,"width":984,"height":366,"top":199,"right":1248,"bottom":565,"left":264},"more":1}
+  ✘  1 tests/e2e/recruitment-workspace-scroll-diagnostic.spec.ts:297:1 › DEC059 drawer exact ID, readonly history and detail return restore actual workspace context (8.7s)
+
+
+  1) tests/e2e/recruitment-workspace-scroll-diagnostic.spec.ts:297:1 › DEC059 drawer exact ID, readonly history and detail return restore actual workspace context 
+
+    Error: {"scrollBefore":180,"clickScroll":180}
+
+    {"scrollBefore":180,"clickScroll":180}
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 180
+    Received: 0
+
+    Call Log:
+    - Timeout 5000ms exceeded while waiting on the predicate
+
+      345 |       message: JSON.stringify({ scrollBefore, clickScroll }),
+      346 |     })
+    > 347 |     .toBe(scrollBefore);
+          |      ^
+      348 |   await expect(
+      349 |     page.getByRole("button", { name: "Lista", exact: true }),
+      350 |   ).toHaveAttribute("aria-pressed", "true");
+        at /private/tmp/jobs-crm-workspace-qa/tests/e2e/recruitment-workspace-scroll-diagnostic.spec.ts:347:6
+
+    Error Context: qa-scroll-trace-results-r5d/recruitment-workspace-scro-c38ed-re-actual-workspace-context/error-context.md
+
+  1 failed
+    tests/e2e/recruitment-workspace-scroll-diagnostic.spec.ts:297:1 › DEC059 drawer exact ID, readonly history and detail return restore actual workspace context 

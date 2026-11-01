@@ -1,0 +1,54 @@
+{
+  "targetId": "workspace-r1",
+  "projectId": "jobs-crm-recruitment-f643f5-b4ece1ac54fb",
+  "at": "2026-10-31T19:30:45.107Z",
+  "before": [
+    {
+      "status": 200,
+      "range": "0-0/1",
+      "rowCount": 1,
+      "allOwned": true,
+      "errorCode": null
+    },
+    {
+      "status": 200,
+      "range": "0-0/1",
+      "rowCount": 1,
+      "allOwned": true,
+      "errorCode": null
+    }
+  ],
+  "disabled": [
+    {
+      "status": 206,
+      "range": "0-999/1819",
+      "rowCount": 1000,
+      "allOwned": false,
+      "errorCode": null
+    },
+    {
+      "status": 206,
+      "range": "0-999/1819",
+      "rowCount": 1000,
+      "allOwned": false,
+      "errorCode": null
+    }
+  ],
+  "after": [
+    {
+      "status": 200,
+      "range": "0-0/1",
+      "rowCount": 1,
+      "allOwned": true,
+      "errorCode": null
+    },
+    {
+      "status": 200,
+      "range": "0-0/1",
+      "rowCount": 1,
+      "allOwned": true,
+      "errorCode": null
+    }
+  ],
+  "totalRows": 1819
+}

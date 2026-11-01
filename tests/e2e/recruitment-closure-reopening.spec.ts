@@ -160,8 +160,12 @@ test("DEC057 close/reopen/close retains both results, unknown day and list/detai
   await expect(reopenTrigger(page)).toBeVisible();
   await expect(history(page)).toContainText("Odmowa firmy");
   await expect(history(page)).toContainText("Nie aplikowano");
-  await page.goto(`${target.appOrigin}/recruitments`);
-  await page.getByRole("link", { name: c.title, exact: true }).click();
+  await page.goto(`${target.appOrigin}/recruitments?view=list`);
+  await page.getByRole("button", { name: c.title, exact: true }).click();
+  await page
+    .getByRole("dialog", { name: "Podgląd sprawy", exact: true })
+    .getByRole("link", { name: "Otwórz pełną stronę", exact: true })
+    .click();
   await expect(reopenTrigger(page)).toBeVisible();
 });
 

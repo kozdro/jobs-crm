@@ -1,0 +1,4 @@
+Recruitment production-build: {"exit":0,"bytes":1193,"sha256":"d0fe04475e6f5f1cfb5904004d61532b9dc3e2f4a7d8f3cab14a2707f51dc212","counts":{},"observations":[]}
+Recruitment business-integration: {"exit":0,"bytes":13671,"sha256":"9b5cc5118b5fecc5b6d7a020d5862597fd458bab325df445b51075138cd260dc","counts":{"tests":115,"passed":115,"failed":0,"cancelled":0,"skipped":0},"observations":[]}
+Recruitment business-HTTPS-browser: {"exit":0,"bytes":3178,"sha256":"c9e200284cbc2d87bf87a2b6779d8db07004ce3c85064bb6974ad9dbcb96cc58","counts":{"passed":20},"observations":[]}
+Recruitment target retained for explicit inspection/cleanup: workspace-r9

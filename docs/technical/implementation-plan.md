@@ -51,3 +51,7 @@ PO 2026-10-31 zatwierdził 1A/2A i pełne wykonanie [analizy/planu](history-corr
 ## Companies & Contacts — DEC-058, wykonanie 2026-10-31
 
 Zatwierdzone 1A/2A/3A [kontraktu](companies-contacts-analysis.md) wykonano jako osobny vertical slice katalogu i relacji z istniejącymi RecruitmentCase. [QA](companies-contacts-qa.md): runner105/105 integracji i92/92 HTTPS browser PASS, natural exit0; [raport i review](companies-contacts-report.md). Event participants/historia osoby, CalendarEvent/Task, import/Search i publiczne bramki pozostają kolejnymi etapami. Autoryzowany osobny PR, bez merge/deploymentu.
+
+## Recruitment Workspace — DEC-059
+
+[Zatwierdzony kontrakt 1A/2A i plan](recruitment-workspace-analysis.md): read-only Kanban/lista, pełne właścicielskie filtrowanie przed paginacją, bezpośrednie aktywne relacje organizacji/osoby, stabilny porządek created_at/ID, presety i podgląd. Osobne strony kolumn oraz odtwarzanie rzeczywistego kontekstu po detalu i paginacji historii. Bez DnD, nowych komend lifecycle, migracji, persistent DEV i deploymentu. QA i niezależne review są oddzielnymi bramkami; [wyniki wykonania](recruitment-workspace-report.md).

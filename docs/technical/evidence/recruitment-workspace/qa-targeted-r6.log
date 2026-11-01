@@ -1,0 +1,17 @@
+
+Running 10 tests using 1 worker
+
+(node:94612) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/recruitment-workspace.spec.ts:179:1 › DEC059 default board/list filters operate on complete data, presets and controls never write (3.8s)
+  ✓   2 tests/e2e/recruitment-workspace.spec.ts:266:1 › DEC059 drawer exact ID, readonly history and detail return restore actual workspace context (3.3s)
+  ✓   3 tests/e2e/recruitment-workspace.spec.ts:337:1 › DEC059 history pagination preserves workspace token, board/column scroll and independent Kanban pages (3.5s)
+  ✓   4 tests/e2e/recruitment-workspace.spec.ts:445:1 › DEC059 preview errors/retry and out-of-order responses cannot replace the selected case (1.7s)
+  ✓   5 tests/e2e/recruitment-workspace.spec.ts:504:3 › DEC059 workspace keyboard/read-only overlay and reflow at1440 (3.1s)
+  ✓   6 tests/e2e/recruitment-workspace.spec.ts:504:3 › DEC059 workspace keyboard/read-only overlay and reflow at1024 (2.2s)
+  ✓   7 tests/e2e/recruitment-workspace.spec.ts:504:3 › DEC059 workspace keyboard/read-only overlay and reflow at768 (2.1s)
+  ✓   8 tests/e2e/recruitment-workspace.spec.ts:504:3 › DEC059 workspace keyboard/read-only overlay and reflow at375 (1.9s)
+  ✓   9 tests/e2e/recruitment-workspace.spec.ts:504:3 › DEC059 workspace keyboard/read-only overlay and reflow at320 (1.7s)
+  ✓  10 tests/e2e/recruitment-workspace.spec.ts:579:1 › DEC059 private HTML/RSC/API, B/anon direct IDs and A-to-B logout do not leak workspace (2.6s)
+
+  10 passed (31.8s)

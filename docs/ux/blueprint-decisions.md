@@ -112,3 +112,7 @@ Dashboard bez fikcyjnych danych i widgetów. Lista/detal zachowują dane DEC-052
 ## 3C — DEC-057, 2026-10-31
 
 PO zatwierdził 1A/2A/3A/4A z analizy Closure & Reopening: [kontrakt](../technical/recruitment-lifecycle-3c.md). Formularze w istniejącym detalu: wynik bez domyślnego wyboru, jawne potwierdzenie oferty, opcjonalny dzień/unknown, podgląd/potwierdzenie skutku statusu/etapu, audyt zakończeń, recovery identycznego zamiaru. Nie aplikowano jest cyklowe. Dotychczasowy visual language, focus/cancel/stale i małe ekrany zachowane. Bez DnD, nowego modułu zadań/kalendarza ani Global Search.
+
+## Recruitment Workspace — DEC-059, 2026-10-31
+
+PO zatwierdził 1A/2A z [analizy](../technical/recruitment-workspace-analysis.md): read-only Kanban/lista/drawer i dokładny pakiet filtrów/sortu/presetów. Overlay/przełączanie/powrót i Visual Language zachowane. DnD, operacyjny drawer i edytor notatki poza pierwszym wykonaniem, nie anulowane. [UX slice'a](recruitment-workspace-slice.md).

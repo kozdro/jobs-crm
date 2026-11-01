@@ -1,0 +1,14 @@
+Recruitment production-build: {"exit":0,"bytes":1191,"sha256":"2ada17ce1e0b470350b4c1bdd8e81338f515aa7d62e37b8cf62bc69bd78df724","counts":{},"observations":[]}
+Recruitment business-integration: {"exit":0,"bytes":13706,"sha256":"1a99eab21faf965f0ea14e0c46fe2207309767657c3a22207801a1754e5659ec","counts":{"tests":115,"passed":115,"failed":0,"cancelled":0,"skipped":0},"observations":[]}
+Recruitment business-HTTPS-browser: {"exit":130,"bytes":7084,"sha256":"6fd868399cc320f4996fe2d1989e046902b014ae35496e0f5cd1fc5574bb6027","counts":{"passed":17},"observations":[]}
+Recruitment target retained for explicit inspection/cleanup: workspace-r1
+file:///private/tmp/jobs-crm-workspace-qa/scripts/recruitment/runner.ts:104
+    throw new Error(
+          ^
+
+Error: Recruitment stage business-HTTPS-browser exited 130 (raw output withheld)
+    at run (file:///private/tmp/jobs-crm-workspace-qa/scripts/recruitment/runner.ts:104:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///private/tmp/jobs-crm-workspace-qa/scripts/recruitment/runner.ts:279:3
+
+Node.js v24.22.2

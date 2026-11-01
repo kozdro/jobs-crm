@@ -323,3 +323,16 @@ AC-AD-002 rozszerza się na zakończenia, wznowienia, oryginały i audyt, listy/
 AC-CC-001–006/008/011 i podzakres AC-AD-002 są w zakresie [1A/2A/3A](../technical/companies-contacts-analysis.md). Weryfikacja musi objąć korekty i audyt danych/relacji, semantykę ról, warning/reuse/świadomy osobny profil, idempotencję i wyścigi, paginację list i selektorów, real A/B/anon oraz bezpośredni Data API/RPC. Żadna zmiana katalogu nie zmienia lifecycle ani nie nadaje uczestnictwa w zdarzeniu. AC-CC-007/009/010 pozostają NOT RUN; pozytywne profilowe listy nie są testem historii osoby. Wyniki wykonania osobno od tego kontraktu.
 
 Wykonanie DEC-058: [QA](../technical/companies-contacts-qa.md) i [raport](../technical/companies-contacts-report.md) wiążą AC-CC-001–006/008/011 z wykonanymi testami; końcowy runner105/105 integration i92/92 HTTPS browser PASS z natural exit0. Wynik dotyczy tego lokalnego slice'a, nie komunikacji/historii osoby ani całego publicznego MVP.
+
+## Workspace — doprecyzowania APPROVED DEC-059
+
+| ID | Warunek | FR |
+|---|---|---|
+| AC-RW-005-01 | Po wyczerpaniu stron oba widoki zwracają ten sam zbiór własnych ID bez duplikatów, także ponad 25 spraw globalnie i w kolumnie. Filtry i sort przed paginacją. | FR-RW-005 |
+| AC-RW-006-01 | Statusy OR, bezpośrednie aktywne organizacja/osoba AND; bez inferencji przez organizację. Profile filtrów dostępne także poza pierwszą stroną. | FR-RW-006 |
+| AC-RW-006-02 | Czas dodania asc/desc z remisem ID. Presety zmieniają statusy, zachowują organizację/osobę/sort; Zakończone rozwija kolumnę. Reset przywraca domyślny pełny widok; zmiana filtra/sortu resetuje strony. | FR-RW-006 |
+| AC-RW-006-03 | Kontrolki prezentacji nie zmieniają statusu, etapu, historii, zakończeń ani relacji i nie wywołują komend zapisu. | FR-RW-006 |
+| AC-RW-009-01 | Podgląd pokazuje dokładne ID i jawne relacje, fragment historii nazwany fragmentem; stare odpowiedzi nie nadpisują nowszego wyboru. Błąd nie udaje braku danych. | FR-RW-009 |
+| AC-RW-009-02 | Desktop overlay nie zwęża tablicy, pozwala przełączać dostępne karty; tło ignorowane, X/Escape zamykają z powrotem fokusu. Mobile Wstecz. Powrót z detalu odtwarza widok, filtry, sort, strony, rozwinięcie Zakończonych i scroll, drawer zamknięty. Wejście bezpośrednie nie fabrykuje kontekstu. | FR-RW-009 |
+
+AD-002 obejmuje listę, preview ID, relacje, lookupy i metadane: A pozytywnie, B/anon odmowa bez wycieku. Brak DnD nie oznacza PASS RW-008. RW-011 i TC-027 tylko częściowo. Źródło: DEC-059; wykonanie raportowane osobno.

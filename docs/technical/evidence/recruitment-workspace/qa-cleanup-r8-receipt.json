@@ -1,0 +1,18 @@
+{
+  "projectId": "jobs-crm-recruitment-09504e-f52c015a982e",
+  "configHash": "aee868b22f055a3e23fd64073327d066fea99b826123c29f0db365746eac5a5e",
+  "at": "2026-10-31T19:47:32.182Z",
+  "containerIds": [
+    "bbbdd54facc21fdc49ce1d50379daa4fac82b29a49ba70525e9d60081025d60c",
+    "3f9dd346a046d486665a8ab7b18e1680b59d82a1e9f98c2580006b37e068caf8",
+    "0850a1ee8c3fb287597542442d2e460b3c8c0cb493d284aafc8b64abd1af2eef",
+    "e46c898a2f04ed006cd7ba04a2d259e8bafe42da0325db796830f9f4199984c9",
+    "f8e78eeb95b352de13967cf10ada13c8b01cffec8c87080a233ef9870c9f6ba7"
+  ],
+  "volumeNames": [
+    "supabase_db_jobs-crm-recruitment-09504e-f52c015a982e"
+  ],
+  "networkIds": [
+    "26f384c32a49cc2bd69bddbb28920c547cadc2e1c5d59a5c2ce63ea1e59ea99b"
+  ]
+}

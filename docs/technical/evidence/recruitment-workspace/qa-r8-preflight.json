@@ -1,0 +1,9 @@
+{
+  "candidate": "adf8a9e4af63155965585530ac23bbdeeb8d4c79",
+  "verifiedFiles": 231,
+  "foreignPreserved": 44,
+  "oldTargetGuardedCleanup": true,
+  "newTarget": "workspace-r8",
+  "newProjectId": "jobs-crm-recruitment-09504e-f52c015a982e",
+  "parallelTargetMutations": false
+}

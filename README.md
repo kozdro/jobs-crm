@@ -44,3 +44,5 @@ Recruitment Lifecycle 3C — DEC-057: [zatwierdzony kontrakt i plan](docs/techni
 Wyniki 3C: [raport wykonania](docs/technical/recruitment-lifecycle-3c-report.md) i [QA](docs/technical/recruitment-lifecycle-3c-qa.md); lokalnie 291+87 unit, 83/83 integracje, 73/73 HTTPS browser i niezależne review PASS. Bez publicznego wdrożenia.
 
 Companies & Contacts — DEC-058: prywatne firmy/kontakty i jawne relacje ze sprawami, bez inferencji zdarzeń i auto-merge. [Kontrakt](docs/technical/companies-contacts-analysis.md), [raport](docs/technical/companies-contacts-report.md) i [QA](docs/technical/companies-contacts-qa.md). Lokalnie build,105/105 integracji,92/92 HTTPS browser oraz niezależne review PASS; bez publicznego wdrożenia.
+
+Recruitment Workspace — DEC-059: [kontrakt i plan](docs/technical/recruitment-workspace-analysis.md), [UX](docs/ux/recruitment-workspace-slice.md), [raport wykonania](docs/technical/recruitment-workspace-report.md) i [QA](docs/technical/recruitment-workspace-qa.md). Zatwierdzone 1A/2A: read-only Kanban/lista, filtry i podgląd. Bez DnD, nowych operacji lifecycle, merge i deploymentu.

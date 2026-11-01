@@ -245,3 +245,46 @@ describe("History correction truthful rendering", () => {
     expect(invalidation).not.toContain("Zatwierdź unieważnienie");
   });
 });
+
+describe("Workspace return through history pagination", () => {
+  const token = "329a053d-3e8e-4bc7-85fa-921401284c75";
+  it("preserves a valid navigation token on both history directions", () => {
+    const html = renderToStaticMarkup(
+      createElement(CaseHistory, {
+        caseId,
+        workspaceReturnToken: token,
+        result: { events: [], page: 2, hasMore: true },
+      }),
+    );
+    expect(html).toContain(
+      `historyPage=1&amp;workspaceReturn=${token}#history`,
+    );
+    expect(html).toContain(
+      `historyPage=3&amp;workspaceReturn=${token}#history`,
+    );
+  });
+  it("keeps direct-detail pagination free of a manufactured Workspace context", () => {
+    const html = renderToStaticMarkup(
+      createElement(CaseHistory, {
+        caseId,
+        result: { events: [], page: 1, hasMore: true },
+      }),
+    );
+    expect(html).toContain(
+      `href="/recruitments/${caseId}?historyPage=2#history"`,
+    );
+    expect(html).not.toContain("workspaceReturn");
+  });
+  it("does not propagate malformed tokens or arbitrary URL parameters", () => {
+    const html = renderToStaticMarkup(
+      createElement(CaseHistory, {
+        caseId,
+        workspaceReturnToken: "https://example.invalid/&contact=private",
+        result: { events: [], page: 2, hasMore: true },
+      }),
+    );
+    expect(html).not.toContain("workspaceReturn");
+    expect(html).not.toContain("example.invalid");
+    expect(html).not.toContain("contact=");
+  });
+});

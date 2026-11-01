@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
+import { uuidPattern } from "@/modules/recruitment/domain/recruitment-case";
 import type { TimelineItem } from "@/modules/recruitment/application/lifecycle";
 import { LifecycleHistoryEntry } from "./lifecycle";
 import {
@@ -220,11 +221,19 @@ export function CaseHistory({
   caseId,
   result,
   userId,
+  workspaceReturnToken,
 }: {
   caseId: string;
   userId?: string;
+  workspaceReturnToken?: string;
   result: HistoryResult | null;
 }) {
+  function historyPageHref(page: number) {
+    const params = new URLSearchParams({ historyPage: String(page) });
+    if (workspaceReturnToken && uuidPattern.test(workspaceReturnToken))
+      params.set("workspaceReturn", workspaceReturnToken);
+    return `/recruitments/${caseId}?${params}#history`;
+  }
   const [active, setActive] = useState<Editing>(null);
   const [locked, setLocked] = useState(false);
   function select(value: Editing) {
@@ -347,7 +356,7 @@ export function CaseHistory({
                 ) : (
                   <Link
                     className="ui-link inline-flex min-h-11 items-center"
-                    href={`/recruitments/${caseId}?historyPage=${result.page - 1}#history`}
+                    href={historyPageHref(result.page - 1)}
                   >
                     Poprzednia strona historii
                   </Link>
@@ -359,7 +368,7 @@ export function CaseHistory({
                 ) : (
                   <Link
                     className="ui-link inline-flex min-h-11 items-center"
-                    href={`/recruitments/${caseId}?historyPage=${result.page + 1}#history`}
+                    href={historyPageHref(result.page + 1)}
                   >
                     Następna strona historii
                   </Link>

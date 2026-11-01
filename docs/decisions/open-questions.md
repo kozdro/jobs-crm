@@ -137,3 +137,7 @@ Zatwierdzenie nie jest wynikiem testów ani zgodą na publiczne udostępnienie.
 ## Companies & Contacts — DEC-058, 2026-10-31
 
 OPEN-002/005/024 są PARTIALLY RESOLVED dla 1A/2A/3A [kontraktu CC](../technical/companies-contacts-analysis.md): pola i korekty profili, jawne M:N i attach/detach/korekta roli z audytem, owner-only ostrzeżenia dedup i retry. OPEN-005 nadal obejmuje usuwanie/archiwizację/restore profili; OPEN-030 historyczne uczestnictwo; OPEN-032 polityki retencji/publicznego użycia. Brak nowych blokujących wyborów w zatwierdzonym lokalnym slice.
+
+## Recruitment Workspace — DEC-059, 2026-10-31
+
+OPEN-017/028 **PARTIALLY RESOLVED**: PO zatwierdził 1A/2A z [kontraktu Workspace](../technical/recruitment-workspace-analysis.md): read-only Kanban/lista/drawer, dokładne filtry status/organizacja/osoba, data dodania asc/desc, presety Wszystkie/Aktywne/Zakończone i powrót z kontekstem. DnD, operacyjny drawer, rozszerzone filtry i pozostałe przyszłe moduły pozostają poza zatwierdzonym slice'em. OPEN-033 i publiczne bramki nadal obowiązują; nie otwieramy ponownie decyzji lifecycle 3B/3C.

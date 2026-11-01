@@ -1,0 +1,64 @@
+{
+  "candidate": "0564b4c2326dbfb3288bb12441f6010047fc1ad1",
+  "node": "24.22.2",
+  "pnpm": "12.16.1",
+  "executable": "/Users/kozdro/.volta/tools/image/node/24.22.2/bin/node",
+  "note": "All six configured static/unit gates completed on final app/test source0564b4c. Documentation/evidence-only publication commit follows. Runtime and independent review are separate gates.",
+  "checks": [
+    {
+      "check": "unit",
+      "status": "PASS",
+      "summary": "386 app + 87 script tests; zero skips",
+      "localLog": "/tmp/jobs-workspace-unit-r9.log",
+      "sha256": "9b1a7b2cb6640e84d96c28d8cc67ffdf237b592c2d107f9660f08adc26bf5ca6",
+      "candidate": "0564b4c2326dbfb3288bb12441f6010047fc1ad1",
+      "exitCode": 0
+    },
+    {
+      "check": "typecheck",
+      "status": "PASS",
+      "summary": "Next route typegen and both TypeScript projects",
+      "localLog": "/tmp/jobs-workspace-typecheck-r9.log",
+      "sha256": "4e73d22d5daa0057db91f86a11bdd09f2601a20551e29a56fa3993c9a3a5aea2",
+      "candidate": "0564b4c2326dbfb3288bb12441f6010047fc1ad1",
+      "exitCode": 0
+    },
+    {
+      "check": "lint",
+      "status": "PASS",
+      "summary": "ESLint zero warnings",
+      "localLog": "/tmp/jobs-workspace-lint-r9.log",
+      "sha256": "b543827ce56a63357c629028555ecec2cc964dda33dbbf2a9a2872b1a2ab20f8",
+      "candidate": "0564b4c2326dbfb3288bb12441f6010047fc1ad1",
+      "exitCode": 0
+    },
+    {
+      "check": "format",
+      "status": "PASS",
+      "summary": "Prettier full configured scope",
+      "localLog": "/tmp/jobs-workspace-format-r9.log",
+      "sha256": "38e06e6330b51fde863b4a787d3cce7abf666bc6cec55136e0d0e6094d6f6bba",
+      "candidate": "0564b4c2326dbfb3288bb12441f6010047fc1ad1",
+      "exitCode": 0
+    },
+    {
+      "check": "boundaries",
+      "status": "PASS",
+      "summary": "strict sensitivity, private copy exclusions and server-only",
+      "localLog": "/tmp/jobs-workspace-boundaries-r9.log",
+      "sha256": "e82c4545b7b4a49a582fdb473ccdd8e7857f47836bf71178b0bd7c53731a0ee3",
+      "candidate": "0564b4c2326dbfb3288bb12441f6010047fc1ad1",
+      "exitCode": 0
+    },
+    {
+      "check": "canary",
+      "status": "PASS",
+      "summary": "browser/HTML/RSC environment scanner and positive control",
+      "localLog": "/tmp/jobs-workspace-canary-r9.log",
+      "sha256": "f75762bae34c4b0debf635df05dee7d90d5036a4168fbdfc9d470b86e1443f78",
+      "candidate": "0564b4c2326dbfb3288bb12441f6010047fc1ad1",
+      "exitCode": 0
+    }
+  ],
+  "databaseDiffFromBase": "empty; no migration, schema or canonical Supabase config changes"
+}

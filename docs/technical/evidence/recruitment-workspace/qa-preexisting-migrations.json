@@ -1,0 +1,168 @@
+{
+  "base": "837257b5ecb5e9702b8158c49e9ebc19662d7dcd",
+  "candidate": "adf8a9e4af63155965585530ac23bbdeeb8d4c79",
+  "files": [
+    {
+      "path": "db/recruitment/migrations/0000_recruitment_validation.sql",
+      "baseSha256": "640ae10d48af84a1468b2a764c8a13ea68eda21bf25a1be8cfbb4361e24573bd",
+      "candidateSha256": "640ae10d48af84a1468b2a764c8a13ea68eda21bf25a1be8cfbb4361e24573bd",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/0001_recruitment_case.sql",
+      "baseSha256": "d17053c59a8063e54db97e4c30fda7f05d0e2eb52ff65e07089acf1bf2b159e6",
+      "candidateSha256": "d17053c59a8063e54db97e4c30fda7f05d0e2eb52ff65e07089acf1bf2b159e6",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/0002_recruitment_access_and_create.sql",
+      "baseSha256": "2ee4db5cc11271c8ba34aacf0dfab86100231111a3446bdea78e2e91e99a747a",
+      "candidateSha256": "2ee4db5cc11271c8ba34aacf0dfab86100231111a3446bdea78e2e91e99a747a",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/0003_recruitment_intent_before_warning.sql",
+      "baseSha256": "a09fe0b3d0596da51e36faf0c2efe63a049daa2b20648100811b79b77ed03347",
+      "candidateSha256": "a09fe0b3d0596da51e36faf0c2efe63a049daa2b20648100811b79b77ed03347",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/0004_recruitment_url_canonical_boundary.sql",
+      "baseSha256": "844601688ef784e4f8bba3fb04708833c99bfdd6f20b611b3caa7b1d0f8fe1d2",
+      "candidateSha256": "844601688ef784e4f8bba3fb04708833c99bfdd6f20b611b3caa7b1d0f8fe1d2",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/0005_recruitment_url_constraint_revalidation.sql",
+      "baseSha256": "7bdd45f5b6dd031525fd42cf2ca0b133ccf8c54d57e04b702d810852ba98ab90",
+      "candidateSha256": "7bdd45f5b6dd031525fd42cf2ca0b133ccf8c54d57e04b702d810852ba98ab90",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/0006_recruitment_numeric_host_parity.sql",
+      "baseSha256": "c01abf7026b3117ea5e62e1d17a918b5b15ddb1716a690bf44c4678d1cd34b82",
+      "candidateSha256": "c01abf7026b3117ea5e62e1d17a918b5b15ddb1716a690bf44c4678d1cd34b82",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/0007_recruitment_lifecycle_3a.sql",
+      "baseSha256": "98b608140bb16d923390b0cfa355ebbc417dd159f1732e8135dbadf9de948924",
+      "candidateSha256": "98b608140bb16d923390b0cfa355ebbc417dd159f1732e8135dbadf9de948924",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/0008_recruitment_lifecycle_3b.sql",
+      "baseSha256": "60afefbba42c329bfd07a1a552e8b397da6bf725281c58e36fcbf80347f6af18",
+      "candidateSha256": "60afefbba42c329bfd07a1a552e8b397da6bf725281c58e36fcbf80347f6af18",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/0009_history_corrections_integrity.sql",
+      "baseSha256": "085d8146b32709cb4c2d8d0a7213f173ba55fa921694d8588fc6f40525fbb583",
+      "candidateSha256": "085d8146b32709cb4c2d8d0a7213f173ba55fa921694d8588fc6f40525fbb583",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/0010_recruitment_lifecycle_3c.sql",
+      "baseSha256": "64e3063626831448967f0358883afa3e8a110f8e3dd4029f0b9810d238bad9ca",
+      "candidateSha256": "64e3063626831448967f0358883afa3e8a110f8e3dd4029f0b9810d238bad9ca",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/0011_companies_contacts.sql",
+      "baseSha256": "61836b881f1acbaab4370f85abd9a9087ca01713c9df7103188c34fedc67689c",
+      "candidateSha256": "61836b881f1acbaab4370f85abd9a9087ca01713c9df7103188c34fedc67689c",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/0012_catalog_intent_guard.sql",
+      "baseSha256": "bcd6f346bb3b831ded2be7d4c26d62830bdc8a31d3ccc818208554bc227acf6a",
+      "candidateSha256": "bcd6f346bb3b831ded2be7d4c26d62830bdc8a31d3ccc818208554bc227acf6a",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0000_snapshot.json",
+      "baseSha256": "69a3653d19a33546cac79eec6640fe3b96acc33988827fc8d34afbbf4fa58268",
+      "candidateSha256": "69a3653d19a33546cac79eec6640fe3b96acc33988827fc8d34afbbf4fa58268",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0001_snapshot.json",
+      "baseSha256": "9ef6f556a87789eb46f306114190a5c09b3757cf786c311066074ee283263d74",
+      "candidateSha256": "9ef6f556a87789eb46f306114190a5c09b3757cf786c311066074ee283263d74",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0002_snapshot.json",
+      "baseSha256": "3869672e2c71a5d51b210db9b07d96a64c5ab9fcd26c6a936c487dae7d83fdd0",
+      "candidateSha256": "3869672e2c71a5d51b210db9b07d96a64c5ab9fcd26c6a936c487dae7d83fdd0",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0003_snapshot.json",
+      "baseSha256": "472cc857fbfd80afd7db7c67ae9c2feff55438449cbe423f6c396833056c75ec",
+      "candidateSha256": "472cc857fbfd80afd7db7c67ae9c2feff55438449cbe423f6c396833056c75ec",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0004_snapshot.json",
+      "baseSha256": "1b15585de111f2286e6f2eeb3fbe7e31850a304c1a64c1fc62ac4ec1d0388bc5",
+      "candidateSha256": "1b15585de111f2286e6f2eeb3fbe7e31850a304c1a64c1fc62ac4ec1d0388bc5",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0005_snapshot.json",
+      "baseSha256": "26e9929e9da76a6d0ace47ceba470005bd6b9e39f2ba68d56e0091c9fb6b8745",
+      "candidateSha256": "26e9929e9da76a6d0ace47ceba470005bd6b9e39f2ba68d56e0091c9fb6b8745",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0006_snapshot.json",
+      "baseSha256": "d334c661617c10a88c267e78136da8af3a0bc18bcf8e3bbde3dd7849242a052e",
+      "candidateSha256": "d334c661617c10a88c267e78136da8af3a0bc18bcf8e3bbde3dd7849242a052e",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0007_snapshot.json",
+      "baseSha256": "9ebfcb02ffabee33192c77061a4986752205fbefecffc1ee7fc4f400fd6783af",
+      "candidateSha256": "9ebfcb02ffabee33192c77061a4986752205fbefecffc1ee7fc4f400fd6783af",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0008_snapshot.json",
+      "baseSha256": "508809a0f83510a8abd6fd3fe65a1d8e08e1ff8c0b0a7efec66ebf7f5696b1c8",
+      "candidateSha256": "508809a0f83510a8abd6fd3fe65a1d8e08e1ff8c0b0a7efec66ebf7f5696b1c8",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0009_snapshot.json",
+      "baseSha256": "9681e0bfc356176f32261c0e7910e93325a633dbd710b0f891c6f604b10dba46",
+      "candidateSha256": "9681e0bfc356176f32261c0e7910e93325a633dbd710b0f891c6f604b10dba46",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0010_snapshot.json",
+      "baseSha256": "fcccbaa71fab5830c1143267bfe1d464ebfc37ce9d797fa620a2e2d3d50dd34a",
+      "candidateSha256": "fcccbaa71fab5830c1143267bfe1d464ebfc37ce9d797fa620a2e2d3d50dd34a",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0011_snapshot.json",
+      "baseSha256": "d30b2e53031afc6fc676ab559b9172643562ae04aa20abe97c3116e41f2092fd",
+      "candidateSha256": "d30b2e53031afc6fc676ab559b9172643562ae04aa20abe97c3116e41f2092fd",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/0012_snapshot.json",
+      "baseSha256": "517046c69234002e26e7510c96372bf1d8711ea54b6ba417968581cc3f407cea",
+      "candidateSha256": "517046c69234002e26e7510c96372bf1d8711ea54b6ba417968581cc3f407cea",
+      "identical": true
+    },
+    {
+      "path": "db/recruitment/migrations/meta/_journal.json",
+      "baseSha256": "d4b88491cc14ed033fac71dc48402feb30cae67a98b64e213c7942aed47e710a",
+      "candidateSha256": "d4b88491cc14ed033fac71dc48402feb30cae67a98b64e213c7942aed47e710a",
+      "identical": true
+    }
+  ]
+}

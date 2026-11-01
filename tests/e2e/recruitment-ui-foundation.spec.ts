@@ -159,18 +159,22 @@ for (const width of widths) {
     }
     measurements.account = await reflow(page);
     await capture(page, `account-sessions-${width}`, info);
-    await page.goto(`${target.appOrigin}/recruitments`);
+    await page.goto(`${target.appOrigin}/recruitments?view=list`);
     await expect(
       page.getByRole("heading", { name: "Rekrutacje", exact: true }),
     ).toBeVisible();
     await expect(
-      page.getByRole("link", { name: title, exact: true }),
+      page.getByRole("button", { name: title, exact: true }),
     ).toBeVisible();
     measurements.list = await reflow(page);
     await capture(page, `recruitments-${width}`, info);
-    await page.getByRole("link", { name: title, exact: true }).click();
+    await page.getByRole("button", { name: title, exact: true }).click();
+    await page
+      .getByRole("dialog", { name: "Podgląd sprawy", exact: true })
+      .getByRole("link", { name: "Otwórz pełną stronę", exact: true })
+      .click();
     await expect(page).toHaveURL(
-      `${target.appOrigin}/recruitments/${detailId}`,
+      new RegExp(`/recruitments/${detailId}(?:[?]|$)`),
     );
     await expect(
       page.getByRole("heading", { name: title, exact: true }),

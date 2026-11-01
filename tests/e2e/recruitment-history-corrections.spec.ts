@@ -202,7 +202,7 @@ for (const width of [1440, 375])
     await page.goto(`${target.appOrigin}/recruitments`);
     await expect(
       page.getByRole("listitem").filter({
-        has: page.getByRole("link", { name: c.title, exact: true }),
+        has: page.getByRole("button", { name: c.title, exact: true }),
       }),
     ).toContainText("Zapisane");
   });
