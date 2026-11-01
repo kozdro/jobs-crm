@@ -16,8 +16,14 @@ import {
   ledgerCheckpoint,
   sha256,
   recruitmentProjectId,
+  recruitmentConfigForProfile,
+  recruitmentPortProfiles,
 } from "./validation.ts";
-import type { RecruitmentManifest, LedgerRow } from "./validation.ts";
+import type {
+  RecruitmentManifest,
+  LedgerRow,
+  RecruitmentPortProfile,
+} from "./validation.ts";
 import { createDockerGuard } from "../db/docker-guard.ts";
 import { planRecruitmentCleanup } from "./cleanup-plan.ts";
 import type { CleanupInventory } from "./cleanup-plan.ts";
@@ -29,11 +35,19 @@ import {
 const root = resolve(import.meta.dirname, "../..");
 const state = join(root, ".recruitment-local");
 const label = "jobs-crm.recruitment-local";
-const publishedPorts = {
-  "5432/tcp": "56622",
-  "8000/tcp": "56621",
-  "8025/tcp": "56624",
-};
+const freshPortProfile: RecruitmentPortProfile = "isolated";
+const freshPorts = recruitmentPortProfiles[freshPortProfile];
+function portsFor(m: Manifest) {
+  return recruitmentPortProfiles[m.portProfile ?? "legacy"];
+}
+function publishedPortsFor(m: Manifest) {
+  const ports = portsFor(m);
+  return {
+    "5432/tcp": String(ports.db),
+    "8000/tcp": String(ports.api),
+    "8025/tcp": String(ports.smtp),
+  };
+}
 const excluded =
   "realtime,storage-api,imgproxy,postgres-meta,studio,edge-runtime,logflare,vector,supavisor";
 const exec = promisify(execFile);
@@ -137,6 +151,8 @@ async function manifestFor(id: string, retiringPrestartTarget = false) {
   return m;
 }
 async function inspectOwned(m: Manifest) {
+  const expectedPorts = publishedPortsFor(m);
+  const ports = portsFor(m);
   await localEngine();
   const network = JSON.parse(
     await docker("network", "inspect", m.networkId),
@@ -179,9 +195,9 @@ async function inspectOwned(m: Manifest) {
         }[]) {
           if (
             binding.HostIp !== "127.0.0.1" ||
-            !Object.hasOwn(publishedPorts, port) ||
+            !Object.hasOwn(expectedPorts, port) ||
             binding.HostPort !==
-              publishedPorts[port as keyof typeof publishedPorts]
+              expectedPorts[port as keyof typeof expectedPorts]
           )
             throw new Error("Recruitment effective/requested binding drift");
         }
@@ -189,9 +205,9 @@ async function inspectOwned(m: Manifest) {
     }
   }
   for (const [service, port, host] of [
-    ["db", "5432/tcp", "56622"],
-    ["kong", "8000/tcp", "56621"],
-    ["inbucket", "8025/tcp", "56624"],
+    ["db", "5432/tcp", String(ports.db)],
+    ["kong", "8000/tcp", String(ports.api)],
+    ["inbucket", "8025/tcp", String(ports.smtp)],
   ]) {
     if (
       cs.find(
@@ -242,16 +258,25 @@ export async function startRecruitmentTarget(
   if (existsSync(dir))
     throw new Error("Recruitment target exists; inspect/cleanup explicitly");
   const originalSocket = await localEngine();
-  for (const port of [56621, 56622, 56624]) await freePort(port);
+  for (const port of [
+    freshPorts.api,
+    freshPorts.db,
+    freshPorts.shadow,
+    freshPorts.studio,
+    freshPorts.smtp,
+  ])
+    await freePort(port);
   if ((await cli(root, ["--version"])).trim() !== "2.122.0")
     throw new Error("Recruitment CLI pin mismatch");
   const projectId = recruitmentProjectId(
     id,
     randomUUID().replaceAll("-", "").slice(0, 12),
   );
-  const config = (
-    await readFile(join(root, "supabase/recruitment-config.toml"), "utf8")
-  ).replace("jobs-crm-recruitment-local-template", projectId);
+  const config = recruitmentConfigForProfile(
+    await readFile(join(root, "supabase/recruitment-config.toml"), "utf8"),
+    projectId,
+    freshPortProfile,
+  );
   const m: Manifest = {
     id,
     owner: "jobs-crm-recruitment-local",
@@ -259,6 +284,7 @@ export async function startRecruitmentTarget(
     networkId: `network-${projectId}`,
     workdir: dir,
     configHash: sha256(config),
+    portProfile: freshPortProfile,
     migrationCheckpoint: ledgerCheckpoint([]),
     createdAt: new Date().toISOString(),
   };
@@ -280,7 +306,7 @@ export async function startRecruitmentTarget(
   );
   const guard = await createDockerGuard(originalSocket, {
     ...m,
-    publishedPorts,
+    publishedPorts: publishedPortsFor(m),
     networkLabel: label,
   });
   try {
@@ -318,7 +344,11 @@ export async function readRecruitmentTarget(
     throw new Error("Recruitment creation not verified");
   await inspectOwned(m);
   const s = JSON.parse(await cli(m.workdir, ["status", "--output", "json"]));
-  const url = assertEndpoints(s.DB_URL, s.API_URL, { api: 56621, db: 56622 });
+  const ports = portsFor(m);
+  const url = assertEndpoints(s.DB_URL, s.API_URL, {
+    api: ports.api,
+    db: ports.db,
+  });
   if (!s.ANON_KEY || !s.SERVICE_ROLE_KEY)
     throw new Error("Recruitment fixture keys absent");
   return {
@@ -326,11 +356,11 @@ export async function readRecruitmentTarget(
     apiUrl: s.API_URL,
     anonKey: s.ANON_KEY,
     serviceRoleKey: s.SERVICE_ROLE_KEY,
-    mailUrl: "http://127.0.0.1:56624",
+    mailUrl: `http://127.0.0.1:${ports.smtp}`,
     appOrigin: "https://127.0.0.1:3153",
     db: {
       host: "127.0.0.1",
-      port: 56622,
+      port: ports.db,
       database: "postgres",
       user: "postgres",
       password: decodeURIComponent(url.password),
@@ -527,7 +557,11 @@ export async function stopRecruitmentTarget(id: string) {
     ? JSON.parse(await docker("network", "inspect", m.networkId))[0]
     : undefined;
   // Validate the entire partial inventory before the first mutation; no healthy services required.
-  const plan = planRecruitmentCleanup(m, { containers, volumes, network });
+  const plan = planRecruitmentCleanup(
+    m,
+    { containers, volumes, network },
+    { publishedPorts: publishedPortsFor(m), networkLabel: label },
+  );
   const receipt = {
     projectId: m.projectId,
     configHash: m.configHash,

@@ -307,6 +307,16 @@ Bez nowych FR/AC i zmiany ich znaczenia: FR/AC-QC-002/006/007/009/010/011 (czter
 
 ## Quick Capture — zatwierdzony kontrakt atomowego Działania, DEC-061
 
-2026-11-01, jawna decyzja PO: **P1/P2/P3 APPROVED; implementacja pozostaje osobnym zadaniem.** [DEC-061](../decisions/product-decisions.md), [zaakceptowany artefakt i hash](../technical/quick-capture-atomic-action-proposal.md), [częściowe OPEN-002/024/026/037](../decisions/open-questions.md). Powiązania zachowują istniejące znaczenie: FR/AC-QC-002/006/007/009/010/011, LC-001/004/005/006/014, HE-001/002/003 i AD-002; UC/TC-001/002/003/004/029/034 częściowo. Nowa komenda łączy CREATE+opcjonalny FACT+status, pełny zamiar/receipt/recovery i jawny UX; docelowe przypadki pozytywne, rollback, duplikaty/race, legacy, malformed/stale recovery i A/B/anon wskazuje §8 kontraktu.
+2026-11-01, jawna decyzja PO: **P1/P2/P3 APPROVED**; osobne zlecenie w tej rozmowie autoryzuje implementację i osobny PR, bez merge/deploymentu/persistent DEV. [DEC-061](../decisions/product-decisions.md), [zaakceptowany artefakt i hash](../technical/quick-capture-atomic-action-proposal.md), [częściowe OPEN-002/024/026/037](../decisions/open-questions.md). Powiązania zachowują istniejące znaczenie: FR/AC-QC-002/006/007/009/010/011, LC-001/004/005/006/014, HE-001/002/003 i AD-002; UC/TC-001/002/003/004/029/034 częściowo. Nowa komenda łączy CREATE+opcjonalny FACT+status, pełny zamiar/receipt/recovery i jawny UX; docelowe przypadki pozytywne, rollback, duplikaty/race, legacy, malformed/stale recovery i A/B/anon wskazuje §8 kontraktu.
 
-**Wykonanie złożonego zapisu i jego macierzy: NOT IMPLEMENTED / NOT RUN.** Bramka akceptacji kontraktu rozstrzygnięta; pozostaje osobne zlecenie implementacji. Bez nowych ID FR/AC lub zmiany obecnych kryteriów w tym zapisie; szczegółowe nowe AC otrzymają stabilne ID przed zależną implementacją, bez nadania historycznym testom nowego pokrycia. Hardening/save-only i jego wykonane regresje nie dowodzą pełnego QC Działanie; CalendarEvent/pełny TC-012/TC-024 i publiczne bramki pozostają odrębne.
+| Szczegółowe AC | Pokrycie wymagane | Wynik local QA |
+|---|---|---|
+| AC-QC-061-01 | cztery warianty akcji, status, brak etapu i niezależność Sytuacji | PASS: unit + integracje + browser E2E; pełny runner 153/153 + 137/137 |
+| AC-QC-061-02 | transaction rollback, pełny intent, replay/conflict i równoległe użycie requestId | PASS: rollback/concurrency/replay/conflict w izolowanej bazie; objęte 153/153 integracjami |
+| AC-QC-061-03 | owner-scoped immutable recovery, brak fałszywego rollbacku, kompatybilność legacy/history | PASS: receipt, unknown outcome, legacy compatibility i refresh recovery; 153/153 + 137/137 |
+| AC-QC-061-04 | warning bez mutacji, świadoma nowa sprawa, pełny matchset/intent, wyścig | PASS: matchset, acknowledgement, brak mutacji i duplicate race; objęte 153/153 integracjami oraz 137/137 browser E2E |
+| AC-QC-061-05 | cztery kroki, explicit action/confirmation, summary, dirty/error/save-next | PASS: dedicated unit/UI, 137/137 browser E2E |
+| AC-QC-061-06 | brak prywatnego payloadu w browser storage/URL/logach/artefaktach | PASS: Asercje storage/URL/logów i build artifacts; skan 24 browser files i 15 HTML/RSC files |
+| AC-QC-061-07 | A/B/anon, direct Data API/RPC, spoofing, grants/RLS/invoker | PASS: rzeczywisty local Auth/Data API i bezpośredni RPC A/B/anon; objęte 153/153 integracjami |
+
+Wyniki, dokładne komendy, nieudane próby i ograniczenia: [raport slice'a](../technical/quick-capture-atomic-action-implementation.md). Lokalny runner zakończony PASS na izolowanym targetcie. Niezależne review i hosted CI pozostają osobnymi bramkami do finalnego raportu. CalendarEvent/pełny TC-012/TC-024 i publiczne bramki pozostają odrębne.

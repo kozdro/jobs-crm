@@ -4,7 +4,7 @@ export default defineConfig({
   dialect: "postgresql",
   schema: "./db/recruitment/schema.ts",
   out: "./db/recruitment/migrations",
-  schemaFilter: ["public"],
+  schemaFilter: ["public", "recruitment_private"],
   migrations: {
     schema: "recruitment_migrations",
     table: "__drizzle_migrations",

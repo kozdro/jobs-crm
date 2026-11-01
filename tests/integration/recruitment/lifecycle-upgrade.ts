@@ -54,8 +54,13 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
     };
     assert.equal(
       journal.entries.length,
-      14,
+      15,
       "Upgrade test must cover the exact current migration history",
+    );
+    assert.equal(
+      journal.entries.at(-1)?.tag,
+      "0014_quick_capture_atomic_action",
+      "The exact current migration history includes DEC-061 atomic capture",
     );
     for (const entry of journal.entries.slice(0, 7)) await apply(entry.tag);
     const owner = randomUUID();

@@ -9,6 +9,7 @@ import {
   integer,
   jsonb,
   pgTable,
+  pgSchema,
   text,
   timestamp,
   unique,
@@ -16,6 +17,8 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { authUsers } from "drizzle-orm/supabase";
+
+const recruitmentPrivate = pgSchema("recruitment_private");
 
 export const recruitmentCase = pgTable(
   "recruitment_case",
@@ -124,6 +127,57 @@ export const recruitmentCaseEvent = pgTable(
     ),
   ],
 ).enableRLS();
+
+/** Owner-scoped immutable receipt for the compound Quick Capture command. */
+export const recruitmentCaseCaptureReceipt = recruitmentPrivate
+  .table(
+    "recruitment_case_capture_receipt",
+    {
+      ownerId: uuid("owner_id")
+        .default(sql`auth.uid()`)
+        .notNull(),
+      requestId: uuid("request_id").notNull(),
+      contractVersion: integer("contract_version").notNull(),
+      intent: jsonb("intent").notNull(),
+      intentFingerprint: text("intent_fingerprint").notNull(),
+      caseId: uuid("case_id").notNull(),
+      eventId: uuid("event_id"),
+      receipt: jsonb("receipt").notNull(),
+      recordedAt: timestamp("recorded_at", { withTimezone: true })
+        .defaultNow()
+        .notNull(),
+    },
+    (table) => [
+      unique("recruitment_case_capture_receipt_owner_request_unique").on(
+        table.ownerId,
+        table.requestId,
+      ),
+      foreignKey({
+        name: "recruitment_case_capture_receipt_owner_fk",
+        columns: [table.ownerId],
+        foreignColumns: [authUsers.id],
+      }).onDelete("no action"),
+      foreignKey({
+        name: "recruitment_case_capture_receipt_owned_case_fk",
+        columns: [table.ownerId, table.caseId],
+        foreignColumns: [recruitmentCase.ownerId, recruitmentCase.id],
+      }).onDelete("no action"),
+      foreignKey({
+        name: "recruitment_case_capture_receipt_event_fk",
+        columns: [table.eventId],
+        foreignColumns: [recruitmentCaseEvent.id],
+      }).onDelete("no action"),
+      check(
+        "recruitment_case_capture_receipt_contract_valid",
+        sql`${table.contractVersion} = 1 AND ${table.intentFingerprint} ~ '^[0-9a-f]{32}$'`,
+      ),
+      index("recruitment_case_capture_receipt_owner_case_idx").on(
+        table.ownerId,
+        table.caseId,
+      ),
+    ],
+  )
+  .enableRLS();
 
 /** Immutable correction intents and their server-derived audit snapshots. */
 export const recruitmentCaseEventRevision = pgTable(

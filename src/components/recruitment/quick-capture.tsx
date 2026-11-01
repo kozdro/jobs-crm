@@ -8,17 +8,30 @@ import { Dialog } from "@base-ui/react/dialog";
 import { AlertDialog } from "@base-ui/react/alert-dialog";
 import { Plus, X, LoaderCircle } from "lucide-react";
 import { getBrowserClient } from "@/modules/identity/infrastructure/browser";
+import {
+  isCalendarDate,
+  warsawToday,
+} from "@/modules/recruitment/domain/case-events";
 import { getRecruitmentCaseByRequestId } from "@/modules/recruitment/application/cases";
+import type {
+  QuickCaptureAction,
+  QuickCaptureAtomicInput,
+  QuickCaptureAtomicReceipt,
+  QuickCaptureAtomicResult,
+} from "@/modules/recruitment/domain/quick-capture-atomic";
 import {
   parseCreateCaseInput,
-  type CreateCaseInput,
-  type CreateCaseResult,
   type RecruitmentCase,
+  uuidPattern,
 } from "@/modules/recruitment/domain/recruitment-case";
 import {
+  captureActionLabel,
+  captureStatus,
   intentStorageKey,
+  makeCaptureAction,
   parsePendingIntent,
   resolveSaveNext,
+  type CaptureActionKind,
 } from "./intent";
 import { SavedCaseNotice } from "./saved-case-notice";
 import { recoveryRequiresLogin } from "./recovery-session";
@@ -36,7 +49,78 @@ const situations = [
   "Spontaniczna kandydatura",
   "Inna / bez określenia",
 ] as const;
-type DuplicateResult = Extract<CreateCaseResult, { kind: "duplicates" }>;
+type DuplicateResult = Extract<
+  QuickCaptureAtomicResult,
+  { kind: "duplicates" }
+>;
+type AtomicCaptureAction = QuickCaptureAction;
+type AtomicCaptureCommand = Pick<
+  QuickCaptureAtomicInput,
+  "contractVersion" | "requestId" | "intent"
+>;
+type AtomicCaptureReceipt = QuickCaptureAtomicReceipt;
+function isAtomicReceipt(
+  value: unknown,
+  requestId: string,
+): value is AtomicCaptureReceipt {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const receipt = value as Partial<AtomicCaptureReceipt>;
+  const intent = receipt.intent;
+  const action = intent?.action;
+  return Boolean(
+    receipt.requestId === requestId &&
+    receipt.contractVersion === 1 &&
+    typeof receipt.intentFingerprint === "string" &&
+    /^[0-9a-f]{32}$/.test(receipt.intentFingerprint) &&
+    typeof receipt.recordedAt === "string" &&
+    Number.isFinite(Date.parse(receipt.recordedAt)) &&
+    intent &&
+    typeof intent.title === "string" &&
+    (typeof intent.description === "string" || intent.description === null) &&
+    (typeof intent.sourceUrl === "string" || intent.sourceUrl === null) &&
+    action &&
+    (action.kind === "save_only"
+      ? Object.keys(action).length === 1
+      : ["application", "contact_inbound", "contact_outbound"].includes(
+          action.kind,
+        ) &&
+        Object.keys(action).length === 3 &&
+        (action.occurredOn === null ||
+          (typeof action.occurredOn === "string" &&
+            isCalendarDate(action.occurredOn))) &&
+        action.factConfirmed === true) &&
+    receipt.case &&
+    typeof receipt.case.id === "string" &&
+    uuidPattern.test(receipt.case.id) &&
+    typeof receipt.case.title === "string" &&
+    ["Zapisane", "Kontakt rozpoczęty"].includes(receipt.case.status) &&
+    (receipt.event === null || typeof receipt.event === "object"),
+  );
+}
+
+function isAtomicDuplicateResult(value: unknown): value is DuplicateResult {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const result = value as Partial<DuplicateResult>;
+  return Boolean(
+    result.kind === "duplicates" &&
+    Array.isArray(result.matches) &&
+    result.matches.length > 0 &&
+    result.matches.length <= 20 &&
+    result.matches.every(
+      (item) =>
+        item &&
+        typeof item.id === "string" &&
+        uuidPattern.test(item.id) &&
+        typeof item.title === "string" &&
+        typeof item.status === "string",
+    ) &&
+    typeof result.hasMore === "boolean" &&
+    typeof result.intentFingerprint === "string" &&
+    /^[0-9a-f]{32}$/.test(result.intentFingerprint) &&
+    typeof result.matchSetFingerprint === "string" &&
+    /^[0-9a-f]{32}$/.test(result.matchSetFingerprint),
+  );
+}
 
 export function QuickCapture({ userId }: { userId: string }) {
   // A changed verified owner gets a new draft lifetime, including every portal.
@@ -54,7 +138,7 @@ function CaptureSession({ userId }: { userId: string }) {
   const pendingRef = useRef(false);
   const liveRef = useRef(true);
   const lifetimeRef = useRef(0);
-  const frozenRef = useRef<CreateCaseInput | null>(null);
+  const frozenRef = useRef<AtomicCaptureCommand | null>(null);
   const saveNextRef = useRef(false);
   const [sessionLive, setSessionLive] = useState(true);
   const [open, setOpen] = useState(false);
@@ -64,10 +148,13 @@ function CaptureSession({ userId }: { userId: string }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
-  const [action, setAction] = useState(false);
+  const [actionKind, setActionKind] = useState<CaptureActionKind | null>(null);
+  const [occurredOn, setOccurredOn] = useState("");
+  const [factConfirmed, setFactConfirmed] = useState(false);
   const [requestId, setRequestId] = useState("");
   const [pending, setPending] = useState(false);
   const [payloadFrozen, setPayloadFrozen] = useState(false);
+  const [retryAvailable, setRetryAvailable] = useState(false);
   const [uncertain, setUncertain] = useState(false);
   const [recovering, setRecovering] = useState(false);
   const [duplicates, setDuplicates] = useState<DuplicateResult | null>(null);
@@ -76,8 +163,9 @@ function CaptureSession({ userId }: { userId: string }) {
     Partial<Record<"title" | "description" | "sourceUrl", string>>
   >({});
   const [toast, setToast] = useState<RecruitmentCase | null>(null);
+  const [toastOutcome, setToastOutcome] = useState<string | null>(null);
   const dirty = Boolean(
-    situation || title || description || sourceUrl || action,
+    situation || title || description || sourceUrl || actionKind,
   );
 
   function clearStoredIntent() {
@@ -103,19 +191,33 @@ function CaptureSession({ userId }: { userId: string }) {
     setTitle("");
     setDescription("");
     setSourceUrl("");
-    setAction(false);
+    setActionKind(null);
+    setOccurredOn("");
+    setFactConfirmed(false);
     setStep(0);
     setError(null);
     setErrors({});
     setDuplicates(null);
     setUncertain(false);
     setPayloadFrozen(false);
+    setRetryAvailable(false);
     saveNextRef.current = false;
     frozenRef.current = null;
   }
-  function success(item: RecruitmentCase, addNext: boolean) {
+  function success(
+    item: RecruitmentCase,
+    addNext: boolean,
+    savedAction: AtomicCaptureAction = { kind: "save_only" },
+  ) {
     clearStoredIntent();
     setToast(item);
+    setToastOutcome(
+      `${captureActionLabel(savedAction.kind)}. Status po zapisie: ${item.status}${
+        savedAction.kind !== "save_only"
+          ? `; dzień działania: ${savedAction.occurredOn || "nieznany"}`
+          : "; bez zdarzenia aplikowania lub kontaktu"
+      }.`,
+    );
     resetDraft();
     setOpen(addNext);
     router.refresh();
@@ -158,19 +260,53 @@ function CaptureSession({ userId }: { userId: string }) {
         requireLogin();
         return;
       }
-      const found = await getRecruitmentCaseByRequestId(client, id);
+      const response = await fetch(
+        `/recruitments/commands?requestId=${encodeURIComponent(id)}`,
+        { credentials: "same-origin", cache: "no-store" },
+      );
       if (!currentLifetime()) return;
-      if (found) success(found, false);
-      else {
-        setUncertain(true);
-        setError(
-          "Nie potwierdzono wyniku poprzedniego zapisu. Możesz sprawdzić ponownie lub ponowić zapis z tym samym identyfikatorem i tymi samymi danymi. Brak wyniku nie oznacza cofnięcia zapisu.",
-        );
+      if (response.status === 401 || response.status === 403) {
+        requireLogin();
+        return;
       }
+      if (!response.ok) throw new Error("Receipt recovery unavailable");
+      const result = (await response.json()) as unknown;
+      if (!currentLifetime()) return;
+      if (!result || typeof result !== "object" || Array.isArray(result))
+        throw new Error("Malformed receipt recovery response");
+      const envelope = result as Record<string, unknown>;
+      if (envelope.kind === "receipt") {
+        if (
+          Object.keys(envelope).length !== 2 ||
+          !isAtomicReceipt(envelope.receipt, id)
+        )
+          throw new Error("Malformed receipt recovery response");
+        const receipt = envelope.receipt;
+        success(receipt.case, false, receipt.intent.action);
+        return;
+      }
+      if (envelope.kind !== "not-found" || Object.keys(envelope).length !== 1)
+        throw new Error("Malformed receipt recovery response");
+      // Legacy save-only requests predate immutable atomic receipts. Keep their
+      // owner-scoped recovery path without promoting them to fact-bearing writes.
+      const legacy = await getRecruitmentCaseByRequestId(client, id);
+      if (!currentLifetime()) return;
+      if (legacy) {
+        success(legacy, false);
+        return;
+      }
+      setUncertain(true);
+      const canRetryInMemory = Boolean(frozenRef.current);
+      setRetryAvailable(canRetryInMemory);
+      setError(
+        canRetryInMemory
+          ? "Nie znaleziono potwierdzonego wyniku. Możesz sprawdzić ponownie albo ponowić dokładnie ten sam zapis z niezmienionym identyfikatorem. Brak wyniku nie oznacza cofnięcia zapisu."
+          : "Nie znaleziono potwierdzonego wyniku. Po odświeżeniu nie zachowujemy treści szkicu w przeglądarce, więc nie można bezpiecznie ponowić tego zapisu. Sprawdź swoją listę spraw albo porzuć lokalny zamiar. Brak wyniku nie oznacza cofnięcia zapisu.",
+      );
     } catch {
       if (currentLifetime())
         setError(
-          "Nie można sprawdzić poprzedniego zapisu. Zachowano identyfikator; spróbuj ponownie.",
+          "Nie można teraz sprawdzić poprzedniego zapisu. Zachowano identyfikator; spróbuj ponownie.",
         );
     } finally {
       if (lifetimeRef.current === lifetime) {
@@ -274,9 +410,23 @@ function CaptureSession({ userId }: { userId: string }) {
       }
       setErrors({});
     }
-    if (step === 2 && !action) {
-      report("Wybierz „Zapisz tylko sprawę”, aby przejść dalej.");
-      return;
+    if (step === 2) {
+      if (!actionKind) {
+        report("Wybierz, czy zapisać tylko sprawę, czy potwierdzić działanie.");
+        return;
+      }
+      if (
+        actionKind !== "save_only" &&
+        occurredOn &&
+        (!isCalendarDate(occurredOn) || occurredOn > warsawToday())
+      ) {
+        report("Podaj prawidłowy dzień działania, nie późniejszy niż dzisiaj.");
+        return;
+      }
+      if (actionKind !== "save_only" && !factConfirmed) {
+        report("Potwierdź, że to działanie rzeczywiście miało miejsce.");
+        return;
+      }
     }
     setStep(step + 1);
   }
@@ -293,9 +443,16 @@ function CaptureSession({ userId }: { userId: string }) {
     }
   }
   function start() {
-    if (!liveRef.current || pendingRef.current || recovering) return;
+    if (
+      !liveRef.current ||
+      pendingRef.current ||
+      recovering ||
+      (uncertain && !retryAvailable)
+    )
+      return;
     if (!requestId) resetDraft();
     setToast(null);
+    setToastOutcome(null);
     setOpen(true);
   }
   function requestAbandon() {
@@ -308,27 +465,51 @@ function CaptureSession({ userId }: { userId: string }) {
     const lifetime = lifetimeRef.current;
     const currentLifetime = () =>
       liveRef.current && lifetimeRef.current === lifetime;
-    const parsed = frozenRef.current
-      ? { success: true as const, data: frozenRef.current }
-      : input();
+    const parsed = input();
     if (!parsed.success) {
       setErrors(parsed.errors);
       setStep(1);
       report("Sprawdź wprowadzone dane.");
       return;
     }
-    if (!action) {
+    const action = makeCaptureAction(actionKind, occurredOn, factConfirmed);
+    if (!frozenRef.current && !action) {
       setStep(2);
-      report("Wybierz „Zapisz tylko sprawę”.");
+      report(
+        !actionKind
+          ? "Wybierz działanie."
+          : "Potwierdź, że to działanie rzeczywiście miało miejsce.",
+      );
       return;
     }
+    if (
+      !frozenRef.current &&
+      action?.kind !== "save_only" &&
+      action?.occurredOn &&
+      (!isCalendarDate(action.occurredOn) || action.occurredOn > warsawToday())
+    ) {
+      setStep(2);
+      report("Podaj prawidłowy dzień działania, nie późniejszy niż dzisiaj.");
+      return;
+    }
+    const command: AtomicCaptureCommand = frozenRef.current ?? {
+      contractVersion: 1,
+      requestId: parsed.data.requestId,
+      intent: {
+        title: parsed.data.title,
+        description: parsed.data.description,
+        sourceUrl: parsed.data.sourceUrl,
+        action: action!,
+      },
+    };
     pendingRef.current = true;
     setPending(true);
     setPayloadFrozen(true);
     saveNextRef.current = addNext;
     setError(null);
-    frozenRef.current = parsed.data;
-    rememberIntent(parsed.data.requestId);
+    frozenRef.current = command;
+    setRetryAvailable(true);
+    rememberIntent(command.requestId);
     try {
       const response = await fetch("/recruitments/commands", {
         method: "POST",
@@ -336,9 +517,19 @@ function CaptureSession({ userId }: { userId: string }) {
         cache: "no-store",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...parsed.data,
-          allowDuplicate,
+          contractVersion: command.contractVersion,
+          requestId: command.requestId,
+          intent: command.intent,
           expectedUserId: userId,
+          ...(allowDuplicate && duplicates
+            ? {
+                duplicateAcknowledgement: {
+                  intentFingerprint: duplicates.intentFingerprint,
+                  matchSetFingerprint: duplicates.matchSetFingerprint,
+                  createSeparateCase: true,
+                },
+              }
+            : {}),
         }),
         signal: AbortSignal.timeout(20000),
       });
@@ -352,12 +543,14 @@ function CaptureSession({ userId }: { userId: string }) {
           frozenRef.current = null;
           setPayloadFrozen(false);
           setUncertain(false);
+          setRetryAvailable(false);
           clearStoredIntent();
           report(
             "Dane nie zostały przyjęte. Sprawdź formularz i spróbuj ponownie.",
           );
         } else {
           setUncertain(true);
+          if (response.status === 409) setRetryAvailable(false);
           report(
             response.status === 409
               ? "Ten identyfikator zapisu dotyczy innych danych. Sprawdź wynik wcześniejszego zapisu; niczego nie nadpisano."
@@ -366,21 +559,29 @@ function CaptureSession({ userId }: { userId: string }) {
         }
         return;
       }
-      const result = (await response.json()) as CreateCaseResult;
+      const result = (await response.json()) as unknown;
       if (!currentLifetime()) return;
-      if (result.kind === "duplicates") {
+      if (isAtomicDuplicateResult(result)) {
         setDuplicates(result);
         setUncertain(false);
         frozenRef.current = null;
         setPayloadFrozen(false);
+        setRetryAvailable(false);
         clearStoredIntent();
         requestAnimationFrame(() => feedbackRef.current?.focus());
       } else if (
-        (result.kind === "created" || result.kind === "replayed") &&
-        result.case?.id
-      )
-        success(result.case, addNext);
-      else {
+        result &&
+        typeof result === "object" &&
+        ((result as { kind?: unknown }).kind === "created" ||
+          (result as { kind?: unknown }).kind === "replayed") &&
+        isAtomicReceipt(
+          (result as { receipt?: unknown }).receipt,
+          command.requestId,
+        )
+      ) {
+        const receipt = (result as { receipt: AtomicCaptureReceipt }).receipt;
+        success(receipt.case, addNext, receipt.intent.action);
+      } else {
         setUncertain(true);
         report("Nie potwierdzono wyniku zapisu. Ponów tę samą operację.");
       }
@@ -399,6 +600,11 @@ function CaptureSession({ userId }: { userId: string }) {
     }
   }
   const summary = input();
+  const currentAction = makeCaptureAction(
+    actionKind,
+    occurredOn,
+    factConfirmed,
+  );
   const frozen = payloadFrozen || pending;
   if (!sessionLive) return null;
   return (
@@ -407,7 +613,7 @@ function CaptureSession({ userId }: { userId: string }) {
         ref={triggerRef}
         type="button"
         onClick={start}
-        disabled={recovering}
+        disabled={recovering || (uncertain && !retryAvailable)}
         className={primaryClass}
       >
         <Plus aria-hidden="true" size={18} />
@@ -446,8 +652,16 @@ function CaptureSession({ userId }: { userId: string }) {
       <SavedCaseNotice
         item={open ? null : toast}
         floating
-        onDismiss={() => setToast(null)}
+        onDismiss={() => {
+          setToast(null);
+          setToastOutcome(null);
+        }}
       />
+      {!open && toastOutcome && (
+        <p role="status" className="basis-full text-sm text-muted-foreground">
+          {toastOutcome}
+        </p>
+      )}
       <Dialog.Root
         open={open}
         disablePointerDismissal
@@ -485,8 +699,16 @@ function CaptureSession({ userId }: { userId: string }) {
             <div className={toast ? "mt-4" : undefined}>
               <SavedCaseNotice
                 item={open ? toast : null}
-                onDismiss={() => setToast(null)}
+                onDismiss={() => {
+                  setToast(null);
+                  setToastOutcome(null);
+                }}
               />
+              {open && toastOutcome && (
+                <p role="status" className="mt-2 text-sm text-muted-foreground">
+                  {toastOutcome}
+                </p>
+              )}
             </div>
             <ol
               className="mt-6 grid grid-cols-4 gap-2 border-b border-border pb-5"
@@ -644,7 +866,10 @@ function CaptureSession({ userId }: { userId: string }) {
                         id="case-description"
                         rows={5}
                         value={description}
-                        onChange={(event) => setDescription(event.target.value)}
+                        onChange={(event) => {
+                          setDescription(event.target.value);
+                          setDuplicates(null);
+                        }}
                         disabled={frozen}
                         aria-invalid={Boolean(errors.description)}
                         aria-describedby={`case-description-hint${errors.description ? " case-description-error" : ""}`}
@@ -670,23 +895,95 @@ function CaptureSession({ userId }: { userId: string }) {
                 </>
               )}
               {step === 2 && (
-                <fieldset className="space-y-3">
-                  <legend className="sr-only">Działanie przy zapisie</legend>
-                  <label className="flex min-h-14 cursor-pointer items-start gap-3 rounded-lg border border-input p-4 text-sm has-checked:border-primary has-checked:bg-accent">
-                    <input
-                      type="radio"
-                      name="case-action"
-                      checked={action}
-                      onChange={() => setAction(true)}
-                      disabled={frozen}
-                      className="mt-0.5 size-4 accent-primary"
-                    />
-                    <span>Zapisz tylko sprawę</span>
-                  </label>
+                <fieldset className="space-y-3" disabled={frozen}>
+                  <legend className="mb-2 text-sm font-medium">
+                    Co chcesz rzeczywiście zarejestrować?
+                  </legend>
                   <p className="text-sm leading-6 text-muted-foreground">
-                    Nowa sprawa otrzyma status „Zapisane”. Zapis nie oznacza
-                    aplikowania, wysłania CV ani kontaktu.
+                    Wybór Sytuacji nie wybiera Działania. Możesz zapisać samą
+                    sprawę albo jawnie potwierdzić jeden rzeczywisty fakt.
                   </p>
+                  {(
+                    [
+                      ["save_only", "Zapisz tylko sprawę"],
+                      ["application", "Rzeczywiście aplikowano"],
+                      ["contact_inbound", "Kontakt przychodzący (inbound)"],
+                      ["contact_outbound", "Kontakt wychodzący (outbound)"],
+                    ] as const
+                  ).map(([kind, label]) => (
+                    <label
+                      key={kind}
+                      className="flex min-h-14 cursor-pointer items-start gap-3 rounded-lg border border-input p-4 text-sm has-checked:border-primary has-checked:bg-accent"
+                    >
+                      <input
+                        type="radio"
+                        name="case-action"
+                        value={kind}
+                        checked={actionKind === kind}
+                        onChange={() => {
+                          setActionKind(kind);
+                          setFactConfirmed(false);
+                          setDuplicates(null);
+                        }}
+                        className="mt-0.5 size-4 accent-primary"
+                      />
+                      <span>{label}</span>
+                    </label>
+                  ))}
+                  {actionKind === "save_only" && (
+                    <p className="text-sm leading-6 text-muted-foreground">
+                      Sprawa otrzyma status „Zapisane”. Nie zapisze się fakt
+                      aplikowania ani kontaktu, także gdy Sytuacja opisuje
+                      wykonaną aplikację.
+                    </p>
+                  )}
+                  {actionKind && actionKind !== "save_only" && (
+                    <div className="space-y-4 rounded-lg border border-border p-4">
+                      <div className="space-y-2">
+                        <label
+                          htmlFor="case-action-date"
+                          className="block text-sm font-medium"
+                        >
+                          Dzień działania (opcjonalnie)
+                        </label>
+                        <input
+                          id="case-action-date"
+                          type="date"
+                          max={warsawToday()}
+                          value={occurredOn}
+                          onChange={(event) => {
+                            setOccurredOn(event.target.value);
+                            setFactConfirmed(false);
+                            setDuplicates(null);
+                          }}
+                          aria-describedby="case-action-date-hint"
+                          className={inputClass}
+                        />
+                        <p
+                          id="case-action-date-hint"
+                          className="text-xs leading-5 text-muted-foreground"
+                        >
+                          Puste pole oznacza, że dzień jest nieznany. Nie
+                          zastępujemy go datą zapisu w CRM.
+                        </p>
+                      </div>
+                      <label className="flex min-h-11 cursor-pointer items-start gap-3 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={factConfirmed}
+                          onChange={(event) => {
+                            setFactConfirmed(event.target.checked);
+                            setDuplicates(null);
+                          }}
+                          className="mt-0.5 size-4 shrink-0 accent-primary"
+                        />
+                        <span>
+                          Potwierdzam, że to działanie rzeczywiście miało
+                          miejsce
+                        </span>
+                      </label>
+                    </div>
+                  )}
                 </fieldset>
               )}
               {step === 3 && summary.success && (
@@ -695,17 +992,45 @@ function CaptureSession({ userId }: { userId: string }) {
                     <dt className="text-muted-foreground">
                       Sytuacja (pomocniczo)
                     </dt>
-                    <dd className="mt-1">{situation || "Nie określono"}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">Nazwa sprawy</dt>
-                    <dd className="mt-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
-                      {summary.data.title}
+                    <dd className="mt-1 space-y-2">
+                      <span>{situation || "Nie określono"}</span>
+                      <Button
+                        type="button"
+                        disabled={frozen || recovering}
+                        className={buttonClass}
+                        onClick={() => {
+                          setError(null);
+                          setStep(0);
+                        }}
+                      >
+                        Popraw sytuację
+                      </Button>
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-muted-foreground">Status</dt>
-                    <dd className="mt-1">Zapisane</dd>
+                    <dt className="text-muted-foreground">Nazwa sprawy</dt>
+                    <dd className="mt-1 space-y-2">
+                      <span className="block whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
+                        {summary.data.title}
+                      </span>
+                      <Button
+                        type="button"
+                        disabled={frozen || recovering}
+                        className={buttonClass}
+                        onClick={() => {
+                          setError(null);
+                          setStep(1);
+                        }}
+                      >
+                        Popraw dane
+                      </Button>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">Status po zapisie</dt>
+                    <dd className="mt-1">
+                      {actionKind ? captureStatus(actionKind) : "Do ustalenia"}
+                    </dd>
                   </div>
                   {summary.data.description && (
                     <div>
@@ -724,8 +1049,48 @@ function CaptureSession({ userId }: { userId: string }) {
                     </div>
                   )}
                   <div>
-                    <dt className="text-muted-foreground">Działanie</dt>
-                    <dd className="mt-1">Zapisz tylko sprawę</dd>
+                    <dt className="text-muted-foreground">
+                      Rzeczywiście rejestrowane działanie
+                    </dt>
+                    <dd className="mt-1">
+                      {actionKind
+                        ? captureActionLabel(actionKind)
+                        : "Nie wybrano"}
+                    </dd>
+                  </div>
+                  {currentAction && currentAction.kind !== "save_only" && (
+                    <>
+                      <div>
+                        <dt className="text-muted-foreground">
+                          Dzień działania
+                        </dt>
+                        <dd className="mt-1">
+                          {currentAction.occurredOn || "Nieznany"}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-muted-foreground">
+                          Potwierdzenie faktu
+                        </dt>
+                        <dd className="mt-1">Tak</dd>
+                      </div>
+                    </>
+                  )}
+                  <div>
+                    <dt className="text-muted-foreground">Zmiana działania</dt>
+                    <dd className="mt-1">
+                      <Button
+                        type="button"
+                        disabled={frozen || recovering}
+                        className={buttonClass}
+                        onClick={() => {
+                          setError(null);
+                          setStep(2);
+                        }}
+                      >
+                        Popraw działanie
+                      </Button>
+                    </dd>
                   </div>
                 </dl>
               )}
