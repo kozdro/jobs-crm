@@ -528,6 +528,29 @@ test(
           "replayed",
         );
         assert.equal((await audit(detached.id)).length, 2);
+        const {
+          p_expected_task_snapshot: _taskSnapshot,
+          p_task_resolutions: _taskResolutions,
+          ...legacyReplay
+        } = result.payload;
+        void _taskSnapshot;
+        void _taskResolutions;
+        denied(await call("confirm_recruitment_case_lifecycle", legacyReplay));
+        denied(
+          await call("confirm_recruitment_case_lifecycle_tasks", legacyReplay),
+        );
+        denied(
+          await call("confirm_recruitment_case_lifecycle_tasks", {
+            ...legacyReplay,
+            p_expected_task_snapshot: [],
+            p_task_resolutions: [],
+          }),
+        );
+        assert.equal(
+          (await audit(canceled.id)).length,
+          2,
+          "mismatched legacy replay never resolves again",
+        );
         denied(
           await call("confirm_recruitment_case_lifecycle_tasks", {
             ...result.payload,
@@ -610,6 +633,28 @@ test(
         assert.equal((await state(c)).status, "Zapisane");
         assert.deepEqual(await readTask(task.id), task);
         assert.deepEqual(await history(c), []);
+        const emptyCase = await createCase();
+        const emptyPreview = await preview(emptyCase);
+        const {
+          p_expected_task_snapshot: _snapshotEmpty,
+          p_task_resolutions: _choicesEmpty,
+          ...emptyLegacy
+        } = closePayload(emptyCase, emptyPreview, []);
+        void _snapshotEmpty;
+        void _choicesEmpty;
+        assert.equal(
+          ok<{ kind: string }>(
+            await call("confirm_recruitment_case_lifecycle", emptyLegacy),
+          ).kind,
+          "created",
+        );
+        assert.equal(
+          ok<{ kind: string }>(
+            await call("confirm_recruitment_case_lifecycle", emptyLegacy),
+          ).kind,
+          "replayed",
+          "original empty-task legacy intent remains compatible",
+        );
       },
     );
 

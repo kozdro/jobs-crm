@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { matchesTaskInvalidation, taskInvalidationEvent } from "./events";
 import type { Task } from "@/modules/recruitment/domain/tasks";
 import {
   taskRequest,
@@ -12,6 +13,7 @@ export function useTaskRead<T>(
   userId: string,
   query: Record<string, string | number | boolean>,
   revision = 0,
+  paused = false,
 ) {
   const key = JSON.stringify(query);
   const scope = `${userId}:${key}`;
@@ -23,6 +25,21 @@ export function useTaskRead<T>(
   }>({ scope, data: null, loading: true, error: false });
   const [retry, setRetry] = useState(0);
   useEffect(() => {
+    const invalidate = (event: Event) => {
+      if (
+        matchesTaskInvalidation(
+          (event as CustomEvent<unknown>).detail,
+          userId,
+          JSON.parse(key),
+        )
+      )
+        setRetry((value) => value + 1);
+    };
+    window.addEventListener(taskInvalidationEvent, invalidate);
+    return () => window.removeEventListener(taskInvalidationEvent, invalidate);
+  }, [userId, key]);
+  useEffect(() => {
+    if (paused) return;
     const controller = new AbortController();
     void Promise.resolve().then(async () => {
       if (controller.signal.aborted) return;
@@ -56,11 +73,11 @@ export function useTaskRead<T>(
       }
     });
     return () => controller.abort();
-  }, [userId, key, scope, revision, retry]);
+  }, [userId, key, scope, revision, retry, paused]);
   return {
     ...state,
     data: state.scope === scope ? state.data : null,
-    loading: state.scope !== scope || state.loading,
+    loading: !paused && (state.scope !== scope || state.loading),
     reload: () => setRetry((value) => value + 1),
   };
 }

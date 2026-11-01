@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Task, TaskAudit } from "@/modules/recruitment/domain/tasks";
 import { buttonStyles } from "@/components/ui/styles";
@@ -8,6 +8,7 @@ import { formatTaskDay, isTask } from "./client";
 import { useTaskMutation, useTaskRead } from "./hooks";
 import { TaskMutationFeedback, TaskReadFeedback } from "./common";
 import { TaskForm } from "./task-form";
+import { invalidateTaskReads } from "./events";
 
 export function TaskValues({ task }: { task: Task }) {
   return (
@@ -139,23 +140,36 @@ function TaskRow({
   userId,
   task,
   onSaved,
-  onEditingChange,
+  onActivityChange,
 }: {
   userId: string;
   task: Task;
   onSaved: () => void;
-  onEditingChange: (taskId: string, editing: boolean) => void;
+  onActivityChange: (taskId: string, editing: boolean) => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [audit, setAudit] = useState(false);
   const editTrigger = useRef<HTMLButtonElement>(null);
   const mutation = useTaskMutation(userId, () => {
     setEditing(false);
-    onEditingChange(task.id, false);
+    onActivityChange(task.id, false);
     onSaved();
   });
+  useEffect(() => {
+    onActivityChange(
+      task.id,
+      editing || mutation.pending || mutation.uncertain,
+    );
+  }, [
+    onActivityChange,
+    task.id,
+    editing,
+    mutation.pending,
+    mutation.uncertain,
+  ]);
   const disabled = mutation.pending || mutation.uncertain || mutation.stale;
-  const statusChange = (status: Task["status"]) =>
+  const statusChange = (status: Task["status"]) => {
+    onActivityChange(task.id, true);
     void mutation.send({
       operation: "set-status",
       taskId: task.id,
@@ -163,6 +177,7 @@ function TaskRow({
       status,
       requestId: crypto.randomUUID(),
     });
+  };
   return (
     <article
       aria-label={task.title}
@@ -204,7 +219,7 @@ function TaskRow({
             aria-expanded={editing}
             onClick={() => {
               setEditing(true);
-              onEditingChange(task.id, true);
+              onActivityChange(task.id, true);
             }}
           >
             Edytuj zadanie
@@ -258,17 +273,17 @@ function TaskRow({
             task={task}
             onSaved={() => {
               setEditing(false);
-              onEditingChange(task.id, false);
+              onActivityChange(task.id, false);
               onSaved();
             }}
             onCancel={() => {
               setEditing(false);
-              onEditingChange(task.id, false);
+              onActivityChange(task.id, false);
               requestAnimationFrame(() => editTrigger.current?.focus());
             }}
             onReload={() => {
               setEditing(false);
-              onEditingChange(task.id, false);
+              onActivityChange(task.id, false);
               onSaved();
             }}
           />
@@ -297,10 +312,15 @@ export function TasksPanel({
 }) {
   const router = useRouter();
   const [page, setPage] = useState(1);
-  const [revision, setRevision] = useState(0);
   const [adding, setAdding] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [editingIds, setEditingIds] = useState<string[]>([]);
+  const [protectedIds, setProtectedIds] = useState<string[]>([]);
+  const updateActivity = useCallback((id: string, active: boolean) => {
+    setProtectedIds((current) => {
+      if (active === current.includes(id)) return current;
+      return active ? [...current, id] : current.filter((item) => item !== id);
+    });
+  }, []);
   const trigger = useRef<HTMLButtonElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const read = useTaskRead<{ tasks: Task[]; hasMore: boolean; page: number }>(
@@ -310,7 +330,8 @@ export function TasksPanel({
       ...(compact ? { openOnly: true } : {}),
       page,
     },
-    revision,
+    0,
+    protectedIds.length > 0,
   );
   const valid =
     read.data &&
@@ -322,11 +343,16 @@ export function TasksPanel({
       ? "Otwarte zadania"
       : "Lista zadań";
   function reload() {
-    setRevision((value) => value + 1);
+    invalidateTaskReads(userId);
     router.refresh();
   }
-  function complete() {
+  function completeCreate() {
     setAdding(false);
+    setSaved(true);
+    reload();
+    requestAnimationFrame(() => heading.current?.focus());
+  }
+  function completeRow() {
     setSaved(true);
     reload();
     requestAnimationFrame(() => heading.current?.focus());
@@ -373,7 +399,7 @@ export function TasksPanel({
                 ? { id: caseId, title: caseTitle ?? "Wybrana sprawa" }
                 : undefined
             }
-            onSaved={complete}
+            onSaved={completeCreate}
             onCancel={() => {
               setAdding(false);
               requestAnimationFrame(() => trigger.current?.focus());
@@ -381,6 +407,12 @@ export function TasksPanel({
             onReload={reload}
           />
         </section>
+      )}
+      {protectedIds.length > 0 && (
+        <p className="text-sm leading-6 text-muted-foreground">
+          Lista zostanie odświeżona po zakończeniu edycji lub ustaleniu wyniku
+          zapisu.
+        </p>
       )}
       {saved && (
         <p role="status" className="text-sm text-success">
@@ -409,14 +441,8 @@ export function TasksPanel({
                   key={`${userId}:${task.id}:${task.revision}`}
                   userId={userId}
                   task={task}
-                  onSaved={complete}
-                  onEditingChange={(id, editing) =>
-                    setEditingIds((current) =>
-                      editing
-                        ? [...new Set([...current, id])]
-                        : current.filter((item) => item !== id),
-                    )
-                  }
+                  onSaved={completeRow}
+                  onActivityChange={updateActivity}
                 />
               ))}
             </div>
@@ -427,7 +453,7 @@ export function TasksPanel({
           >
             <button
               type="button"
-              disabled={page === 1 || read.loading || editingIds.length > 0}
+              disabled={page === 1 || read.loading || protectedIds.length > 0}
               className={buttonStyles.secondary}
               onClick={() => {
                 setPage((value) => value - 1);
@@ -440,7 +466,7 @@ export function TasksPanel({
             <button
               type="button"
               disabled={
-                !read.data.hasMore || read.loading || editingIds.length > 0
+                !read.data.hasMore || read.loading || protectedIds.length > 0
               }
               className={buttonStyles.secondary}
               onClick={() => {

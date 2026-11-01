@@ -198,3 +198,59 @@ describe("untrusted lifecycle acknowledgements", () => {
     }
   });
 });
+
+describe("DEC060 complete closure replay identity", () => {
+  it.each([undefined, []])(
+    "normalizes absent/empty task fields without choosing legacy replay %j",
+    async (arrays) => {
+      const rpc = vi
+        .fn()
+        .mockResolvedValue({
+          data: { kind: "replayed", entry, revision: null },
+          error: null,
+        });
+      const command = {
+        ...input,
+        ...(arrays === undefined
+          ? {}
+          : { expectedTaskSnapshot: arrays, taskResolutions: [] }),
+      };
+      expect(
+        (await confirmLifecycle({ rpc } as unknown as SupabaseClient, command))
+          .kind,
+      ).toBe("replayed");
+      expect(rpc).toHaveBeenCalledWith(
+        "confirm_recruitment_case_lifecycle_tasks",
+        expect.objectContaining({
+          p_expected_task_snapshot: [],
+          p_task_resolutions: [],
+        }),
+      );
+    },
+  );
+  it.each([undefined, []])(
+    "rejects receipt for a prior nonempty task closure when retry omitted task intent %j",
+    async (arrays) => {
+      const taskEntry = {
+        ...entry,
+        expected_task_snapshot: [`${id}:0`],
+        task_resolutions: [{ taskId: id, action: "cancel" }],
+      };
+      const rpc = vi
+        .fn()
+        .mockResolvedValue({
+          data: { kind: "replayed", entry: taskEntry, revision: null },
+          error: null,
+        });
+      const command = {
+        ...input,
+        ...(arrays === undefined
+          ? {}
+          : { expectedTaskSnapshot: arrays, taskResolutions: [] }),
+      };
+      await expect(
+        confirmLifecycle({ rpc } as unknown as SupabaseClient, command),
+      ).rejects.toMatchObject({ kind: "unavailable" });
+    },
+  );
+});

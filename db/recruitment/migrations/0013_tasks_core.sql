@@ -234,15 +234,15 @@ END;
 $fn$;
 --> statement-breakpoint
 CREATE FUNCTION public.recruitment_validate_task_resolutions(p jsonb) RETURNS jsonb LANGUAGE plpgsql IMMUTABLE SECURITY INVOKER SET search_path='' AS $fn$
-DECLARE x jsonb;
+DECLARE resolution_value jsonb;
 BEGIN
  IF jsonb_typeof(p) IS DISTINCT FROM 'array' THEN RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Task resolutions required'; END IF;
- FOR x IN SELECT * FROM jsonb_array_elements(p) LOOP
-  IF jsonb_typeof(x) IS DISTINCT FROM 'object' OR x->>'taskId' IS NULL OR jsonb_typeof(x->'taskId') IS DISTINCT FROM 'string' OR x->>'action' IS NULL OR x->>'action' NOT IN ('cancel','keep','detach') OR EXISTS(SELECT 1 FROM jsonb_object_keys(x) k WHERE k NOT IN ('taskId','action')) THEN RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Invalid task resolution'; END IF;
-  PERFORM (x->>'taskId')::uuid;
+ FOR resolution_value IN SELECT * FROM jsonb_array_elements(p) LOOP
+  IF jsonb_typeof(resolution_value) IS DISTINCT FROM 'object' OR resolution_value->>'taskId' IS NULL OR jsonb_typeof(resolution_value->'taskId') IS DISTINCT FROM 'string' OR resolution_value->>'action' IS NULL OR resolution_value->>'action' NOT IN ('cancel','keep','detach') OR EXISTS(SELECT 1 FROM jsonb_object_keys(resolution_value) k WHERE k NOT IN ('taskId','action')) THEN RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Invalid task resolution'; END IF;
+  PERFORM (resolution_value->>'taskId')::uuid;
  END LOOP;
- IF (SELECT count(*) FROM jsonb_array_elements(p))<>(SELECT count(DISTINCT (x->>'taskId')::uuid) FROM jsonb_array_elements(p) x) THEN RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Duplicate task resolution'; END IF;
- RETURN COALESCE((SELECT jsonb_agg(jsonb_build_object('taskId',((x->>'taskId')::uuid)::text,'action',x->>'action') ORDER BY (x->>'taskId')::uuid) FROM jsonb_array_elements(p) x),'[]'::jsonb);
+ IF (SELECT count(*) FROM jsonb_array_elements(p))<>(SELECT count(DISTINCT (item.value->>'taskId')::uuid) FROM jsonb_array_elements(p) AS item(value)) THEN RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Duplicate task resolution'; END IF;
+ RETURN COALESCE((SELECT jsonb_agg(jsonb_build_object('taskId',((item.value->>'taskId')::uuid)::text,'action',item.value->>'action') ORDER BY (item.value->>'taskId')::uuid) FROM jsonb_array_elements(p) AS item(value)),'[]'::jsonb);
 EXCEPTION WHEN invalid_text_representation THEN RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Invalid task identifier';
 END;
 $fn$;
@@ -337,3 +337,34 @@ CREATE OR REPLACE VIEW public.recruitment_case_timeline WITH(security_invoker=tr
  SELECT l.owner_id,l.case_id,l.id,l.occurred_on,l.recorded_at,'lifecycle'::text,
  jsonb_build_object('id',l.id,'request_id',l.request_id,'case_id',l.case_id,'kind',l.kind,'cycle',l.cycle,'occurred_on',l.occurred_on,'recorded_at',l.recorded_at,'outcome',l.outcome,'offer_confirmed',l.offer_confirmed,'previous_status',l.previous_status,'previous_stage',l.previous_stage,'resulting_status',l.resulting_status,'resulting_stage',l.resulting_stage,'revision',l.revision,'expected_case_revision',l.expected_case_revision,'expected_task_snapshot',l.expected_task_snapshot,'task_resolutions',l.task_resolutions,'original',l.original)
  FROM public.recruitment_case_lifecycle_current l;
+
+--> statement-breakpoint
+-- Legacy callers represent absent Task fields as empty arrays. They must not replay a different task-aware closure intent.
+CREATE OR REPLACE FUNCTION public.confirm_recruitment_case_lifecycle(p_request_id uuid,p_case_id uuid,p_operation text,p_expected_case_revision integer,p_expected_closure_revision integer,p_closure_id uuid DEFAULT NULL,p_outcome text DEFAULT NULL,p_occurred_on date DEFAULT NULL,p_offer_confirmed boolean DEFAULT false)
+RETURNS jsonb LANGUAGE plpgsql VOLATILE SECURITY INVOKER SET search_path='' AS $fn$
+DECLARE l public.recruitment_case_lifecycle%ROWTYPE; r public.recruitment_closure_revision%ROWTYPE;
+BEGIN
+ IF auth.uid() IS NULL THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Authentication required'; END IF;
+ IF p_request_id IS NULL OR p_case_id IS NULL OR p_operation IS NULL OR p_operation NOT IN ('close','reopen','correct-closure') OR p_expected_case_revision IS NULL OR p_expected_case_revision NOT BETWEEN 0 AND 2147483646 OR p_expected_closure_revision IS NULL OR p_expected_closure_revision NOT BETWEEN 0 AND 2147483646 OR (p_operation<>'correct-closure' AND (p_expected_closure_revision<>0 OR p_closure_id IS NOT NULL)) THEN RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Invalid lifecycle intent'; END IF;
+ PERFORM pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(auth.uid()::text,76211));
+ SELECT * INTO l FROM public.recruitment_case_lifecycle WHERE owner_id=auth.uid() AND request_id=p_request_id;
+ IF FOUND THEN
+   IF l.case_id IS DISTINCT FROM p_case_id OR l.kind IS DISTINCT FROM p_operation OR l.expected_case_revision IS DISTINCT FROM p_expected_case_revision OR l.outcome IS DISTINCT FROM p_outcome OR l.occurred_on IS DISTINCT FROM p_occurred_on OR l.offer_confirmed IS DISTINCT FROM p_offer_confirmed OR l.expected_task_snapshot IS DISTINCT FROM '[]'::jsonb OR l.task_resolutions IS DISTINCT FROM '[]'::jsonb THEN RAISE EXCEPTION USING ERRCODE='PT409',MESSAGE='Save intent payload conflict'; END IF;
+   RETURN jsonb_build_object('kind','replayed','entry',public.recruitment_lifecycle_entry_json(l),'revision',NULL);
+ END IF;
+ SELECT * INTO r FROM public.recruitment_closure_revision WHERE owner_id=auth.uid() AND request_id=p_request_id;
+ IF FOUND THEN
+   IF p_operation<>'correct-closure' OR r.case_id IS DISTINCT FROM p_case_id OR r.closure_id IS DISTINCT FROM p_closure_id OR r.expected_case_revision IS DISTINCT FROM p_expected_case_revision OR r.expected_closure_revision IS DISTINCT FROM p_expected_closure_revision OR r.outcome IS DISTINCT FROM p_outcome OR r.occurred_on IS DISTINCT FROM p_occurred_on OR r.offer_confirmed IS DISTINCT FROM p_offer_confirmed THEN RAISE EXCEPTION USING ERRCODE='PT409',MESSAGE='Save intent payload conflict'; END IF;
+   RETURN jsonb_build_object('kind','replayed','entry',NULL,'revision',public.recruitment_closure_revision_json(r));
+ END IF;
+ IF p_operation='correct-closure' THEN
+   INSERT INTO public.recruitment_closure_revision(request_id,case_id,closure_id,outcome,occurred_on,offer_confirmed,expected_case_revision,expected_closure_revision)
+   VALUES(p_request_id,p_case_id,p_closure_id,p_outcome,p_occurred_on,p_offer_confirmed,p_expected_case_revision,p_expected_closure_revision) RETURNING * INTO r;
+   RETURN jsonb_build_object('kind','created','entry',NULL,'revision',public.recruitment_closure_revision_json(r));
+ ELSE
+   INSERT INTO public.recruitment_case_lifecycle(request_id,case_id,kind,outcome,occurred_on,offer_confirmed,expected_case_revision)
+   VALUES(p_request_id,p_case_id,p_operation,p_outcome,p_occurred_on,p_offer_confirmed,p_expected_case_revision) RETURNING * INTO l;
+   RETURN jsonb_build_object('kind','created','entry',public.recruitment_lifecycle_entry_json(l),'revision',NULL);
+ END IF;
+END;
+$fn$;

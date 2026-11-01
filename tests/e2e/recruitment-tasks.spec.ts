@@ -285,12 +285,40 @@ test("DEC060 closure requires each choice and atomically cancels, keeps and deta
       .getByRole("group", { name: titles[index], exact: true })
       .getByRole("radio", { name: label, exact: true })
       .check();
+  const sent = page.waitForRequest(
+    (request) =>
+      request.url().endsWith("/recruitments/lifecycle-commands") &&
+      request.method() === "POST" &&
+      request.postDataJSON().action === "confirm",
+  );
   await page
     .getByRole("button", { name: "Zatwierdź zakończenie", exact: true })
     .click();
+  const closingIntent = (await sent).postDataJSON() as Record<string, unknown>;
   await expect(
     page.getByRole("button", { name: "Wznów sprawę", exact: true }),
   ).toBeVisible();
+  await expect(taskArticle(page, titles[0])).toContainText("Anulowane");
+  await expect(taskArticle(page, titles[1])).toContainText("Do zrobienia");
+  await expect(taskArticle(page, titles[2])).toHaveCount(0);
+  const {
+    expectedTaskSnapshot: _snapshot,
+    taskResolutions: _resolutions,
+    ...omittedIntent
+  } = closingIntent;
+  void _snapshot;
+  void _resolutions;
+  for (const payload of [
+    omittedIntent,
+    { ...omittedIntent, expectedTaskSnapshot: [], taskResolutions: [] },
+  ]) {
+    const replay = await page.request.post(
+      `${target.appOrigin}/recruitments/lifecycle-commands`,
+      { headers: { Origin: target.appOrigin }, data: payload },
+    );
+    expect(replay.status()).toBe(409);
+    expect((await replay.json()).kind).toBe("conflict");
+  }
   const rows = await taskRows(c);
   expect(rows.find((row) => row.id === tasks[0].id)).toMatchObject({
     status: "Anulowane",
@@ -437,6 +465,223 @@ test("DEC060 task forms remain usable by keyboard at 375, 768, 1024 and 1440", a
     await page.keyboard.press("Enter");
     await expect(taskArticle(page, `Klawiatura ${width}`)).toBeVisible();
   }
+});
+
+test("DEC060 saving another task preserves a new unsaved task draft", async ({
+  page,
+}) => {
+  const c = await fixture();
+  const existingTitle = `Istniejące ${randomUUID()}`;
+  await taskFixture(c, existingTitle, null);
+  await login(page);
+  await page.goto(`${target.appOrigin}/tasks`);
+  await page
+    .getByRole("button", { name: "Dodaj zadanie", exact: true })
+    .click();
+  const draft = `Niezapisany szkic ${randomUUID()}`;
+  await page.getByLabel("Tytuł zadania", { exact: true }).fill(draft);
+  await page
+    .getByLabel("Opis (opcjonalnie)", { exact: true })
+    .fill("Zachowaj wpisany opis");
+  await taskArticle(page, existingTitle)
+    .getByRole("button", { name: "Oznacz jako wykonane", exact: true })
+    .click();
+  await expect(taskArticle(page, existingTitle)).toContainText("Wykonane");
+  await expect(page.getByLabel("Tytuł zadania", { exact: true })).toHaveValue(
+    draft,
+  );
+  await expect(
+    page.getByLabel("Opis (opcjonalnie)", { exact: true }),
+  ).toHaveValue("Zachowaj wpisany opis");
+  expect(await taskRows(c)).toHaveLength(1);
+  await page
+    .getByRole("button", { name: "Zapisz zadanie", exact: true })
+    .click();
+  await expect(taskArticle(page, draft)).toBeVisible();
+  expect(await taskRows(c)).toHaveLength(2);
+});
+
+test("DEC060 another row save preserves an uncertain create and recovers its original request", async ({
+  page,
+}) => {
+  const c = await fixture();
+  const existingTitle = `Istniejące ${randomUUID()}`;
+  await taskFixture(c, existingTitle, null);
+  await login(page);
+  await page.goto(`${target.appOrigin}/tasks`);
+  await page
+    .getByRole("button", { name: "Dodaj zadanie", exact: true })
+    .click();
+  const title = `Utracona odpowiedź ${randomUUID()}`;
+  await page.getByLabel("Tytuł zadania", { exact: true }).fill(title);
+  let originalRequestId = "";
+  let creates = 0;
+  await page.route("**/tasks/commands", async (route) => {
+    const request = route.request();
+    if (
+      request.method() === "POST" &&
+      request.postDataJSON().operation === "create"
+    ) {
+      creates++;
+      originalRequestId = request.postDataJSON().requestId;
+      const response = await route.fetch();
+      expect(response.status()).toBe(200);
+      return route.abort("failed");
+    }
+    return route.continue();
+  });
+  await page
+    .getByRole("button", { name: "Zapisz zadanie", exact: true })
+    .click();
+  const form = page.getByRole("form", { name: "Nowe zadanie", exact: true });
+  await expect(
+    form.getByRole("button", { name: "Sprawdź wynik zapisu", exact: true }),
+  ).toBeVisible();
+  await taskArticle(page, existingTitle)
+    .getByRole("button", { name: "Oznacz jako wykonane", exact: true })
+    .click();
+  await expect(taskArticle(page, existingTitle)).toContainText("Wykonane");
+  await expect(form.getByLabel("Tytuł zadania", { exact: true })).toHaveValue(
+    title,
+  );
+  await expect(
+    form.getByRole("button", { name: "Sprawdź wynik zapisu", exact: true }),
+  ).toBeVisible();
+  await form
+    .getByRole("button", { name: "Sprawdź wynik zapisu", exact: true })
+    .click();
+  await expect(taskArticle(page, title)).toBeVisible();
+  expect(creates).toBe(1);
+  const audit = await c.client
+    .from("recruitment_task_command")
+    .select("id")
+    .eq("request_id", originalRequestId);
+  expect(audit.error).toBeNull();
+  expect(audit.data).toHaveLength(1);
+  expect(await taskRows(c)).toHaveLength(2);
+});
+
+test("DEC060 complete task pagination and pending or uncertain row recovery retain the same command", async ({
+  page,
+}) => {
+  const c = await fixture();
+  const marker = randomUUID();
+  const created = [];
+  for (let i = 0; i < 51; i++)
+    created.push(await taskFixture(c, `Stronicowane ${marker} ${i}`, null));
+  await login(page);
+  await page.goto(`${target.appOrigin}/tasks`);
+  const pagination = page.getByRole("navigation", {
+    name: "Strony: Lista zadań",
+    exact: true,
+  });
+  const next = pagination.getByRole("button", {
+    name: "Następna strona",
+    exact: true,
+  });
+  const previous = pagination.getByRole("button", {
+    name: "Poprzednia strona",
+    exact: true,
+  });
+  const seen: string[] = [];
+  for (let pageNumber = 1; pageNumber <= 3; pageNumber++) {
+    await expect(
+      pagination.getByText(`Strona ${pageNumber}`, { exact: true }),
+    ).toBeVisible();
+    await expect(page.getByRole("article")).toHaveCount(
+      pageNumber < 3 ? 25 : 1,
+    );
+    seen.push(
+      ...(await page
+        .getByRole("article")
+        .evaluateAll((elements) =>
+          elements.map((element) => element.getAttribute("aria-label")!),
+        )),
+    );
+    if (pageNumber < 3) {
+      await expect(next).toBeEnabled();
+      await next.click();
+    }
+  }
+  expect(new Set(seen).size).toBe(51);
+  expect(seen).toHaveLength(51);
+  await expect(next).toBeDisabled();
+  await previous.click();
+  await expect(pagination.getByText("Strona 2", { exact: true })).toBeVisible();
+  await expect(previous).toBeEnabled();
+  await expect(next).toBeEnabled();
+  const row = page.getByRole("article").first();
+  const title = await row.getAttribute("aria-label");
+  expect(title).not.toBeNull();
+  let sentId = "";
+  let release!: () => void;
+  const blocked = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route("**/tasks/commands", async (route) => {
+    if (
+      route.request().method() === "POST" &&
+      route.request().postDataJSON().operation === "set-status"
+    ) {
+      sentId = route.request().postDataJSON().requestId;
+      const response = await route.fetch();
+      expect(response.status()).toBe(200);
+      await blocked;
+      return route.abort("failed");
+    }
+    return route.continue();
+  });
+  await row
+    .getByRole("button", { name: "Oznacz jako wykonane", exact: true })
+    .click();
+  await expect(previous).toBeDisabled();
+  await expect(next).toBeDisabled();
+  release();
+  const recovery = row.getByRole("button", {
+    name: "Sprawdź wynik zapisu",
+    exact: true,
+  });
+  await expect(recovery).toBeVisible();
+  await expect(previous).toBeDisabled();
+  await expect(next).toBeDisabled();
+  await recovery.click();
+  await expect(taskArticle(page, title!)).toContainText("Wykonane");
+  await expect(previous).toBeEnabled();
+  await expect(next).toBeEnabled();
+  const audit = await c.client
+    .from("recruitment_task_command")
+    .select("id")
+    .eq("request_id", sentId);
+  expect(audit.error).toBeNull();
+  expect(audit.data).toHaveLength(1);
+  expect(await taskRows(c)).toHaveLength(created.length);
+});
+
+test("DEC060 case picker reaches an owned case beyond its first 25 options", async ({
+  page,
+}) => {
+  const oldest = await fixture();
+  for (let i = 0; i < 26; i++) await fixture();
+  await login(page);
+  await page.goto(`${target.appOrigin}/tasks`);
+  await page
+    .getByRole("button", { name: "Dodaj zadanie", exact: true })
+    .click();
+  const title = `Wybrana dalsza sprawa ${randomUUID()}`;
+  await page.getByLabel("Tytuł zadania", { exact: true }).fill(title);
+  const select = page.getByLabel("Powiązanie ze sprawą", { exact: true });
+  await expect(select.locator("option")).toHaveCount(26);
+  await expect(select.locator(`option[value="${oldest.id}"]`)).toHaveCount(0);
+  await page
+    .getByRole("button", { name: "Następne sprawy", exact: true })
+    .click();
+  await expect(select.locator(`option[value="${oldest.id}"]`)).toHaveCount(1);
+  await select.selectOption(oldest.id);
+  await page
+    .getByRole("button", { name: "Zapisz zadanie", exact: true })
+    .click();
+  await expect(taskArticle(page, title)).toContainText(oldest.title);
+  expect((await taskRows(oldest))[0].case_id).toBe(oldest.id);
 });
 
 test("DEC060 BFF protects private Task list, ID, audit, request recovery and write origins", async ({

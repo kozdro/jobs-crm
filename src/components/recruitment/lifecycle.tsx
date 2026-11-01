@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { invalidateTaskReads } from "@/components/tasks/events";
 import { buttonStyles, inputStyles } from "@/components/ui/styles";
 import {
   closureOutcomes,
@@ -202,6 +203,7 @@ export function LifecycleForm({
     if (!alive.current || !clearPending(userId, caseId, command.requestId))
       return;
     announce(caseId);
+    invalidateTaskReads(userId, caseId);
     router.refresh();
     onClose();
     requestAnimationFrame(() =>
@@ -781,6 +783,7 @@ export function LifecycleRecovery({
     setIntent(null);
     setMessage(text);
     announce(caseId);
+    invalidateTaskReads(userId, caseId);
     router.refresh();
   }
   async function resolve(retry: boolean) {

@@ -7,6 +7,7 @@ import {
   formatTaskDay,
   type TaskCommand,
 } from "@/components/tasks/client";
+import { matchesTaskInvalidation } from "@/components/tasks/events";
 import { TaskForm } from "@/components/tasks/task-form";
 import { TasksPanel, TaskValues } from "@/components/tasks/tasks-panel";
 import {
@@ -42,6 +43,29 @@ const create: TaskCommand = {
 const render = (value: Parameters<typeof renderToStaticMarkup>[0]) =>
   renderToStaticMarkup(value);
 describe("Tasks Core UI contracts", () => {
+  it("invalidates closed-case task lists and audits only within the matching owner and case scope", () => {
+    const close = { ownerId: owner, caseId };
+    expect(matchesTaskInvalidation(close, owner, {})).toBe(true);
+    expect(matchesTaskInvalidation(close, owner, { openOnly: true })).toBe(
+      true,
+    );
+    expect(matchesTaskInvalidation(close, owner, { caseId })).toBe(true);
+    expect(matchesTaskInvalidation(close, owner, { taskId, audit: true })).toBe(
+      true,
+    );
+    expect(matchesTaskInvalidation(close, requestId, { caseId })).toBe(false);
+    expect(matchesTaskInvalidation(close, owner, { caseId: taskId })).toBe(
+      false,
+    );
+    expect(matchesTaskInvalidation(close, owner, { caseOptions: true })).toBe(
+      false,
+    );
+    expect(matchesTaskInvalidation({ ownerId: owner }, owner, { caseId })).toBe(
+      true,
+    );
+    for (const malformed of [null, [], { ownerId: owner, caseId: 42 }])
+      expect(matchesTaskInvalidation(malformed, owner, {})).toBe(false);
+  });
   it("requires task identity and rejects missing, malformed, and invented state", () => {
     expect(isTask(task)).toBe(true);
     for (const bad of [

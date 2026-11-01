@@ -151,3 +151,33 @@ describe("3C BFF authority boundary", () => {
     expect(mocks.rpc).not.toHaveBeenCalled();
   });
 });
+
+describe("Tasks closure replay omission boundary", () => {
+  it.each([{}, { expectedTaskSnapshot: [], taskResolutions: [] }])(
+    "returns payload conflict for task-aware saved close retried as empty %j",
+    async (fields) => {
+      mocks.rpc.mockResolvedValue({
+        data: null,
+        error: { code: "PT409", message: "payload differs" },
+      });
+      const response = await POST(
+        request({
+          action: "confirm",
+          requestId,
+          expectedCaseRevision: 3,
+          expectedClosureRevision: 0,
+          ...fields,
+        }),
+      );
+      expect(response.status).toBe(409);
+      expect((await response.json()).kind).toBe("conflict");
+      expect(mocks.rpc).toHaveBeenCalledWith(
+        "confirm_recruitment_case_lifecycle_tasks",
+        expect.objectContaining({
+          p_expected_task_snapshot: [],
+          p_task_resolutions: [],
+        }),
+      );
+    },
+  );
+});

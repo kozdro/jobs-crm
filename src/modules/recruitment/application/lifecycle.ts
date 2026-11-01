@@ -267,22 +267,15 @@ export async function confirmLifecycle(
   if (!parsed.success || !("requestId" in parsed.data))
     throw new CaseRepositoryError("invalid");
   const { data, error } = await client.rpc(
-    parsed.data.expectedTaskSnapshot !== undefined ||
-      parsed.data.taskResolutions !== undefined
-      ? "confirm_recruitment_case_lifecycle_tasks"
-      : "confirm_recruitment_case_lifecycle",
+    "confirm_recruitment_case_lifecycle_tasks",
     {
       ...rpcInput(parsed.data),
       p_request_id: parsed.data.requestId,
       p_expected_case_revision: parsed.data.expectedCaseRevision,
       p_expected_closure_revision: parsed.data.expectedClosureRevision,
-      ...(parsed.data.expectedTaskSnapshot !== undefined ||
-      parsed.data.taskResolutions !== undefined
-        ? {
-            p_expected_task_snapshot: parsed.data.expectedTaskSnapshot ?? [],
-            p_task_resolutions: parsed.data.taskResolutions ?? [],
-          }
-        : {}),
+      // An omitted Task payload means empty arrays, never permission to skip replay validation.
+      p_expected_task_snapshot: parsed.data.expectedTaskSnapshot ?? [],
+      p_task_resolutions: parsed.data.taskResolutions ?? [],
     },
   );
   if (error) rpcError(error.code);
@@ -317,11 +310,7 @@ export async function confirmLifecycle(
     entry.offer_confirmed !== input.offerConfirmed
   )
     return unavailable();
-  if (
-    entry &&
-    (parsed.data.expectedTaskSnapshot !== undefined ||
-      parsed.data.taskResolutions !== undefined)
-  ) {
+  if (entry) {
     const sortResolutions = (
       items: import("../domain/tasks").TaskResolution[],
     ) => [...items].sort((a, b) => a.taskId.localeCompare(b.taskId));
