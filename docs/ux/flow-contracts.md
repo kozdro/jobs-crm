@@ -181,3 +181,9 @@ APPROVED w podzakresie: menu wpisu → Skoryguj (dzień/unknown, kierunek albo d
 ## Recruitment Lifecycle 3C — DEC-057
 
 [Zatwierdzony kontrakt i plan](../technical/recruitment-lifecycle-3c.md): jawne zakończenie z wynikiem, wznowienie kontynuacji i kolejne odrębne zakończenia. Nie aplikowano dotyczy cyklu konkretnego zakończenia. Audytowane korekty wyniku/dnia zachowują oryginały bez fikcyjnych zdarzeń. Zakończone bez bieżącego etapu, snapshot zachowany; wznowienie ma preview ważnej podstawy. Korekta 3A/3B nie otwiera sprawy. UI: wymagany wynik bez domyślnego, świadome potwierdzenie oferty, opcjonalny dzień/unknown, cancel bez skutków, konflikt wymaga nowego podglądu, odzyskanie identycznego zamiaru, audyt przy zakończeniu. Tylko lokalny zakres bez otwartych Task/CalendarEvent; BR-011 pozostaje wymagana dla przyszłych modułów. Pełny TC-012/Global Search i publiczne bramki poza pokryciem. Addytywny ledger, bez resetu persistent DEV. Implementacja i osobny PR autoryzowane, bez merge/deploymentu; wyniki weryfikacji raportowane osobno.
+
+## Product Journey UX Hardening — zachowanie istniejącego kontraktu
+
+Sytuacja Quick Capture ma pięć opcjonalnych intencji z Blueprint §3, zachowanych w szkicu i jego podsumowaniu; brak wyboru jest prawidłowy. Nie tworzy faktów i nie zmienia statusów. Cztery kroki późniejszego DEC-052 pozostają; docelowe Działanie z F04 jest jawnie nieukończone do zatwierdzenia złożonego atomowego zapisu. [Analiza zgodności](../technical/product-journey-hardening-analysis.md).
+
+TaskForm ma podsumowanie wszystkich błędów walidacji i odnośniki ustawiające focus we właściwym polu, równolegle do błędów inline; bez zmiany walidacji, draftu i protokołu zapisu. Detal sprawy ma nawigację „Sekcje sprawy” do istniejących danych, powiązań, zadań, zakończenia i kontynuacji, działań oraz historii. Natywne kotwice nie ukrywają informacji, nie filtrują historii i nie zmieniają kolejności ani semantyki sekcji.

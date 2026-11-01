@@ -8,6 +8,12 @@ Każde zadanie korzysta z [szablonu zadania](../../docs/templates/agent-task.md)
 
 Orchestrator przydziela rozłączne zakresy zapisu. Nie uruchamia równolegle autorów tych samych plików. Konflikt własności rozwiązuje przed następną zmianą. Jeżeli API Codex nie udostępnia wyboru profilu roli, użyj natywnego ogólnego subagenta z `task_name` snake_case i przekaż w zadaniu kanoniczny plik `harness/roles/<rola>.md`. To fallback, nie dowód załadowania TOML ani jego ograniczeń; właściwe uprawnienia musi zapewnić rodzic. Subagent nie deleguje dalej; zwraca wynik i blokery orchestratorowi. Modele dziedziczą ustawienia sesji, chyba że zadanie świadomie określa inne; model nie jest decyzją architektoniczną.
 
+## Zgodność decyzji przed kodem i w review
+
+Orchestrator i każdy agent stosują macierz zgodności z [task packetu](../../docs/templates/agent-task.md): Product Discovery/provenance + DEC, UX Blueprint/wybory UX/flow contracts, Technical Discovery + obowiązujące ADR. Przed implementacją porównują plan z kanonicznymi źródłami; niezależny reviewer ponawia porównanie finalnego kandydata. Późniejsze jawne decyzje i zastąpienia muszą mieć wskazane źródło PO. Nie wolno milcząco pominąć lub zmienić decyzji dla uproszczenia MVP. Brakujące decyzje i nowe kontrakty atomowego zapisu blokują zależną część, nie niezależną pracę. Niepełny slice nie zmniejsza docelowego produktu i nie może być raportowany jako pełna zgodność.
+
+Wrapper review zawsze przekazuje obowiązek tej kontroli obu runtime'om. Jest to zabezpieczenie procesu, nie automatyczny dowód semantycznej zgodności; reviewer raportuje źródła, statusy, odstępstwa i granice dowodów.
+
 ## Siedem etapów
 
 1. **Requirement.** Odczytaj zadanie i minimalną ścieżkę źródeł z AGENTS.md. Użyj [analyze-requirement](../skills/analyze-requirement/SKILL.md), delegując `spec-analyst` przy potrzebie analizy. Wskaż rzeczywiste FR/AC/BR/DEC/UC, UX/ADR i OPEN wraz ze statusem. Dla zadania wyłącznie narzędziowego dopuszczalne „nie dotyczy” z uzasadnieniem; nie twórz fikcyjnych ID. Istotną niejasność obsłuż [clarify-requirements](../skills/clarify-requirements/SKILL.md).

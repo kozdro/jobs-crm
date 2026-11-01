@@ -75,6 +75,26 @@ class HarnessTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             review.command('codex', 'backend-engineer')
 
+    def test_review_always_receives_canonical_contract_guard(self):
+        # Capture the actual prompt delivered by main() for both runtimes.
+        from unittest.mock import patch
+        import io
+        import sys
+        for tool in ('codex', 'claude'):
+            with self.subTest(tool=tool), \
+                 patch.object(sys, 'argv', ['review.py', tool, 'frontend-reviewer']), \
+                 patch.object(sys, 'stdin', io.StringIO('Review this candidate.')), \
+                 patch.object(sys, 'stderr', io.StringIO()), \
+                 patch.object(review, 'preflight'), \
+                 patch.object(runtime, 'fingerprint', return_value={}), \
+                 patch.object(runtime, 'run_process', return_value=(0, 'COMPLETED')) as execute:
+                self.assertEqual(review.main(), 0)
+                prompt = execute.call_args.args[1]
+                self.assertIn(review.canonical_contract_instruction(), prompt)
+                for source in ('Product Discovery', 'UX Blueprint', 'Technical Discovery', 'DEC', 'ADR', 'jawnej zgody PO'):
+                    self.assertIn(source, prompt)
+                self.assertTrue(prompt.endswith('Review this candidate.'))
+
     def test_launchers_restrict_native_tools(self):
         c = review.command('codex', 'backend-reviewer')
         self.assertEqual(c[c.index('--sandbox')+1], 'read-only')

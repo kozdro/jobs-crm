@@ -28,6 +28,14 @@ const buttonClass = buttonStyles.secondary;
 const primaryClass = buttonStyles.primary;
 const inputClass = inputStyles;
 const steps = ["Sytuacja", "Dane", "Działanie", "Podsumowanie"];
+// UX Blueprint §3: presentation-only intent, never a case type or a business fact.
+const situations = [
+  "Zapisana oferta",
+  "Wykonana aplikacja",
+  "Kontakt",
+  "Spontaniczna kandydatura",
+  "Inna / bez określenia",
+] as const;
 type DuplicateResult = Extract<CreateCaseResult, { kind: "duplicates" }>;
 
 export function QuickCapture({ userId }: { userId: string }) {
@@ -52,6 +60,7 @@ function CaptureSession({ userId }: { userId: string }) {
   const [open, setOpen] = useState(false);
   const [discard, setDiscard] = useState(false);
   const [step, setStep] = useState(0);
+  const [situation, setSituation] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
@@ -67,7 +76,9 @@ function CaptureSession({ userId }: { userId: string }) {
     Partial<Record<"title" | "description" | "sourceUrl", string>>
   >({});
   const [toast, setToast] = useState<RecruitmentCase | null>(null);
-  const dirty = Boolean(title || description || sourceUrl || action);
+  const dirty = Boolean(
+    situation || title || description || sourceUrl || action,
+  );
 
   function clearStoredIntent() {
     try {
@@ -88,6 +99,7 @@ function CaptureSession({ userId }: { userId: string }) {
   }
   function resetDraft(id = crypto.randomUUID()) {
     setRequestId(id);
+    setSituation("");
     setTitle("");
     setDescription("");
     setSourceUrl("");
@@ -513,11 +525,32 @@ function CaptureSession({ userId }: { userId: string }) {
             </h3>
             <div className="mt-4 min-w-0 space-y-5">
               {step === 0 && (
-                <p className="text-sm leading-6 text-muted-foreground">
-                  Możesz zapisać ofertę, kontakt z rekruterem, spontaniczną
-                  kandydaturę lub inną sprawę. Nazwij ją własnymi słowami w
-                  kolejnym kroku.
-                </p>
+                <fieldset className="min-w-0 space-y-3" disabled={frozen}>
+                  <legend className="mb-3 text-sm font-medium">
+                    Co chcesz zapisać? (opcjonalnie)
+                  </legend>
+                  <p className="text-sm leading-6 text-muted-foreground">
+                    Wybór pomaga opisać sytuację. Sam nie potwierdza aplikowania
+                    ani kontaktu i nie zmienia statusu sprawy. Możesz też
+                    przejść dalej bez wyboru.
+                  </p>
+                  {situations.map((value) => (
+                    <label
+                      key={value}
+                      className="flex min-h-11 cursor-pointer items-start gap-3 rounded-md border border-border px-3 py-3 text-sm"
+                    >
+                      <input
+                        type="radio"
+                        name="case-situation"
+                        value={value}
+                        checked={situation === value}
+                        onChange={() => setSituation(value)}
+                        className="mt-0.5 size-4 shrink-0 accent-primary"
+                      />
+                      <span>{value}</span>
+                    </label>
+                  ))}
+                </fieldset>
               )}
               {step === 1 && (
                 <>
@@ -658,6 +691,12 @@ function CaptureSession({ userId }: { userId: string }) {
               )}
               {step === 3 && summary.success && (
                 <dl className="space-y-4 text-sm">
+                  <div>
+                    <dt className="text-muted-foreground">
+                      Sytuacja (pomocniczo)
+                    </dt>
+                    <dd className="mt-1">{situation || "Nie określono"}</dd>
+                  </div>
                   <div>
                     <dt className="text-muted-foreground">Nazwa sprawy</dt>
                     <dd className="mt-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">

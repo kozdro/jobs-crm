@@ -68,6 +68,18 @@ def preflight(root=ROOT):
             raise ValueError('Review launcher requires inspection of new configuration: ' + path)
 
 
+def canonical_contract_instruction():
+    """Always sent to both native review runtimes, independent of task wording."""
+    return ('Sprawdź zgodność finalnego kandydata z kanonicznymi decyzjami: '
+            'Product Discovery i provenance, UX Blueprint i flow contracts, '
+            'Technical Discovery, DEC oraz obowiązujące ADR i ich zastąpienia. '
+            'Przeczytaj macierz zgodności w task packecie i źródła kanoniczne; '
+            'brak macierzy lub źródeł zgłoś jako lukę, nie domyślny PASS. '
+            'Nie akceptuj zmiany ani pominięcia zatwierdzonej decyzji dla MVP '
+            'bez wskazanej jawnej zgody PO. Raportuj źródła, statusy, odstępstwa '
+            'i nieukończony zakres; review nie zastępuje decyzji PO. ')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('tool', choices=('codex', 'claude'))
@@ -87,6 +99,7 @@ def main():
         parser.error('Provide review scope, candidate and author identity on stdin')
     prefix = ('To niezależna sesja review. Nie modyfikuj żadnych plików ani nie uruchamiaj testów '
               'z efektami zapisu. Czytaj AGENTS.md i harness/workflows/delivery.md. ')
+    prefix += canonical_contract_instruction()
     if args.tool == 'codex':
         prefix += (f'Uruchom dokładnie jednego natywnego subagenta dla roli {args.role}. '
                    f'Jeśli API pozwala wybrać profil, wybierz tę rolę; jeśli udostępnia tylko task_name, użyj '
