@@ -1,5 +1,7 @@
 # Mapa dokumentacji — Jobs CRM
 
+Po potwierdzonym merge PR #20: [Tasks Core — kontrakt i plan](technical/tasks-core-analysis.md), **APPROVED 1A/2A/3A/4A — DEC-060**. Zadania ogólne/sprawa i atomowe rozstrzygnięcia BR-011 przy close. Pełne wykonanie, QA, niezależne review i osobny PR autoryzowane; bez sugestii/przypomnień/kalendarza, merge/deploymentu i persistent DEV. Wyniki wykonania raportowane odrębnie.
+
 Po potwierdzonym merge PR #19: [Recruitment Workspace — kontrakt i plan](technical/recruitment-workspace-analysis.md), **APPROVED 1A/2A — DEC-059**. Read-only Workspace, bez DnD i nowych komend lifecycle. [Raport wykonania](technical/recruitment-workspace-report.md) i [QA](technical/recruitment-workspace-qa.md) rozdzielają wyniki od zatwierdzenia. Bez merge/deploymentu i persistent DEV.
 
 Następny slice po merge PR #18: [Companies & Contacts — analiza SDD i plan](technical/companies-contacts-analysis.md), **APPROVED 1A/2A/3A — DEC-058**, wykonanie i osobny PR autoryzowane; bez merge/deploymentu.

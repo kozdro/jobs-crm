@@ -142,6 +142,9 @@ export function LifecycleForm({
   const [offerConfirmed, setOfferConfirmed] = useState(false);
   const [preview, setPreview] = useState<LifecyclePreview | null>(null);
   const [confirmed, setConfirmed] = useState(false);
+  const [taskResolutions, setTaskResolutions] = useState<
+    Record<string, "cancel" | "keep" | "detach">
+  >({});
   const [pending, setPending] = useState(false);
   const [uncertain, setUncertain] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -237,6 +240,7 @@ export function LifecycleForm({
         );
         return;
       }
+      setTaskResolutions({});
       setPreview(body.preview);
     } catch {
       if (current())
@@ -264,11 +268,29 @@ export function LifecycleForm({
         report("Najpierw sprawdź wynik wcześniejszej zmiany cyklu.");
         return;
       }
+      if (
+        operation === "close" &&
+        preview.openTasks?.some((task) => !taskResolutions[task.id])
+      ) {
+        report(
+          "Wybierz Anuluj, Zachowaj albo Odłącz dla każdego otwartego zadania.",
+        );
+        return;
+      }
       command = {
         ...value,
         requestId: crypto.randomUUID(),
         expectedCaseRevision: preview.caseRevision,
         expectedClosureRevision: preview.closureRevision,
+        expectedTaskSnapshot:
+          operation === "close" ? (preview.taskSnapshot ?? []) : [],
+        taskResolutions:
+          operation === "close"
+            ? (preview.openTasks ?? []).map((task) => ({
+                taskId: task.id,
+                action: taskResolutions[task.id],
+              }))
+            : [],
       };
     }
     let persisted: ReturnType<typeof persistAndFreezeLifecycleIntent> =
@@ -312,6 +334,7 @@ export function LifecycleForm({
         frozen.current = null;
         setUncertain(false);
         setPreview(null);
+        setTaskResolutions({});
         setConfirmed(false);
         announce(caseId);
         report(
@@ -529,6 +552,63 @@ export function LifecycleForm({
             Bieżący etap po zmianie:{" "}
             <strong>{preview.currentStage ?? "Nie ustawiono etapu"}</strong>.
           </p>
+          {operation === "close" && (preview.openTasks?.length ?? 0) > 0 && (
+            <section
+              aria-label="Otwarte zadania przy zamknięciu"
+              className="space-y-4"
+            >
+              <h5 className="text-sm font-semibold">
+                Rozstrzygnij każde otwarte zadanie
+              </h5>
+              <p className="text-sm leading-6 text-muted-foreground">
+                Anuluj zmienia status na „Anulowane” i zachowuje powiązanie.
+                Zachowaj pozostawia zadanie otwarte przy zakończonej sprawie.
+                Odłącz pozostawia otwarte zadanie ogólne. Zmiany i audyt zapiszą
+                się razem z zakończeniem sprawy.
+              </p>
+              {preview.openTasks?.map((task) => (
+                <fieldset
+                  key={task.id}
+                  disabled={pending || uncertain}
+                  className="min-w-0 rounded-md border border-border p-3"
+                >
+                  <legend className="max-w-full px-1 text-sm font-semibold [overflow-wrap:anywhere]">
+                    {task.title}
+                  </legend>
+                  <div className="flex flex-wrap gap-x-5 gap-y-1">
+                    {(
+                      [
+                        ["cancel", "Anuluj"],
+                        ["keep", "Zachowaj"],
+                        ["detach", "Odłącz"],
+                      ] as const
+                    ).map(([action, label]) => (
+                      <label
+                        key={action}
+                        className="flex min-h-11 items-center gap-2 text-sm"
+                      >
+                        <input
+                          type="radio"
+                          name={`${id}-task-${task.id}`}
+                          value={action}
+                          checked={taskResolutions[task.id] === action}
+                          onChange={() => {
+                            setTaskResolutions((current) => ({
+                              ...current,
+                              [task.id]: action,
+                            }));
+                            setConfirmed(false);
+                          }}
+                          className="size-4 accent-primary"
+                        />
+                        {label}
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              ))}
+            </section>
+          )}
           <label className="flex min-h-11 items-start gap-3 text-sm leading-6">
             <input
               type="checkbox"

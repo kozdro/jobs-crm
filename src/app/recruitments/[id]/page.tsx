@@ -1,3 +1,4 @@
+import { TasksPanel } from "@/components/tasks/tasks-panel";
 import { WorkspaceReturnLink } from "@/components/recruitment/workspace-return-link";
 import { RelationsPanel } from "@/components/companies-contacts/relations";
 import { notFound, redirect } from "next/navigation";
@@ -75,6 +76,14 @@ export default async function RecruitmentDetailPage({
             userId={user.id}
             contextType="case"
             contextId={item.id}
+          />
+        </div>
+        <div className="mt-5">
+          <TasksPanel
+            key={`${user.id}:${item.id}`}
+            userId={user.id}
+            caseId={item.id}
+            caseTitle={item.title}
           />
         </div>
         <LifecycleActions

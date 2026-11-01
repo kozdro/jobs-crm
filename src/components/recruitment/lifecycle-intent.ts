@@ -9,6 +9,7 @@ import {
   type LifecyclePreview,
 } from "@/modules/recruitment/domain/lifecycle";
 import { isCalendarDate } from "@/modules/recruitment/domain/case-events";
+import { isTask } from "@/components/tasks/client";
 import { uuidPattern } from "@/modules/recruitment/domain/recruitment-case";
 
 export const lifecycleIntentStorageKey = "jobs-crm.lifecycle.pending";
@@ -48,7 +49,15 @@ export function isLifecyclePreview(value: unknown): value is LifecyclePreview {
     (value.currentStage === null || typeof value.currentStage === "string") &&
     revision(value.cycle) &&
     (value.before === null || isClosureValues(value.before)) &&
-    (value.after === null || isClosureValues(value.after))
+    (value.after === null || isClosureValues(value.after)) &&
+    (value.openTasks === undefined ||
+      (Array.isArray(value.openTasks) && value.openTasks.every(isTask))) &&
+    (value.taskSnapshot === undefined ||
+      (Array.isArray(value.taskSnapshot) &&
+        value.taskSnapshot.every(
+          (item) =>
+            typeof item === "string" && /^[0-9a-f-]{36}:[0-9]+$/i.test(item),
+        )))
   );
 }
 export function isLifecycleEntry(value: unknown): value is LifecycleEntry {
@@ -123,13 +132,14 @@ export function parseLifecycleIntent(
       if (
         parsed.success &&
         "requestId" in parsed.data &&
-        Object.keys(value.command).length === 9 &&
+        [9, 11].includes(Object.keys(value.command).length) &&
         parsed.data.caseId === caseId &&
         parsed.data.requestId === result.requestId &&
         Object.entries(parsed.data).every(
           ([key, entry]) =>
             value.command &&
-            (value.command as Record<string, unknown>)[key] === entry,
+            JSON.stringify((value.command as Record<string, unknown>)[key]) ===
+              JSON.stringify(entry),
         )
       )
         result.command = parsed.data;
@@ -158,6 +168,22 @@ export function lifecycleResultMatches(
     );
   }
   const value = result.entry;
+  if (
+    command.expectedTaskSnapshot !== undefined ||
+    command.taskResolutions !== undefined
+  ) {
+    if (!isLifecycleEntry(value)) return false;
+    const sortResolutions = (
+      items: NonNullable<ConfirmLifecycleInput["taskResolutions"]>,
+    ) => [...items].sort((a, b) => a.taskId.localeCompare(b.taskId));
+    if (
+      JSON.stringify(value.expected_task_snapshot ?? []) !==
+        JSON.stringify(command.expectedTaskSnapshot ?? []) ||
+      JSON.stringify(sortResolutions(value.task_resolutions ?? [])) !==
+        JSON.stringify(sortResolutions(command.taskResolutions ?? []))
+    )
+      return false;
+  }
   // Entries may have a newer correction; compare the immutable original close values.
   return (
     isLifecycleEntry(value) &&

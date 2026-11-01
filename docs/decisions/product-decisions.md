@@ -1,5 +1,11 @@
 # Rejestr decyzji produktowych (DEC)
 
+## Tasks Core + integracja zamykania — 2026-11-01
+
+| ID | Status | Decyzja |
+|---|---|---|
+| DEC-060 | APPROVED | PO w tej rozmowie zatwierdził **1A/2A/3A/4A** i pełną implementację SDD/AIDD, QA, niezależne backend/frontend/security review, dokumentację i osobny PR (commit/push), **bez merge/deploymentu**. Zadania ogólne albo powiązane z jedną własną RecruitmentCase; tytuł 1–160 znaków po trim, opcjonalny opis do 2000; opcjonalny dzień terminu także przyszły, bez godziny i przypomnienia. Początkowo Do zrobienia, jawne Wykonane/Anulowane i przywrócenie do Do zrobienia. Edycja/odczyt i audyt, bez hard delete. BR-011: dla każdego otwartego zadania jawne anuluj (Anulowane, relacja zostaje), zachowaj (otwarte z relacją), odłącz (otwarte ogólne, ślad poprzedniej relacji); atomowo z zamknięciem sprawy, kontrolą współbieżności i audytem. Zadania przy zakończonej sprawie są dozwolone i nie wznawiają sprawy; wznowienie sprawy nie reaktywuje automatycznie zadań. Zachować fail-closed zabezpieczenie BR-011 dla przyszłych CalendarEvent. Moduł Zadania, kontekst sprawy, wspólny formularz i neutralny podgląd otwartych na Dashboardzie bez reguł pilności. Bez automatycznych sugestii, przypomnień, e-maili i kalendarza. Praca od aktualnego main, bez persistent DEV i cudzych zmian. Częściowo rozstrzyga OPEN-002/029/037/040 wyłącznie dla tego slice’a; pozostałe polityki i pełny TC-012 nadal otwarte. [Kontrakt i plan](../technical/tasks-core-analysis.md). |
+
 **Stan:** `BASELINED`, 2026-10-27. **Źródło akceptacji:** właściciel produktu — zatwierdzony baseline przekazany w zadaniu bootstrap. Każde `APPROVED` odnosi się do *zakresu opisanego w tym wierszu*, nie do wszystkich jego domniemanych konsekwencji.
 
 | ID | Status | Treść decyzji (normatywna) |

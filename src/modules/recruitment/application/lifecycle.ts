@@ -1,3 +1,4 @@
+import { readTask } from "./tasks";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { CaseRepositoryError } from "./cases";
 import { readEvent } from "./case-events";
@@ -71,7 +72,28 @@ export function readLifecyclePreview(value: unknown): LifecyclePreview {
       : r.currentStage !== null)
   )
     return unavailable();
+  const openTasks =
+    r.openTasks === undefined
+      ? []
+      : Array.isArray(r.openTasks)
+        ? r.openTasks.map(readTask)
+        : unavailable();
+  const taskSnapshot = r.taskSnapshot === undefined ? [] : r.taskSnapshot;
+  if (
+    !Array.isArray(taskSnapshot) ||
+    taskSnapshot.some((x) => typeof x !== "string") ||
+    new Set(taskSnapshot).size !== taskSnapshot.length ||
+    openTasks.length !== taskSnapshot.length ||
+    openTasks.some(
+      (t) =>
+        t.status !== "Do zrobienia" ||
+        !taskSnapshot.includes(`${t.id}:${t.revision}`),
+    )
+  )
+    return unavailable();
   return {
+    openTasks,
+    taskSnapshot: taskSnapshot as string[],
     caseRevision: r.caseRevision,
     closureRevision: r.closureRevision,
     cycle: r.cycle,
@@ -117,6 +139,29 @@ export function readLifecycleEntry(value: unknown): LifecycleEntry {
     (r.previous_status === "W rekrutacji") !== (r.previous_stage !== null)
   )
     return unavailable();
+  if (
+    r.expected_task_snapshot !== undefined ||
+    r.task_resolutions !== undefined
+  ) {
+    const parsed = parseLifecycleInput(
+      {
+        operation: r.kind,
+        caseId: r.case_id,
+        closureId: null,
+        outcome: r.outcome,
+        occurredOn: r.occurred_on,
+        offerConfirmed: r.offer_confirmed,
+        requestId: r.request_id,
+        expectedCaseRevision: r.expected_case_revision,
+        expectedClosureRevision: 0,
+        expectedTaskSnapshot: r.expected_task_snapshot,
+        taskResolutions: r.task_resolutions,
+      },
+      true,
+      new Date("9999-12-31T12:00:00Z"),
+    );
+    if (!parsed.success) return unavailable();
+  }
   const original = r.kind === "close" ? readClosureValues(r.original) : null;
   if (r.kind === "close")
     readClosureValues({
@@ -125,6 +170,15 @@ export function readLifecycleEntry(value: unknown): LifecycleEntry {
       offerConfirmed: r.offer_confirmed,
     });
   return {
+    ...(r.expected_task_snapshot !== undefined
+      ? { expected_task_snapshot: r.expected_task_snapshot as string[] }
+      : {}),
+    ...(r.task_resolutions !== undefined
+      ? {
+          task_resolutions:
+            r.task_resolutions as import("../domain/tasks").TaskResolution[],
+        }
+      : {}),
     id: r.id as string,
     request_id: r.request_id as string,
     case_id: r.case_id as string,
@@ -213,12 +267,22 @@ export async function confirmLifecycle(
   if (!parsed.success || !("requestId" in parsed.data))
     throw new CaseRepositoryError("invalid");
   const { data, error } = await client.rpc(
-    "confirm_recruitment_case_lifecycle",
+    parsed.data.expectedTaskSnapshot !== undefined ||
+      parsed.data.taskResolutions !== undefined
+      ? "confirm_recruitment_case_lifecycle_tasks"
+      : "confirm_recruitment_case_lifecycle",
     {
       ...rpcInput(parsed.data),
       p_request_id: parsed.data.requestId,
       p_expected_case_revision: parsed.data.expectedCaseRevision,
       p_expected_closure_revision: parsed.data.expectedClosureRevision,
+      ...(parsed.data.expectedTaskSnapshot !== undefined ||
+      parsed.data.taskResolutions !== undefined
+        ? {
+            p_expected_task_snapshot: parsed.data.expectedTaskSnapshot ?? [],
+            p_task_resolutions: parsed.data.taskResolutions ?? [],
+          }
+        : {}),
     },
   );
   if (error) rpcError(error.code);
@@ -253,10 +317,26 @@ export async function confirmLifecycle(
     entry.offer_confirmed !== input.offerConfirmed
   )
     return unavailable();
+  if (
+    entry &&
+    (parsed.data.expectedTaskSnapshot !== undefined ||
+      parsed.data.taskResolutions !== undefined)
+  ) {
+    const sortResolutions = (
+      items: import("../domain/tasks").TaskResolution[],
+    ) => [...items].sort((a, b) => a.taskId.localeCompare(b.taskId));
+    if (
+      JSON.stringify(entry.expected_task_snapshot ?? []) !==
+        JSON.stringify(parsed.data.expectedTaskSnapshot ?? []) ||
+      JSON.stringify(sortResolutions(entry.task_resolutions ?? [])) !==
+        JSON.stringify(sortResolutions(parsed.data.taskResolutions ?? []))
+    )
+      return unavailable();
+  }
   return { kind: data.kind, entry, revision };
 }
 const entryColumns =
-  "id,request_id,case_id,kind,cycle,occurred_on,recorded_at,outcome,offer_confirmed,previous_status,previous_stage,resulting_status,resulting_stage,revision,original,expected_case_revision";
+  "id,request_id,case_id,kind,cycle,occurred_on,recorded_at,outcome,offer_confirmed,previous_status,previous_stage,resulting_status,resulting_stage,revision,original,expected_case_revision,expected_task_snapshot,task_resolutions";
 const revisionColumns =
   "id,request_id,case_id,closure_id,revision,recorded_at,before:before_values,after:after_values,expected_case_revision,expected_closure_revision";
 function pageRange(caseId: string, page: number) {
@@ -354,7 +434,7 @@ export async function getLifecycleByRequestId(
   const { data: l, error: le } = await client
     .from("recruitment_case_lifecycle")
     .select(
-      "id,request_id,case_id,kind,cycle,occurred_on,recorded_at,outcome,offer_confirmed,previous_status,previous_stage,resulting_status,resulting_stage,expected_case_revision",
+      "id,request_id,case_id,kind,cycle,occurred_on,recorded_at,outcome,offer_confirmed,previous_status,previous_stage,resulting_status,resulting_stage,expected_case_revision,expected_task_snapshot,task_resolutions",
     )
     .eq("case_id", caseId)
     .eq("request_id", requestId)

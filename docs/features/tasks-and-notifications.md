@@ -1,5 +1,11 @@
 # Feature: Tasks & Notifications
 
+## Tasks Core — DEC-060, 2026-11-01
+
+**APPROVED 1A/2A/3A/4A**, pełne wykonanie i osobny PR autoryzowane, bez merge/deploymentu. [Dokładny kontrakt i plan](../technical/tasks-core-analysis.md). Tytuł 1–160 po trim, opis opcjonalny do 2000, termin opcjonalny dzień także przyszły. Statusy Do zrobienia (początkowy), Wykonane, Anulowane; przywrócenie jawne. Ogólne lub własna sprawa, także zakończona, bez jej wznowienia. Moduł Zadania, kontekst sprawy i neutralny podgląd otwartych na Dashboardzie, bez reguł pilności.
+
+BR-011 jest częścią tego samego slice'a: anuluj = Anulowane z relacją, zachowaj = otwarte z relacją, odłącz = otwarte ogólne; jawnie każdy element, atomowo z close, kontrolą zbioru/wersji i audytem poprzedniej relacji. Calendar guard pozostaje fail-closed. Bez usuwania, sugestii, przypomnień, e-maili i kalendarza. Core mapuje się do UC/TC-030 i części UC/TC-012; UC-011/017 poniżej dotyczą zależności Calendar/import, nie dowodu akceptacji core.
+
 **Stan:** `BASELINED` (możliwości bazowe `APPROVED`, progi i preferencje `OPEN`). **Aktor:** użytkownik. **FR:** `FR-TN-001`–`FR-TN-011`.
 
 ## Cel

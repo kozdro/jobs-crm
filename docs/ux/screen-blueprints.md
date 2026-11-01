@@ -145,6 +145,8 @@ ADR-0005 wymaga atomowego zapisu całego zaakceptowanego zbioru i rollbacku bł�
 
 ## 8. Zadania — UX-010
 
+**Tasks Core DEC-060 (2026-11-01), APPROVED:** lista i wspólny formularz, sekcja pełnego detalu sprawy i neutralny podgląd otwartych na Dashboardzie. Tytuł 1–160 po trim, opcjonalny opis do 2000 i dzień terminu także przyszły, bez godziny/alarmu. Do zrobienia/Wykonane/Anulowane, jawne przywrócenie; zadanie przy zakończonej sprawie nie wznawia sprawy. Audyt dostępny także po odłączeniu. Close wymaga jawnego anuluj/zachowaj/odłącz dla każdego otwartego zadania i nowego preview po konflikcie. Brak reguł pilności, grupowania zaległości, sugestii i przypomnień w tym slice'ie. [Kontrakt](../technical/tasks-core-analysis.md).
+
 - **Widok bazowy:** lista zadań ze zrozumiałym tytułem, opcjonalnym terminem, statusem zgodnym z przyszłym słownikiem i połączeniem do sprawy, jeśli istnieje.
 - **Punkt wejścia:** główny moduł, Dashboard i kontekst sprawy. „+ Zadanie” otwiera ten sam logiczny formularz, z wstępnie wskazaną sprawą, jeśli wywołano go z jej kontekstu; nie dopowiada innych danych.
 - **Widoki pomocnicze:** grupowanie według istotności/terminów jest propozycją UX, a jego nazwy i reguły wymagają OPEN-040.

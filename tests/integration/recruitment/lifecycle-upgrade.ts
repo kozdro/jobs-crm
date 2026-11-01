@@ -54,7 +54,7 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
     };
     assert.equal(
       journal.entries.length,
-      13,
+      14,
       "Upgrade test must cover the exact current migration history",
     );
     for (const entry of journal.entries.slice(0, 7)) await apply(entry.tag);
@@ -414,6 +414,60 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
       await snapshot(),
       beforeIntentGuard,
       "0012 intent guard preserves previous recruitment records and projections",
+    );
+    const beforeTasks = await snapshot();
+    const catalogBeforeTasks = await catalogSnapshot();
+    await apply(journal.entries[13].tag);
+    const afterTasks = await snapshot();
+    assert.deepEqual(
+      afterTasks.map((rows, index) =>
+        rows.map((row) => {
+          if (oldTables[index] !== "recruitment_case_lifecycle")
+            return { ...row };
+          const { expected_task_snapshot, task_resolutions, ...old } = row;
+          assert.deepEqual(expected_task_snapshot, []);
+          assert.deepEqual(task_resolutions, []);
+          return old;
+        }),
+      ),
+      beforeTasks.map((rows) => rows.map((row) => ({ ...row }))),
+      "0013 preserves all pre-existing cases, facts, correction audit, closures and their identities",
+    );
+    assert.deepEqual(
+      await catalogSnapshot(),
+      catalogBeforeTasks,
+      "Tasks upgrade preserves profiles, relationships and their immutable commands",
+    );
+    for (const table of ["recruitment_task", "recruitment_task_command"]) {
+      const taskCounts: { n: number }[] = await upgrade.unsafe(
+        `select count(*)::int n from public.${table}`,
+      );
+      assert.equal(
+        taskCounts[0].n,
+        0,
+        "Tasks migration does not invent historical tasks or audits",
+      );
+    }
+    const unchangedClosedCase =
+      await upgrade`select * from public.recruitment_case where id=${caseId}::uuid`;
+    await upgrade.begin(async (tx) => {
+      await tx.unsafe("set local role authenticated");
+      await tx.unsafe("select set_config('request.jwt.claim.sub',$1,true)", [
+        owner,
+      ]);
+      const [createdTask] = await tx.unsafe(
+        "select public.execute_recruitment_task_command($1::uuid,jsonb_build_object('operation','create','title','Synthetic task after upgrade','description',NULL,'dueOn','2999-01-01','caseId',$2::text)) result",
+        [randomUUID(), caseId],
+      );
+      assert.equal(createdTask.result.kind, "created");
+      assert.equal(createdTask.result.task.case_id, caseId);
+      assert.equal(createdTask.result.task.status, "Do zrobienia");
+      assert.equal(createdTask.result.task.due_on, "2999-01-01");
+    });
+    assert.deepEqual(
+      await upgrade`select * from public.recruitment_case where id=${caseId}::uuid`,
+      unchangedClosedCase,
+      "New task on a legacy closed case does not change lifecycle, stage or revision",
     );
   } finally {
     if (upgrade) await upgrade.end();

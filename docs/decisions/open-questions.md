@@ -1,5 +1,15 @@
 # Kwestie otwarte i bramki decyzyjne (OPEN)
 
+## Tasks Core — częściowe rozstrzygnięcie 2026-11-01
+
+[DEC-060](product-decisions.md), PO w tej rozmowie: zatwierdzone 1A/2A/3A/4A i pełne wykonanie [kontraktu](../technical/tasks-core-analysis.md), osobny PR bez merge/deploymentu.
+
+- OPEN-002: RESOLVED tylko Task — tytuł 1–160 po trim, opis opcjonalny do 2000, termin opcjonalny dzień także przyszły, ogólne albo własna sprawa, także zakończona. Inne formularze OPEN.
+- OPEN-040: RESOLVED słownik Tasks Core Do zrobienia/Wykonane/Anulowane, początkowo Do zrobienia i jawne przywrócenie. Rozliczanie przypomnień i polityki powiadomień nadal OPEN.
+- OPEN-029: RESOLVED dla Task — anuluj zmienia status i zachowuje relację; zachowaj utrzymuje otwarte z relacją; odłącz pozostawia otwarte ogólne z audytem wcześniejszej relacji. Każdy element rozstrzygany atomowo z close i kontrolą współbieżności. CalendarEvent nadal OPEN z zachowaniem fail-closed guarda; pełny TC-012 pozostaje częściowy.
+- OPEN-037: RESOLVED tylko termin Task jako dzień bez godziny i alarmu; brak progów zaległości i przypomnień. Strefy i reguły kalendarza nadal OPEN.
+- OPEN-008/009/021 nie są rozstrzygnięte; sugestie, przypomnienia i kalendarz poza slice'em. Istniejące publiczne bramki bezpieczeństwa/prywatności/operacji zachowane.
+
 **Stan:** `BASELINED` z aktualizacją po Technical Discovery 2026-10-28. Wiersze poniżej zachowują status **`OPEN` w zakresie nierozstrzygniętych szczegółów**, nie są propozycjami przyjętego rozwiązania. Właściciel rozstrzygnięcia: **PO** dla produktu/domeny/UX; **PO + Tech Lead** dla decyzji technicznych. Priorytet `P0` blokuje właściwy fragment implementacji; `P1` przed ukończeniem danej funkcji; `P2` późniejsze discovery.
 
 | ID | Priorytet / bramka | Nierozstrzygnięte pytanie / wymagane rozstrzygnięcie |

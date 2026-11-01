@@ -1,0 +1,516 @@
+/** DEC-060 / UC-030 and task-only TC-012: production HTTPS and real private data. */
+import { randomUUID } from "node:crypto";
+import { expect, test, type Page } from "@playwright/test";
+import {
+  readRecruitmentTarget,
+  type RecruitmentTarget,
+} from "../../scripts/recruitment/target.ts";
+import {
+  account,
+  login as sdkLogin,
+  type Account,
+} from "../integration/auth/fixtures.ts";
+
+let target: RecruitmentTarget;
+let a: Account;
+test.beforeAll(async () => {
+  const id = process.env.RECRUITMENT_TARGET_ID;
+  if (!id)
+    throw new Error("Tasks browser requires a guarded disposable target");
+  target = await readRecruitmentTarget(id);
+});
+test.beforeEach(async () => {
+  a = await account(target);
+});
+async function login(page: Page, user = a) {
+  await page.goto(`${target.appOrigin}/login`);
+  await page.getByLabel("E-mail", { exact: true }).fill(user.email);
+  await page.getByLabel("Hasło", { exact: true }).fill(user.password);
+  await page.getByRole("button", { name: "Zaloguj się", exact: true }).click();
+  await expect(page).toHaveURL(`${target.appOrigin}/dashboard`);
+}
+async function fixture() {
+  const { client } = await sdkLogin(target, a);
+  const title = `Tasks browser ${randomUUID()}`;
+  const result = await client.rpc("create_recruitment_case", {
+    p_request_id: randomUUID(),
+    p_title: title,
+  });
+  expect(result.error).toBeNull();
+  return { client, id: result.data.case.id as string, title };
+}
+async function taskFixture(
+  c: Awaited<ReturnType<typeof fixture>>,
+  title: string,
+  caseId: string | null = c.id,
+) {
+  const result = await c.client.rpc("execute_recruitment_task_command", {
+    p_request_id: randomUUID(),
+    p_payload: {
+      operation: "create",
+      title,
+      description: null,
+      dueOn: null,
+      caseId,
+    },
+  });
+  expect(result.error).toBeNull();
+  return result.data.task as {
+    id: string;
+    revision: number;
+    status: string;
+    case_id: string | null;
+  };
+}
+const taskArticle = (page: Page, title: string) =>
+  page.getByRole("article", { name: title, exact: true });
+async function add(
+  page: Page,
+  title: string,
+  description?: string,
+  dueOn?: string,
+) {
+  await page
+    .getByRole("button", { name: "Dodaj zadanie", exact: true })
+    .click();
+  await page.getByLabel("Tytuł zadania", { exact: true }).fill(title);
+  if (description)
+    await page
+      .getByLabel("Opis (opcjonalnie)", { exact: true })
+      .fill(description);
+  if (dueOn)
+    await page.getByLabel("Termin (opcjonalnie)", { exact: true }).fill(dueOn);
+  await page
+    .getByRole("button", { name: "Zapisz zadanie", exact: true })
+    .click();
+  await expect(taskArticle(page, title.trim())).toBeVisible();
+}
+async function taskRows(c: Awaited<ReturnType<typeof fixture>>) {
+  const result = await c.client
+    .from("recruitment_task")
+    .select("*")
+    .eq("owner_id", a.id);
+  expect(result.error).toBeNull();
+  return result.data ?? [];
+}
+async function caseState(c: Awaited<ReturnType<typeof fixture>>) {
+  const result = await c.client
+    .from("recruitment_case")
+    .select("status,current_stage,case_revision")
+    .eq("id", c.id)
+    .single();
+  expect(result.error).toBeNull();
+  expect(result.data).not.toBeNull();
+  return result.data!;
+}
+async function closeForm(page: Page) {
+  await page
+    .getByRole("button", { name: "Zakończ sprawę", exact: true })
+    .click();
+  await page
+    .getByLabel("Wynik zakończenia", { exact: true })
+    .selectOption({ label: "Inny" });
+  await page
+    .getByRole("button", { name: "Pokaż podgląd zmian", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Podgląd zmian", exact: true }),
+  ).toBeVisible();
+}
+async function confirmClose(page: Page) {
+  await page
+    .getByRole("checkbox", {
+      name: "Potwierdzam zakończenie sprawy i wskazany wynik.",
+      exact: true,
+    })
+    .check();
+  await page
+    .getByRole("button", { name: "Zatwierdź zakończenie", exact: true })
+    .click();
+}
+
+test("DEC060 empty Tasks and general task without deadline survive reload and appear on Dashboard", async ({
+  page,
+}) => {
+  const c = await fixture();
+  await login(page);
+  await page.goto(`${target.appOrigin}/tasks`);
+  await expect(
+    page.getByRole("heading", { name: "Zadania", exact: true }),
+  ).toBeVisible();
+  await expect(page.getByRole("article")).toHaveCount(0);
+  const title = `Ogólne ${randomUUID()}`;
+  await add(page, `  ${title}  `);
+  await expect(taskArticle(page, title)).toContainText("Do zrobienia");
+  const rows = await taskRows(c);
+  expect(rows).toHaveLength(1);
+  expect(rows[0]).toMatchObject({
+    title,
+    description: null,
+    due_on: null,
+    case_id: null,
+    status: "Do zrobienia",
+  });
+  await page.reload();
+  await expect(taskArticle(page, title)).toBeVisible();
+  await page.goto(`${target.appOrigin}/dashboard`);
+  await expect(page.getByText(title, { exact: true })).toBeVisible();
+  expect((await caseState(c)).status).toBe("Zapisane");
+});
+
+test("DEC060 edit, future day, explicit completion/cancellation/restore and visible audit", async ({
+  page,
+}) => {
+  const c = await fixture();
+  const before = await caseState(c);
+  await login(page);
+  await page.goto(`${target.appOrigin}/tasks`);
+  const title = `Działanie ${randomUUID()}`;
+  await add(page, title, "Pierwszy opis syntetyczny", "2999-12-31");
+  let row = taskArticle(page, title);
+  await expect(row).toContainText("2999");
+  await row
+    .getByRole("button", { name: "Edytuj zadanie", exact: true })
+    .click();
+  await page
+    .getByLabel("Opis (opcjonalnie)", { exact: true })
+    .fill("Poprawiony opis syntetyczny");
+  await page
+    .getByRole("button", { name: "Zapisz zmiany", exact: true })
+    .click();
+  await expect(row).toContainText("Poprawiony opis syntetyczny");
+  await row
+    .getByRole("button", { name: "Oznacz jako wykonane", exact: true })
+    .click();
+  await expect(row).toContainText("Wykonane");
+  await row
+    .getByRole("button", { name: "Przywróć do zrobienia", exact: true })
+    .click();
+  await expect(row).toContainText("Do zrobienia");
+  await row
+    .getByRole("button", { name: "Anuluj zadanie", exact: true })
+    .click();
+  await expect(row).toContainText("Anulowane");
+  await row
+    .getByRole("button", { name: "Przywróć do zrobienia", exact: true })
+    .click();
+  await expect(row).toContainText("Do zrobienia");
+  await row
+    .getByRole("button", { name: "Pokaż audyt zadania", exact: true })
+    .click();
+  await expect(
+    page.getByText("Pierwszy opis syntetyczny", { exact: false }).first(),
+  ).toBeVisible();
+  expect(await caseState(c)).toEqual(before);
+  const rows = await taskRows(c);
+  expect(rows[0]).toMatchObject({
+    due_on: "2999-12-31",
+    description: "Poprawiony opis syntetyczny",
+    status: "Do zrobienia",
+  });
+  await page.reload();
+  row = taskArticle(page, title);
+  await expect(row).toContainText("Do zrobienia");
+});
+
+test("DEC060 common form presets only case context and task is the same record across views", async ({
+  page,
+}) => {
+  const c = await fixture();
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${c.id}`);
+  await expect(
+    page.getByRole("heading", { name: "Zadania sprawy", exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Dodaj zadanie", exact: true })
+    .click();
+  await expect(page.getByLabel("Tytuł zadania", { exact: true })).toHaveValue(
+    "",
+  );
+  await expect(
+    page.getByLabel("Opis (opcjonalnie)", { exact: true }),
+  ).toHaveValue("");
+  await expect(
+    page.getByLabel("Termin (opcjonalnie)", { exact: true }),
+  ).toHaveValue("");
+  await expect(
+    page.getByLabel("Powiązanie ze sprawą", { exact: true }),
+  ).toHaveValue(c.id);
+  const title = `Powiązane ${randomUUID()}`;
+  await page.getByLabel("Tytuł zadania", { exact: true }).fill(title);
+  await page
+    .getByRole("button", { name: "Zapisz zadanie", exact: true })
+    .click();
+  await expect(taskArticle(page, title)).toBeVisible();
+  await page.goto(`${target.appOrigin}/tasks`);
+  await expect(taskArticle(page, title)).toContainText(c.title);
+  expect((await taskRows(c)).filter((row) => row.title === title)).toHaveLength(
+    1,
+  );
+  expect((await taskRows(c))[0].case_id).toBe(c.id);
+});
+
+test("DEC060 closure requires each choice and atomically cancels, keeps and detaches with accessible audit", async ({
+  page,
+}) => {
+  const c = await fixture();
+  const titles = [
+    "Anulowane działanie",
+    "Zachowane działanie",
+    "Odłączone działanie",
+  ].map((title) => `${title} ${randomUUID()}`);
+  const tasks = await Promise.all(titles.map((title) => taskFixture(c, title)));
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${c.id}`);
+  await closeForm(page);
+  for (const title of titles) {
+    const group = page.getByRole("group", { name: title, exact: true });
+    for (const name of ["Anuluj", "Zachowaj", "Odłącz"])
+      await expect(
+        group.getByRole("radio", { name, exact: true }),
+      ).not.toBeChecked();
+  }
+  await page
+    .getByRole("checkbox", {
+      name: "Potwierdzam zakończenie sprawy i wskazany wynik.",
+      exact: true,
+    })
+    .check();
+  await expect(
+    page.getByRole("button", { name: "Zatwierdź zakończenie", exact: true }),
+  ).toBeDisabled();
+  for (const [index, label] of ["Anuluj", "Zachowaj", "Odłącz"].entries())
+    await page
+      .getByRole("group", { name: titles[index], exact: true })
+      .getByRole("radio", { name: label, exact: true })
+      .check();
+  await page
+    .getByRole("button", { name: "Zatwierdź zakończenie", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Wznów sprawę", exact: true }),
+  ).toBeVisible();
+  const rows = await taskRows(c);
+  expect(rows.find((row) => row.id === tasks[0].id)).toMatchObject({
+    status: "Anulowane",
+    case_id: c.id,
+  });
+  expect(rows.find((row) => row.id === tasks[1].id)).toMatchObject({
+    status: "Do zrobienia",
+    case_id: c.id,
+  });
+  expect(rows.find((row) => row.id === tasks[2].id)).toMatchObject({
+    status: "Do zrobienia",
+    case_id: null,
+  });
+  await page.goto(`${target.appOrigin}/tasks`);
+  const detached = taskArticle(page, titles[2]);
+  await detached
+    .getByRole("button", { name: "Pokaż audyt zadania", exact: true })
+    .click();
+  await expect(page.getByText(c.title, { exact: false }).last()).toBeVisible();
+});
+
+test("DEC060 stale closure task snapshot requires refreshed preview and cannot silently close", async ({
+  page,
+}) => {
+  const c = await fixture();
+  const title = `Starszy podgląd ${randomUUID()}`;
+  await taskFixture(c, title);
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${c.id}`);
+  await closeForm(page);
+  await page
+    .getByRole("group", { name: title, exact: true })
+    .getByRole("radio", { name: "Zachowaj", exact: true })
+    .check();
+  await taskFixture(c, `Dodane po podglądzie ${randomUUID()}`);
+  await confirmClose(page);
+  await expect(page.getByRole("alert")).toBeVisible();
+  expect((await caseState(c)).status).toBe("Zapisane");
+  const lifecycle = await c.client
+    .from("recruitment_case_lifecycle")
+    .select("id")
+    .eq("case_id", c.id);
+  expect(lifecycle.error).toBeNull();
+  expect(lifecycle.data).toHaveLength(0);
+});
+
+test("DEC060 tasks added and restored at a closed case never reopen it", async ({
+  page,
+}) => {
+  const c = await fixture();
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${c.id}`);
+  await closeForm(page);
+  await confirmClose(page);
+  await expect(
+    page.getByRole("button", { name: "Wznów sprawę", exact: true }),
+  ).toBeVisible();
+  const before = await caseState(c);
+  const title = `Po zakończeniu ${randomUUID()}`;
+  await add(page, title);
+  const row = taskArticle(page, title);
+  await row
+    .getByRole("button", { name: "Oznacz jako wykonane", exact: true })
+    .click();
+  await expect(row).toContainText("Wykonane");
+  await row
+    .getByRole("button", { name: "Przywróć do zrobienia", exact: true })
+    .click();
+  await expect(row).toContainText("Do zrobienia");
+  expect(await caseState(c)).toEqual(before);
+  await expect(
+    page.getByRole("button", { name: "Wznów sprawę", exact: true }),
+  ).toBeVisible();
+});
+
+test("DEC060 failed task save preserves form and never reports a false success", async ({
+  page,
+}) => {
+  const c = await fixture();
+  await login(page);
+  await page.goto(`${target.appOrigin}/tasks`);
+  await page
+    .getByRole("button", { name: "Dodaj zadanie", exact: true })
+    .click();
+  const title = `Niepotwierdzony zapis ${randomUUID()}`;
+  await page.getByLabel("Tytuł zadania", { exact: true }).fill(title);
+  await page.route("**/tasks/commands", async (route) => {
+    if (route.request().method() === "POST")
+      return route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: JSON.stringify({
+          kind: "unavailable",
+          error: "Syntetyczny błąd zapisu",
+        }),
+      });
+    return route.continue();
+  });
+  await page
+    .getByRole("button", { name: "Zapisz zadanie", exact: true })
+    .click();
+  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(page.getByLabel("Tytuł zadania", { exact: true })).toHaveValue(
+    title,
+  );
+  expect(await taskRows(c)).toHaveLength(0);
+});
+
+test("DEC060 task forms remain usable by keyboard at 375, 768, 1024 and 1440", async ({
+  page,
+}) => {
+  await fixture();
+  await login(page);
+  for (const width of [375, 768, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(`${target.appOrigin}/tasks`);
+    const trigger = page.getByRole("button", {
+      name: "Dodaj zadanie",
+      exact: true,
+    });
+    await trigger.focus();
+    await page.keyboard.press("Enter");
+    const title = page.getByLabel("Tytuł zadania", { exact: true });
+    await expect(title).toBeVisible();
+    await title.focus();
+    await page.keyboard.type(`Klawiatura ${width}`);
+    const submit = page.getByRole("button", {
+      name: "Zapisz zadanie",
+      exact: true,
+    });
+    await submit.focus();
+    await expect(submit).toBeFocused();
+    const box = await submit.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.x).toBeGreaterThanOrEqual(0);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(width + 1);
+    expect(box!.y).toBeGreaterThanOrEqual(0);
+    expect(box!.y + box!.height).toBeLessThanOrEqual(901);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth + 1,
+      ),
+    ).toBe(true);
+    await page.keyboard.press("Enter");
+    await expect(taskArticle(page, `Klawiatura ${width}`)).toBeVisible();
+  }
+});
+
+test("DEC060 BFF protects private Task list, ID, audit, request recovery and write origins", async ({
+  page,
+  browser,
+}) => {
+  const c = await fixture();
+  const title = `Prywatne działanie ${randomUUID()}`;
+  const task = await taskFixture(c, title);
+  await login(page);
+  const own = await page.request.get(
+    `${target.appOrigin}/tasks/commands?taskId=${task.id}`,
+  );
+  expect(own.status()).toBe(200);
+  expect(own.headers()["cache-control"]).toContain("no-store");
+  expect((await own.json()).task).toMatchObject({ id: task.id, title });
+  const audit = await c.client
+    .from("recruitment_task_command")
+    .select("request_id")
+    .eq("task_id", task.id)
+    .single();
+  expect(audit.error).toBeNull();
+  const requestId = audit.data!.request_id;
+  const b = await account(target);
+  const foreignContext = await browser.newContext({ ignoreHTTPSErrors: true });
+  const anonContext = await browser.newContext({ ignoreHTTPSErrors: true });
+  try {
+    const foreign = await foreignContext.newPage();
+    await login(foreign, b);
+    for (const [query, expected] of [
+      ["", { tasks: [], hasMore: false, page: 1 }],
+      [`taskId=${task.id}`, { task: null }],
+      [`taskId=${task.id}&audit=true`, { entries: [] }],
+      [`requestId=${requestId}`, { task: null }],
+      [`caseId=${c.id}`, { tasks: [], hasMore: false, page: 1 }],
+    ] as const) {
+      const response = await foreign.request.get(
+        `${target.appOrigin}/tasks/commands?${query}`,
+      );
+      expect(response.status()).toBe(200);
+      expect(await response.json()).toEqual(expected);
+      expect(await response.text()).not.toContain(title);
+      expect(response.headers()["cache-control"]).toContain("no-store");
+      const anonymous = await anonContext.request.get(
+        `${target.appOrigin}/tasks/commands?${query}`,
+      );
+      expect(anonymous.status()).toBe(401);
+      expect(await anonymous.text()).not.toContain(title);
+    }
+    const spoof = await foreign.request.get(
+      `${target.appOrigin}/tasks/commands?expectedUserId=${a.id}`,
+    );
+    expect(spoof.status()).toBe(403);
+    const body = {
+      expectedUserId: a.id,
+      requestId: randomUUID(),
+      operation: "set-status",
+      taskId: task.id,
+      expectedRevision: task.revision,
+      status: "Wykonane",
+    };
+    const foreignWrite = await foreign.request.post(
+      `${target.appOrigin}/tasks/commands`,
+      { headers: { Origin: target.appOrigin }, data: body },
+    );
+    expect(foreignWrite.status()).toBe(403);
+    const crossOrigin = await page.request.post(
+      `${target.appOrigin}/tasks/commands`,
+      { headers: { Origin: "https://example.invalid" }, data: body },
+    );
+    expect(crossOrigin.status()).toBe(403);
+    expect((await taskRows(c))[0].status).toBe("Do zrobienia");
+  } finally {
+    await foreignContext.close();
+    await anonContext.close();
+  }
+});

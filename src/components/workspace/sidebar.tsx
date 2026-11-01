@@ -19,7 +19,7 @@ import { buttonStyles } from "@/components/ui/styles";
 const modules: { name: string; icon: LucideIcon; href?: string }[] = [
   { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
   { name: "Rekrutacje", icon: BriefcaseBusiness, href: "/recruitments" },
-  { name: "Zadania", icon: ListTodo },
+  { name: "Zadania", icon: ListTodo, href: "/tasks" },
   { name: "Kalendarz", icon: CalendarDays },
   { name: "Dokumenty", icon: Files },
   { name: "Firmy", icon: Building2, href: "/companies" },
