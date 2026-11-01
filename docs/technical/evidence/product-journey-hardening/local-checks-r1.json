@@ -14,7 +14,7 @@
   },
   "typecheck": {
     "status": "PASS",
-    "command": "node next typegen; tsc --noEmit; tsc -p tsconfig.f2.json",
+    "command": "/Users/kozdro/.volta/tools/image/node/24.22.2/bin/node node_modules/next/dist/bin/next typegen && /Users/kozdro/.volta/tools/image/node/24.22.2/bin/node node_modules/typescript/bin/tsc --noEmit && /Users/kozdro/.volta/tools/image/node/24.22.2/bin/node node_modules/typescript/bin/tsc -p tsconfig.f2.json",
     "exit": 0
   },
   "lint": {
@@ -24,14 +24,18 @@
   },
   "format": {
     "status": "PASS",
-    "command": "full package format:check equivalent via pinned node",
+    "command": "/Users/kozdro/.volta/tools/image/node/24.22.2/bin/node node_modules/prettier/bin/prettier.cjs --check src tests scripts experiments db '*.ts' '*.mjs' package.json components.json pnpm-workspace.yaml .prettierrc.json .github/workflows/app-ci.yml",
     "exit": 0
   },
   "harness": {
     "status": "PASS",
     "tests": 21,
-    "command": "python3 harness/scripts/sync.py --check; check.py; python3 -m unittest discover -s harness/scripts -p test_*.py -v",
-    "exit": 0
+    "exit": 0,
+    "commands": [
+      "python3 harness/scripts/sync.py --check",
+      "python3 harness/scripts/check.py",
+      "python3 -m unittest discover -s harness/scripts -p 'test_*.py' -v"
+    ]
   },
   "boundaries": {
     "status": "PASS_R2",
@@ -58,7 +62,7 @@
   "final_code_test_candidate": "4941924df40d7affbcd90d2a721f9f80ed6d7199",
   "final_test_types_lint": {
     "status": "PASS",
-    "command": "tsc --noEmit; tsc -p tsconfig.f2.json; eslint final navigation spec --max-warnings=0",
+    "command": "/Users/kozdro/.volta/tools/image/node/24.22.2/bin/node node_modules/typescript/bin/tsc --noEmit && /Users/kozdro/.volta/tools/image/node/24.22.2/bin/node node_modules/typescript/bin/tsc -p tsconfig.f2.json && /Users/kozdro/.volta/tools/image/node/24.22.2/bin/node node_modules/eslint/bin/eslint.js tests/e2e/recruitment-product-journey-navigation.spec.ts --max-warnings=0",
     "exit": 0
   }
 }
