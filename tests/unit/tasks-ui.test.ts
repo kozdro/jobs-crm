@@ -48,6 +48,75 @@ const create: TaskCommand = {
 const render = (value: Parameters<typeof renderToStaticMarkup>[0]) =>
   renderToStaticMarkup(value);
 describe("Tasks Core UI contracts", () => {
+  it("treats omitted task intent as empty during recovery without consuming a taskful receipt", () => {
+    const legacy: ConfirmLifecycleInput = {
+      operation: "close",
+      caseId,
+      closureId: null,
+      outcome: "Nie aplikowano",
+      occurredOn: null,
+      offerConfirmed: false,
+      requestId,
+      expectedCaseRevision: 2,
+      expectedClosureRevision: 0,
+    };
+    const command: ConfirmLifecycleInput = {
+      ...legacy,
+      expectedTaskSnapshot: [`${taskId}:0`],
+      taskResolutions: [{ taskId, action: "detach" }],
+    };
+    const entry: LifecycleEntry = {
+      id: owner,
+      request_id: requestId,
+      case_id: caseId,
+      kind: "close",
+      cycle: 0,
+      occurred_on: null,
+      recorded_at: "2026-11-01T12:00:00Z",
+      outcome: "Nie aplikowano",
+      offer_confirmed: false,
+      previous_status: "Zapisane",
+      previous_stage: null,
+      resulting_status: "Zakończone",
+      resulting_stage: null,
+      revision: 0,
+      expected_case_revision: 2,
+      original: {
+        outcome: "Nie aplikowano",
+        occurredOn: null,
+        offerConfirmed: false,
+      },
+      expected_task_snapshot: [`${taskId}:0`],
+      task_resolutions: [{ action: "detach", taskId }],
+    };
+    const pending = parseLifecycleIntent(
+      JSON.stringify({ ownerId: owner, caseId, requestId, command: legacy }),
+      owner,
+      caseId,
+    );
+    expect(pending?.command).toEqual(legacy);
+    expect(lifecycleResultMatches({ entry }, pending!.command!)).toBe(false);
+    expect(
+      lifecycleResultMatches(
+        { entry },
+        { ...legacy, expectedTaskSnapshot: [], taskResolutions: [] },
+      ),
+    ).toBe(false);
+    expect(lifecycleResultMatches({ entry }, command)).toBe(true);
+    expect(
+      lifecycleResultMatches(
+        {
+          entry: { ...entry, expected_task_snapshot: [], task_resolutions: [] },
+        },
+        legacy,
+      ),
+    ).toBe(true);
+    const legacyEntry = { ...entry };
+    delete legacyEntry.expected_task_snapshot;
+    delete legacyEntry.task_resolutions;
+    expect(lifecycleResultMatches({ entry: legacyEntry }, legacy)).toBe(true);
+  });
+
   it("accepts SQL JSONB key order in closure receipts while rejecting changed tasks, choices and revisions", () => {
     const otherTask = "00000000-0000-4000-8000-000000000005";
     const thirdTask = "00000000-0000-4000-8000-000000000006";

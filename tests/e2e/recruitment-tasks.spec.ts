@@ -419,9 +419,77 @@ test("DEC060 lost three-choice closure reply recovers the original receipt and r
     form.getByRole("alert").filter({ hasText: "Wynik zapisu jest nieznany." }),
   ).toBeVisible();
   expect((await caseState(c)).status).toBe("Zakończone");
-  await form
-    .getByRole("button", { name: "Sprawdź wynik zapisu", exact: true })
+  const pendingKey = `jobs-crm.lifecycle.pending.${c.id}`;
+  const originalPending = await page.evaluate(
+    (key) => sessionStorage.getItem(key),
+    pendingKey,
+  );
+  expect(originalPending !== null).toBe(true);
+  page.on("dialog", async (dialog) => {
+    expect(dialog.type()).toBe("beforeunload");
+    await dialog.accept();
+  });
+  for (const variant of ["omitted", "explicit-empty"] as const) {
+    const modified = JSON.parse(originalPending!) as {
+      command: Record<string, unknown>;
+    };
+    if (variant === "omitted") {
+      delete modified.command.expectedTaskSnapshot;
+      delete modified.command.taskResolutions;
+    } else {
+      modified.command.expectedTaskSnapshot = [];
+      modified.command.taskResolutions = [];
+    }
+    const altered = JSON.stringify(modified);
+    await page.evaluate(
+      ({ key, value }) => sessionStorage.setItem(key, value),
+      { key: pendingKey, value: altered },
+    );
+    await page.reload();
+    const recover = page.getByRole("button", {
+      name: "Sprawdź wcześniejszy zapis cyklu",
+      exact: true,
+    });
+    await expect(recover).toBeVisible();
+    await recover.click();
+    await expect(
+      page.getByRole("status").filter({ hasText: "Nie potwierdzono wyniku." }),
+    ).toHaveText(
+      "Nie potwierdzono wyniku. Pusty odczyt nie oznacza cofnięcia zapisu. Zachowano ten sam zamiar.",
+    );
+    expect(
+      await page.evaluate(
+        ({ key, value }) => sessionStorage.getItem(key) === value,
+        { key: pendingKey, value: altered },
+      ),
+    ).toBe(true);
+    await expect(recover).toBeVisible();
+    await expect(
+      page.getByText("Potwierdzono wcześniejszy zapis.", { exact: false }),
+    ).toHaveCount(0);
+  }
+  await page.evaluate(({ key, value }) => sessionStorage.setItem(key, value), {
+    key: pendingKey,
+    value: originalPending!,
+  });
+  await page.reload();
+  await page
+    .getByRole("button", {
+      name: "Sprawdź wcześniejszy zapis cyklu",
+      exact: true,
+    })
     .click();
+  await expect(
+    page
+      .getByRole("status")
+      .filter({ hasText: "Potwierdzono wcześniejszy zapis." }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      (key) => sessionStorage.getItem(key) === null,
+      pendingKey,
+    ),
+  ).toBe(true);
   await expect(
     page.getByRole("button", { name: "Wznów sprawę", exact: true }),
   ).toBeVisible();

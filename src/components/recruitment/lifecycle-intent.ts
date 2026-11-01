@@ -206,25 +206,22 @@ export function lifecycleResultMatches(
     );
   }
   const value = result.entry;
+  if (!isLifecycleEntry(value)) return false;
+  const sortResolutions = (
+    items: NonNullable<ConfirmLifecycleInput["taskResolutions"]>,
+  ) =>
+    items
+      .map((item) => [item.taskId.toLowerCase(), item.action] as const)
+      .sort(([a], [b]) => a.localeCompare(b));
+  // Omitted fields mean the legacy empty task intent, never a wildcard. A
+  // stored command with removed task fields must not consume a taskful receipt.
   if (
-    command.expectedTaskSnapshot !== undefined ||
-    command.taskResolutions !== undefined
-  ) {
-    if (!isLifecycleEntry(value)) return false;
-    const sortResolutions = (
-      items: NonNullable<ConfirmLifecycleInput["taskResolutions"]>,
-    ) =>
-      items
-        .map((item) => [item.taskId.toLowerCase(), item.action] as const)
-        .sort(([a], [b]) => a.localeCompare(b));
-    if (
-      JSON.stringify(value.expected_task_snapshot ?? []) !==
-        JSON.stringify(command.expectedTaskSnapshot ?? []) ||
-      JSON.stringify(sortResolutions(value.task_resolutions ?? [])) !==
-        JSON.stringify(sortResolutions(command.taskResolutions ?? []))
-    )
-      return false;
-  }
+    JSON.stringify(value.expected_task_snapshot ?? []) !==
+      JSON.stringify(command.expectedTaskSnapshot ?? []) ||
+    JSON.stringify(sortResolutions(value.task_resolutions ?? [])) !==
+      JSON.stringify(sortResolutions(command.taskResolutions ?? []))
+  )
+    return false;
   // Entries may have a newer correction; compare the immutable original close values.
   return (
     isLifecycleEntry(value) &&
