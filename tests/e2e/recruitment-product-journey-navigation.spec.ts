@@ -40,7 +40,7 @@ for (const width of [1440, 1024, 768, 375]) {
       page.getByRole("combobox", { name: "Sortowanie", exact: true }),
     ).toHaveValue("oldest");
     await page.getByRole("button", { name: title, exact: true }).click();
-    const contextURL = page.url();
+    let contextURL = page.url();
     const drawer = page.getByRole("dialog", {
       name: "Podgląd sprawy",
       exact: true,
@@ -48,10 +48,9 @@ for (const width of [1440, 1024, 768, 375]) {
     await drawer
       .getByRole("link", { name: "Otwórz pełną stronę", exact: true })
       .click();
-    await expect(page).toHaveURL(
-      new RegExp(`/recruitments/${caseId}\\?workspaceReturn=`),
-    );
-    const detailURL = page.url();
+    await expect(page).toHaveURL(/workspaceReturn=/);
+    expect(new URL(page.url()).pathname).toBe(`/recruitments/${caseId}`);
+    let detailURL = page.url();
     const nav = page.getByRole("navigation", {
       name: "Sekcje sprawy",
       exact: true,
@@ -66,6 +65,31 @@ for (const width of [1440, 1024, 768, 375]) {
     await page.reload();
     await expect(nav).toBeVisible();
     await expect(page).toHaveURL(`${detailURL}#case-history`);
+    // Workspace return context is memory-only by approved DEC059. Reload
+    // intentionally drops it; preserve the legitimate fallback, not fake state.
+    await expect(
+      page.getByRole("link", { name: "Wróć do listy spraw", exact: true }),
+    ).toHaveAttribute("href", "/recruitments");
+    await page.goto(`${target.appOrigin}/recruitments/${caseId}#case-history`);
+    await expect(nav).toBeVisible();
+    await expect(page).toHaveURL(
+      `${target.appOrigin}/recruitments/${caseId}#case-history`,
+    );
+    await expect(
+      page.getByRole("link", { name: "Wróć do listy spraw", exact: true }),
+    ).toHaveAttribute("href", "/recruitments");
+    // Re-enter via the actual filtered Workspace for the separate SPA return
+    // scenario. No full reload occurs between this handoff and the return.
+    await page.goto(
+      `${target.appOrigin}/recruitments?view=list&sort=oldest&status=Zapisane&closedOpen=1`,
+    );
+    await page.getByRole("button", { name: title, exact: true }).click();
+    contextURL = page.url();
+    await drawer
+      .getByRole("link", { name: "Otwórz pełną stronę", exact: true })
+      .click();
+    await expect(page).toHaveURL(/workspaceReturn=/);
+    detailURL = page.url();
     const actions = nav.getByRole("link", { name: "Działania", exact: true });
     await actions.focus();
     await page.keyboard.press("Enter");
