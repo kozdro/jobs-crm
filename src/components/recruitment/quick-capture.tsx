@@ -766,6 +766,7 @@ function CaptureSession({ userId }: { userId: string }) {
       <SavedCaseNotice
         item={open ? null : toast}
         floating
+        onNavigate={guardDuplicateNavigation}
         onDismiss={() => {
           setToast(null);
           setToastOutcome(null);
@@ -813,6 +814,7 @@ function CaptureSession({ userId }: { userId: string }) {
             <div className={toast ? "mt-4" : undefined}>
               <SavedCaseNotice
                 item={open ? toast : null}
+                onNavigate={guardDuplicateNavigation}
                 onDismiss={() => {
                   setToast(null);
                   setToastOutcome(null);

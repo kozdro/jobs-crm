@@ -593,9 +593,8 @@ test("DEC-061 save-next receipt recovery opens a fresh empty wizard after respon
     JSON.parse(sessionStorage.getItem("jobs-crm.manual-case.pending") ?? "{}"),
   );
   expect(sessionAfter).toEqual({});
-  await dialog
-    .getByLabel("Nazwa sprawy", { exact: true })
-    .fill(`Fresh wizard ${randomUUID()}`);
+  const freshTitle = `Fresh wizard ${randomUUID()}`;
+  await dialog.getByLabel("Nazwa sprawy", { exact: true }).fill(freshTitle);
   await dialog.getByText("Więcej szczegółów", { exact: true }).click();
   await dialog
     .getByLabel("Opis (opcjonalnie)", { exact: true })
@@ -604,6 +603,24 @@ test("DEC-061 save-next receipt recovery opens a fresh empty wizard after respon
   await dialog
     .getByRole("radio", { name: "Zapisz tylko sprawę", exact: true })
     .check();
+  await dialog
+    .getByRole("link", { name: "Otwórz sprawę", exact: true })
+    .click();
+  const discardDialog = page.getByRole("alertdialog");
+  await expect(
+    discardDialog.getByRole("heading", { name: "Odrzucić zmiany?" }),
+  ).toBeVisible();
+  await discardDialog
+    .getByRole("button", { name: "Kontynuuj edycję", exact: true })
+    .click();
+  await dialog.getByRole("button", { name: "Wstecz", exact: true }).click();
+  await expect(dialog.getByLabel("Nazwa sprawy", { exact: true })).toHaveValue(
+    freshTitle,
+  );
+  await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
+  await expect(
+    dialog.getByRole("radio", { name: "Zapisz tylko sprawę", exact: true }),
+  ).toBeChecked();
   await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
   let nextRequestId = "";
   await page.route("**/recruitments/commands", async (route) => {

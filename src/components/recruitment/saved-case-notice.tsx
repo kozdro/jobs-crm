@@ -1,3 +1,4 @@
+import type { MouseEvent } from "react";
 import Link from "next/link";
 import { Button } from "@base-ui/react/button";
 import { X, CircleCheck } from "lucide-react";
@@ -7,12 +8,15 @@ import type { RecruitmentCase } from "@/modules/recruitment/domain/recruitment-c
 export function SavedCaseNotice({
   item,
   onDismiss,
+  onNavigate,
   floating = false,
 }: {
   item: RecruitmentCase | null;
   onDismiss: () => void;
+  onNavigate?: (event: MouseEvent<HTMLAnchorElement>, href: string) => void;
   floating?: boolean;
 }) {
+  const href = item ? `/recruitments/${item.id}` : "/recruitments";
   return (
     <div
       role="status"
@@ -34,7 +38,8 @@ export function SavedCaseNotice({
             Sprawa została zapisana.
           </p>
           <Link
-            href={`/recruitments/${item.id}`}
+            href={href}
+            onClick={(event) => onNavigate?.(event, href)}
             className="inline-flex min-h-11 items-center underline underline-offset-4"
           >
             Otwórz sprawę
