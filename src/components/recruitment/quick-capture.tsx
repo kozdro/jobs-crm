@@ -316,7 +316,7 @@ function CaptureSession({ userId }: { userId: string }) {
           );
           return;
         }
-        success(receipt.case, false, receipt.intent.action);
+        success(receipt.case, saveNextRef.current, receipt.intent.action);
         return;
       }
       if (envelope.kind !== "not-found" || Object.keys(envelope).length !== 1)
@@ -326,7 +326,15 @@ function CaptureSession({ userId }: { userId: string }) {
       const legacy = await getRecruitmentCaseByRequestId(client, id);
       if (!currentLifetime()) return;
       if (legacy) {
-        success(legacy, false);
+        if (frozenRef.current) {
+          setUncertain(true);
+          setRetryAvailable(false);
+          setError(
+            "Ten identyfikator należy do wcześniejszego zapisu o innym zamiarze. Zachowano bieżący szkic; nie potwierdzono go jako zapisanego.",
+          );
+          return;
+        }
+        success(legacy, saveNextRef.current);
         return;
       }
       setUncertain(true);

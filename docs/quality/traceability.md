@@ -311,11 +311,11 @@ Bez nowych FR/AC i zmiany ich znaczenia: FR/AC-QC-002/006/007/009/010/011 (czter
 
 | Szczegółowe AC | Pokrycie wymagane | Wynik local QA |
 |---|---|---|
-| AC-QC-061-01 | cztery warianty akcji, status, brak etapu i niezależność Sytuacji | PASS: unit + integracje + browser E2E; pełny runner 155/155 + 139/139 |
+| AC-QC-061-01 | cztery warianty akcji, status, brak etapu i niezależność Sytuacji | PASS: unit + integracje + browser E2E; pełny runner 155/155 + 141/141 |
 | AC-QC-061-02 | transaction rollback, pełny intent, replay/conflict i równoległe użycie requestId | PASS: rollback/concurrency/replay/PT409 conflict w izolowanej bazie; objęte 155/155 integracjami |
-| AC-QC-061-03 | owner-scoped immutable recovery, brak fałszywego rollbacku, kompatybilność legacy/history | PASS: receipt mismatch protection, unknown outcome, legacy compatibility, refresh/history replay; 155/155 + 139/139 |
-| AC-QC-061-04 | warning bez mutacji, świadoma nowa sprawa, pełny matchset/intent, wyścig | PASS: matchset, acknowledgement, brak mutacji i duplicate race; objęte 155/155 integracjami oraz 139/139 browser E2E |
-| AC-QC-061-05 | cztery kroki, explicit action/confirmation, summary, dirty/error/save-next | PASS: dedicated unit/UI, dirty-navigation regression and 139/139 browser E2E |
+| AC-QC-061-03 | owner-scoped immutable recovery, brak fałszywego rollbacku, kompatybilność legacy/history | PASS: receipt mismatch protection, unknown outcome, legacy compatibility, refresh/history replay; 155/155 + 141/141 |
+| AC-QC-061-04 | warning bez mutacji, świadoma nowa sprawa, pełny matchset/intent, wyścig | PASS: matchset, acknowledgement, brak mutacji i duplicate race; objęte 155/155 integracjami oraz 141/141 browser E2E |
+| AC-QC-061-05 | cztery kroki, explicit action/confirmation, summary, dirty/error/save-next | PASS: dedicated unit/UI, dirty-navigation regression and 141/141 browser E2E |
 | AC-QC-061-06 | brak prywatnego payloadu w browser storage/URL/logach/artefaktach | PASS: Asercje storage/URL/logów i build artifacts; skan 24 browser files i 15 HTML/RSC files |
 | AC-QC-061-07 | A/B/anon, direct Data API/RPC, spoofing, grants/RLS/invoker | PASS: rzeczywisty local Auth/Data API i bezpośredni RPC/schema GET/POST/PATCH/DELETE A/B/anon; objęte 155/155 integracjami |
 

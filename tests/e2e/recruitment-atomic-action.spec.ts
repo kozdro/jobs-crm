@@ -468,6 +468,160 @@ test("DEC-061 committed response loss recovers the immutable fact receipt withou
   expect(await readOwnEvents(committedCase[0].id)).toHaveLength(1);
 });
 
+test("DEC-061 does not recover a legacy save-only row as the frozen atomic intent", async ({
+  page,
+}) => {
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments`);
+  const title = `Legacy collision atomic ${randomUUID()}`;
+  const description = `Atomic draft retained ${randomUUID()}`;
+  let legacyTitle = "";
+  let requestId = "";
+  await page.route("**/recruitments/commands", async (route) => {
+    if (route.request().method() !== "POST") return route.continue();
+    requestId = (route.request().postDataJSON() as { requestId: string })
+      .requestId;
+    const client = sdk(target);
+    const auth = await client.auth.signInWithPassword({
+      email: a.email,
+      password: a.password,
+    });
+    expect(auth.error === null && auth.data.user?.id === a.id).toBe(true);
+    legacyTitle = `Legacy row ${randomUUID()}`;
+    const legacy = await client.rpc("create_recruitment_case", {
+      p_request_id: requestId,
+      p_title: legacyTitle,
+      p_description: null,
+      p_source_url: null,
+      p_allow_duplicate: false,
+    });
+    expect(legacy.error).toBeNull();
+    await route.continue();
+  });
+
+  const dialog = await openCapture(page);
+  await dialog
+    .getByRole("radio", { name: "Zapisana oferta", exact: true })
+    .check();
+  await enterData(dialog, title, description);
+  await dialog
+    .getByRole("radio", { name: "Kontakt przychodzący (inbound)", exact: true })
+    .check();
+  await dialog
+    .getByRole("checkbox", {
+      name: "Potwierdzam, że to działanie rzeczywiście miało miejsce",
+      exact: true,
+    })
+    .check();
+  await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
+  await dialog.getByRole("button", { name: "Zapisz", exact: true }).click();
+  await expect(dialog.getByRole("alert")).toBeVisible();
+  await page.unroute("**/recruitments/commands");
+
+  await dialog
+    .getByRole("button", { name: "Sprawdź wynik zapisu", exact: true })
+    .click();
+  await expect(dialog.getByRole("alert")).toContainText(
+    "wcześniejszego zapisu o innym zamiarze",
+  );
+  await expect(dialog.getByText(title, { exact: true })).toBeVisible();
+  await expect(dialog.getByText(description, { exact: true })).toBeVisible();
+  expect(requestId).not.toBe("");
+  expect(await readOwnCase(legacyTitle)).toHaveLength(1);
+  expect(await readOwnCase(title)).toHaveLength(0);
+  const legacy = await readOwnCase(legacyTitle);
+  expect(await readOwnEvents(legacy[0].id)).toHaveLength(0);
+});
+
+test("DEC-061 save-next receipt recovery opens a fresh empty wizard after response loss", async ({
+  page,
+}) => {
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments`);
+  const title = `Save next recovery ${randomUUID()}`;
+  const description = `Save next recovery description ${randomUUID()}`;
+  let requestId = "";
+  let posts = 0;
+  await page.route("**/recruitments/commands", async (route) => {
+    if (route.request().method() !== "POST") return route.continue();
+    posts++;
+    requestId = (route.request().postDataJSON() as { requestId: string })
+      .requestId;
+    const response = await route.fetch();
+    expect(response.status()).toBe(200);
+    await route.abort("failed");
+  });
+
+  const dialog = await openCapture(page);
+  await dialog
+    .getByRole("radio", { name: "Zapisana oferta", exact: true })
+    .check();
+  await enterData(dialog, title, description);
+  await dialog
+    .getByRole("radio", { name: "Rzeczywiście aplikowano", exact: true })
+    .check();
+  await dialog
+    .getByRole("checkbox", {
+      name: "Potwierdzam, że to działanie rzeczywiście miało miejsce",
+      exact: true,
+    })
+    .check();
+  await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
+  await dialog
+    .getByRole("button", { name: "Zapisz i dodaj kolejną", exact: true })
+    .click();
+  await expect(dialog.getByRole("alert")).toBeVisible();
+  expect(posts).toBe(1);
+  const sessionBefore = await page.evaluate(() =>
+    JSON.parse(sessionStorage.getItem("jobs-crm.manual-case.pending") ?? "{}"),
+  );
+  expect(sessionBefore).toEqual({ ownerId: a.id, requestId });
+
+  await page.unroute("**/recruitments/commands");
+  await dialog
+    .getByRole("button", { name: "Sprawdź wynik zapisu", exact: true })
+    .click();
+  await expect(dialog).toBeVisible();
+  await expect(
+    dialog.getByRole("heading", { name: "Sytuacja", exact: true }),
+  ).toBeVisible();
+  await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
+  await expect(dialog.getByLabel("Nazwa sprawy", { exact: true })).toHaveValue(
+    "",
+  );
+  const sessionAfter = await page.evaluate(() =>
+    JSON.parse(sessionStorage.getItem("jobs-crm.manual-case.pending") ?? "{}"),
+  );
+  expect(sessionAfter).toEqual({});
+  await dialog
+    .getByLabel("Nazwa sprawy", { exact: true })
+    .fill(`Fresh wizard ${randomUUID()}`);
+  await dialog.getByText("Więcej szczegółów", { exact: true }).click();
+  await dialog
+    .getByLabel("Opis (opcjonalnie)", { exact: true })
+    .fill("Nowy opis");
+  await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
+  await dialog
+    .getByRole("radio", { name: "Zapisz tylko sprawę", exact: true })
+    .check();
+  await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
+  let nextRequestId = "";
+  await page.route("**/recruitments/commands", async (route) => {
+    if (route.request().method() !== "POST") return route.continue();
+    nextRequestId = (route.request().postDataJSON() as { requestId: string })
+      .requestId;
+    await route.continue();
+  });
+  await dialog.getByRole("button", { name: "Zapisz", exact: true }).click();
+  await expect(dialog).not.toBeVisible();
+  expect(nextRequestId).not.toBe("");
+  expect(nextRequestId).not.toBe(requestId);
+  expect(posts).toBe(1);
+  const saved = await readOwnCase(title);
+  expect(saved).toHaveLength(1);
+  expect(await readOwnEvents(saved[0].id)).toHaveLength(1);
+});
+
 test("DEC-061 refuses a receipt for a different intent and preserves the frozen draft", async ({
   page,
 }) => {
