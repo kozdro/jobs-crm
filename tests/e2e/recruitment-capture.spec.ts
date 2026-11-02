@@ -201,7 +201,9 @@ test("QC data validation keeps input and no record before valid four-step submis
   await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
   await dialog.getByLabel("Nazwa sprawy", { exact: true }).fill("   ");
   await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
-  await expect(dialog.getByRole("alert")).toBeVisible();
+  await expect(
+    dialog.getByRole("alert", { name: "Podsumowanie błędów sprawy" }),
+  ).toBeVisible();
   await expect(
     dialog.getByLabel("Nazwa sprawy", { exact: true }),
   ).toBeFocused();
@@ -215,7 +217,9 @@ test("QC data validation keeps input and no record before valid four-step submis
   const title = "🚀".repeat(160);
   await dialog.getByLabel("Nazwa sprawy", { exact: true }).fill(`${title}ą`);
   await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
-  await expect(dialog.getByRole("alert")).toBeVisible();
+  await expect(
+    dialog.getByRole("alert", { name: "Podsumowanie błędów sprawy" }),
+  ).toBeVisible();
   await expect(
     dialog.getByLabel("Nazwa sprawy", { exact: true }),
   ).toBeFocused();
@@ -227,7 +231,9 @@ test("QC data validation keeps input and no record before valid four-step submis
     .getByLabel("URL źródłowy (opcjonalnie)", { exact: true })
     .fill("javascript:alert(1)");
   await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
-  await expect(dialog.getByRole("alert")).toBeVisible();
+  await expect(
+    dialog.getByRole("alert", { name: "Podsumowanie błędów sprawy" }),
+  ).toBeVisible();
   await expect(
     dialog.getByLabel("Nazwa sprawy", { exact: true }),
   ).toBeFocused();
