@@ -425,7 +425,6 @@ test("DEC-061 refresh recovery cannot resume or reuse an intent without its priv
   const requestId = requestIds[0];
   expect(requestId).not.toBe("");
 
-  await page.unroute("**/recruitments/commands");
   await page.reload();
   await expect(page.getByRole("main").getByRole("alert")).toContainText(
     "Nie znaleziono potwierdzonego wyniku",

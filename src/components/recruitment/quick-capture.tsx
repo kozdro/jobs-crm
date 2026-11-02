@@ -1540,7 +1540,7 @@ function CaptureSession({ userId }: { userId: string }) {
                       type="button"
                       onClick={() => void save(true)}
                       disabled={
-                        pending || recovering || uncertain || !retryAvailable
+                        pending || recovering || (uncertain && !retryAvailable)
                       }
                       className={buttonClass}
                     >
