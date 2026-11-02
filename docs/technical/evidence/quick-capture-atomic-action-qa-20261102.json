@@ -1,0 +1,39 @@
+{
+  "candidateSourceCommit": "312ede2d5f9448baa1fe13dbbf325108de7b20c2",
+  "candidateSourceTree": "254e4c8cc9a369f5996f528510f747afbb30fba6",
+  "qaWorktreeCommit": "04c8ef0dde3351af7b88e659a6239cac3a585d0c",
+  "qaWorktreeTree": "254e4c8cc9a369f5996f528510f747afbb30fba6",
+  "qaHarnessWorkingTreePatch": {
+    "sha256": "ef82a9c38fa71783c32b914c06e2a839d0900b6394ab30c13b32be5fdf7ada79",
+    "paths": [
+      "scripts/recruitment/port-profile.test.ts",
+      "scripts/recruitment/validation.ts"
+    ],
+    "reason": "The configured isolated API port 57021 was occupied by a different Supabase project; the final QA worktree used an unused, guarded loopback profile without stopping or modifying that project.",
+    "ports": {
+      "configured": [57020, 57021, 57022, 57023, 57024],
+      "qa": [57320, 57321, 57322, 57323, 57324]
+    }
+  },
+  "runtime": {
+    "node": "v24.22.2",
+    "pnpm": "12.16.1",
+    "runner": "pnpm test:recruitment",
+    "status": "PASS",
+    "migrations": {"applied": 15, "total": 15},
+    "productionBuild": "PASS",
+    "businessIntegration": {"passed": 155, "failed": 0},
+    "httpsBrowser": {"passed": 144, "failed": 0},
+    "scannedBrowserFiles": 24,
+    "scannedGeneratedHtmlRscFiles": 15,
+    "persistentDevTouched": false
+  },
+  "sanitizedRuntimeEvidence": {
+    "path": ".recruitment-local/evidence-run-894b7926.json",
+    "sha256": "0f6009d5504ef9a17249113242bc53caff2770674311b372fc634cc3eaaa2fb1"
+  },
+  "guardedCleanupReceipt": {
+    "path": ".recruitment-local/run-894b7926/cleanup-complete.json",
+    "sha256": "f97d179e9a1d7794924d0711734ff0661ddc76542b94beb91db109c7735cf947"
+  }
+}
