@@ -333,6 +333,55 @@ test("DEC-061 preserves four steps, keeps action independent from situation, and
   expect(await readOwnEvents(nextCase[0].id)).toHaveLength(0);
 });
 
+test("DEC-061 summarizes every capture validation error with keyboard field links", async ({
+  page,
+}) => {
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments`);
+  const dialog = await openCapture(page);
+  await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
+  await dialog
+    .getByLabel("Nazwa sprawy", { exact: true })
+    .fill(`Valid title ${randomUUID()}`);
+  await dialog.getByText("Więcej szczegółów", { exact: true }).click();
+  const description = dialog.getByLabel("Opis (opcjonalnie)", {
+    exact: true,
+  });
+  await description.fill("x".repeat(2001));
+  const sourceUrl = dialog.getByLabel("URL źródłowy (opcjonalnie)", {
+    exact: true,
+  });
+  await sourceUrl.fill("javascript:alert(1)");
+  await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
+
+  const summary = dialog.getByRole("alert", {
+    name: "Podsumowanie błędów sprawy",
+    exact: true,
+  });
+  await expect(summary).toBeVisible();
+  await expect(summary).toBeFocused();
+  await expect(summary.getByRole("link")).toHaveCount(2);
+  await expect(sourceUrl).toHaveAttribute("aria-invalid", "true");
+  await expect(description).toHaveAttribute("aria-invalid", "true");
+
+  for (const [message, field] of [
+    ["Podaj poprawny pełny adres HTTP lub HTTPS.", sourceUrl],
+    ["Opis może mieć najwyżej 2000 znaków.", description],
+  ] as const) {
+    const link = summary.getByRole("link", { name: message, exact: true });
+    await link.focus();
+    await page.keyboard.press("Enter");
+    await expect(field).toBeFocused();
+  }
+
+  await sourceUrl.fill("https://example.invalid/source");
+  await description.fill("Poprawiony opis");
+  await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
+  await expect(
+    dialog.getByRole("heading", { name: "Działanie", exact: true }),
+  ).toBeVisible();
+});
+
 test("DEC-061 refresh recovery keeps only owner/requestId and cannot retry without the private intent", async ({
   page,
 }) => {

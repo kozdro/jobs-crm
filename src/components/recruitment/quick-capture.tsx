@@ -196,6 +196,8 @@ function CaptureSession({ userId }: { userId: string }) {
   const discardPopupRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
+  const validationSummaryRef = useRef<HTMLDivElement>(null);
+  const descriptionDetailsRef = useRef<HTMLDetailsElement>(null);
   const feedbackRef = useRef<HTMLParagraphElement>(null);
   const pendingRef = useRef(false);
   const liveRef = useRef(true);
@@ -488,8 +490,8 @@ function CaptureSession({ userId }: { userId: string }) {
       const parsed = input();
       if (!parsed.success) {
         setErrors(parsed.errors);
-        report("Sprawdź nazwę sprawy, opis i URL.");
-        requestAnimationFrame(() => titleRef.current?.focus());
+        setError("Popraw błędy wymienione w podsumowaniu.");
+        requestAnimationFrame(() => validationSummaryRef.current?.focus());
         return;
       }
       setErrors({});
@@ -892,6 +894,51 @@ function CaptureSession({ userId }: { userId: string }) {
               )}
               {step === 1 && (
                 <>
+                  {Object.keys(errors).length > 0 && (
+                    <div
+                      ref={validationSummaryRef}
+                      role="alert"
+                      aria-label="Podsumowanie błędów sprawy"
+                      tabIndex={-1}
+                      className="space-y-2 rounded-md border border-destructive bg-card p-4 text-sm text-destructive outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <p className="font-semibold">Sprawdź dane sprawy</p>
+                      <ul className="list-disc space-y-1 pl-5">
+                        {Object.entries(errors).map(([field, message]) => {
+                          const targetId =
+                            field === "title"
+                              ? "case-title"
+                              : field === "sourceUrl"
+                                ? "case-url"
+                                : field === "description"
+                                  ? "case-description"
+                                  : null;
+                          if (!targetId || !message) return null;
+                          return (
+                            <li key={field}>
+                              <a
+                                href={`#${targetId}`}
+                                className="inline-flex min-h-11 items-center underline underline-offset-4 [overflow-wrap:anywhere]"
+                                onClick={(event) => {
+                                  event.preventDefault();
+                                  if (
+                                    field === "description" &&
+                                    descriptionDetailsRef.current
+                                  )
+                                    descriptionDetailsRef.current.open = true;
+                                  requestAnimationFrame(() =>
+                                    document.getElementById(targetId)?.focus(),
+                                  );
+                                }}
+                              >
+                                {message}
+                              </a>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <label
                       htmlFor="case-title"
@@ -967,7 +1014,7 @@ function CaptureSession({ userId }: { userId: string }) {
                       </p>
                     )}
                   </div>
-                  <details>
+                  <details ref={descriptionDetailsRef}>
                     <summary className="min-h-11 cursor-pointer py-3 text-sm font-medium underline underline-offset-4">
                       Więcej szczegółów
                     </summary>
