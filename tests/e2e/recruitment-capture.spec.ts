@@ -73,7 +73,7 @@ async function dataStep(
 ) {
   await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
   await expect(
-    dialog.getByLabel("Nazwa sprawy", { exact: true }),
+    dialog.getByRole("alert", { name: "Podsumowanie błędów sprawy" }),
   ).toBeFocused();
   await dialog.getByLabel("Nazwa sprawy", { exact: true }).fill(title);
   if (sourceUrl)
@@ -205,7 +205,7 @@ test("QC data validation keeps input and no record before valid four-step submis
     dialog.getByRole("alert", { name: "Podsumowanie błędów sprawy" }),
   ).toBeVisible();
   await expect(
-    dialog.getByLabel("Nazwa sprawy", { exact: true }),
+    dialog.getByRole("alert", { name: "Podsumowanie błędów sprawy" }),
   ).toBeFocused();
   expect(
     (
@@ -221,7 +221,7 @@ test("QC data validation keeps input and no record before valid four-step submis
     dialog.getByRole("alert", { name: "Podsumowanie błędów sprawy" }),
   ).toBeVisible();
   await expect(
-    dialog.getByLabel("Nazwa sprawy", { exact: true }),
+    dialog.getByRole("alert", { name: "Podsumowanie błędów sprawy" }),
   ).toBeFocused();
   await expect(dialog.getByLabel("Nazwa sprawy", { exact: true })).toHaveValue(
     `${title}ą`,
