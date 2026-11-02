@@ -474,6 +474,58 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
       unchangedClosedCase,
       "New task on a legacy closed case does not change lifecycle, stage or revision",
     );
+
+    const atomicUpgradeTables = [
+      ...oldTables,
+      "catalog_profile",
+      "catalog_relation",
+      "catalog_command",
+      "recruitment_task",
+      "recruitment_task_command",
+    ];
+    const beforeAtomicUpgrade = await Promise.all(
+      atomicUpgradeTables.map((table) =>
+        upgrade!.unsafe(`select * from public.${table} order by id`),
+      ),
+    );
+    await apply(journal.entries[14].tag);
+    assert.deepEqual(
+      await Promise.all(
+        atomicUpgradeTables.map((table) =>
+          upgrade!.unsafe(`select * from public.${table} order by id`),
+        ),
+      ),
+      beforeAtomicUpgrade,
+      "0014 preserves pre-existing cases, facts, history, catalog relations and tasks",
+    );
+    const [atomicReceipts] = await upgrade.unsafe(
+      "select count(*)::int n from recruitment_private.recruitment_case_capture_receipt",
+    );
+    assert.equal(
+      atomicReceipts.n,
+      0,
+      "0014 does not fabricate atomic receipts for existing RecruitmentCases",
+    );
+    await upgrade.begin(async (tx) => {
+      await tx.unsafe("set local role authenticated");
+      await tx.unsafe("select set_config('request.jwt.claim.sub',$1,true)", [
+        owner,
+      ]);
+      const [legacyReplay] = await tx.unsafe(
+        "select public.create_recruitment_case($1::uuid,'Legacy synthetic case','Preserve prior context','https://example.invalid/legacy',false) result",
+        [requestId],
+      );
+      assert.equal(legacyReplay.result.kind, "replayed");
+      assert.equal(legacyReplay.result.case.id, caseId);
+    });
+    const [receiptsAfterLegacyReplay] = await upgrade.unsafe(
+      "select count(*)::int n from recruitment_private.recruitment_case_capture_receipt",
+    );
+    assert.equal(
+      receiptsAfterLegacyReplay.n,
+      0,
+      "Legacy replay does not invent an atomic receipt for a pre-0014 case",
+    );
   } finally {
     if (upgrade) await upgrade.end();
     if (created) await admin`drop database ${admin(database)}`;
