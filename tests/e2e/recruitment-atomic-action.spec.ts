@@ -716,3 +716,84 @@ test("DEC-061 refuses a receipt for a different intent and preserves the frozen 
     description,
   ]);
 });
+
+test("DEC-061 malformed or action-mismatched receipts never clear a fact-bearing draft", async ({
+  page,
+}) => {
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments`);
+  const title = `Malformed receipt draft ${randomUUID()}`;
+  const description = `Malformed receipt description ${randomUUID()}`;
+  let requestId = "";
+  let postCount = 0;
+  let recoveryCount = 0;
+  await page.route("**/recruitments/commands**", async (route) => {
+    const request = route.request();
+    const response = await route.fetch();
+    expect(response.status()).toBe(200);
+    const body = (await response.json()) as {
+      kind: string;
+      receipt: { event: Record<string, unknown> | null };
+    };
+    if (request.method() === "POST") {
+      postCount++;
+      requestId = (request.postDataJSON() as { requestId: string }).requestId;
+      body.receipt.event = {
+        ...(body.receipt.event ?? {}),
+        kind: "contact",
+        direction: "inbound",
+      };
+    } else {
+      recoveryCount++;
+      expect(new URL(request.url()).searchParams.get("requestId")).toBe(
+        requestId,
+      );
+      body.receipt.event = {};
+    }
+    await route.fulfill({ response, body: JSON.stringify(body) });
+  });
+
+  const dialog = await openCapture(page);
+  await dialog
+    .getByRole("radio", { name: "Zapisana oferta", exact: true })
+    .check();
+  await enterData(dialog, title, description);
+  await dialog
+    .getByRole("radio", { name: "Rzeczywiście aplikowano", exact: true })
+    .check();
+  await dialog
+    .getByRole("checkbox", {
+      name: "Potwierdzam, że to działanie rzeczywiście miało miejsce",
+      exact: true,
+    })
+    .check();
+  await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
+  await dialog.getByRole("button", { name: "Zapisz", exact: true }).click();
+  await expect(dialog.getByRole("alert")).toContainText(
+    "Nie potwierdzono wyniku zapisu",
+  );
+  await expect(dialog.getByText(title, { exact: true })).toBeVisible();
+  await expect(
+    dialog.getByText("Rzeczywiście aplikowano", { exact: true }),
+  ).toBeVisible();
+  expect(postCount).toBe(1);
+
+  await dialog
+    .getByRole("button", { name: "Sprawdź wynik zapisu", exact: true })
+    .click();
+  await expect(dialog.getByRole("alert")).toContainText(
+    "Nie można teraz sprawdzić poprzedniego zapisu",
+  );
+  await expect(dialog.getByText(title, { exact: true })).toBeVisible();
+  await expect(
+    dialog.getByText("Rzeczywiście aplikowano", { exact: true }),
+  ).toBeVisible();
+  expect(recoveryCount).toBe(1);
+  const saved = await readOwnCase(title);
+  expect(saved).toHaveLength(1);
+  expect(await readOwnEvents(saved[0].id)).toHaveLength(1);
+  await expectNoPrivateBrowserPersistence(page, requestId, [
+    title,
+    description,
+  ]);
+});

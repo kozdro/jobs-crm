@@ -87,6 +87,43 @@ function isAtomicReceipt(
   const receipt = value as Partial<AtomicCaptureReceipt>;
   const intent = receipt.intent;
   const action = intent?.action;
+  const caseRow = receipt.case as
+    (Partial<RecruitmentCase> & Record<string, unknown>) | undefined;
+  const eventRow = receipt.event as
+    (Record<string, unknown> & { id?: unknown }) | null | undefined;
+  const expectedEventKind =
+    action?.kind === "application"
+      ? "application"
+      : action?.kind === "contact_inbound" ||
+          action?.kind === "contact_outbound"
+        ? "contact"
+        : null;
+  const expectedDirection =
+    action?.kind === "contact_inbound"
+      ? "inbound"
+      : action?.kind === "contact_outbound"
+        ? "outbound"
+        : null;
+  const validEvent =
+    action?.kind === "save_only"
+      ? receipt.event === null
+      : Boolean(
+          expectedEventKind &&
+          eventRow &&
+          typeof eventRow === "object" &&
+          !Array.isArray(eventRow) &&
+          typeof eventRow.id === "string" &&
+          uuidPattern.test(eventRow.id) &&
+          eventRow.case_id === caseRow?.id &&
+          eventRow.kind === expectedEventKind &&
+          eventRow.direction === expectedDirection &&
+          eventRow.occurred_on === action?.occurredOn &&
+          typeof eventRow.recorded_at === "string" &&
+          Number.isFinite(Date.parse(eventRow.recorded_at)) &&
+          eventRow.stage_name === null &&
+          eventRow.previous_stage === null &&
+          eventRow.expected_stage_version === null,
+        );
   return Boolean(
     receipt.requestId === requestId &&
     receipt.contractVersion === 1 &&
@@ -110,11 +147,16 @@ function isAtomicReceipt(
             isCalendarDate(action.occurredOn))) &&
         action.factConfirmed === true) &&
     receipt.case &&
-    typeof receipt.case.id === "string" &&
-    uuidPattern.test(receipt.case.id) &&
-    typeof receipt.case.title === "string" &&
-    ["Zapisane", "Kontakt rozpoczęty"].includes(receipt.case.status) &&
-    (receipt.event === null || typeof receipt.event === "object"),
+    caseRow &&
+    typeof caseRow.id === "string" &&
+    uuidPattern.test(caseRow.id) &&
+    caseRow.title === intent?.title &&
+    caseRow.description === intent?.description &&
+    caseRow.source_url === intent?.sourceUrl &&
+    caseRow.status ===
+      (action?.kind === "save_only" ? "Zapisane" : "Kontakt rozpoczęty") &&
+    caseRow.current_stage === null &&
+    validEvent,
   );
 }
 
