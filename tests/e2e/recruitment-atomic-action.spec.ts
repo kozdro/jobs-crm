@@ -382,20 +382,19 @@ test("DEC-061 summarizes every capture validation error with keyboard field link
   ).toBeVisible();
 });
 
-test("DEC-061 refresh recovery keeps only owner/requestId and cannot retry without the private intent", async ({
+test("DEC-061 refresh recovery cannot resume or reuse an intent without its private payload", async ({
   page,
 }) => {
   await login(page);
   await page.goto(`${target.appOrigin}/recruitments`);
   const title = `Unknown atomic result ${randomUUID()}`;
   const description = `Secret draft description ${randomUUID()}`;
-  let requestId = "";
-  let posts = 0;
+  const requestIds: string[] = [];
   await page.route("**/recruitments/commands", async (route) => {
     if (route.request().method() !== "POST") return route.continue();
-    posts++;
-    requestId = (route.request().postDataJSON() as { requestId: string })
+    const requestId = (route.request().postDataJSON() as { requestId: string })
       .requestId;
+    requestIds.push(requestId);
     await expectNoPrivateBrowserPersistence(page, requestId, [
       title,
       description,
@@ -422,7 +421,8 @@ test("DEC-061 refresh recovery keeps only owner/requestId and cannot retry witho
   await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
   await dialog.getByRole("button", { name: "Zapisz", exact: true }).click();
   await expect(dialog.getByRole("alert")).toBeVisible();
-  expect(posts).toBe(1);
+  expect(requestIds).toHaveLength(1);
+  const requestId = requestIds[0];
   expect(requestId).not.toBe("");
 
   await page.unroute("**/recruitments/commands");
@@ -439,7 +439,157 @@ test("DEC-061 refresh recovery keeps only owner/requestId and cannot retry witho
   );
   expect(pending).toEqual({ ownerId: a.id, requestId });
   expect(await page.evaluate(() => Object.keys(localStorage))).toEqual([]);
-  expect(posts).toBe(1);
+
+  await page
+    .getByRole("main")
+    .getByRole("button", { name: "Porzuć ten zapis", exact: true })
+    .click();
+  const abandonment = page.getByRole("alertdialog", {
+    name: "Porzucić niepotwierdzony zapis?",
+    exact: true,
+  });
+  await expect(abandonment).toBeVisible();
+  await expect(
+    abandonment.getByRole("button", { name: "Wróć do zapisu", exact: true }),
+  ).toHaveCount(0);
+  await abandonment
+    .getByRole("button", { name: "Porzuć ten zapis", exact: true })
+    .click();
+  expect(
+    await page.evaluate(() =>
+      sessionStorage.getItem("jobs-crm.manual-case.pending"),
+    ),
+  ).toBeNull();
+
+  const freshTitle = `New intent after explicit abandon ${randomUUID()}`;
+  const fresh = await openCapture(page);
+  await enterData(
+    fresh,
+    freshTitle,
+    "Nowy zamiar po jawnym porzuceniu starego.",
+  );
+  await fresh
+    .getByRole("radio", { name: "Zapisz tylko sprawę", exact: true })
+    .check();
+  await fresh.getByRole("button", { name: "Dalej", exact: true }).click();
+  await fresh.getByRole("button", { name: "Zapisz", exact: true }).click();
+  await expect(fresh.getByRole("alert")).toBeVisible();
+  expect(requestIds).toHaveLength(2);
+  expect(requestIds[1]).not.toBe(requestId);
+});
+
+test("DEC-061 action validation stays keyboard accessible and within the viewport at supported widths", async ({
+  page,
+}) => {
+  await login(page);
+  for (const width of [1440, 1024, 768, 375]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(`${target.appOrigin}/recruitments`);
+    const dialog = await openCapture(page);
+    await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
+    await dialog
+      .getByLabel("Nazwa sprawy", { exact: true })
+      .fill(`Action validation ${width} ${randomUUID()}`);
+    await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
+
+    const checkViewport = async (container: Locator) => {
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= window.innerWidth,
+        ),
+      ).toBe(true);
+      const rect = await container.evaluate((element) => {
+        const box = element.getBoundingClientRect();
+        return {
+          left: box.left,
+          right: box.right,
+          top: box.top,
+          bottom: box.bottom,
+          height: window.innerHeight,
+          width: window.innerWidth,
+        };
+      });
+      expect(rect.left).toBeGreaterThanOrEqual(0);
+      expect(rect.right).toBeLessThanOrEqual(rect.width);
+      expect(rect.top).toBeLessThan(rect.height);
+      expect(rect.bottom).toBeGreaterThan(0);
+    };
+
+    await checkViewport(dialog);
+    await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
+    const summary = dialog.getByRole("alert", {
+      name: "Podsumowanie błędów działania",
+      exact: true,
+    });
+    await expect(summary).toBeFocused();
+    await checkViewport(summary);
+    const actionLink = summary.getByRole("link", {
+      name: "Wybierz działanie do zarejestrowania.",
+      exact: true,
+    });
+    await actionLink.focus();
+    await page.keyboard.press("Enter");
+    await expect(
+      dialog.getByRole("radio", { name: "Zapisz tylko sprawę", exact: true }),
+    ).toBeFocused();
+
+    await dialog
+      .getByRole("radio", { name: "Rzeczywiście aplikowano", exact: true })
+      .check();
+    const date = dialog.getByLabel("Dzień działania (opcjonalnie)", {
+      exact: true,
+    });
+    await date.fill("2999-12-31");
+    await dialog
+      .getByLabel("Potwierdzam, że to działanie rzeczywiście miało miejsce", {
+        exact: true,
+      })
+      .check();
+    await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
+    await expect(summary).toBeFocused();
+    await expect(summary).toContainText(
+      "Podaj prawidłowy dzień działania, nie późniejszy niż dzisiaj.",
+    );
+    await checkViewport(summary);
+    const dateLink = summary.getByRole("link", {
+      name: "Podaj prawidłowy dzień działania, nie późniejszy niż dzisiaj.",
+      exact: true,
+    });
+    await dateLink.focus();
+    await page.keyboard.press("Enter");
+    await expect(date).toBeFocused();
+
+    await date.fill("");
+    await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
+    await expect(summary).toBeFocused();
+    await expect(summary).toContainText(
+      "Potwierdź, że to działanie rzeczywiście miało miejsce.",
+    );
+    await checkViewport(summary);
+    const confirmation = dialog.getByRole("checkbox", {
+      name: "Potwierdzam, że to działanie rzeczywiście miało miejsce",
+      exact: true,
+    });
+    const confirmationLink = summary.getByRole("link", {
+      name: "Potwierdź, że to działanie rzeczywiście miało miejsce.",
+      exact: true,
+    });
+    await confirmationLink.focus();
+    await page.keyboard.press("Enter");
+    await expect(confirmation).toBeFocused();
+    await confirmation.check();
+    await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
+    await expect(
+      dialog.getByRole("heading", { name: "Podsumowanie", exact: true }),
+    ).toBeVisible();
+    await checkViewport(dialog);
+    await dialog.getByRole("button", { name: "Anuluj", exact: true }).click();
+    const discard = page.getByRole("alertdialog", { name: "Odrzucić zmiany?" });
+    await expect(discard).toBeVisible();
+    await discard
+      .getByRole("button", { name: "Odrzuć zmiany", exact: true })
+      .click();
+  }
 });
 
 test("DEC-061 committed response loss recovers the immutable fact receipt without duplicate effects", async ({

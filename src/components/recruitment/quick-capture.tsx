@@ -198,6 +198,7 @@ function CaptureSession({ userId }: { userId: string }) {
   const titleRef = useRef<HTMLInputElement>(null);
   const validationSummaryRef = useRef<HTMLDivElement>(null);
   const descriptionDetailsRef = useRef<HTMLDetailsElement>(null);
+  const actionValidationSummaryRef = useRef<HTMLDivElement>(null);
   const feedbackRef = useRef<HTMLParagraphElement>(null);
   const pendingRef = useRef(false);
   const liveRef = useRef(true);
@@ -228,6 +229,9 @@ function CaptureSession({ userId }: { userId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [errors, setErrors] = useState<
     Partial<Record<"title" | "description" | "sourceUrl", string>>
+  >({});
+  const [actionErrors, setActionErrors] = useState<
+    Partial<Record<"actionKind" | "occurredOn" | "factConfirmed", string>>
   >({});
   const [toast, setToast] = useState<RecruitmentCase | null>(null);
   const [toastOutcome, setToastOutcome] = useState<string | null>(null);
@@ -264,6 +268,7 @@ function CaptureSession({ userId }: { userId: string }) {
     setStep(0);
     setError(null);
     setErrors({});
+    setActionErrors({});
     setDuplicates(null);
     setUncertain(false);
     setPayloadFrozen(false);
@@ -497,22 +502,31 @@ function CaptureSession({ userId }: { userId: string }) {
       setErrors({});
     }
     if (step === 2) {
+      const issues: typeof actionErrors = {};
       if (!actionKind) {
-        report("Wybierz, czy zapisać tylko sprawę, czy potwierdzić działanie.");
-        return;
+        issues.actionKind = "Wybierz działanie do zarejestrowania.";
       }
       if (
+        actionKind &&
         actionKind !== "save_only" &&
         occurredOn &&
         (!isCalendarDate(occurredOn) || occurredOn > warsawToday())
       ) {
-        report("Podaj prawidłowy dzień działania, nie późniejszy niż dzisiaj.");
+        issues.occurredOn =
+          "Podaj prawidłowy dzień działania, nie późniejszy niż dzisiaj.";
+      }
+      if (actionKind && actionKind !== "save_only" && !factConfirmed) {
+        issues.factConfirmed =
+          "Potwierdź, że to działanie rzeczywiście miało miejsce.";
+      }
+      if (Object.keys(issues).length > 0) {
+        setActionErrors(issues);
+        requestAnimationFrame(() =>
+          actionValidationSummaryRef.current?.focus(),
+        );
         return;
       }
-      if (actionKind !== "save_only" && !factConfirmed) {
-        report("Potwierdź, że to działanie rzeczywiście miało miejsce.");
-        return;
-      }
+      setActionErrors({});
     }
     setStep(step + 1);
   }
@@ -569,7 +583,13 @@ function CaptureSession({ userId }: { userId: string }) {
     }
   }
   async function save(addNext = false, allowDuplicate = false) {
-    if (pendingRef.current || !liveRef.current || recovering) return;
+    if (
+      pendingRef.current ||
+      !liveRef.current ||
+      recovering ||
+      (uncertain && !retryAvailable)
+    )
+      return;
     const lifetime = lifetimeRef.current;
     const currentLifetime = () =>
       liveRef.current && lifetimeRef.current === lifetime;
@@ -1058,7 +1078,16 @@ function CaptureSession({ userId }: { userId: string }) {
                 </>
               )}
               {step === 2 && (
-                <fieldset className="space-y-3" disabled={frozen}>
+                <fieldset
+                  className="space-y-3"
+                  disabled={frozen}
+                  aria-invalid={Boolean(actionErrors.actionKind)}
+                  aria-describedby={
+                    actionErrors.actionKind
+                      ? "case-action-kind-error"
+                      : undefined
+                  }
+                >
                   <legend className="mb-2 text-sm font-medium">
                     Co chcesz rzeczywiście zarejestrować?
                   </legend>
@@ -1066,6 +1095,50 @@ function CaptureSession({ userId }: { userId: string }) {
                     Wybór Sytuacji nie wybiera Działania. Możesz zapisać samą
                     sprawę albo jawnie potwierdzić jeden rzeczywisty fakt.
                   </p>
+                  {Object.keys(actionErrors).length > 0 && (
+                    <div
+                      ref={actionValidationSummaryRef}
+                      role="alert"
+                      aria-label="Podsumowanie błędów działania"
+                      tabIndex={-1}
+                      className="space-y-2 rounded-md border border-destructive bg-card p-4 text-sm text-destructive outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <p className="font-semibold">Sprawdź działanie</p>
+                      <ul className="list-disc space-y-1 pl-5">
+                        {Object.entries(actionErrors).map(
+                          ([field, message]) => {
+                            const targetId =
+                              field === "actionKind"
+                                ? "case-action-save_only"
+                                : field === "occurredOn"
+                                  ? "case-action-date"
+                                  : field === "factConfirmed"
+                                    ? "case-action-confirmation"
+                                    : null;
+                            if (!targetId || !message) return null;
+                            return (
+                              <li key={field}>
+                                <a
+                                  href={`#${targetId}`}
+                                  className="inline-flex min-h-11 items-center underline underline-offset-4 [overflow-wrap:anywhere]"
+                                  onClick={(event) => {
+                                    event.preventDefault();
+                                    requestAnimationFrame(() =>
+                                      document
+                                        .getElementById(targetId)
+                                        ?.focus(),
+                                    );
+                                  }}
+                                >
+                                  {message}
+                                </a>
+                              </li>
+                            );
+                          },
+                        )}
+                      </ul>
+                    </div>
+                  )}
                   {(
                     [
                       ["save_only", "Zapisz tylko sprawę"],
@@ -1079,6 +1152,7 @@ function CaptureSession({ userId }: { userId: string }) {
                       className="flex min-h-14 cursor-pointer items-start gap-3 rounded-lg border border-input p-4 text-sm has-checked:border-primary has-checked:bg-accent"
                     >
                       <input
+                        id={`case-action-${kind}`}
                         type="radio"
                         name="case-action"
                         value={kind}
@@ -1086,13 +1160,27 @@ function CaptureSession({ userId }: { userId: string }) {
                         onChange={() => {
                           setActionKind(kind);
                           setFactConfirmed(false);
+                          setActionErrors({});
                           setDuplicates(null);
                         }}
+                        aria-invalid={
+                          kind === "save_only" && actionErrors.actionKind
+                            ? true
+                            : undefined
+                        }
                         className="mt-0.5 size-4 accent-primary"
                       />
                       <span>{label}</span>
                     </label>
                   ))}
+                  {actionErrors.actionKind && (
+                    <p
+                      id="case-action-kind-error"
+                      className="text-sm text-destructive"
+                    >
+                      {actionErrors.actionKind}
+                    </p>
+                  )}
                   {actionKind === "save_only" && (
                     <p className="text-sm leading-6 text-muted-foreground">
                       Sprawa otrzyma status „Zapisane”. Nie zapisze się fakt
@@ -1117,9 +1205,16 @@ function CaptureSession({ userId }: { userId: string }) {
                           onChange={(event) => {
                             setOccurredOn(event.target.value);
                             setFactConfirmed(false);
+                            setActionErrors((current) => {
+                              const next = { ...current };
+                              delete next.occurredOn;
+                              delete next.factConfirmed;
+                              return next;
+                            });
                             setDuplicates(null);
                           }}
-                          aria-describedby="case-action-date-hint"
+                          aria-invalid={Boolean(actionErrors.occurredOn)}
+                          aria-describedby={`case-action-date-hint${actionErrors.occurredOn ? " case-action-date-error" : ""}`}
                           className={inputClass}
                         />
                         <p
@@ -1129,15 +1224,38 @@ function CaptureSession({ userId }: { userId: string }) {
                           Puste pole oznacza, że dzień jest nieznany. Nie
                           zastępujemy go datą zapisu w CRM.
                         </p>
+                        {actionErrors.occurredOn && (
+                          <p
+                            id="case-action-date-error"
+                            className="text-sm text-destructive"
+                          >
+                            {actionErrors.occurredOn}
+                          </p>
+                        )}
                       </div>
-                      <label className="flex min-h-11 cursor-pointer items-start gap-3 text-sm">
+                      <label
+                        htmlFor="case-action-confirmation"
+                        className="flex min-h-11 cursor-pointer items-start gap-3 text-sm"
+                      >
                         <input
+                          id="case-action-confirmation"
                           type="checkbox"
                           checked={factConfirmed}
                           onChange={(event) => {
                             setFactConfirmed(event.target.checked);
+                            setActionErrors((current) => {
+                              const next = { ...current };
+                              delete next.factConfirmed;
+                              return next;
+                            });
                             setDuplicates(null);
                           }}
+                          aria-invalid={Boolean(actionErrors.factConfirmed)}
+                          aria-describedby={
+                            actionErrors.factConfirmed
+                              ? "case-action-confirmation-error"
+                              : undefined
+                          }
                           className="mt-0.5 size-4 shrink-0 accent-primary"
                         />
                         <span>
@@ -1145,6 +1263,14 @@ function CaptureSession({ userId }: { userId: string }) {
                           miejsce
                         </span>
                       </label>
+                      {actionErrors.factConfirmed && (
+                        <p
+                          id="case-action-confirmation-error"
+                          className="text-sm text-destructive"
+                        >
+                          {actionErrors.factConfirmed}
+                        </p>
+                      )}
                     </div>
                   )}
                 </fieldset>
@@ -1397,7 +1523,9 @@ function CaptureSession({ userId }: { userId: string }) {
                           ),
                         )
                       }
-                      disabled={pending || recovering}
+                      disabled={
+                        pending || recovering || (uncertain && !retryAvailable)
+                      }
                       className={primaryClass}
                     >
                       {pending && (
@@ -1411,7 +1539,9 @@ function CaptureSession({ userId }: { userId: string }) {
                     <Button
                       type="button"
                       onClick={() => void save(true)}
-                      disabled={pending || recovering || uncertain}
+                      disabled={
+                        pending || recovering || uncertain || !retryAvailable
+                      }
                       className={buttonClass}
                     >
                       Zapisz i dodaj kolejną
@@ -1476,12 +1606,14 @@ function CaptureSession({ userId }: { userId: string }) {
                     </Link>
                   )}
                   <div className="mt-5 flex flex-wrap gap-3">
-                    <AlertDialog.Close
-                      className={buttonClass}
-                      onClick={() => setPendingNavigation(null)}
-                    >
-                      {uncertain ? "Wróć do zapisu" : "Kontynuuj edycję"}
-                    </AlertDialog.Close>
+                    {(!uncertain || retryAvailable) && (
+                      <AlertDialog.Close
+                        className={buttonClass}
+                        onClick={() => setPendingNavigation(null)}
+                      >
+                        {uncertain ? "Wróć do zapisu" : "Kontynuuj edycję"}
+                      </AlertDialog.Close>
+                    )}
                     <Button
                       type="button"
                       className={primaryClass}
