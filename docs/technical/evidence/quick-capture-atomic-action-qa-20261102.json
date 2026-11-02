@@ -5,6 +5,7 @@
   "qaWorktreeTree": "254e4c8cc9a369f5996f528510f747afbb30fba6",
   "qaHarnessWorkingTreePatch": {
     "sha256": "ef82a9c38fa71783c32b914c06e2a839d0900b6394ab30c13b32be5fdf7ada79",
+    "committedPatchPath": "docs/technical/evidence/quick-capture-atomic-action-qa-port-profile.patch",
     "paths": [
       "scripts/recruitment/port-profile.test.ts",
       "scripts/recruitment/validation.ts"
