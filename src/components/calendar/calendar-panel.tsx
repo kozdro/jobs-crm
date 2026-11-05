@@ -679,19 +679,22 @@ export function EventForm({
             {titleError}
           </p>
         )}
-        <label className="block text-sm font-medium">
+        <label
+          htmlFor={fieldId("description")}
+          className="block text-sm font-medium"
+        >
           Opis
-          <textarea
-            id={fieldId("description")}
-            aria-invalid={Boolean(descriptionError)}
-            aria-describedby={`${fieldId("description")}-count${descriptionError ? ` ${fieldId("description")}-error` : ""}`}
-            className={`${inputStyles} mt-1`}
-            value={values.description ?? ""}
-            onChange={(e) =>
-              setValues((v) => ({ ...v, description: e.target.value || null }))
-            }
-          />
         </label>
+        <textarea
+          id={fieldId("description")}
+          aria-invalid={Boolean(descriptionError)}
+          aria-describedby={`${fieldId("description")}-count${descriptionError ? ` ${fieldId("description")}-error` : ""}`}
+          className={`${inputStyles} mt-1`}
+          value={values.description ?? ""}
+          onChange={(e) =>
+            setValues((v) => ({ ...v, description: e.target.value || null }))
+          }
+        />
         <p
           id={`${fieldId("description")}-count`}
           className="text-sm text-muted-foreground"

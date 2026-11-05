@@ -105,6 +105,9 @@ describe("restored calendar form", () => {
     expect(html).toContain("Podaj tytuł od 1 do 160 znaków.");
     expect(html).toContain("Opis może mieć do 2000 znaków.");
     expect((html.match(/aria-invalid="true"/g) ?? []).length).toBe(2);
+    expect(html).toMatch(
+      /<label for="([^"]+-description)"[^>]*>Opis<\/label><textarea id="\1"/,
+    );
   });
   it("renders the actual saved draft instead of overwriting it with the fresh server baseline", () => {
     const html = renderToStaticMarkup(
