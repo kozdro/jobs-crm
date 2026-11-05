@@ -256,6 +256,49 @@ function OffsetField({
   );
 }
 
+export function CalendarStatusField({
+  id,
+  value,
+  error,
+  onChange,
+}: {
+  id: string;
+  value: CalendarEvent["status"];
+  error?: string;
+  onChange: (status: CalendarEvent["status"]) => void;
+}) {
+  return (
+    <>
+      <label className="block text-sm font-medium">
+        Wynik
+        <select
+          id={id}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? `${id}-error` : undefined}
+          className={`${inputStyles} mt-1`}
+          required
+          value={value}
+          onChange={(event) =>
+            onChange(event.target.value as CalendarEvent["status"])
+          }
+        >
+          <option value="planned" disabled>
+            Wybierz wynik
+          </option>
+          <option value="occurred">Odbyte</option>
+          <option value="not_occurred">Nieodbyte</option>
+          <option value="cancelled">Anulowane</option>
+        </select>
+      </label>
+      {error && (
+        <p id={`${id}-error`} className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
+    </>
+  );
+}
+
 export function EventForm({
   userId,
   initial,
@@ -545,7 +588,11 @@ export function EventForm({
       return;
     }
     if (mode === "resolve" && values.status === "planned") {
-      setError("Wybierz wynik rozliczenia.");
+      setFieldErrors({ status: "Wybierz wynik rozliczenia." });
+      setError("Sprawdź oznaczone pola formularza.");
+      requestAnimationFrame(() =>
+        document.getElementById(fieldId("status"))?.focus(),
+      );
       return;
     }
     const candidate = {
@@ -972,32 +1019,23 @@ export function EventForm({
           (base && base.status !== "planned")) && (
           <fieldset className="space-y-3 rounded-md border border-border p-3">
             <legend className="px-1 font-semibold">Rzeczywisty wynik</legend>
-            <label className="block text-sm font-medium">
-              Wynik
-              <select
-                className={`${inputStyles} mt-1`}
-                required
-                value={values.status}
-                onChange={(e) =>
-                  setValues((v) => ({
-                    ...v,
-                    status: e.target.value as CalendarEvent["status"],
-                    actual: null,
-                    participants: v.participants.map((p) => ({
-                      ...p,
-                      attendance: "unknown",
-                    })),
-                  }))
-                }
-              >
-                <option value="planned" disabled>
-                  Wybierz wynik
-                </option>
-                <option value="occurred">Odbyte</option>
-                <option value="not_occurred">Nieodbyte</option>
-                <option value="cancelled">Anulowane</option>
-              </select>
-            </label>
+            <CalendarStatusField
+              id={fieldId("status")}
+              value={values.status}
+              error={fieldErrors.status}
+              onChange={(status) => {
+                setError(null);
+                setValues((v) => ({
+                  ...v,
+                  status,
+                  actual: null,
+                  participants: v.participants.map((p) => ({
+                    ...p,
+                    attendance: "unknown",
+                  })),
+                }));
+              }}
+            />
             {values.status === "occurred" && (
               <>
                 <p className="text-sm">

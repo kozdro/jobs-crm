@@ -247,6 +247,76 @@ test("Calendar Unicode limits count code points for typing, bulk insertion, vali
   expect(saved[0].description).toBe(acceptedDescription);
 });
 
+test("resolution without an outcome reports an associated inline error and does not save", async ({
+  page,
+}) => {
+  const { client } = await sdkLogin(target, user);
+  const title = `Missing outcome ${randomUUID()}`;
+  const created = await client.rpc("execute_recruitment_calendar_command", {
+    p_request_id: randomUUID(),
+    p_payload: {
+      operation: "create",
+      values: {
+        title,
+        description: null,
+        caseId: null,
+        status: "planned",
+        timeZone: "Europe/Warsaw",
+        actual: null,
+        participants: [],
+        schedule: {
+          startDate: "2099-05-15",
+          startTime: null,
+          endDate: null,
+          endTime: null,
+          allDay: false,
+          timeZone: "Europe/Warsaw",
+          startOffset: null,
+          endOffset: null,
+        },
+      },
+    },
+  });
+  expect(created.error).toBeNull();
+  const eventId = created.data.event.id as string;
+  await login(page);
+  await page.goto(`${target.appOrigin}/calendar`);
+  await page
+    .getByRole("article", { name: title, exact: true })
+    .getByRole("button", { name: "Rozlicz wydarzenie", exact: true })
+    .click();
+  const dialog = page.getByRole("dialog", {
+    name: "Rozlicz wydarzenie",
+    exact: true,
+  });
+  const outcome = dialog.getByLabel("Wynik", { exact: true });
+  await expect(outcome).toHaveValue("planned");
+  let writes = 0;
+  await page.route("**/calendar/commands", async (route) => {
+    if (route.request().method() === "POST") writes++;
+    await route.continue();
+  });
+  await dialog
+    .getByRole("button", { name: "Zapisz wydarzenie", exact: true })
+    .click();
+  const error = dialog.getByText("Wybierz wynik rozliczenia.", { exact: true });
+  await expect(error).toBeVisible();
+  await expect(outcome).toHaveAttribute("aria-invalid", "true");
+  await expect(outcome).toBeFocused();
+  const errorId = await error.getAttribute("id");
+  expect(errorId).toBeTruthy();
+  expect(
+    (await outcome.getAttribute("aria-describedby"))?.split(/\s+/),
+  ).toContain(errorId);
+  expect(writes).toBe(0);
+  const current = await client.rpc("get_recruitment_calendar_event", {
+    p_event_id: eventId,
+  });
+  expect(current.error).toBeNull();
+  expect(current.data.status).toBe("planned");
+  expect(current.data.revision).toBe(created.data.event.revision);
+});
+
 test("DST repeated hour needs an occurrence and updates its offset when the day changes", async ({
   page,
 }) => {
