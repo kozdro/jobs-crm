@@ -21,7 +21,17 @@ import {
   type CalendarValues,
   type CalendarCommandInput,
 } from "@/modules/recruitment/domain/calendar";
-import { calendarSection, formatOffset, formatSchedule } from "./time";
+import {
+  calendarSection,
+  formatOffset,
+  formatSchedule,
+  sectionDuringEdit,
+} from "./time";
+import {
+  readWorkingDraft,
+  workPrefix,
+  type WorkingDraft,
+} from "./working-draft";
 import { calendarInvalidationEvent, invalidateCalendarReads } from "./events";
 import {
   actualLabel,
@@ -231,6 +241,7 @@ function EventForm({
   userId,
   initial,
   draft,
+  working,
   caseId,
   cases,
   contacts,
@@ -241,6 +252,7 @@ function EventForm({
   userId: string;
   initial?: CalendarEvent;
   draft?: Command;
+  working?: { key: string; data: WorkingDraft };
   caseId?: string;
   cases: Case[];
   contacts: Person[];
@@ -250,6 +262,7 @@ function EventForm({
 }) {
   const [values, setValues] = useState<Values>(
     () =>
+      working?.data.values ??
       draft?.values ??
       (initial
         ? eventValues(initial)
@@ -257,7 +270,9 @@ function EventForm({
   );
   const [base, setBase] = useState(initial);
   const [stale, setStale] = useState(false);
-  const [needsConfirm, setNeedsConfirm] = useState(false);
+  const [needsConfirm, setNeedsConfirm] = useState(
+    Boolean((draft || working) && initial),
+  );
   const [initialValues] = useState(values);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -268,11 +283,15 @@ function EventForm({
   useEffect(() => {
     titleInput.current?.focus();
   }, []);
-  const [zoneDraft, setZoneDraft] = useState(values.timeZone);
-  const [zoneMode, setZoneMode] = useState<"wall" | "instant" | "">("");
+  const [zoneDraft, setZoneDraft] = useState(
+    working?.data.zoneDraft ?? values.timeZone,
+  );
+  const [zoneMode, setZoneMode] = useState<"wall" | "instant" | "">(
+    working?.data.zoneMode ?? "",
+  );
   const [appliedZoneMode, setAppliedZoneMode] = useState<
     "keep-local" | "keep-instant" | undefined
-  >(draft?.zoneChangeMode);
+  >(working?.data.zoneChangeMode ?? draft?.zoneChangeMode);
   const dirty =
     !sameValue(initialValues, values) || zoneDraft !== initialValues.timeZone;
   useEffect(() => {
@@ -295,13 +314,87 @@ function EventForm({
         event.stopPropagation();
       }
     };
+    const navigation = (window as Window & { navigation?: EventTarget })
+      .navigation;
+    const onNavigate = (event: Event) => {
+      const traversal = event as Event & { navigationType?: string };
+      if (
+        traversal.navigationType === "traverse" &&
+        event.cancelable &&
+        !window.confirm(
+          "Masz niezapisane dane wydarzenia. Czy chcesz opuścić formularz?",
+        )
+      )
+        event.preventDefault();
+    };
     window.addEventListener("beforeunload", beforeUnload);
     document.addEventListener("click", followLink, true);
+    navigation?.addEventListener("navigate", onNavigate);
     return () => {
       window.removeEventListener("beforeunload", beforeUnload);
       document.removeEventListener("click", followLink, true);
+      navigation?.removeEventListener("navigate", onNavigate);
     };
   }, [dirty, uncertain]);
+  const [workStorageKey] = useState(
+    () => working?.key ?? `${workPrefix(userId)}${crypto.randomUUID()}`,
+  );
+  const workPrevious = useRef<string | null>(
+    working ? JSON.stringify(working.data) : null,
+  );
+  useEffect(() => {
+    if (!dirty && !working) return;
+    const snapshot: WorkingDraft = {
+      ownerId: userId,
+      eventId: base?.id ?? null,
+      mode,
+      values,
+      zoneDraft,
+      zoneMode,
+      ...(appliedZoneMode ? { zoneChangeMode: appliedZoneMode } : {}),
+    };
+    const raw = JSON.stringify(snapshot);
+    try {
+      const current = sessionStorage.getItem(workStorageKey);
+      if (current !== workPrevious.current) {
+        void Promise.resolve().then(() =>
+          setError(
+            "Szkic roboczy zmienił się w innej sesji karty. Zachowaj dane i odśwież widok.",
+          ),
+        );
+        return;
+      }
+      sessionStorage.setItem(workStorageKey, raw);
+      if (sessionStorage.getItem(workStorageKey) !== raw) throw new Error();
+      workPrevious.current = raw;
+    } catch {
+      void Promise.resolve().then(() =>
+        setError(
+          "Nie można zachować szkicu roboczego w tej karcie. Nie opuszczaj formularza przed zapisem.",
+        ),
+      );
+    }
+  }, [
+    dirty,
+    working,
+    base?.id,
+    mode,
+    values,
+    zoneDraft,
+    zoneMode,
+    userId,
+    workStorageKey,
+    appliedZoneMode,
+  ]);
+  function clearWorking() {
+    try {
+      const raw = workPrevious.current;
+      if (raw !== null && sessionStorage.getItem(workStorageKey) === raw)
+        sessionStorage.removeItem(workStorageKey);
+    } catch {
+      /* Never remove a changed draft. */
+    }
+  }
   const schedule = values.schedule;
   const patchSchedule = (patch: Partial<CalendarSchedule>) =>
     setValues((current) =>
@@ -350,6 +443,7 @@ function EventForm({
       pending.current = null;
       setUncertain(false);
       invalidateCalendarReads(userId);
+      clearWorking();
       onDone();
     } catch (cause) {
       if (
@@ -370,6 +464,7 @@ function EventForm({
             sessionStorage.removeItem(storageKey(userId));
             pending.current = null;
             invalidateCalendarReads(userId);
+            clearWorking();
             onDone();
             return;
           }
@@ -986,8 +1081,10 @@ function EventForm({
                 window.confirm(
                   "Masz niezapisane dane wydarzenia. Czy chcesz je odrzucić?",
                 )
-              )
+              ) {
+                clearWorking();
                 onCancel();
+              }
             }}
           >
             Anuluj
@@ -1035,8 +1132,10 @@ function EventForm({
                 window.confirm(
                   "Masz niezapisane dane wydarzenia. Czy chcesz je odrzucić?",
                 )
-              )
+              ) {
+                clearWorking();
                 onCancel();
+              }
             }}
           >
             Anuluj
@@ -1149,15 +1248,23 @@ function EventRow({
   cases: Case[];
   contacts: Person[];
   onSaved: () => void;
-  onActivity: (id: string, active: boolean) => void;
+  onActivity: (event: CalendarEvent, active: boolean, now: Date) => void;
 }) {
   const [mode, setMode] = useState<"edit" | "resolve" | null>(null);
   const editTrigger = useRef<HTMLButtonElement>(null);
   const resolveTrigger = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    onActivity(event.id, mode !== null);
-    return () => onActivity(event.id, false);
-  }, [event.id, mode, onActivity]);
+  useEffect(
+    () => () => onActivity(event, false, new Date()),
+    [event, onActivity],
+  );
+  function begin(next: "edit" | "resolve") {
+    onActivity(event, true, now);
+    setMode(next);
+  }
+  function end() {
+    onActivity(event, false, now);
+    setMode(null);
+  }
   const [audit, setAudit] = useState<Audit[] | null>(null);
   const [auditError, setAuditError] = useState(false);
   const expired = calendarSection(event.status, event.schedule, now) === "past";
@@ -1232,7 +1339,7 @@ function EventRow({
             ref={editTrigger}
             type="button"
             className={buttonStyles.secondary}
-            onClick={() => setMode("edit")}
+            onClick={() => begin("edit")}
           >
             {event.status === "planned"
               ? "Edytuj wydarzenie"
@@ -1243,7 +1350,7 @@ function EventRow({
               <button
                 type="button"
                 className={buttonStyles.secondary}
-                onClick={() => setMode("edit")}
+                onClick={() => begin("edit")}
               >
                 Przełóż termin
               </button>
@@ -1251,7 +1358,7 @@ function EventRow({
                 ref={resolveTrigger}
                 type="button"
                 className={buttonStyles.secondary}
-                onClick={() => setMode("resolve")}
+                onClick={() => begin("resolve")}
               >
                 Rozlicz wydarzenie
               </button>
@@ -1283,12 +1390,12 @@ function EventRow({
             contacts={contacts}
             mode={mode}
             onDone={() => {
-              setMode(null);
+              end();
               onSaved();
             }}
             onCancel={() => {
               const target = mode === "resolve" ? resolveTrigger : editTrigger;
-              setMode(null);
+              end();
               requestAnimationFrame(() => target.current?.focus());
             }}
           />
@@ -1369,6 +1476,28 @@ export function CalendarPanel({
   const [draft, setDraft] = useState<Command | null>(null);
   const [draftInitial, setDraftInitial] = useState<CalendarEvent | undefined>();
   const [restoringDraft, setRestoringDraft] = useState(false);
+  const [workingDrafts, setWorkingDrafts] = useState<
+    { key: string; data: WorkingDraft }[]
+  >([]);
+  const [restoringWork, setRestoringWork] = useState<{
+    key: string;
+    data: WorkingDraft;
+  } | null>(null);
+  const scanWorking = useCallback(() => {
+    try {
+      const result: { key: string; data: WorkingDraft }[] = [];
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i);
+        if (!key?.startsWith(workPrefix(userId))) continue;
+        const raw = sessionStorage.getItem(key);
+        const data = raw && readWorkingDraft(raw, userId);
+        if (data) result.push({ key, data });
+      }
+      setWorkingDrafts(result);
+    } catch {
+      /* Draft storage can be unavailable. */
+    }
+  }, [userId]);
   const createTrigger = useRef<HTMLButtonElement>(null);
   const occurredTrigger = useRef<HTMLButtonElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -1388,15 +1517,29 @@ export function CalendarPanel({
     return () => window.clearInterval(timer);
   }, []);
   const [activeRows, setActiveRows] = useState<string[]>([]);
+  const [activeSections, setActiveSections] = useState<
+    Record<string, "past" | "upcoming" | "settled">
+  >({});
   const onActivity = useCallback(
-    (id: string, active: boolean) =>
+    (event: CalendarEvent, active: boolean, when: Date) => {
       setActiveRows((current) =>
         active
-          ? current.includes(id)
+          ? current.includes(event.id)
             ? current
-            : [...current, id]
-          : current.filter((item) => item !== id),
-      ),
+            : [...current, event.id]
+          : current.filter((id) => id !== event.id),
+      );
+      setActiveSections((current) => {
+        if (active)
+          return {
+            ...current,
+            [event.id]: calendarSection(event.status, event.schedule, when),
+          };
+        const next = { ...current };
+        delete next[event.id];
+        return next;
+      });
+    },
     [],
   );
   const title = contactId
@@ -1408,13 +1551,14 @@ export function CalendarPanel({
         : "Kalendarz";
   const reload = useCallback(() => {
     setVersion((v) => v + 1);
+    scanWorking();
     router.refresh();
     try {
       setPendingState(pendingCommand(userId));
     } catch {
       setPendingState("invalid");
     }
-  }, [userId, router]);
+  }, [userId, router, scanWorking]);
   useEffect(() => {
     const onChange = (event: Event) => {
       const detail = (
@@ -1434,6 +1578,7 @@ export function CalendarPanel({
     void Promise.resolve().then(() => {
       try {
         setPendingState(pendingCommand(userId));
+        scanWorking();
         const rawDraft = sessionStorage.getItem(draftKey(userId));
         if (rawDraft) {
           const parsed = parseCalendarCommand(JSON.parse(rawDraft));
@@ -1444,7 +1589,7 @@ export function CalendarPanel({
         setPendingState("invalid");
       }
     });
-  }, [userId]);
+  }, [userId, scanWorking]);
   async function recover(retry: boolean) {
     if (!pendingState || pendingState === "invalid" || recovering) return;
     const command = pendingState;
@@ -1510,6 +1655,32 @@ export function CalendarPanel({
       );
     } finally {
       setRecovering(false);
+    }
+  }
+  async function restoreWorking(work: { key: string; data: WorkingDraft }) {
+    if (pendingState || mode) return;
+    try {
+      const raw = JSON.stringify(work.data);
+      if (sessionStorage.getItem(work.key) !== raw) throw new Error();
+      let current: CalendarEvent | undefined;
+      if (work.data.eventId) {
+        const result = await request(userId, { eventId: work.data.eventId });
+        if (
+          !result.event ||
+          typeof result.event !== "object" ||
+          (result.event as CalendarEvent).id !== work.data.eventId
+        )
+          throw new Error();
+        current = result.event as CalendarEvent;
+      }
+      if (sessionStorage.getItem(work.key) !== raw) throw new Error();
+      setDraftInitial(current);
+      setRestoringWork(work);
+      setMode(work.data.mode);
+    } catch {
+      setRecoveryMessage(
+        "Nie można wczytać aktualnego wydarzenia. Szkic roboczy pozostaje zachowany.",
+      );
     }
   }
   function saveRejectedDraft() {
@@ -1660,13 +1831,25 @@ export function CalendarPanel({
         [
           "Wymaga rozliczenia",
           list.filter(
-            (e) => calendarSection(e.status, e.schedule, now) === "past",
+            (e) =>
+              sectionDuringEdit(
+                e.status,
+                e.schedule,
+                now,
+                activeSections[e.id],
+              ) === "past",
           ),
         ],
         [
           "Nadchodzące wydarzenia",
           list.filter(
-            (e) => calendarSection(e.status, e.schedule, now) === "upcoming",
+            (e) =>
+              sectionDuringEdit(
+                e.status,
+                e.schedule,
+                now,
+                activeSections[e.id],
+              ) === "upcoming",
           ),
         ],
       ]
@@ -1759,6 +1942,22 @@ export function CalendarPanel({
           </button>
         </div>
       )}
+      {!mode &&
+        !pendingState &&
+        workingDrafts.map((work) => (
+          <div key={work.key} className="rounded-md border border-border p-3">
+            <p className="text-sm">
+              Szkic roboczy: {work.data.values.title || "Bez tytułu"}
+            </p>
+            <button
+              type="button"
+              className={buttonStyles.secondary}
+              onClick={() => void restoreWorking(work)}
+            >
+              Wczytaj szkic roboczy
+            </button>
+          </div>
+        ))}
       {mode && (
         <section className="rounded-md border border-border p-4">
           <h3 className="mb-3 font-semibold">
@@ -1773,6 +1972,7 @@ export function CalendarPanel({
             caseId={caseId}
             initial={draftInitial}
             draft={restoringDraft ? (draft ?? undefined) : undefined}
+            working={restoringWork ?? undefined}
             cases={cases}
             contacts={contacts}
             mode={mode}
@@ -1788,6 +1988,7 @@ export function CalendarPanel({
               }
               setDraftInitial(undefined);
               setRestoringDraft(false);
+              setRestoringWork(null);
               setMode(null);
               reload();
               requestAnimationFrame(() => heading.current?.focus());
@@ -1798,6 +1999,8 @@ export function CalendarPanel({
               setMode(null);
               setDraftInitial(undefined);
               setRestoringDraft(false);
+              setRestoringWork(null);
+              scanWorking();
               requestAnimationFrame(() => target.current?.focus());
             }}
           />

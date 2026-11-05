@@ -3,6 +3,7 @@ import {
   calendarSection,
   formatOffset,
   formatSchedule,
+  sectionDuringEdit,
 } from "@/components/calendar/time";
 import type { CalendarSchedule } from "@/modules/recruitment/domain/calendar-time";
 const base: CalendarSchedule = {
@@ -42,5 +43,16 @@ describe("calendar display", () => {
       calendarSection("planned", timed, new Date("2026-02-03T09:00:01Z")),
     ).toBe("past");
     expect(timed.startTime).toBe("10:00");
+    expect(
+      sectionDuringEdit(
+        "planned",
+        timed,
+        new Date("2026-02-03T09:00:01Z"),
+        "upcoming",
+      ),
+    ).toBe("upcoming");
+    expect(
+      sectionDuringEdit("planned", timed, new Date("2026-02-03T09:00:01Z")),
+    ).toBe("past");
   });
 });

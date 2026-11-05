@@ -439,6 +439,32 @@ test("stale retry after reload preserves draft and never overwrites a concurrent
   });
   expect(current.error).toBeNull();
   expect(current.data.title).toBe(otherTitle);
+  await page
+    .getByRole("button", { name: "Zapisz wydarzenie", exact: true })
+    .click();
+  const preview = page.getByRole("heading", {
+    name: "Podgląd korekty",
+    exact: true,
+  });
+  await expect(preview).toBeVisible();
+  const previewContainer = preview.locator("..");
+  await expect(previewContainer).toContainText(otherTitle);
+  await expect(previewContainer).toContainText(draftTitle);
+  const beforeConfirm = await client.rpc("get_recruitment_calendar_event", {
+    p_event_id: eventId,
+  });
+  expect(beforeConfirm.data.title).toBe(otherTitle);
+  await page
+    .getByRole("button", { name: "Potwierdź korektę", exact: true })
+    .click();
+  await expect(
+    page.getByRole("article", { name: draftTitle, exact: true }),
+  ).toBeVisible();
+  const saved = await client.rpc("get_recruitment_calendar_event", {
+    p_event_id: eventId,
+  });
+  expect(saved.error).toBeNull();
+  expect(saved.data.title).toBe(draftTitle);
 });
 
 test("direct stale conflict preserves edited values for a refreshed preview", async ({
@@ -534,6 +560,69 @@ test("canceling a dirty event form asks before discarding and may be rejected", 
   await expect(title).toHaveCount(0);
 });
 
+for (const direction of ["back", "forward"] as const) {
+  test(`browser ${direction} protects a dirty calendar form in SPA navigation`, async ({
+    page,
+  }) => {
+    await login(page);
+    await page.getByRole("link", { name: "Kalendarz", exact: true }).click();
+    await expect(page).toHaveURL(`${target.appOrigin}/calendar`);
+    if (direction === "forward") {
+      await page.getByRole("link", { name: "Dashboard", exact: true }).click();
+      await expect(page).toHaveURL(`${target.appOrigin}/dashboard`);
+      await page.goBack();
+      await expect(page).toHaveURL(`${target.appOrigin}/calendar`);
+    }
+    await page
+      .getByRole("button", { name: "Dodaj wydarzenie", exact: true })
+      .click();
+    const title = page.getByLabel("Tytuł wydarzenia", { exact: true });
+    await title.fill(`Szkic nawigacja ${randomUUID()}`);
+    const entered = await title.inputValue();
+    let prompts = 0;
+    page.once("dialog", async (dialog) => {
+      prompts++;
+      await dialog.dismiss();
+    });
+    await page.evaluate(
+      (step) => (step === "back" ? history.back() : history.forward()),
+      direction,
+    );
+    await expect.poll(() => prompts).toBe(1);
+    await expect(page).toHaveURL(`${target.appOrigin}/calendar`);
+    await expect(title).toHaveValue(entered);
+  });
+}
+
+test("browser without Navigation API restores the working draft after back and forward", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(window, "navigation", {
+      value: undefined,
+      configurable: true,
+    });
+  });
+  await login(page);
+  await page.getByRole("link", { name: "Kalendarz", exact: true }).click();
+  await expect(page).toHaveURL(`${target.appOrigin}/calendar`);
+  await page
+    .getByRole("button", { name: "Dodaj wydarzenie", exact: true })
+    .click();
+  const title = `Szkic bez Navigation API ${randomUUID()}`;
+  await page.getByLabel("Tytuł wydarzenia", { exact: true }).fill(title);
+  await page.evaluate(() => history.back());
+  await expect(page).toHaveURL(`${target.appOrigin}/dashboard`);
+  await page.evaluate(() => history.forward());
+  await expect(page).toHaveURL(`${target.appOrigin}/calendar`);
+  await page
+    .getByRole("button", { name: "Wczytaj szkic roboczy", exact: true })
+    .click();
+  await expect(
+    page.getByLabel("Tytuł wydarzenia", { exact: true }),
+  ).toHaveValue(title);
+});
+
 test("an open calendar moves an event to attention after its deadline without changing status", async ({
   page,
 }) => {
@@ -598,14 +687,30 @@ test("an open calendar moves an event to attention after its deadline without ch
   const event = page.getByRole("article", { name: title, exact: true });
   await expect(event).toBeVisible();
   await expect(event).not.toContainText("wymaga rozliczenia");
+  await event
+    .getByRole("button", { name: "Edytuj wydarzenie", exact: true })
+    .click();
+  const draftTitle = `Szkic podczas terminu ${randomUUID()}`;
+  await event.getByLabel("Tytuł wydarzenia", { exact: true }).fill(draftTitle);
   await page.clock.runFor(5 * 60 * 1000);
-  await expect(event).toContainText("wymaga rozliczenia");
-  await expect(event).not.toContainText("Odbyte");
+  await expect(
+    event.getByLabel("Tytuł wydarzenia", { exact: true }),
+  ).toHaveValue(draftTitle);
+  await event
+    .getByRole("button", { name: "Zapisz wydarzenie", exact: true })
+    .click();
+  const savedEvent = page.getByRole("article", {
+    name: draftTitle,
+    exact: true,
+  });
+  await expect(savedEvent).toContainText("wymaga rozliczenia");
+  await expect(savedEvent).not.toContainText("Odbyte");
   const after = await client.rpc("get_recruitment_calendar_event", {
     p_event_id: created.data.event.id,
   });
   expect(after.error).toBeNull();
   expect(after.data.status).toBe("planned");
+  expect(after.data.title).toBe(draftTitle);
 });
 
 test("unplanned event shows its own zone and actual offset in card, audit and case timeline", async ({

@@ -871,47 +871,99 @@ test(
     );
 
     await t.test(
-      "Future CalendarEvent tables preserve fail-closed guard for new and legacy close paths",
+      "Real CalendarEvent requires explicit BR-011 resolution and legacy close paths fail closed",
       async () => {
-        const sql = postgres({
-          ...target.db,
-          max: 1,
-          ssl: false,
-          onnotice: () => {},
-        });
         const c = await createCase();
+        const task = await create(c);
+        const created = ok<{ event: { id: string; revision: number } }>(
+          await call("execute_recruitment_calendar_command", {
+            p_request_id: randomUUID(),
+            p_payload: {
+              operation: "create",
+              values: {
+                title: `Calendar close guard ${randomUUID()}`,
+                description: null,
+                caseId: c,
+                status: "planned",
+                timeZone: "Europe/Warsaw",
+                schedule: {
+                  startDate: "2099-05-15",
+                  startTime: null,
+                  endDate: null,
+                  endTime: null,
+                  allDay: false,
+                  timeZone: "Europe/Warsaw",
+                  startOffset: null,
+                  endOffset: null,
+                },
+                actual: null,
+                participants: [],
+              },
+            },
+          }),
+        ).event;
         const p = await preview(c);
-        for (const table of ["calendar_event", "recruitment_calendar_event"]) {
-          try {
-            await sql.unsafe(
-              `CREATE TABLE public.${table}(id uuid PRIMARY KEY)`,
-            );
-            denied(
-              await call("preview_recruitment_case_lifecycle", closeInput(c)),
-            );
-            denied(
-              await call(
-                "confirm_recruitment_case_lifecycle_tasks",
-                closePayload(c, p, []),
-              ),
-            );
-            const {
-              p_expected_task_snapshot: _snapshot,
-              p_task_resolutions: _choices,
-              ...legacy
-            } = closePayload(c, p, []);
-            void _snapshot;
-            void _choices;
-            denied(await call("confirm_recruitment_case_lifecycle", legacy));
-            assert.equal((await state(c)).status, "Zapisane");
-            assert.deepEqual(await history(c), []);
-          } finally {
-            await sql.unsafe(`DROP TABLE IF EXISTS public.${table}`);
-          }
-        }
-        await sql.end();
-        await close(c);
+        const withEvents = p as Preview & {
+          openEvents: { id: string }[];
+          eventSnapshot: string[];
+        };
+        assert.deepEqual(
+          withEvents.openEvents.map((event) => event.id),
+          [created.id],
+        );
+        assert.deepEqual(withEvents.eventSnapshot, [
+          `${created.id}:${created.revision}`,
+        ]);
+        const taskPayload = closePayload(c, p, [
+          { taskId: task.id, action: "cancel" },
+        ]);
+        denied(
+          await call("confirm_recruitment_case_lifecycle_tasks", taskPayload),
+        );
+        const {
+          p_expected_task_snapshot: _snapshot,
+          p_task_resolutions: _choices,
+          ...legacy
+        } = taskPayload;
+        void _snapshot;
+        void _choices;
+        denied(await call("confirm_recruitment_case_lifecycle", legacy));
+        const mixed = {
+          ...taskPayload,
+          p_expected_event_snapshot: withEvents.eventSnapshot,
+          p_event_resolutions: [{ eventId: created.id, action: "detach" }],
+        };
+        denied(
+          await call("confirm_recruitment_case_lifecycle_calendar", {
+            ...mixed,
+            p_event_resolutions: [],
+          }),
+        );
+        assert.equal((await state(c)).status, "Zapisane");
+        assert.deepEqual(await history(c), []);
+        assert.deepEqual(await readTask(task.id), task);
+        const before = ok<Row[]>(
+          await api(
+            `/rest/v1/recruitment_calendar_event?select=*&id=eq.${created.id}`,
+          ),
+        );
+        assert.equal(before[0].status, "planned");
+        assert.equal(before[0].case_id, c);
+        assert.equal(
+          ok<{ kind: string }>(
+            await call("confirm_recruitment_case_lifecycle_calendar", mixed),
+          ).kind,
+          "created",
+        );
         assert.equal((await state(c)).status, "Zakończone");
+        assert.equal((await readTask(task.id)).status, "Anulowane");
+        const after = ok<Row[]>(
+          await api(
+            `/rest/v1/recruitment_calendar_event?select=*&id=eq.${created.id}`,
+          ),
+        );
+        assert.equal(after[0].status, "planned");
+        assert.equal(after[0].case_id, null);
       },
     );
   },

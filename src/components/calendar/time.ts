@@ -25,3 +25,13 @@ export function calendarSection(
   if (status !== "planned" || !schedule) return "settled";
   return scheduleHasPassed(schedule, now) ? "past" : "upcoming";
 }
+
+/** Freeze only the actively edited row in its original container. */
+export function sectionDuringEdit(
+  status: string,
+  schedule: CalendarSchedule | null,
+  now: Date,
+  editSection?: "past" | "upcoming" | "settled",
+) {
+  return editSection ?? calendarSection(status, schedule, now);
+}
