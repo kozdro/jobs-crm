@@ -1,6 +1,34 @@
 # Calendar Core — task packet i dowody wykonania
 
-**Migawka historyczna, nie raport końcowy.** Baza: `f6785b9a4776de4e4e34b5037e830a2f8d9bbf0b`; oceniany kandydat: `6d904d23f542ba81a9201633a9014767ac6a6908`. Ten dokument wiąże poniższe wyniki wyłącznie z tym kandydatem. W chwili jego przygotowania trwały poprawki po runtime i review; późniejszy diff lub commit wymaga osobnej weryfikacji oraz aktualizacji dowodów. Zapis decyzji, istnienie kodu ani sam test jednostkowy nie oznaczają spełnienia pełnego AC.
+## Aktualizacja kandydata `40418f7` — weryfikacja w toku
+
+Aktualny kandydat przy sporządzeniu tej aktualizacji to `40418f700b63c134cfe50d83ffe9e65ae2fba1a7`, względem bazy `f6785b9a4776de4e4e34b5037e830a2f8d9bbf0b`. Jest to identyfikowalny kandydat do dalszego QA, **nie potwierdzony finalny SHA**. Wcześniejsza macierz `6d904d2` i jej wyniki pozostają poniżej jako historia. Zmiana dokumentacji po tym kandydacie utworzy nowy stan źródeł; wyniki należy powiązać z faktycznie testowanym commitem.
+
+Poniższa macierz wiąże zatwierdzony kontrakt z lokalizacjami i testami przewidzianymi dla aktualnego kandydata. **NOT RUN / PENDING** dotyczy pełnej weryfikacji na `40418f7`; nie nadaje AC statusu PASS. [DEC-062](../decisions/product-decisions.md) 1A–9A i wcześniejsze P1/P2 są APPROVED; zatwierdzenie PO przechowywania szkicu wyłącznie w RAM nie dowodzi wykonania testu nawigacji, przełączenia kont lub reloadu.
+
+| Kontrakt | Powiązania i implementacja | Wymagane testy i aktualny stan dla `40418f7` |
+| --- | --- | --- |
+| **1A** — pola i relacja | AC-HE-006-01; `db/recruitment/migrations/0015_calendar_core.sql`, `src/modules/recruitment/domain/calendar.ts`, `src/components/calendar/calendar-panel.tsx` | `tests/integration/recruitment/calendar.test.ts`: właściciel/cudza relacja, limity, audyt; `tests/e2e/recruitment-calendar.spec.ts`: formularz. **NOT RUN / PENDING** na tym SHA. |
+| **2A** — precyzja, całodniowość i IANA | AC-HE-007-03–05; `src/modules/recruitment/domain/calendar-time.ts`, `calendar.ts`, `calendar-panel.tsx` | `tests/unit/recruitment/calendar-time.test.ts`, integracja i E2E: dzień bez godziny, koniec, strefa, całodniowość. **NOT RUN / PENDING** na tym SHA. |
+| **3A** — zmiana strefy i DST | AC-HE-007-06; TC-010; `calendar-time.ts`, `calendar-panel.tsx`, migracja 0015 | Testy DST gap/overlap, offsetu, zmiany strefy i odtworzenia dawnego terminu w jednostce, integracji i przeglądarce. **NOT RUN / PENDING** na tym SHA. |
+| **4A** — granica przeszłości | AC-HE-011/012/012-02; UX-011; `calendar-time.ts`, `calendar-panel.tsx` | Kontrolowany zegar, koniec/dzień/całodniowość, brak mutacji, zachowanie edytowanego szkicu przy zmianie grupy. **NOT RUN / PENDING** na tym SHA. |
+| **5A** — świadomy fakt | AC-HE-008–010/008-02; TC-011/022; `domain/calendar.ts`, `application/calendar.ts`, `src/components/recruitment/case-history.tsx` | Actual/unknown, brak fikcyjnego planu i przyszłego faktu, oddzielny czas zapisu: integracja i E2E. **NOT RUN / PENDING** na tym SHA. |
+| **6A** — edycja i korekty | AC-HE-009-01, BR-015/016; F08; `calendar-panel.tsx`, `form-logic.ts`, migracja 0015 | Before/after, korekta wyniku, stale, recovery/rollback i zachowanie szkicu. Poprawka `restored.values` oceniona statycznie na `372fa81`; **runtime NOT RUN / PENDING** na `40418f7`. |
+| **7A** — uczestnictwo i historia | AC-HE-013/013-01, CC-009/010; TC-019; migracja 0015, `application/calendar.ts`, profil kontaktu | Właściciel A/B/anon, bezpośrednie API i relacje, faktyczny udział, jedno ID oraz sortowanie przed paginacją. **NOT RUN / PENDING** na tym SHA. |
+| **8A** — zakończona sprawa | AC-HE-006-01, LC-017/018; TC-012/013; migracja 0015, `application/lifecycle.ts`, UI sprawy | Tworzenie/edycja bez wznowienia, retry, wznowienie i ponowny close; integracja i browser. **NOT RUN / PENDING** na tym SHA. |
+| **9A** — Dashboard i propozycje | AC-DB-003/003-01, AC-HE-012; UX-001/011; `src/app/dashboard/page.tsx`, `calendar-panel.tsx` | Osobne sekcje, aktualizacja czasu bez mutacji, empty/error/focus i przejście do rozliczenia. **NOT RUN / PENDING** na tym SHA. |
+| **Wcześniejsze P1/P2** — zamknięcie i wznowienie | AC-LC-018/018-04/018-05, AC-TN-011, BR-011; TC-012/013; migracja 0015, `application/lifecycle.ts`, `src/components/recruitment/lifecycle.tsx` | Mieszany Task/Calendar, trzy rozstrzygnięcia, stale zbioru i wersji, stary RPC, rollback/retry, uczestnicy i audyt. **NOT RUN / PENDING** na tym SHA. |
+| **RAM/recovery i granice kont** — doprecyzowanie PO | DEC-062/DEC-061, ADR-0012; `src/components/calendar/memory-drafts.tsx`, `calendar-panel.tsx`, `src/components/recruitment/lifecycle-intent.ts` | `tests/e2e/recruitment-calendar.spec.ts`: szkic RAM między ekranami, utrata po pełnym reloadzie, marker bez payloadu, pending i przełączenie **A→B**. Nowe testy w `40418f7` są przygotowane, lecz **NOT RUN / PENDING**; ich obecność nie dowodzi izolacji w browserze. |
+
+### Wyniki historyczne i otwarte bramki
+
+- `372fa8171aaa3ceddaacfe9b662344b3140fee77`: izolowany runner wykonał production build **PASS** i integrację **170/170 PASS**, 0 failed/skipped/cancelled (`/tmp/calendar-qa-372fa81.log`). Przebieg browser został **przerwany** i nie ma kompletnego wyniku E2E. Te wyniki dotyczą `372fa81`, nie `40418f7`.
+- Niezależne read-only review backend/frontend/security `372fa81` statycznie potwierdziło poprawki odtwarzania `restored.values`, nazw dialogów, właścicielskiego pending i szkicu w RAM; nie zgłoszono nowych potwierdzonych P0/P1. Wszystkie trzy raporty oznaczyły zamknięcie jako **BLOCKED** z powodu nieaktualnej macierzy i brakujących dowodów runtime; wskazały także potrzebę deterministycznego A→B. Raporty `/tmp/jobs-calendar-{backend,frontend,security}-reviewer-r12.log` dotyczą tego SHA, nie stanowią review `40418f7` ani dowodu browsera.
+- `40418f7` dodaje testy granic szkicu między kontami względem `372fa81`. Integracja, pełny browser, A→B/anon, utrata niezapisanego szkicu po pełnym reloadzie i niezależne review bieżącego stanu są **NOT RUN / PENDING** do czasu rzeczywistego wykonania. Brak wyniku nie oznacza FAIL zachowania ani PASS.
+- Pełny **TC-028** nadal obejmuje niezależną notatkę inline, której ten slice sam nie dowodzi; wyniki rozliczenia wydarzenia raportować jako częściowe pokrycie, bez deklaracji pełnego TC-028. Fizyczne urządzenia i technologie asystujące pozostają osobną weryfikacją.
+- Hosted CI dla dokładnego końcowego SHA, finalny przegląd treści PR i osobny PR pozostają **NOT RUN / PENDING**. Bez merge i deploymentu. Po dalszej zmianie źródeł powtórzyć kontrole i review odpowiednio do zmienionego zakresu oraz zaktualizować tę sekcję rzeczywistymi dowodami.
+
+**Migawka historyczna, nie raport końcowy.** Baza: `f6785b9a4776de4e4e34b5037e830a2f8d9bbf0b`; oceniany kandydat: `6d904d23f542ba81a9201633a9014767ac6a6908`. Poniższa historyczna część wiąże wyniki wyłącznie z tym kandydatem. W chwili jego przygotowania trwały poprawki po runtime i review; późniejszy diff lub commit wymaga osobnej weryfikacji oraz aktualizacji dowodów. Zapis decyzji, istnienie kodu ani sam test jednostkowy nie oznaczają spełnienia pełnego AC.
 
 ## Autoryzacja i zakres
 
