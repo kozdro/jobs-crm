@@ -1,6 +1,30 @@
 # Calendar Core — task packet i dowody wykonania
 
-## Aktualizacja kandydata `40418f7` — weryfikacja w toku
+## Wynik badanego kandydata `eba19a8`
+
+Oceniony kod i testy: `eba19a8228e03e1976b02d5500ea5c8d77587adc`, baza `f6785b9a4776de4e4e34b5037e830a2f8d9bbf0b`. Wyniki poniżej są związane z tym SHA; **nie są wynikiem późniejszego commitu dokumentacji**. Finalny SHA należy odczytać z Git oraz HEAD osobnego PR, a jego hosted CI sprawdzić osobno. **CI commitu zawierającego tę aktualizację: PENDING** — poniższe lokalne wyniki go nie certyfikują.
+
+Świeży izolowany runner `pnpm test:recruitment` wykonał się z Node `24.22.2` na własnym celu `run-9f0a427c`, w snapshotcie `/tmp/jobs-calendar-qa-eba19a8`. Jedyna deklarowana transformacja snapshotu to mapowanie portów `57020–57024` na `57320–57324`; SHA-256 patcha `ef82a9c38fa71783c32b914c06e2a839d0900b6394ab30c13b32be5fdf7ada79`. **PASS, exit 0:** migracje **16/16**, production build, integracja **170/170**, browser HTTPS Chromium **181/181**, skan prywatności **26** artefaktów browser i **15** wygenerowanych plików odpowiedzi. Dowód: `/tmp/calendar-qa-eba19a8.log` oraz `/tmp/jobs-calendar-qa-eba19a8/.recruitment-local/evidence-run-9f0a427c.json`, SHA-256 `e371658ca0cf9440ecc6969c995956ea14ac0422361a8dbe3d70a2387f214a8c`. Cleanup wyłącznie własnego celu zakończył się **PASS**; receipt `cleanup-complete.json` SHA-256 `0bf3517339cb8cf222691805535ba001961ed193c434a99635f694eedf75c844`. Obcy target pozostał zachowany. Ścieżki `/tmp` są lokalnymi, nietrwałymi dowodami.
+
+Na `eba19a8` lokalne kontrole `pnpm test:unit` (**601/601 Vitest i 90/90 testów skryptów**), `pnpm lint`, `pnpm format:check`, `pnpm typecheck` i `pnpm build` — **PASS**. Wyniki testów oznaczają wykonany zakres i środowisko, nie zastępują oddzielnej oceny niedostępnych urządzeń ani technologii asystujących.
+
+### Aktualna macierz DEC-062 na `eba19a8`
+
+| Zakres | Dowód wykonany na `eba19a8` | Granica |
+| --- | --- | --- |
+| **1A** pola i relacja | Integracja `calendar.test.ts` oraz browser `recruitment-calendar.spec.ts` w przebiegu 170/170 i 181/181. | Uprawnienia i relacje tylko w wykonanych syntetycznych scenariuszach A/B/anon. |
+| **2A–3A** dzień, godzina, całodniowość, IANA/DST | `calendar-time.test.ts`, integracja oraz browser, w tym przełożenie i offset. | Wynik nie jest testem rzeczywistych urządzeń ani każdej strefy IANA. |
+| **4A/9A** upływ i Dashboard | Integracja granic czasu oraz browser projekcji i szkicu w tym samym przebiegu. | Sam upływ pozostaje bez mutacji statusu; oceniono wykonane scenariusze zegara. |
+| **5A/6A** świadomy fakt, korekty i historia | Integracja i browser rozliczenia, korekty, before/after oraz recovery; unit walidacji i czasu. | Review statyczny nie zastępuje runtime; oba dowody dotyczą swoich kandydatów wskazanych poniżej. |
+| **7A** uczestnicy i historia kontaktu | Integracja A/B/anon, jawnego uczestnictwa, korekt i tej samej tożsamości wydarzenia. | Wyłącznie rzeczywiście wykonane syntetyczne dane; brak odrębnego testu technologii asystujących. |
+| **8A oraz wcześniejsze P1/P2** zamknięta sprawa, mieszany close/wznowienie | Integracja rzeczywistego upgrade, mixed Task/Calendar, stale, rollback/retry i starszych RPC w świeżym runnerze. | Wynik 170/170 obejmuje cały etap integracji; nie przypisuje każdemu pojedynczemu AC własnej liczby testów. |
+| **Szkic RAM, recovery i prywatność** | Browser obejmuje ścieżkę A→wylogowanie→B, owner-bound szkic/pending oraz marker bez payloadu; skan 26/15. | **A→B oznacza rzeczywistą ścieżkę z wylogowaniem**, nie dowód dowolnej zmiany tożsamości bez wylogowania ani test wszystkich środowisk browser. Szkic jest tylko w RAM i znika po pełnym odświeżeniu/zamknięciu karty zgodnie z DEC-062. |
+
+Niezależne review backend (`r19b`), frontend i security (`r19`) oceniły `32ceda5` względem bazy; brak potwierdzonych findings kodowych P0–P3 w ocenionych zakresach, przy czym raporty frontend/security opisują szczególnie poprawki odrzuconego zamiaru. Trzy kolejne read-only review (`r20`) oceniły deltę `32ceda5..eba19a8` jako **PASS statyczny** bez findings kodowych P0–P3; wskazały **P2 nieaktualnej macierzy dowodów**, adresowany tą aktualizacją. Raporty są lokalnie w `/tmp/jobs-calendar-{backend,frontend,security}-reviewer-r19*.log` i `...-r20.log`. Review nie uruchamiało testów i nie zastępuje QA; aktualizacja dokumentu po review wymaga oceny tej dokumentacyjnej delty zgodnie z workflow.
+
+Pełny **TC-028** obejmuje także niezależną notatkę inline: wykonanie rozliczenia wydarzenia nie jest dowodem pełnego TC-028. Urządzenia fizyczne i technologie asystujące — **NOT RUN**; nie należy ich wyprowadzać z Chromium. Global Search (w tym ADR-0008), zewnętrzna synchronizacja, komunikacja, przypomnienia oraz pozostałe publiczne bramki pozostają poza wykazanym wykonaniem; ich wymagania nie są zniesione. Pełnej transkrypcji pierwotnego Discovery brak, co wskazuje provenance.
+
+## Historyczna aktualizacja kandydata `40418f7`
 
 Aktualny kandydat przy sporządzeniu tej aktualizacji to `40418f700b63c134cfe50d83ffe9e65ae2fba1a7`, względem bazy `f6785b9a4776de4e4e34b5037e830a2f8d9bbf0b`. Jest to identyfikowalny kandydat do dalszego QA, **nie potwierdzony finalny SHA**. Wcześniejsza macierz `6d904d2` i jej wyniki pozostają poniżej jako historia. Zmiana dokumentacji po tym kandydacie utworzy nowy stan źródeł; wyniki należy powiązać z faktycznie testowanym commitem.
 
