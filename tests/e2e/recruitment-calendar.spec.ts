@@ -258,6 +258,10 @@ test("lost mixed-close response recovers receipt with event snapshot and resolut
         eventResolutions: unknown[];
       }
     | undefined;
+  let finishIntercept!: () => void;
+  const intercepted = new Promise<void>((resolve) => {
+    finishIntercept = resolve;
+  });
   await page.route("**/recruitments/lifecycle-commands", async (route) => {
     const req = route.request();
     if (req.method() === "POST" && req.postDataJSON().action === "confirm") {
@@ -265,6 +269,7 @@ test("lost mixed-close response recovers receipt with event snapshot and resolut
       const response = await route.fetch();
       expect(response.status()).toBe(200);
       await route.abort("failed");
+      finishIntercept();
     } else await route.continue();
   });
   await page
@@ -287,7 +292,10 @@ test("lost mixed-close response recovers receipt with event snapshot and resolut
   await page
     .getByRole("button", { name: "Zatwierdź zakończenie", exact: true })
     .click();
-  await expect(page.getByRole("alert")).toBeVisible();
+  await intercepted;
+  await expect(
+    page.getByText(/Wynik zapisu jest nieznany\. Zapis mógł się powieść/),
+  ).toBeVisible();
   expect(sent?.expectedEventSnapshot).toEqual([`${eventId}:0`]);
   expect(sent?.eventResolutions).toEqual([{ eventId, action: "detach" }]);
   await page.unroute("**/recruitments/lifecycle-commands");
@@ -646,7 +654,71 @@ test("uncertain Calendar dialog cannot be dismissed silently and keeps pending i
     "requestId",
   ]);
   expect(stored).not.toContain(title);
+  await page
+    .getByRole("button", { name: "Sprawdź wynik", exact: true })
+    .click();
+  await expect(
+    page.getByText(/Nie odnaleziono potwierdzenia. Wynik pozostaje nieznany/),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      (key) => sessionStorage.getItem(key),
+      `jobs-crm.calendar.pending.${user.id}`,
+    ),
+  ).toBe(stored);
 });
+
+for (const action of ["Edytuj wydarzenie", "Rozlicz wydarzenie"] as const) {
+  test(`canceling ${action} returns focus to the same event action after list refresh`, async ({
+    page,
+  }) => {
+    const { client } = await sdkLogin(target, user);
+    const title = `Focus return ${randomUUID()}`;
+    const created = await client.rpc("execute_recruitment_calendar_command", {
+      p_request_id: randomUUID(),
+      p_payload: {
+        operation: "create",
+        values: {
+          title,
+          description: null,
+          caseId: null,
+          status: "planned",
+          timeZone: "Europe/Warsaw",
+          actual: null,
+          participants: [],
+          schedule: {
+            startDate: "2099-05-15",
+            startTime: null,
+            endDate: null,
+            endTime: null,
+            allDay: false,
+            timeZone: "Europe/Warsaw",
+            startOffset: null,
+            endOffset: null,
+          },
+        },
+      },
+    });
+    expect(created.error).toBeNull();
+    await page.setViewportSize({ width: 375, height: 800 });
+    await login(page);
+    await page.goto(`${target.appOrigin}/calendar`);
+    const article = page.getByRole("article", { name: title, exact: true });
+    const trigger = article.getByRole("button", { name: action, exact: true });
+    await trigger.click();
+    const dialog = page.getByRole("dialog", { name: action, exact: true });
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole("button", { name: "Anuluj", exact: true }).click();
+    await expect(dialog).toHaveCount(0);
+    await expect(trigger).toBeFocused();
+    const after = await client.rpc("get_recruitment_calendar_event", {
+      p_event_id: created.data.event.id,
+    });
+    expect(after.error).toBeNull();
+    expect(after.data.status).toBe("planned");
+    expect(after.data.revision).toBe(created.data.event.revision);
+  });
+}
 
 for (const direction of ["back", "forward"] as const) {
   test(`browser ${direction} protects a dirty calendar form in SPA navigation`, async ({

@@ -4,6 +4,15 @@ import type {
 } from "@/modules/recruitment/domain/calendar";
 import type { CalendarSchedule } from "@/modules/recruitment/domain/calendar-time";
 
+/** A refresh keeps the current rows mounted only for the same read scope. */
+export function showCalendarRows(
+  loadedScope: string | null,
+  requestedScope: string,
+  error: boolean,
+): boolean {
+  return loadedScope === requestedScope && !error;
+}
+
 export function canDismissCalendarForm(
   busy: boolean,
   uncertain: boolean,

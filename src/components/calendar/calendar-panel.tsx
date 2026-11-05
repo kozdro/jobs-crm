@@ -37,6 +37,7 @@ import {
   calendarOperation,
   setStartTime,
   canDismissCalendarForm,
+  showCalendarRows,
 } from "./form-logic";
 
 type Person = { id: string; name: string };
@@ -1344,6 +1345,8 @@ function EventRow({
   contacts,
   onSaved,
   onActivity,
+  onDismiss,
+  onFocusMissing,
   now,
 }: {
   event: CalendarEvent;
@@ -1353,6 +1356,8 @@ function EventRow({
   contacts: Person[];
   onSaved: () => void;
   onActivity: (event: CalendarEvent, active: boolean, now: Date) => void;
+  onDismiss: () => void;
+  onFocusMissing: () => void;
 }) {
   const [mode, setMode] = useState<"edit" | "resolve" | null>(null);
   const editTrigger = useRef<HTMLButtonElement>(null);
@@ -1528,7 +1533,11 @@ function EventRow({
                         ? rescheduleTrigger
                         : editTrigger;
                   end();
-                  requestAnimationFrame(() => target.current?.focus());
+                  onDismiss();
+                  requestAnimationFrame(() => {
+                    if (target.current?.isConnected) target.current.focus();
+                    else onFocusMissing();
+                  });
                 }}
               />
             </Dialog.Popup>
@@ -1620,6 +1629,7 @@ export function CalendarPanel({
   const createTrigger = useRef<HTMLButtonElement>(null);
   const occurredTrigger = useRef<HTMLButtonElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
   const dismissRef = useRef<(() => void) | null>(null);
   const [pendingState, setPendingState] = useState<Pending | null | "invalid">(
     null,
@@ -1629,8 +1639,10 @@ export function CalendarPanel({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
+  const [loadedScope, setLoadedScope] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
   const [version, setVersion] = useState(0);
+  const readScope = `${userId}:${caseId ?? ""}:${contactId ?? ""}:${compact}:${page}`;
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 1000);
@@ -1682,6 +1694,10 @@ export function CalendarPanel({
     reload();
     requestAnimationFrame(() => heading.current?.focus());
   }
+  const syncPending = useCallback(() => {
+    setPendingState(pendingCommand(userId));
+  }, [userId]);
+  const focusPanel = useCallback(() => heading.current?.focus(), []);
   useEffect(() => {
     const onChange = (event: Event) => {
       const detail = (
@@ -1857,10 +1873,21 @@ export function CalendarPanel({
           readOptions("/catalog/commands?type=contact", "profiles"),
         ]);
         if (active) {
+          const focused = document.activeElement;
+          const returnFocus =
+            focused instanceof HTMLElement &&
+            panelRef.current?.contains(focused)
+              ? focused
+              : null;
           setEvents(allEvents);
           setHasMore(!compact && !contactId && data.hasMore === true);
           setCases(caseRows as Case[]);
           setContacts(peopleRows as Person[]);
+          setLoadedScope(readScope);
+          if (returnFocus)
+            requestAnimationFrame(() => {
+              if (!returnFocus.isConnected) heading.current?.focus();
+            });
         }
       } catch {
         if (active)
@@ -1884,6 +1911,7 @@ export function CalendarPanel({
     version,
     activeRows.length,
     mode,
+    readScope,
   ]);
   const list = compact
     ? events.filter((e) => e.status === "planned")
@@ -1926,6 +1954,7 @@ export function CalendarPanel({
     : [[title, list]];
   return (
     <section
+      ref={panelRef}
       className="ui-panel min-w-0 space-y-4 p-5 sm:p-6"
       aria-label={title}
     >
@@ -2071,6 +2100,7 @@ export function CalendarPanel({
                   setMemoryInitial(undefined);
                   setRestoreMemory(null);
                   setMode(null);
+                  syncPending();
                   requestAnimationFrame(() => target.current?.focus());
                 }}
               />
@@ -2084,15 +2114,14 @@ export function CalendarPanel({
           <p>{error}</p>
           <button
             type="button"
-            className={buttonStyles.secondary}
+            className={`${buttonStyles.secondary} max-w-full whitespace-normal [overflow-wrap:anywhere]`}
             onClick={reload}
           >
             Spróbuj ponownie
           </button>
         </div>
       )}
-      {!loading &&
-        !error &&
+      {showCalendarRows(loadedScope, readScope, Boolean(error)) &&
         groups.map(([label, items]) => (
           <section key={label} aria-label={label}>
             <h3 className="font-semibold">{label}</h3>
@@ -2107,6 +2136,8 @@ export function CalendarPanel({
                     contacts={contacts}
                     onSaved={savedRow}
                     onActivity={onActivity}
+                    onDismiss={syncPending}
+                    onFocusMissing={focusPanel}
                     now={now}
                   />
                 ))}
@@ -2119,10 +2150,13 @@ export function CalendarPanel({
           </section>
         ))}
       {!compact && (
-        <nav aria-label="Strony wydarzeń" className="flex items-center gap-3">
+        <nav
+          aria-label="Strony wydarzeń"
+          className="flex min-w-0 flex-wrap items-center gap-3"
+        >
           <button
             type="button"
-            className={buttonStyles.secondary}
+            className={`${buttonStyles.secondary} max-w-full whitespace-normal [overflow-wrap:anywhere]`}
             disabled={page <= 1 || loading}
             onClick={() => setPage((n) => n - 1)}
           >
@@ -2131,7 +2165,7 @@ export function CalendarPanel({
           <span>Strona {page}</span>
           <button
             type="button"
-            className={buttonStyles.secondary}
+            className={`${buttonStyles.secondary} max-w-full whitespace-normal [overflow-wrap:anywhere]`}
             disabled={!hasMore || loading}
             onClick={() => setPage((n) => n + 1)}
           >

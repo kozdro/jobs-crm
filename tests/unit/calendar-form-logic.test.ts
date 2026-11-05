@@ -4,6 +4,7 @@ import {
   calendarOperation,
   setStartTime,
   canDismissCalendarForm,
+  showCalendarRows,
 } from "@/components/calendar/form-logic";
 import type { CalendarSchedule } from "@/modules/recruitment/domain/calendar-time";
 const schedule: CalendarSchedule = {
@@ -17,6 +18,20 @@ const schedule: CalendarSchedule = {
   endOffset: 60,
 };
 describe("calendar correction and recovery", () => {
+  it("keeps rows during refresh only when their owner and query scope still match", () => {
+    expect(
+      showCalendarRows("owner-a:case-a:1", "owner-a:case-a:1", false),
+    ).toBe(true);
+    expect(
+      showCalendarRows("owner-a:case-a:1", "owner-b:case-a:1", false),
+    ).toBe(false);
+    expect(
+      showCalendarRows("owner-a:case-a:1", "owner-a:case-a:2", false),
+    ).toBe(false);
+    expect(showCalendarRows("owner-a:case-a:1", "owner-a:case-a:1", true)).toBe(
+      false,
+    );
+  });
   it("guards every dialog dismissal while saving, dirty or uncertain", () => {
     const confirm = vi.fn(() => false);
     expect(canDismissCalendarForm(true, false, false, confirm)).toBe(false);
