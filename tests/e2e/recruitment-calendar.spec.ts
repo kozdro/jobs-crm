@@ -1143,6 +1143,137 @@ test("browser without Navigation API restores the working draft after back and f
   ).toHaveValue(title);
 });
 
+test("account switch hides A's in-memory draft and pending intent from B", async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    Object.defineProperty(window, "navigation", {
+      value: undefined,
+      configurable: true,
+    }),
+  );
+  const b = await account(target);
+  await login(page);
+  await page.getByRole("link", { name: "Kalendarz", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Dodaj wydarzenie", exact: true })
+    .click();
+  const dialog = page.getByRole("dialog", {
+    name: "Nowe wydarzenie",
+    exact: true,
+  });
+  const privateTitle = `Prywatny szkic konta A ${randomUUID()}`;
+  await dialog
+    .getByLabel("Tytuł wydarzenia", { exact: true })
+    .fill(privateTitle);
+  await dialog.getByLabel("Data", { exact: true }).fill("2099-05-15");
+  await page.evaluate(() => history.back());
+  await expect(page).toHaveURL(`${target.appOrigin}/dashboard`);
+  await page.evaluate(() => history.forward());
+  await expect(page).toHaveURL(`${target.appOrigin}/calendar`);
+  await expect(page.getByText(privateTitle, { exact: false })).toBeVisible();
+  await page
+    .getByRole("button", { name: "Wczytaj szkic", exact: true })
+    .click();
+  const restored = page.getByRole("dialog", {
+    name: "Nowe wydarzenie",
+    exact: true,
+  });
+  await expect(
+    restored.getByLabel("Tytuł wydarzenia", { exact: true }),
+  ).toHaveValue(privateTitle);
+  await page.route("**/calendar/commands", async (route) => {
+    if (route.request().method() === "POST") await route.abort("failed");
+    else await route.continue();
+  });
+  await restored
+    .getByRole("button", { name: "Zapisz wydarzenie", exact: true })
+    .click();
+  await expect(restored.getByRole("alert")).toContainText(
+    "Nie potwierdzono wyniku",
+  );
+  page.once("dialog", (warning) => warning.accept());
+  await restored
+    .getByRole("button", { name: "Zamknij formularz", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Sprawdź wynik", exact: true }),
+  ).toBeVisible();
+  const aKey = `jobs-crm.calendar.pending.${user.id}`;
+  const aMarker = await page.evaluate(
+    (key) => sessionStorage.getItem(key),
+    aKey,
+  );
+  expect(JSON.parse(aMarker!).ownerId).toBe(user.id);
+  expect(aMarker).not.toContain(privateTitle);
+  await page.unroute("**/calendar/commands");
+  const other = await page.context().newPage();
+  await other.goto(`${target.appOrigin}/account`);
+  await other
+    .getByRole("button", { name: "Wyloguj tutaj", exact: true })
+    .click();
+  await expect(other).toHaveURL(/\/login(?:\?|$)/);
+  await expect(page).toHaveURL(/\/login(?:\?|$)/);
+  await page.getByLabel("E-mail", { exact: true }).fill(b.email);
+  await page.getByLabel("Hasło", { exact: true }).fill(b.password);
+  await page.getByRole("button", { name: "Zaloguj się", exact: true }).click();
+  await expect(page).toHaveURL(`${target.appOrigin}/dashboard`);
+  await page.getByRole("link", { name: "Kalendarz", exact: true }).click();
+  await expect(page).toHaveURL(`${target.appOrigin}/calendar`);
+  await expect(page.getByText(privateTitle, { exact: false })).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Wczytaj szkic", exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Sprawdź wynik", exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Dodaj wydarzenie", exact: true }),
+  ).toBeEnabled();
+  const bMarker = await page.evaluate(
+    (key) => sessionStorage.getItem(key),
+    `jobs-crm.calendar.pending.${b.id}`,
+  );
+  expect(bMarker).toBeNull();
+  await other.close();
+});
+
+test("a full reload discards an unsaved in-memory draft without creating an event", async ({
+  page,
+}) => {
+  await login(page);
+  await page.goto(`${target.appOrigin}/calendar`);
+  await page
+    .getByRole("button", { name: "Dodaj wydarzenie", exact: true })
+    .click();
+  const dialog = page.getByRole("dialog", {
+    name: "Nowe wydarzenie",
+    exact: true,
+  });
+  const title = `Szkic przed pełnym reload ${randomUUID()}`;
+  await dialog.getByLabel("Tytuł wydarzenia", { exact: true }).fill(title);
+  await dialog.getByLabel("Data", { exact: true }).fill("2099-05-15");
+  page.once("dialog", (warning) => warning.accept());
+  await page.reload();
+  await expect(
+    page.getByRole("dialog", { name: "Nowe wydarzenie", exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Wczytaj szkic", exact: true }),
+  ).toHaveCount(0);
+  await expect(page.getByText(title, { exact: true })).toHaveCount(0);
+  const stored = await page.evaluate(() =>
+    JSON.stringify({ ...sessionStorage, ...localStorage }),
+  );
+  expect(stored).not.toContain(title);
+  const { client } = await sdkLogin(target, user);
+  const list = await client.rpc("list_recruitment_calendar_events", {});
+  expect(list.error).toBeNull();
+  expect(
+    (list.data as { title: string }[]).some((event) => event.title === title),
+  ).toBe(false);
+});
+
 test("restored in-memory edit shows fresh server baseline against preserved draft before saving", async ({
   page,
 }) => {
