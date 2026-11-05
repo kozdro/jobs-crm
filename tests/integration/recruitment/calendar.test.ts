@@ -593,6 +593,66 @@ test(
     );
 
     await t.test(
+      "contact history orders actual dates before pagination and places unknown dates last",
+      async () => {
+        const contact = ok<{ profile: { id: string } }>(
+          await call("execute_catalog_command", {
+            p_request_id: randomUUID(),
+            p_payload: {
+              operation: "create-profile",
+              profileType: "contact",
+              name: `Sorted contact ${randomUUID()}`,
+              email: null,
+            },
+          }),
+        ).profile.id;
+        const ids: string[] = [];
+        for (const [actualDate, planDate] of [
+          ["2020-01-01", "2099-01-01"],
+          ["2022-01-01", "2001-01-01"],
+          [null, "2000-01-01"],
+          ["2022-01-01", "2002-01-01"],
+        ] as const) {
+          const actual = actualDate
+            ? {
+                date: actualDate,
+                time: null,
+                offset: null,
+                timeZone: "Europe/Warsaw",
+              }
+            : null;
+          const event = ok<{ event: Event }>(
+            await command(
+              create({
+                status: "occurred",
+                schedule: { ...schedule, startDate: planDate },
+                actual,
+                participants: [{ contactId: contact, attendance: "attended" }],
+              }),
+            ),
+          ).event;
+          ids.push(event.id);
+        }
+        const list = async (offset: number) =>
+          ok<Event[]>(
+            await call("list_recruitment_calendar_events", {
+              p_contact_id: contact,
+              p_offset: offset,
+              p_limit: 2,
+            }),
+          );
+        assert.deepEqual(
+          (await list(0)).map((e) => e.id),
+          [ids[3], ids[1]],
+        );
+        assert.deepEqual(
+          (await list(2)).map((e) => e.id),
+          [ids[0], ids[2]],
+        );
+      },
+    );
+
+    await t.test(
       "mixed close resolves every Task and CalendarEvent atomically; stale previews and old RPC fail closed",
       async () => {
         const caseId = ok<{ case: { id: string } }>(

@@ -23,6 +23,12 @@ import {
 } from "@/modules/recruitment/domain/calendar";
 import { calendarSection, formatOffset, formatSchedule } from "./time";
 import { calendarInvalidationEvent, invalidateCalendarReads } from "./events";
+import {
+  actualLabel,
+  calendarOperation,
+  preserveRejectedIntent,
+  setStartTime,
+} from "./form-logic";
 
 type Person = { id: string; name: string };
 type Case = { id: string; title: string; status: string };
@@ -35,6 +41,7 @@ const statusLabel: Record<string, string> = {
   cancelled: "Anulowane",
 };
 const storageKey = (owner: string) => `jobs-crm.calendar.pending.${owner}`;
+const draftKey = (owner: string) => `jobs-crm.calendar.rejected-draft.${owner}`;
 
 async function request(
   userId: string,
@@ -223,6 +230,7 @@ function OffsetField({
 function EventForm({
   userId,
   initial,
+  draft,
   caseId,
   cases,
   contacts,
@@ -232,6 +240,7 @@ function EventForm({
 }: {
   userId: string;
   initial?: CalendarEvent;
+  draft?: Command;
   caseId?: string;
   cases: Case[];
   contacts: Person[];
@@ -239,8 +248,12 @@ function EventForm({
   onDone: () => void;
   onCancel: () => void;
 }) {
-  const [values, setValues] = useState<Values>(() =>
-    initial ? eventValues(initial) : emptyValues(caseId, mode === "occurred"),
+  const [values, setValues] = useState<Values>(
+    () =>
+      draft?.values ??
+      (initial
+        ? eventValues(initial)
+        : emptyValues(caseId, mode === "occurred")),
   );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -255,7 +268,7 @@ function EventForm({
   const [zoneMode, setZoneMode] = useState<"wall" | "instant" | "">("");
   const [appliedZoneMode, setAppliedZoneMode] = useState<
     "keep-local" | "keep-instant" | undefined
-  >();
+  >(draft?.zoneChangeMode);
   const schedule = values.schedule;
   const patchSchedule = (patch: Partial<CalendarSchedule>) =>
     setValues((current) =>
@@ -265,6 +278,13 @@ function EventForm({
     );
   async function send(command: Command) {
     if (busy) return;
+    if (
+      draft &&
+      sessionStorage.getItem(draftKey(userId)) !== JSON.stringify(draft)
+    ) {
+      setError("Zachowany szkic zmienił się. Odśwież dane przed zapisem.");
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
@@ -328,18 +348,17 @@ function EventForm({
       setError("Zastosuj zmianę strefy przed zapisem.");
       return;
     }
+    if (mode === "resolve" && values.status === "planned") {
+      setError("Wybierz wynik rozliczenia.");
+      return;
+    }
     if (initial && initial.status !== "planned" && !preview) {
       setPreview(true);
       return;
     }
     const candidate = {
       requestId: crypto.randomUUID(),
-      operation:
-        mode === "create" || mode === "occurred"
-          ? "create"
-          : mode === "resolve"
-            ? "resolve"
-            : "edit",
+      operation: calendarOperation(mode, initial?.status, values.status),
       ...(initial
         ? { eventId: initial.id, expectedRevision: initial.revision }
         : {}),
@@ -451,10 +470,17 @@ function EventForm({
                     type="time"
                     value={schedule.startTime ?? ""}
                     onChange={(e) =>
-                      patchSchedule({
-                        startTime: e.target.value || null,
-                        startOffset: null,
-                      })
+                      setValues((v) =>
+                        v.schedule
+                          ? {
+                              ...v,
+                              schedule: setStartTime(
+                                v.schedule,
+                                e.target.value,
+                              ),
+                            }
+                          : v,
+                      )
                     }
                   />
                 </label>
@@ -941,11 +967,7 @@ function EventSnapshot({
       </div>
       <div>
         <dt className="inline font-medium">Rzeczywisty czas: </dt>
-        <dd className="inline">
-          {event.actual
-            ? `${event.actual.date}${event.actual.time ? `, ${event.actual.time}` : ", godzina nieznana"} (${event.actual.timeZone})`
-            : "Nieznany"}
-        </dd>
+        <dd className="inline">{actualLabel(event.actual)}</dd>
       </div>
       <div>
         <dt className="inline font-medium">Sprawa: </dt>
@@ -1199,7 +1221,13 @@ export function CalendarPanel({
     caseId ? [{ id: caseId, title: caseTitle ?? "Sprawa", status: "" }] : [],
   );
   const [contacts, setContacts] = useState<Person[]>([]);
-  const [mode, setMode] = useState<"create" | "occurred" | null>(null);
+  const [mode, setMode] = useState<
+    "create" | "occurred" | "edit" | "resolve" | null
+  >(null);
+  const [rejected, setRejected] = useState(false);
+  const [draft, setDraft] = useState<Command | null>(null);
+  const [draftInitial, setDraftInitial] = useState<CalendarEvent | undefined>();
+  const [restoringDraft, setRestoringDraft] = useState(false);
   const createTrigger = useRef<HTMLButtonElement>(null);
   const occurredTrigger = useRef<HTMLButtonElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -1260,6 +1288,12 @@ export function CalendarPanel({
     void Promise.resolve().then(() => {
       try {
         setPendingState(pendingCommand(userId));
+        const rawDraft = sessionStorage.getItem(draftKey(userId));
+        if (rawDraft) {
+          const parsed = parseCalendarCommand(JSON.parse(rawDraft));
+          if (parsed.success && JSON.stringify(parsed.data) === rawDraft)
+            setDraft(parsed.data);
+        }
       } catch {
         setPendingState("invalid");
       }
@@ -1286,12 +1320,106 @@ export function CalendarPanel({
       reload();
       invalidateCalendarReads(userId);
       setRecoveryMessage("Potwierdzono zapis wydarzenia.");
-    } catch {
+    } catch (cause) {
+      if (
+        retry &&
+        cause &&
+        typeof cause === "object" &&
+        "kind" in cause &&
+        cause.kind === "stale" &&
+        "definite" in cause &&
+        cause.definite
+      ) {
+        try {
+          const receipt = await request(userId, {
+            requestId: command.requestId,
+          });
+          if (
+            exactReceipt(receipt, command) &&
+            sessionStorage.getItem(storageKey(userId)) === raw
+          ) {
+            sessionStorage.removeItem(storageKey(userId));
+            setPendingState(null);
+            reload();
+            setRecoveryMessage("Potwierdzono zapis wydarzenia.");
+            return;
+          }
+          if (
+            receipt.event === null &&
+            receipt.intent === null &&
+            sessionStorage.getItem(storageKey(userId)) === raw
+          ) {
+            setRejected(true);
+            setRecoveryMessage(
+              "Zapis odrzucono, ponieważ wydarzenie zmieniło się. Zachowaj szkic i odśwież dane.",
+            );
+            return;
+          }
+        } catch {
+          /* Unknown receipt must remain pending. */
+        }
+      }
       setRecoveryMessage(
         "Nie potwierdzono wyniku. Zachowano dokładnie ten sam zamiar; sprawdź ponownie lub ponów go.",
       );
     } finally {
       setRecovering(false);
+    }
+  }
+  function saveRejectedDraft() {
+    if (!rejected || !pendingState || pendingState === "invalid") return;
+    const raw = JSON.stringify(pendingState);
+    if (
+      !preserveRejectedIntent(
+        sessionStorage,
+        storageKey(userId),
+        draftKey(userId),
+        raw,
+      )
+    ) {
+      setRecoveryMessage(
+        "Nie można bezpiecznie zachować szkicu. Nie usunięto oczekującego zamiaru.",
+      );
+      return;
+    }
+    setDraft(pendingState);
+    setPendingState(null);
+    setRejected(false);
+    setRecoveryMessage(
+      "Szkic zachowano. Przed ponownym zapisem odświeżono dane wydarzenia.",
+    );
+    reload();
+  }
+  async function restoreDraft() {
+    if (!draft || pendingState) return;
+    try {
+      const raw = JSON.stringify(draft);
+      if (sessionStorage.getItem(draftKey(userId)) !== raw) throw new Error();
+      let current: CalendarEvent | undefined;
+      if (draft.operation !== "create") {
+        const result = await request(userId, { eventId: draft.eventId });
+        if (
+          !result.event ||
+          typeof result.event !== "object" ||
+          (result.event as CalendarEvent).id !== draft.eventId
+        )
+          throw new Error();
+        current = result.event as CalendarEvent;
+      }
+      if (sessionStorage.getItem(draftKey(userId)) !== raw) throw new Error();
+      setDraftInitial(current);
+      setRestoringDraft(true);
+      setMode(
+        draft.operation === "create"
+          ? draft.values.schedule
+            ? "create"
+            : "occurred"
+          : draft.operation,
+      );
+    } catch {
+      setRecoveryMessage(
+        "Nie można wczytać aktualnego wydarzenia. Szkic pozostaje zachowany.",
+      );
     }
   }
   useEffect(() => {
@@ -1465,18 +1593,56 @@ export function CalendarPanel({
         </div>
       )}
       {recoveryMessage && <p role="status">{recoveryMessage}</p>}
+      {rejected && (
+        <button
+          type="button"
+          className={buttonStyles.secondary}
+          onClick={saveRejectedDraft}
+        >
+          Zachowaj szkic i odblokuj
+        </button>
+      )}
+      {draft && !mode && !pendingState && (
+        <div className="rounded-md border border-border p-3">
+          <p className="text-sm">Zachowany szkic: {draft.values.title}</p>
+          <button
+            type="button"
+            className={buttonStyles.secondary}
+            onClick={() => void restoreDraft()}
+          >
+            Wczytaj zachowany szkic
+          </button>
+        </div>
+      )}
       {mode && (
         <section className="rounded-md border border-border p-4">
           <h3 className="mb-3 font-semibold">
-            {mode === "create" ? "Nowe wydarzenie" : "Zapisz odbytą rozmowę"}
+            {mode === "create"
+              ? "Nowe wydarzenie"
+              : mode === "occurred"
+                ? "Zapisz odbytą rozmowę"
+                : "Zachowany szkic zmiany wydarzenia"}
           </h3>
           <EventForm
             userId={userId}
             caseId={caseId}
+            initial={draftInitial}
+            draft={restoringDraft ? (draft ?? undefined) : undefined}
             cases={cases}
             contacts={contacts}
             mode={mode}
             onDone={() => {
+              if (
+                restoringDraft &&
+                draft &&
+                sessionStorage.getItem(draftKey(userId)) ===
+                  JSON.stringify(draft)
+              ) {
+                sessionStorage.removeItem(draftKey(userId));
+                setDraft(null);
+              }
+              setDraftInitial(undefined);
+              setRestoringDraft(false);
               setMode(null);
               reload();
               requestAnimationFrame(() => heading.current?.focus());
@@ -1485,6 +1651,8 @@ export function CalendarPanel({
               const target =
                 mode === "occurred" ? occurredTrigger : createTrigger;
               setMode(null);
+              setDraftInitial(undefined);
+              setRestoringDraft(false);
               requestAnimationFrame(() => target.current?.focus());
             }}
           />

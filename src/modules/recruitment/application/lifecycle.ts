@@ -501,12 +501,18 @@ export async function getLifecycleByRequestId(
   const { data: l, error: le } = await client
     .from("recruitment_case_lifecycle")
     .select(
-      "id,request_id,case_id,kind,cycle,occurred_on,recorded_at,outcome,offer_confirmed,previous_status,previous_stage,resulting_status,resulting_stage,expected_case_revision,expected_task_snapshot,task_resolutions",
+      "id,request_id,case_id,kind,cycle,occurred_on,recorded_at,outcome,offer_confirmed,previous_status,previous_stage,resulting_status,resulting_stage,expected_case_revision,expected_task_snapshot,task_resolutions,expected_event_snapshot,event_resolutions",
     )
     .eq("case_id", caseId)
     .eq("request_id", requestId)
     .maybeSingle();
-  if (le) return unavailable();
+  if (
+    le ||
+    (l &&
+      (!Array.isArray(l.expected_event_snapshot) ||
+        !Array.isArray(l.event_resolutions)))
+  )
+    return unavailable();
   const { data: r, error: re } = await client
     .from("recruitment_closure_revision")
     .select(revisionColumns)

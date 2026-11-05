@@ -256,7 +256,18 @@ CREATE FUNCTION public.list_recruitment_calendar_events(p_case_id uuid DEFAULT N
 BEGIN
  IF auth.uid() IS NULL THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Authentication required'; END IF;
  IF p_offset IS NULL OR p_offset<0 OR p_limit IS NULL OR p_limit NOT BETWEEN 1 AND 101 OR p_filter IS NULL OR p_filter NOT IN ('all','upcoming','attention') THEN RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Invalid page'; END IF;
- RETURN COALESCE((SELECT jsonb_agg(public.recruitment_calendar_json(q.entity) ORDER BY COALESCE((q.entity).schedule->>'startDate','9999-12-31'),(q.entity).id) FROM (SELECT e AS entity FROM public.recruitment_calendar_event e WHERE e.owner_id=auth.uid() AND (p_case_id IS NULL OR e.case_id=p_case_id) AND (p_contact_id IS NULL OR EXISTS(SELECT 1 FROM public.recruitment_calendar_participant p WHERE p.owner_id=e.owner_id AND p.event_id=e.id AND p.contact_id=p_contact_id AND p.attendance='attended' AND e.status='occurred')) AND (p_filter='all' OR (e.status='planned' AND public.recruitment_calendar_has_passed(e.schedule,e.time_zone,CURRENT_TIMESTAMP)=(p_filter='attention'))) ORDER BY COALESCE(e.schedule->>'startDate','9999-12-31'),e.id OFFSET p_offset LIMIT p_limit) q),'[]'::jsonb);
+ RETURN COALESCE((SELECT jsonb_agg(public.recruitment_calendar_json(q.entity) ORDER BY q.actual_day DESC NULLS LAST,q.fact_recorded_at DESC NULLS LAST,q.planned_day ASC NULLS LAST,(q.entity).id) FROM (
+   SELECT e AS entity,
+     CASE WHEN p_contact_id IS NOT NULL THEN (e.actual->>'date')::date END AS actual_day,
+     CASE WHEN p_contact_id IS NOT NULL THEN (SELECT c.recorded_at FROM public.recruitment_calendar_command c WHERE c.owner_id=e.owner_id AND c.event_id=e.id AND c.after_values->>'status'='occurred' AND (c.before_values IS NULL OR c.before_values->>'status' IS DISTINCT FROM 'occurred') ORDER BY c.recorded_at DESC,c.id DESC LIMIT 1) END AS fact_recorded_at,
+     CASE WHEN p_contact_id IS NULL THEN e.schedule->>'startDate' END AS planned_day
+   FROM public.recruitment_calendar_event e
+   WHERE e.owner_id=auth.uid() AND (p_case_id IS NULL OR e.case_id=p_case_id)
+     AND (p_contact_id IS NULL OR EXISTS(SELECT 1 FROM public.recruitment_calendar_participant p WHERE p.owner_id=e.owner_id AND p.event_id=e.id AND p.contact_id=p_contact_id AND p.attendance='attended' AND e.status='occurred'))
+     AND (p_filter='all' OR (e.status='planned' AND public.recruitment_calendar_has_passed(e.schedule,e.time_zone,CURRENT_TIMESTAMP)=(p_filter='attention')))
+   ORDER BY actual_day DESC NULLS LAST,fact_recorded_at DESC NULLS LAST,planned_day ASC NULLS LAST,e.id
+   OFFSET p_offset LIMIT p_limit
+ ) q),'[]'::jsonb);
 END;$fn$;
 --> statement-breakpoint
 CREATE FUNCTION public.get_recruitment_calendar_event(p_event_id uuid) RETURNS jsonb LANGUAGE sql STABLE SECURITY INVOKER SET search_path='' AS $fn$
