@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Dialog } from "@base-ui/react/dialog";
 import {
   useCallback,
   useEffect,
@@ -9,6 +10,7 @@ import {
   useRef,
   useState,
   type FormEvent,
+  type RefObject,
 } from "react";
 import { buttonStyles, inputStyles } from "@/components/ui/styles";
 import {
@@ -30,7 +32,12 @@ import {
 } from "./time";
 import { calendarInvalidationEvent, invalidateCalendarReads } from "./events";
 import { useCalendarMemoryDrafts, type MemoryDraft } from "./memory-drafts";
-import { actualLabel, calendarOperation, setStartTime } from "./form-logic";
+import {
+  actualLabel,
+  calendarOperation,
+  setStartTime,
+  canDismissCalendarForm,
+} from "./form-logic";
 
 type Person = { id: string; name: string };
 type Case = { id: string; title: string; status: string };
@@ -253,6 +260,7 @@ export function EventForm({
   mode,
   onDone,
   onCancel,
+  dismissRef,
 }: {
   userId: string;
   initial?: CalendarEvent;
@@ -263,6 +271,7 @@ export function EventForm({
   mode: "create" | "occurred" | "edit" | "resolve";
   onDone: () => void;
   onCancel: () => void;
+  dismissRef?: RefObject<(() => void) | null>;
 }) {
   const [values, setValues] = useState<Values>(
     () =>
@@ -381,6 +390,26 @@ export function EventForm({
   function clearMemory() {
     if (lastDraft.current) removeMemory?.(userId, memoryId, lastDraft.current);
   }
+  const requestDismiss = useCallback(() => {
+    if (
+      !canDismissCalendarForm(busy, uncertain, dirty, (message) =>
+        window.confirm(message),
+      )
+    )
+      return;
+    if (!uncertain) {
+      if (lastDraft.current)
+        removeMemory?.(userId, memoryId, lastDraft.current);
+    }
+    onCancel();
+  }, [busy, uncertain, dirty, removeMemory, userId, memoryId, onCancel]);
+  useEffect(() => {
+    if (!dismissRef) return;
+    dismissRef.current = requestDismiss;
+    return () => {
+      dismissRef.current = null;
+    };
+  }, [dismissRef, requestDismiss]);
   const schedule = values.schedule;
   const patchSchedule = (patch: Partial<CalendarSchedule>) =>
     setValues((current) =>
@@ -1170,17 +1199,7 @@ export function EventForm({
           <button
             className={buttonStyles.secondary}
             type="button"
-            onClick={() => {
-              if (
-                !dirty ||
-                window.confirm(
-                  "Masz niezapisane dane wydarzenia. Czy chcesz je odrzucić?",
-                )
-              ) {
-                clearMemory();
-                onCancel();
-              }
-            }}
+            onClick={requestDismiss}
           >
             Anuluj
           </button>
@@ -1221,17 +1240,7 @@ export function EventForm({
           <button
             type="button"
             className={buttonStyles.secondary}
-            onClick={() => {
-              if (
-                !dirty ||
-                window.confirm(
-                  "Masz niezapisane dane wydarzenia. Czy chcesz je odrzucić?",
-                )
-              ) {
-                clearMemory();
-                onCancel();
-              }
-            }}
+            onClick={requestDismiss}
           >
             Anuluj
           </button>
@@ -1348,11 +1357,18 @@ function EventRow({
   const [mode, setMode] = useState<"edit" | "resolve" | null>(null);
   const editTrigger = useRef<HTMLButtonElement>(null);
   const resolveTrigger = useRef<HTMLButtonElement>(null);
+  const rescheduleTrigger = useRef<HTMLButtonElement>(null);
+  const triggerKind = useRef<"edit" | "resolve" | "reschedule">("edit");
+  const dismissRef = useRef<(() => void) | null>(null);
   useEffect(
     () => () => onActivity(event, false, new Date()),
     [event, onActivity],
   );
-  function begin(next: "edit" | "resolve") {
+  function begin(
+    next: "edit" | "resolve",
+    trigger: "edit" | "resolve" | "reschedule" = next,
+  ) {
+    triggerKind.current = trigger;
     onActivity(event, true, now);
     setMode(next);
   }
@@ -1443,9 +1459,10 @@ function EventRow({
           {event.status === "planned" && (
             <>
               <button
+                ref={rescheduleTrigger}
                 type="button"
                 className={buttonStyles.secondary}
-                onClick={() => begin("edit")}
+                onClick={() => begin("edit", "reschedule")}
               >
                 Przełóż termin
               </button>
@@ -1470,31 +1487,53 @@ function EventRow({
         </div>
       )}
       {mode && (
-        <section className="rounded-md border border-border p-4">
-          <h4 className="mb-3 font-semibold">
-            {mode === "resolve"
-              ? "Rozlicz wydarzenie"
-              : event.status === "planned"
-                ? "Edytuj wydarzenie"
-                : "Skoryguj wydarzenie"}
-          </h4>
-          <EventForm
-            userId={userId}
-            initial={event}
-            cases={cases}
-            contacts={contacts}
-            mode={mode}
-            onDone={() => {
-              end();
-              onSaved();
-            }}
-            onCancel={() => {
-              const target = mode === "resolve" ? resolveTrigger : editTrigger;
-              end();
-              requestAnimationFrame(() => target.current?.focus());
-            }}
-          />
-        </section>
+        <Dialog.Root
+          open
+          onOpenChange={(open) => {
+            if (!open) dismissRef.current?.();
+          }}
+        >
+          <Dialog.Portal>
+            <Dialog.Backdrop className="fixed inset-0 z-50 bg-overlay" />
+            <Dialog.Popup
+              finalFocus={false}
+              className="fixed left-1/2 top-1/2 z-50 max-h-[calc(100dvh-2rem)] w-[min(42rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-md border border-border bg-card p-4 shadow-xl sm:p-6"
+            >
+              <Dialog.Title className="mb-2 text-lg font-semibold">
+                {mode === "resolve"
+                  ? "Rozlicz wydarzenie"
+                  : event.status === "planned"
+                    ? "Edytuj wydarzenie"
+                    : "Skoryguj wydarzenie"}
+              </Dialog.Title>
+              <Dialog.Description className="mb-4 text-sm text-muted-foreground">
+                Sprawdź dane przed zapisem. Anulowanie nie zmienia wydarzenia.
+              </Dialog.Description>
+              <EventForm
+                userId={userId}
+                initial={event}
+                cases={cases}
+                contacts={contacts}
+                mode={mode}
+                dismissRef={dismissRef}
+                onDone={() => {
+                  end();
+                  onSaved();
+                }}
+                onCancel={() => {
+                  const target =
+                    triggerKind.current === "resolve"
+                      ? resolveTrigger
+                      : triggerKind.current === "reschedule"
+                        ? rescheduleTrigger
+                        : editTrigger;
+                  end();
+                  requestAnimationFrame(() => target.current?.focus());
+                }}
+              />
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>
       )}
       {auditError && (
         <p role="alert">Nie udało się pobrać historii wydarzenia.</p>
@@ -1581,6 +1620,7 @@ export function CalendarPanel({
   const createTrigger = useRef<HTMLButtonElement>(null);
   const occurredTrigger = useRef<HTMLButtonElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
+  const dismissRef = useRef<(() => void) | null>(null);
   const [pendingState, setPendingState] = useState<Pending | null | "invalid">(
     null,
   );
@@ -1638,6 +1678,10 @@ export function CalendarPanel({
       setPendingState("invalid");
     }
   }, [userId, router]);
+  function savedRow() {
+    reload();
+    requestAnimationFrame(() => heading.current?.focus());
+  }
   useEffect(() => {
     const onChange = (event: Event) => {
       const detail = (
@@ -1979,39 +2023,60 @@ export function CalendarPanel({
           </div>
         ))}
       {mode && (
-        <section className="rounded-md border border-border p-4">
-          <h3 className="mb-3 font-semibold">
-            {mode === "create"
-              ? "Nowe wydarzenie"
-              : mode === "occurred"
-                ? "Zapisz odbytą rozmowę"
-                : "Zachowany szkic zmiany wydarzenia"}
-          </h3>
-          <EventForm
-            userId={userId}
-            caseId={caseId}
-            initial={memoryInitial}
-            restored={restoreMemory ?? undefined}
-            cases={cases}
-            contacts={contacts}
-            mode={mode}
-            onDone={() => {
-              setMemoryInitial(undefined);
-              setRestoreMemory(null);
-              setMode(null);
-              reload();
-              requestAnimationFrame(() => heading.current?.focus());
-            }}
-            onCancel={() => {
-              const target =
-                mode === "occurred" ? occurredTrigger : createTrigger;
-              setMemoryInitial(undefined);
-              setRestoreMemory(null);
-              setMode(null);
-              requestAnimationFrame(() => target.current?.focus());
-            }}
-          />
-        </section>
+        <Dialog.Root
+          open
+          onOpenChange={(open) => {
+            if (!open) dismissRef.current?.();
+          }}
+        >
+          <Dialog.Portal>
+            <Dialog.Backdrop className="fixed inset-0 z-50 bg-overlay" />
+            <Dialog.Popup
+              finalFocus={false}
+              className="fixed left-1/2 top-1/2 z-50 max-h-[calc(100dvh-2rem)] w-[min(42rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-md border border-border bg-card p-4 shadow-xl sm:p-6"
+            >
+              <Dialog.Title className="mb-2 text-lg font-semibold">
+                {mode === "create"
+                  ? "Nowe wydarzenie"
+                  : mode === "occurred"
+                    ? "Zapisz odbytą rozmowę"
+                    : "Zachowany szkic zmiany wydarzenia"}
+              </Dialog.Title>
+              <Dialog.Description className="mb-4 text-sm text-muted-foreground">
+                Sprawdź dane przed zapisem. Anulowanie nie zmienia wydarzenia.
+              </Dialog.Description>
+              <EventForm
+                userId={userId}
+                caseId={caseId}
+                initial={memoryInitial}
+                restored={restoreMemory ?? undefined}
+                cases={cases}
+                contacts={contacts}
+                mode={mode}
+                dismissRef={dismissRef}
+                onDone={() => {
+                  setMemoryInitial(undefined);
+                  setRestoreMemory(null);
+                  setMode(null);
+                  reload();
+                  requestAnimationFrame(() => heading.current?.focus());
+                }}
+                onCancel={() => {
+                  const target =
+                    mode === "occurred"
+                      ? occurredTrigger
+                      : mode === "create"
+                        ? createTrigger
+                        : heading;
+                  setMemoryInitial(undefined);
+                  setRestoreMemory(null);
+                  setMode(null);
+                  requestAnimationFrame(() => target.current?.focus());
+                }}
+              />
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>
       )}
       {loading && <p role="status">Ładowanie wydarzeń…</p>}
       {error && (
@@ -2040,7 +2105,7 @@ export function CalendarPanel({
                     userId={userId}
                     cases={cases}
                     contacts={contacts}
-                    onSaved={reload}
+                    onSaved={savedRow}
                     onActivity={onActivity}
                     now={now}
                   />

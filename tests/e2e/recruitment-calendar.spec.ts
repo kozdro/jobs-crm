@@ -82,8 +82,12 @@ for (const width of [375, 768, 1024, 1440]) {
     await event
       .getByRole("button", { name: "Przełóż termin", exact: true })
       .click();
-    await event.getByLabel("Data", { exact: true }).fill("2099-05-16");
-    await event
+    const editDialog = page.getByRole("dialog", {
+      name: "Edytuj wydarzenie",
+      exact: true,
+    });
+    await editDialog.getByLabel("Data", { exact: true }).fill("2099-05-16");
+    await editDialog
       .getByRole("button", { name: "Zapisz wydarzenie", exact: true })
       .click();
     await expect(event).toContainText("2099-05-16");
@@ -97,10 +101,14 @@ for (const width of [375, 768, 1024, 1440]) {
     await event
       .getByRole("button", { name: "Rozlicz wydarzenie", exact: true })
       .click();
-    await event
+    const resolveDialog = page.getByRole("dialog", {
+      name: "Rozlicz wydarzenie",
+      exact: true,
+    });
+    await resolveDialog
       .getByLabel("Wynik", { exact: true })
       .selectOption("not_occurred");
-    await event
+    await resolveDialog
       .getByRole("button", { name: "Zapisz wydarzenie", exact: true })
       .click();
     await expect(event).toContainText("Nieodbyte");
@@ -132,11 +140,17 @@ test("correcting an unplanned conversation sends resolve, keeps history and does
   await event
     .getByRole("button", { name: "Skoryguj wydarzenie", exact: true })
     .click();
-  await event.getByLabel("Wynik", { exact: true }).selectOption("cancelled");
-  await event
+  const correctionDialog = page.getByRole("dialog", {
+    name: "Skoryguj wydarzenie",
+    exact: true,
+  });
+  await correctionDialog
+    .getByLabel("Wynik", { exact: true })
+    .selectOption("cancelled");
+  await correctionDialog
     .getByRole("button", { name: "Zapisz wydarzenie", exact: true })
     .click();
-  await event
+  await correctionDialog
     .getByRole("button", { name: "Potwierdź korektę", exact: true })
     .click();
   await expect(event).toContainText("Anulowane");
@@ -482,7 +496,13 @@ test("direct stale conflict preserves edited values for a refreshed preview", as
     .getByRole("button", { name: "Edytuj wydarzenie", exact: true })
     .click();
   const draftTitle = `Wpisany szkic ${randomUUID()}`;
-  await event.getByLabel("Tytuł wydarzenia", { exact: true }).fill(draftTitle);
+  const editDialog = page.getByRole("dialog", {
+    name: "Edytuj wydarzenie",
+    exact: true,
+  });
+  await editDialog
+    .getByLabel("Tytuł wydarzenia", { exact: true })
+    .fill(draftTitle);
   const changed = await client.rpc("execute_recruitment_calendar_command", {
     p_request_id: randomUUID(),
     p_payload: {
@@ -493,12 +513,12 @@ test("direct stale conflict preserves edited values for a refreshed preview", as
     },
   });
   expect(changed.error).toBeNull();
-  await event
+  await editDialog
     .getByRole("button", { name: "Zapisz wydarzenie", exact: true })
     .click();
   await expect(page.getByText(/Wydarzenie zmieniło się/)).toBeVisible();
   await expect(
-    event.getByLabel("Tytuł wydarzenia", { exact: true }),
+    editDialog.getByLabel("Tytuł wydarzenia", { exact: true }),
   ).toHaveValue(draftTitle);
   await page
     .getByRole("button", { name: "Odśwież podgląd", exact: true })
@@ -536,6 +556,96 @@ test("canceling a dirty event form asks before discarding and may be rejected", 
   page.once("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: "Anuluj", exact: true }).click();
   await expect(title).toHaveCount(0);
+});
+
+test("Calendar dialog traps keyboard focus, protects dirty Escape and returns focus on cancel at 375px", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 375, height: 800 });
+  await login(page);
+  await page.goto(`${target.appOrigin}/calendar`);
+  const trigger = page.getByRole("button", {
+    name: "Dodaj wydarzenie",
+    exact: true,
+  });
+  await trigger.focus();
+  await page.keyboard.press("Enter");
+  const dialog = page.getByRole("dialog", {
+    name: "Nowe wydarzenie",
+    exact: true,
+  });
+  await expect(dialog).toBeVisible();
+  const title = dialog.getByLabel("Tytuł wydarzenia", { exact: true });
+  await expect(title).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  expect(
+    await dialog.evaluate((el) => el.contains(document.activeElement)),
+  ).toBe(true);
+  await page.keyboard.press("Tab");
+  expect(
+    await dialog.evaluate((el) => el.contains(document.activeElement)),
+  ).toBe(true);
+  await title.fill(`Niezapisany dialog ${randomUUID()}`);
+  const value = await title.inputValue();
+  page.once("dialog", (warning) => warning.dismiss());
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeVisible();
+  await expect(title).toHaveValue(value);
+  page.once("dialog", (warning) => warning.accept());
+  await dialog.getByRole("button", { name: "Anuluj", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+});
+
+test("uncertain Calendar dialog cannot be dismissed silently and keeps pending identifiers", async ({
+  page,
+}) => {
+  await login(page);
+  await page.goto(`${target.appOrigin}/calendar`);
+  await page
+    .getByRole("button", { name: "Dodaj wydarzenie", exact: true })
+    .click();
+  const dialog = page.getByRole("dialog", {
+    name: "Nowe wydarzenie",
+    exact: true,
+  });
+  const title = `Nieznany wynik ${randomUUID()}`;
+  await dialog.getByLabel("Tytuł wydarzenia", { exact: true }).fill(title);
+  await dialog.getByLabel("Data", { exact: true }).fill("2099-05-15");
+  await page.route("**/calendar/commands", async (route) => {
+    if (route.request().method() === "POST") await route.abort("failed");
+    else await route.continue();
+  });
+  await dialog
+    .getByRole("button", { name: "Zapisz wydarzenie", exact: true })
+    .click();
+  await expect(dialog.getByRole("alert")).toBeVisible();
+  let warningText = "";
+  page.once("dialog", (warning) => {
+    warningText = warning.message();
+    void warning.dismiss();
+  });
+  await page.keyboard.press("Escape");
+  expect(warningText).toContain("Wynik zapisu jest nieznany");
+  await expect(dialog).toBeVisible();
+  await expect(
+    dialog.getByLabel("Tytuł wydarzenia", { exact: true }),
+  ).toHaveValue(title);
+  page.once("dialog", (warning) => warning.accept());
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Sprawdź wynik", exact: true }),
+  ).toBeVisible();
+  const stored = await page.evaluate(
+    (key) => sessionStorage.getItem(key),
+    `jobs-crm.calendar.pending.${user.id}`,
+  );
+  expect(Object.keys(JSON.parse(stored!)).sort()).toEqual([
+    "ownerId",
+    "requestId",
+  ]);
+  expect(stored).not.toContain(title);
 });
 
 for (const direction of ["back", "forward"] as const) {
@@ -599,6 +709,101 @@ test("browser without Navigation API restores the working draft after back and f
   await expect(
     page.getByLabel("Tytuł wydarzenia", { exact: true }),
   ).toHaveValue(title);
+});
+
+test("restored in-memory edit shows fresh server baseline against preserved draft before saving", async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    Object.defineProperty(window, "navigation", {
+      value: undefined,
+      configurable: true,
+    }),
+  );
+  const { client } = await sdkLogin(target, user);
+  const original = `Original ${randomUUID()}`;
+  const values = {
+    title: original,
+    description: null,
+    caseId: null,
+    status: "planned",
+    timeZone: "Europe/Warsaw",
+    actual: null,
+    participants: [],
+    schedule: {
+      startDate: "2099-05-15",
+      startTime: null,
+      endDate: null,
+      endTime: null,
+      allDay: false,
+      timeZone: "Europe/Warsaw",
+      startOffset: null,
+      endOffset: null,
+    },
+  };
+  const created = await client.rpc("execute_recruitment_calendar_command", {
+    p_request_id: randomUUID(),
+    p_payload: { operation: "create", values },
+  });
+  expect(created.error).toBeNull();
+  const eventId = created.data.event.id as string;
+  await login(page);
+  await page.getByRole("link", { name: "Kalendarz", exact: true }).click();
+  const article = page.getByRole("article", { name: original, exact: true });
+  await article
+    .getByRole("button", { name: "Edytuj wydarzenie", exact: true })
+    .click();
+  const edit = page.getByRole("dialog", {
+    name: "Edytuj wydarzenie",
+    exact: true,
+  });
+  const draftTitle = `Szkic ${randomUUID()}`;
+  await edit.getByLabel("Tytuł wydarzenia", { exact: true }).fill(draftTitle);
+  await page.evaluate(() => history.back());
+  await expect(page).toHaveURL(`${target.appOrigin}/dashboard`);
+  const currentTitle = `Zmieniony serwer ${randomUUID()}`;
+  const changed = await client.rpc("execute_recruitment_calendar_command", {
+    p_request_id: randomUUID(),
+    p_payload: {
+      operation: "edit",
+      eventId,
+      expectedRevision: 0,
+      values: { ...values, title: currentTitle },
+    },
+  });
+  expect(changed.error).toBeNull();
+  await page.evaluate(() => history.forward());
+  await expect(page).toHaveURL(`${target.appOrigin}/calendar`);
+  await page
+    .getByRole("button", { name: "Wczytaj szkic", exact: true })
+    .click();
+  const restored = page.getByRole("dialog", {
+    name: "Zachowany szkic zmiany wydarzenia",
+    exact: true,
+  });
+  await expect(
+    restored.getByLabel("Tytuł wydarzenia", { exact: true }),
+  ).toHaveValue(draftTitle);
+  await restored
+    .getByRole("button", { name: "Zapisz wydarzenie", exact: true })
+    .click();
+  const preview = restored
+    .getByRole("heading", { name: "Podgląd korekty", exact: true })
+    .locator("..");
+  await expect(preview).toContainText(currentTitle);
+  await expect(preview).toContainText(draftTitle);
+  const before = await client.rpc("get_recruitment_calendar_event", {
+    p_event_id: eventId,
+  });
+  expect(before.data.title).toBe(currentTitle);
+  await restored
+    .getByRole("button", { name: "Potwierdź korektę", exact: true })
+    .click();
+  const saved = await client.rpc("get_recruitment_calendar_event", {
+    p_event_id: eventId,
+  });
+  expect(saved.error).toBeNull();
+  expect(saved.data.title).toBe(draftTitle);
 });
 
 test("an open calendar moves an event to attention after its deadline without changing status", async ({
@@ -669,12 +874,18 @@ test("an open calendar moves an event to attention after its deadline without ch
     .getByRole("button", { name: "Edytuj wydarzenie", exact: true })
     .click();
   const draftTitle = `Szkic podczas terminu ${randomUUID()}`;
-  await event.getByLabel("Tytuł wydarzenia", { exact: true }).fill(draftTitle);
+  const editDialog = page.getByRole("dialog", {
+    name: "Edytuj wydarzenie",
+    exact: true,
+  });
+  await editDialog
+    .getByLabel("Tytuł wydarzenia", { exact: true })
+    .fill(draftTitle);
   await page.clock.runFor(5 * 60 * 1000);
   await expect(
-    event.getByLabel("Tytuł wydarzenia", { exact: true }),
+    editDialog.getByLabel("Tytuł wydarzenia", { exact: true }),
   ).toHaveValue(draftTitle);
-  await event
+  await editDialog
     .getByRole("button", { name: "Zapisz wydarzenie", exact: true })
     .click();
   const savedEvent = page.getByRole("article", {

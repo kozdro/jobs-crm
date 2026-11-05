@@ -4,6 +4,23 @@ import type {
 } from "@/modules/recruitment/domain/calendar";
 import type { CalendarSchedule } from "@/modules/recruitment/domain/calendar-time";
 
+export function canDismissCalendarForm(
+  busy: boolean,
+  uncertain: boolean,
+  dirty: boolean,
+  confirm: (message: string) => boolean,
+): boolean {
+  if (busy) return false;
+  if (uncertain)
+    return confirm(
+      "Wynik zapisu jest nieznany. Zamknięcie nie cofa zapisu. Czy chcesz zamknąć formularz?",
+    );
+  return (
+    !dirty ||
+    confirm("Masz niezapisane dane wydarzenia. Czy chcesz je odrzucić?")
+  );
+}
+
 export function calendarOperation(
   mode: "create" | "occurred" | "edit" | "resolve",
   originalStatus: CalendarStatus | undefined,

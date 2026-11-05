@@ -729,6 +729,108 @@ test(
     );
 
     await t.test(
+      "occurred, corrected not occurred, then occurred again retains first recording time and stable history order",
+      async () => {
+        const caseId = ok<{ case: { id: string } }>(
+          await call("create_recruitment_case", {
+            p_request_id: randomUUID(),
+            p_title: `Occurrence history ${randomUUID()}`,
+          }),
+        ).case.id;
+        const contact = ok<{ profile: { id: string } }>(
+          await call("execute_catalog_command", {
+            p_request_id: randomUUID(),
+            p_payload: {
+              operation: "create-profile",
+              profileType: "contact",
+              name: `Occurrence contact ${randomUUID()}`,
+              email: null,
+            },
+          }),
+        ).profile.id;
+        const actual = {
+          date: "2020-01-02",
+          time: null,
+          offset: null,
+          timeZone: "Europe/Warsaw",
+        };
+        const occurrence = () =>
+          create({
+            caseId,
+            status: "occurred",
+            schedule: null,
+            actual,
+            participants: [{ contactId: contact, attendance: "attended" }],
+          });
+        const initial = occurrence();
+        const first = ok<{ event: Event }>(await command(initial)).event;
+        const other = ok<{ event: Event }>(await command(occurrence())).event;
+        const auditFirst = ok<Row[]>(
+          await api(
+            `/rest/v1/recruitment_calendar_command?select=*&event_id=eq.${first.id}&order=recorded_at.asc,id.asc`,
+          ),
+        );
+        const originalRecordedAt = auditFirst[0].recorded_at;
+        const timeline = async () =>
+          ok<Row[]>(
+            await api(
+              `/rest/v1/recruitment_case_timeline?select=*&case_id=eq.${caseId}&id=eq.${first.id}`,
+            ),
+          );
+        const history = async () =>
+          ok<Event[]>(
+            await call("list_recruitment_calendar_events", {
+              p_contact_id: contact,
+            }),
+          );
+        assert.equal((await timeline())[0].recorded_at, originalRecordedAt);
+        assert.deepEqual(
+          (await history()).map((e) => e.id),
+          [other.id, first.id],
+        );
+        const notOccurred = ok<{ event: Event }>(
+          await command({
+            operation: "resolve",
+            eventId: first.id,
+            expectedRevision: first.revision,
+            values: {
+              ...initial.values,
+              status: "not_occurred",
+              actual: null,
+              participants: [{ contactId: contact, attendance: "unknown" }],
+            },
+          }),
+        ).event;
+        assert.deepEqual(await timeline(), []);
+        assert.deepEqual(
+          (await history()).map((e) => e.id),
+          [other.id],
+        );
+        const occurredAgain = ok<{ event: Event }>(
+          await command({
+            operation: "resolve",
+            eventId: first.id,
+            expectedRevision: notOccurred.revision,
+            values: initial.values,
+          }),
+        ).event;
+        assert.equal(occurredAgain.id, first.id);
+        assert.equal((await timeline())[0].recorded_at, originalRecordedAt);
+        assert.deepEqual(
+          (await history()).map((e) => e.id),
+          [other.id, first.id],
+        );
+        const audit = ok<Row[]>(
+          await api(
+            `/rest/v1/recruitment_calendar_command?select=*&event_id=eq.${first.id}&order=recorded_at.asc,id.asc`,
+          ),
+        );
+        assert.equal(audit.length, 3);
+        assert.equal(audit[0].recorded_at, originalRecordedAt);
+      },
+    );
+
+    await t.test(
       "mixed close resolves every Task and CalendarEvent atomically; stale previews and old RPC fail closed",
       async () => {
         const caseId = ok<{ case: { id: string } }>(

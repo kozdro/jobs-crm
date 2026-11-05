@@ -1,8 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   actualLabel,
   calendarOperation,
   setStartTime,
+  canDismissCalendarForm,
 } from "@/components/calendar/form-logic";
 import type { CalendarSchedule } from "@/modules/recruitment/domain/calendar-time";
 const schedule: CalendarSchedule = {
@@ -16,6 +17,20 @@ const schedule: CalendarSchedule = {
   endOffset: 60,
 };
 describe("calendar correction and recovery", () => {
+  it("guards every dialog dismissal while saving, dirty or uncertain", () => {
+    const confirm = vi.fn(() => false);
+    expect(canDismissCalendarForm(true, false, false, confirm)).toBe(false);
+    expect(confirm).not.toHaveBeenCalled();
+    expect(canDismissCalendarForm(false, false, true, confirm)).toBe(false);
+    expect(confirm).toHaveBeenLastCalledWith(
+      expect.stringContaining("niezapisane"),
+    );
+    expect(canDismissCalendarForm(false, true, true, confirm)).toBe(false);
+    expect(confirm).toHaveBeenLastCalledWith(
+      expect.stringContaining("nieznany"),
+    );
+    expect(canDismissCalendarForm(false, false, false, confirm)).toBe(true);
+  });
   it("sends a correction of outcome through resolve while preserving edit for unchanged outcome", () => {
     expect(calendarOperation("edit", "occurred", "not_occurred")).toBe(
       "resolve",

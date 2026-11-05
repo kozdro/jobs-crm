@@ -263,7 +263,7 @@ BEGIN
  RETURN COALESCE((SELECT jsonb_agg(public.recruitment_calendar_json(q.entity) ORDER BY q.actual_day DESC NULLS LAST,q.fact_recorded_at DESC NULLS LAST,q.planned_day ASC NULLS LAST,(q.entity).id) FROM (
    SELECT e AS entity,
      CASE WHEN p_contact_id IS NOT NULL THEN (e.actual->>'date')::date END AS actual_day,
-     CASE WHEN p_contact_id IS NOT NULL THEN (SELECT c.recorded_at FROM public.recruitment_calendar_command c WHERE c.owner_id=e.owner_id AND c.event_id=e.id AND c.after_values->>'status'='occurred' AND (c.before_values IS NULL OR c.before_values->>'status' IS DISTINCT FROM 'occurred') ORDER BY c.recorded_at DESC,c.id DESC LIMIT 1) END AS fact_recorded_at,
+     CASE WHEN p_contact_id IS NOT NULL THEN (SELECT c.recorded_at FROM public.recruitment_calendar_command c WHERE c.owner_id=e.owner_id AND c.event_id=e.id AND c.after_values->>'status'='occurred' AND (c.before_values IS NULL OR c.before_values->>'status' IS DISTINCT FROM 'occurred') ORDER BY c.recorded_at ASC,c.id ASC LIMIT 1) END AS fact_recorded_at,
      CASE WHEN p_contact_id IS NULL THEN e.schedule->>'startDate' END AS planned_day
    FROM public.recruitment_calendar_event e
    WHERE e.owner_id=auth.uid() AND (p_case_id IS NULL OR e.case_id=p_case_id)
@@ -495,5 +495,5 @@ CREATE OR REPLACE VIEW public.recruitment_case_timeline WITH(security_invoker=tr
  UNION ALL
  SELECT e.owner_id,e.case_id,e.id,(e.actual->>'date')::date,first_occurrence.recorded_at,'calendar'::text,public.recruitment_calendar_json(e)
  FROM public.recruitment_calendar_event e JOIN LATERAL
- (SELECT c.recorded_at FROM public.recruitment_calendar_command c WHERE c.owner_id=e.owner_id AND c.event_id=e.id AND c.after_values->>'status'='occurred' AND (c.before_values IS NULL OR c.before_values->>'status' IS DISTINCT FROM 'occurred') ORDER BY c.recorded_at DESC,c.id DESC LIMIT 1) first_occurrence ON true
+ (SELECT c.recorded_at FROM public.recruitment_calendar_command c WHERE c.owner_id=e.owner_id AND c.event_id=e.id AND c.after_values->>'status'='occurred' AND (c.before_values IS NULL OR c.before_values->>'status' IS DISTINCT FROM 'occurred') ORDER BY c.recorded_at ASC,c.id ASC LIMIT 1) first_occurrence ON true
  WHERE e.case_id IS NOT NULL AND e.status='occurred';
