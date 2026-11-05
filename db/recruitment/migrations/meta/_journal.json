@@ -99,6 +99,13 @@
       "when": 1793534956250,
       "tag": "0013_tasks_core",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1793570903594,
+      "tag": "0014_quick_capture_atomic_action",
+      "breakpoints": true
     }
   ]
 }

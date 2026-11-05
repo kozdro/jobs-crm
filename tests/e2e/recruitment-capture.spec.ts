@@ -165,9 +165,10 @@ test("UC001 partial: four steps write only on confirm, save stays on Dashboard, 
   await dialog.getByRole("button", { name: "Zapisz", exact: true }).click();
   await expect(dialog).not.toBeVisible();
   await expect(page).toHaveURL(`${target.appOrigin}/dashboard`);
-  await expect(
-    page.getByRole("status").filter({ hasText: /zapis/i }),
-  ).toBeVisible();
+  const savedNotice = page.getByRole("status").filter({
+    has: page.getByRole("link", { name: "Otwórz sprawę", exact: true }),
+  });
+  await expect(savedNotice).toBeVisible();
   const records = await persisted(a, title);
   expect(records.length).toBe(1);
   expect(records[0].status).toBe("Zapisane");
@@ -200,9 +201,11 @@ test("QC data validation keeps input and no record before valid four-step submis
   await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
   await dialog.getByLabel("Nazwa sprawy", { exact: true }).fill("   ");
   await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
-  await expect(dialog.getByRole("alert")).toBeVisible();
   await expect(
-    dialog.getByLabel("Nazwa sprawy", { exact: true }),
+    dialog.getByRole("alert", { name: "Podsumowanie błędów sprawy" }),
+  ).toBeVisible();
+  await expect(
+    dialog.getByRole("alert", { name: "Podsumowanie błędów sprawy" }),
   ).toBeFocused();
   expect(
     (
@@ -214,9 +217,11 @@ test("QC data validation keeps input and no record before valid four-step submis
   const title = "🚀".repeat(160);
   await dialog.getByLabel("Nazwa sprawy", { exact: true }).fill(`${title}ą`);
   await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
-  await expect(dialog.getByRole("alert")).toBeVisible();
   await expect(
-    dialog.getByLabel("Nazwa sprawy", { exact: true }),
+    dialog.getByRole("alert", { name: "Podsumowanie błędów sprawy" }),
+  ).toBeVisible();
+  await expect(
+    dialog.getByRole("alert", { name: "Podsumowanie błędów sprawy" }),
   ).toBeFocused();
   await expect(dialog.getByLabel("Nazwa sprawy", { exact: true })).toHaveValue(
     `${title}ą`,
@@ -226,9 +231,11 @@ test("QC data validation keeps input and no record before valid four-step submis
     .getByLabel("URL źródłowy (opcjonalnie)", { exact: true })
     .fill("javascript:alert(1)");
   await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
-  await expect(dialog.getByRole("alert")).toBeVisible();
   await expect(
-    dialog.getByLabel("Nazwa sprawy", { exact: true }),
+    dialog.getByRole("alert", { name: "Podsumowanie błędów sprawy" }),
+  ).toBeVisible();
+  await expect(
+    dialog.getByRole("alert", { name: "Podsumowanie błędów sprawy" }),
   ).toBeFocused();
   await dialog
     .getByLabel("URL źródłowy (opcjonalnie)", { exact: true })
@@ -268,6 +275,65 @@ test("QC006/007 duplicate warning exposes only own matches; cancel makes no chan
   const records = await persisted(a, title);
   expect(records.length).toBe(2);
   expect(records.some((row) => row.id === first.id)).toBe(true);
+});
+
+test("opening a duplicate protects a confirmed unsaved action until explicit abandon", async ({
+  page,
+}) => {
+  await login(page, a);
+  await page.goto(`${target.appOrigin}/recruitments`);
+  const title = `Confirmed duplicate draft ${randomUUID()}`;
+  const existing = await complete(page, title);
+  const dialog = await openCapture(page);
+  await dataStep(dialog, title, "Opis szkicu z potwierdzonym działaniem");
+  await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
+  await dialog
+    .getByRole("radio", { name: "Rzeczywiście aplikowano", exact: true })
+    .check();
+  await dialog
+    .getByRole("checkbox", {
+      name: "Potwierdzam, że to działanie rzeczywiście miało miejsce",
+      exact: true,
+    })
+    .check();
+  await dialog.getByRole("button", { name: "Dalej", exact: true }).click();
+  await dialog.getByRole("button", { name: "Zapisz", exact: true }).click();
+  const duplicateLink = dialog.getByRole("link", { name: title, exact: true });
+  await expect(duplicateLink).toHaveAttribute(
+    "href",
+    `/recruitments/${existing.id}`,
+  );
+
+  await duplicateLink.click();
+  const discard = page.getByRole("alertdialog", { name: "Odrzucić zmiany?" });
+  await expect(discard).toBeVisible();
+  await expect(page).toHaveURL(`${target.appOrigin}/recruitments`);
+  await discard
+    .getByRole("button", { name: "Kontynuuj edycję", exact: true })
+    .click();
+  await expect(discard).not.toBeVisible();
+  await expect(dialog).toBeVisible();
+  await expect(
+    dialog.getByRole("heading", { name: "Podsumowanie", exact: true }),
+  ).toBeVisible();
+  await expect(
+    dialog.getByText("Rzeczywiście aplikowano", { exact: true }),
+  ).toBeVisible();
+
+  await duplicateLink.click();
+  await expect(discard).toBeVisible();
+  await discard
+    .getByRole("button", { name: "Odrzuć zmiany", exact: true })
+    .click();
+  await expect(page).toHaveURL(
+    `${target.appOrigin}/recruitments/${existing.id}`,
+  );
+  await expect(
+    page.getByRole("heading", { name: title, exact: true }),
+  ).toBeVisible();
+  expect((await persisted(a, title)).map((item) => item.id)).toEqual([
+    existing.id,
+  ]);
 });
 
 test("UC029 partial: save-and-add-next clears fields/action and uses a new independent intent", async ({
@@ -658,10 +724,15 @@ test("Unknown save never reached backend: reload preserves intent and explicit a
   page.once("dialog", (event) => event.accept());
   await page.reload();
   await expect(page.getByRole("main").getByRole("alert")).toContainText(
-    "Nie potwierdzono wyniku poprzedniego zapisu",
+    "Nie znaleziono potwierdzonego wyniku",
   );
-  dialog = await openCapture(page);
-  await dialog.getByRole("button", { name: "Zamknij", exact: true }).click();
+  await expect(
+    page.getByRole("main").getByRole("button", { name: "Dodaj", exact: true }),
+  ).toBeDisabled();
+  await page
+    .getByRole("main")
+    .getByRole("button", { name: "Porzuć ten zapis", exact: true })
+    .click();
   const confirmation = page.getByRole("alertdialog", {
     name: "Porzucić niepotwierdzony zapis?",
     exact: true,
@@ -672,15 +743,14 @@ test("Unknown save never reached backend: reload preserves intent and explicit a
   );
   await expect(confirmation).toContainText("nie cofa ani nie usuwa zapisu.");
   await confirmation
-    .getByRole("button", { name: "Wróć do zapisu", exact: true })
-    .click();
-  await expect(dialog).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(confirmation).toBeVisible();
-  await confirmation
     .getByRole("button", { name: "Porzuć ten zapis", exact: true })
     .click();
-  await expect(dialog).not.toBeVisible();
+  await expect(page.getByRole("dialog")).not.toBeVisible();
+  expect(
+    await page.evaluate(() =>
+      sessionStorage.getItem("jobs-crm.manual-case.pending"),
+    ),
+  ).toBeNull();
   const newTitle = `Conscious new ${randomUUID()}`;
   dialog = await prepare(page, newTitle);
   await dialog.getByRole("button", { name: "Zapisz", exact: true }).click();
@@ -739,7 +809,10 @@ test("Mobile save-next announces success and offers opening the persisted case i
   await page.goto(`${target.appOrigin}/recruitments`);
   const title = `Mobile next ${randomUUID()}`;
   const dialog = await prepare(page, title);
-  const announcement = dialog.getByRole("status");
+  const announcement = dialog.locator(
+    'div[role="status"][aria-live="polite"][aria-atomic="true"]',
+  );
+  await expect(announcement).toHaveCount(1);
   await expect(announcement).toHaveText("");
   await expect(announcement).toHaveAttribute("aria-live", "polite");
   await expect(announcement).toHaveAttribute("aria-atomic", "true");
@@ -747,9 +820,7 @@ test("Mobile save-next announces success and offers opening the persisted case i
     .getByRole("button", { name: "Zapisz i dodaj kolejną", exact: true })
     .click();
   await expect(dialog).toBeVisible();
-  await expect(dialog.getByRole("status")).toContainText(
-    "Sprawa została zapisana.",
-  );
+  await expect(announcement).toContainText("Sprawa została zapisana.");
   const nextHeading = dialog.getByRole("heading", {
     name: "Sytuacja",
     exact: true,
@@ -826,7 +897,7 @@ test("Escape in nested discard confirmation cancels only confirmation and restor
   expect((await persisted(a, title)).length).toBe(0);
 });
 
-test("Page-level unknown-intent controls permit re-entry and the same-list link closes both dialogs while preserving recovery identity", async ({
+test("Page-level unknown-intent controls keep recovery identity through the same-list link and explicit abandon", async ({
   page,
 }) => {
   await login(page, a);
@@ -838,19 +909,21 @@ test("Page-level unknown-intent controls permit re-entry and the same-list link 
       .requestId;
     await route.abort("failed");
   });
-  let dialog = await prepare(page, title);
+  const dialog = await prepare(page, title);
   await dialog.getByRole("button", { name: "Zapisz", exact: true }).click();
   await expect(dialog.getByRole("alert")).toBeVisible();
   page.once("dialog", (event) => event.accept());
   await page.reload();
   await expect(page.getByRole("main").getByRole("alert")).toContainText(
-    "Nie potwierdzono wyniku poprzedniego zapisu",
+    "Nie znaleziono potwierdzonego wyniku",
   );
+  await expect(
+    page.getByRole("main").getByRole("button", { name: "Dodaj", exact: true }),
+  ).toBeDisabled();
   await page
     .getByRole("main")
     .getByRole("button", { name: "Porzuć ten zapis", exact: true })
     .click();
-  dialog = page.getByRole("dialog", { name: "Dodaj ręcznie", exact: true });
   const confirmation = page.getByRole("alertdialog", {
     name: "Porzucić niepotwierdzony zapis?",
     exact: true,
@@ -864,12 +937,6 @@ test("Page-level unknown-intent controls permit re-entry and the same-list link 
     )
     .toBe(true);
   await confirmation
-    .getByRole("button", { name: "Wróć do zapisu", exact: true })
-    .click();
-  await expect(dialog).toBeVisible();
-  await dialog.getByRole("button", { name: "Zamknij", exact: true }).click();
-  await expect(confirmation).toBeVisible();
-  await confirmation
     .getByRole("link", { name: "Otwórz listę spraw", exact: true })
     .click();
   await expect(page).toHaveURL(`${target.appOrigin}/recruitments`);
@@ -881,13 +948,25 @@ test("Page-level unknown-intent controls permit re-entry and the same-list link 
     ),
   )) as { ownerId: string; requestId: string };
   expect(pending).toEqual({ ownerId: a.id, requestId: sentKey });
-  dialog = await openCapture(page);
-  await dialog.getByRole("button", { name: "Zamknij", exact: true }).click();
+  await page
+    .getByRole("main")
+    .getByRole("button", { name: "Porzuć ten zapis", exact: true })
+    .click();
   await expect(confirmation).toBeVisible();
   await confirmation
     .getByRole("button", { name: "Porzuć ten zapis", exact: true })
     .click();
-  await expect(dialog).not.toBeVisible();
+  await expect(page.getByRole("dialog")).not.toBeVisible();
+  expect(
+    await page.evaluate(() =>
+      sessionStorage.getItem("jobs-crm.manual-case.pending"),
+    ),
+  ).toBeNull();
+  expect(
+    await page.evaluate(() =>
+      sessionStorage.getItem("jobs-crm.manual-case.pending"),
+    ),
+  ).toBeNull();
   expect((await persisted(a, title)).length).toBe(0);
 });
 

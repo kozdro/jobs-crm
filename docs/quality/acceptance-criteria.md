@@ -100,6 +100,18 @@
 | **AC-QC-011** | Gdy użytkownik tylko importuje URL i zapisuje ofertę, historia sprawy nie zawiera faktu faktycznej wysyłki aplikacji. | FR-QC-011 |
 | **AC-QC-012** | W pierwszym wydaniu Quick Capture nie prezentuje workflow importu wielu URL-i na raz ani obowiązkowego browser extension. | FR-QC-012 |
 
+### DEC-061 — Quick Capture Atomic Action
+
+| ID | Test akceptacji | Powiązany FR / decyzja |
+|---|---|---|
+| **AC-QC-061-01** | Atomowa komenda tworzy jedną sprawę i zero albo jeden jawnie potwierdzony fakt. `save_only` pozostawia status Zapisane; application/contact inbound/contact outbound dają Kontakt rozpoczęty bez etapu. Sytuacja nie wpływa na komendę ani wynik. | FR-QC-002; FR-LC-001/004/005/006/014; DEC-061 |
+| **AC-QC-061-02** | Sprawa, opcjonalny fakt, wynik statusu i immutable receipt zapisują się w jednej transakcji albo nie zapisuje się żaden z nich. Powtórzenie tego samego owner/requestId/pełnego zamiaru zwraca ten sam wynik; zmieniony zamiar konfliktuje bez mutacji. | FR-QC-002; FR-LC-005/006; BR-004/007/015; DEC-061 |
+| **AC-QC-061-03** | Owner-scoped recovery odczytuje wyłącznie receipt wraz z pełnym canonical intent; brak wyniku nie jest przedstawiany jako rollback. Retry używa tego samego zamrożonego zamiaru, a stare save-only keys nie tworzą faktu ani nie odtwarzają historycznego stanu. | FR-QC-002/009/011; BR-007/030; DEC-061 |
+| **AC-QC-061-04** | Potencjalne duplikaty są zwracane przed mutacją. Utworzenie odrębnej sprawy wymaga potwierdzenia związanego z całym zamiarzem i aktualnym pełnym zbiorem dopasowań; wyścig lub zmiana zamiaru wymaga ponownego rozstrzygnięcia. | FR-QC-006/007; BR-022/030; DEC-061 |
+| **AC-QC-061-05** | Kreator zachowuje kroki Sytuacja → Dane → Działanie → Podsumowanie. Działanie jest wyborem jawnym i niezależnym od Sytuacji; podsumowanie pokazuje rzeczywisty skutek, zmiana rodzaju/dnia wymaga ponownego potwierdzenia, a save-next czyści wszystkie dane i używa nowego klucza dopiero po sukcesie. | FR-QC-002/009/010/011; BR-001/004/014/015/029; DEC-061 |
+| **AC-QC-061-06** | Prywatny payload zamiaru nie jest dodatkowo utrwalany w `localStorage`, `sessionStorage`, URL, logach ani artefaktach przeglądarki. Dopuszczone minimum owner/requestId służy wyłącznie odnalezieniu server receipt; zmiana konta lub brak wiarygodnej koperty ukrywa draft i blokuje niezgodny retry. | FR-QC-002; BR-030; DEC-061 |
+| **AC-QC-061-07** | Atomic command, receipt i recovery są dostępne wyłącznie właścicielowi przez trusted Auth/JWT i RLS/INVOCATION. B/anon nie odczytuje danych, receipt, identyfikatorów ani liczebności A; spoofing owner/status/case/event/time i pola nieznane są odrzucane. | FR-QC-002; FR-AD-002; BR-030; ADR-0012; DEC-061 |
+
 ## IM — CSV/XLSX Import
 
 | ID | Test akceptacji (Given / When / Then, opisowo) | Powiązany FR |

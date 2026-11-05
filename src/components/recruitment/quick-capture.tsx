@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@base-ui/react/button";
@@ -8,17 +8,31 @@ import { Dialog } from "@base-ui/react/dialog";
 import { AlertDialog } from "@base-ui/react/alert-dialog";
 import { Plus, X, LoaderCircle } from "lucide-react";
 import { getBrowserClient } from "@/modules/identity/infrastructure/browser";
+import {
+  isCalendarDate,
+  warsawToday,
+} from "@/modules/recruitment/domain/case-events";
 import { getRecruitmentCaseByRequestId } from "@/modules/recruitment/application/cases";
+import type {
+  QuickCaptureAction,
+  QuickCaptureAtomicInput,
+  QuickCaptureAtomicIntent,
+  QuickCaptureAtomicReceipt,
+  QuickCaptureAtomicResult,
+} from "@/modules/recruitment/domain/quick-capture-atomic";
 import {
   parseCreateCaseInput,
-  type CreateCaseInput,
-  type CreateCaseResult,
   type RecruitmentCase,
+  uuidPattern,
 } from "@/modules/recruitment/domain/recruitment-case";
 import {
+  captureActionLabel,
+  captureStatus,
   intentStorageKey,
+  makeCaptureAction,
   parsePendingIntent,
   resolveSaveNext,
+  type CaptureActionKind,
 } from "./intent";
 import { SavedCaseNotice } from "./saved-case-notice";
 import { recoveryRequiresLogin } from "./recovery-session";
@@ -36,7 +50,139 @@ const situations = [
   "Spontaniczna kandydatura",
   "Inna / bez określenia",
 ] as const;
-type DuplicateResult = Extract<CreateCaseResult, { kind: "duplicates" }>;
+type DuplicateResult = Extract<
+  QuickCaptureAtomicResult,
+  { kind: "duplicates" }
+>;
+type AtomicCaptureAction = QuickCaptureAction;
+type AtomicCaptureCommand = Pick<
+  QuickCaptureAtomicInput,
+  "contractVersion" | "requestId" | "intent"
+>;
+type AtomicCaptureReceipt = QuickCaptureAtomicReceipt;
+function sameAtomicIntent(
+  left: QuickCaptureAtomicIntent,
+  right: QuickCaptureAtomicIntent,
+) {
+  if (
+    left.title !== right.title ||
+    left.description !== right.description ||
+    left.sourceUrl !== right.sourceUrl ||
+    left.action.kind !== right.action.kind
+  )
+    return false;
+  if (left.action.kind === "save_only")
+    return right.action.kind === "save_only";
+  return (
+    right.action.kind !== "save_only" &&
+    left.action.occurredOn === right.action.occurredOn &&
+    left.action.factConfirmed === right.action.factConfirmed
+  );
+}
+function isAtomicReceipt(
+  value: unknown,
+  requestId: string,
+): value is AtomicCaptureReceipt {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const receipt = value as Partial<AtomicCaptureReceipt>;
+  const intent = receipt.intent;
+  const action = intent?.action;
+  const caseRow = receipt.case as
+    (Partial<RecruitmentCase> & Record<string, unknown>) | undefined;
+  const eventRow = receipt.event as
+    (Record<string, unknown> & { id?: unknown }) | null | undefined;
+  const expectedEventKind =
+    action?.kind === "application"
+      ? "application"
+      : action?.kind === "contact_inbound" ||
+          action?.kind === "contact_outbound"
+        ? "contact"
+        : null;
+  const expectedDirection =
+    action?.kind === "contact_inbound"
+      ? "inbound"
+      : action?.kind === "contact_outbound"
+        ? "outbound"
+        : null;
+  const validEvent =
+    action?.kind === "save_only"
+      ? receipt.event === null
+      : Boolean(
+          expectedEventKind &&
+          eventRow &&
+          typeof eventRow === "object" &&
+          !Array.isArray(eventRow) &&
+          typeof eventRow.id === "string" &&
+          uuidPattern.test(eventRow.id) &&
+          eventRow.case_id === caseRow?.id &&
+          eventRow.kind === expectedEventKind &&
+          eventRow.direction === expectedDirection &&
+          eventRow.occurred_on === action?.occurredOn &&
+          typeof eventRow.recorded_at === "string" &&
+          Number.isFinite(Date.parse(eventRow.recorded_at)) &&
+          eventRow.stage_name === null &&
+          eventRow.previous_stage === null &&
+          eventRow.expected_stage_version === null,
+        );
+  return Boolean(
+    receipt.requestId === requestId &&
+    receipt.contractVersion === 1 &&
+    typeof receipt.intentFingerprint === "string" &&
+    /^[0-9a-f]{32}$/.test(receipt.intentFingerprint) &&
+    typeof receipt.recordedAt === "string" &&
+    Number.isFinite(Date.parse(receipt.recordedAt)) &&
+    intent &&
+    typeof intent.title === "string" &&
+    (typeof intent.description === "string" || intent.description === null) &&
+    (typeof intent.sourceUrl === "string" || intent.sourceUrl === null) &&
+    action &&
+    (action.kind === "save_only"
+      ? Object.keys(action).length === 1
+      : ["application", "contact_inbound", "contact_outbound"].includes(
+          action.kind,
+        ) &&
+        Object.keys(action).length === 3 &&
+        (action.occurredOn === null ||
+          (typeof action.occurredOn === "string" &&
+            isCalendarDate(action.occurredOn))) &&
+        action.factConfirmed === true) &&
+    receipt.case &&
+    caseRow &&
+    typeof caseRow.id === "string" &&
+    uuidPattern.test(caseRow.id) &&
+    caseRow.title === intent?.title &&
+    caseRow.description === intent?.description &&
+    caseRow.source_url === intent?.sourceUrl &&
+    caseRow.status ===
+      (action?.kind === "save_only" ? "Zapisane" : "Kontakt rozpoczęty") &&
+    caseRow.current_stage === null &&
+    validEvent,
+  );
+}
+
+function isAtomicDuplicateResult(value: unknown): value is DuplicateResult {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const result = value as Partial<DuplicateResult>;
+  return Boolean(
+    result.kind === "duplicates" &&
+    Array.isArray(result.matches) &&
+    result.matches.length > 0 &&
+    result.matches.length <= 20 &&
+    result.matches.every(
+      (item) =>
+        item &&
+        typeof item.id === "string" &&
+        uuidPattern.test(item.id) &&
+        typeof item.title === "string" &&
+        typeof item.status === "string",
+    ) &&
+    typeof result.hasMore === "boolean" &&
+    typeof result.intentFingerprint === "string" &&
+    /^[0-9a-f]{32}$/.test(result.intentFingerprint) &&
+    typeof result.matchSetFingerprint === "string" &&
+    /^[0-9a-f]{32}$/.test(result.matchSetFingerprint),
+  );
+}
 
 export function QuickCapture({ userId }: { userId: string }) {
   // A changed verified owner gets a new draft lifetime, including every portal.
@@ -50,24 +196,33 @@ function CaptureSession({ userId }: { userId: string }) {
   const discardPopupRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
+  const validationSummaryRef = useRef<HTMLDivElement>(null);
+  const descriptionDetailsRef = useRef<HTMLDetailsElement>(null);
+  const actionValidationSummaryRef = useRef<HTMLDivElement>(null);
   const feedbackRef = useRef<HTMLParagraphElement>(null);
   const pendingRef = useRef(false);
   const liveRef = useRef(true);
   const lifetimeRef = useRef(0);
-  const frozenRef = useRef<CreateCaseInput | null>(null);
+  const frozenRef = useRef<AtomicCaptureCommand | null>(null);
   const saveNextRef = useRef(false);
   const [sessionLive, setSessionLive] = useState(true);
   const [open, setOpen] = useState(false);
   const [discard, setDiscard] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(
+    null,
+  );
   const [step, setStep] = useState(0);
   const [situation, setSituation] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
-  const [action, setAction] = useState(false);
+  const [actionKind, setActionKind] = useState<CaptureActionKind | null>(null);
+  const [occurredOn, setOccurredOn] = useState("");
+  const [factConfirmed, setFactConfirmed] = useState(false);
   const [requestId, setRequestId] = useState("");
   const [pending, setPending] = useState(false);
   const [payloadFrozen, setPayloadFrozen] = useState(false);
+  const [retryAvailable, setRetryAvailable] = useState(false);
   const [uncertain, setUncertain] = useState(false);
   const [recovering, setRecovering] = useState(false);
   const [duplicates, setDuplicates] = useState<DuplicateResult | null>(null);
@@ -75,9 +230,13 @@ function CaptureSession({ userId }: { userId: string }) {
   const [errors, setErrors] = useState<
     Partial<Record<"title" | "description" | "sourceUrl", string>>
   >({});
+  const [actionErrors, setActionErrors] = useState<
+    Partial<Record<"actionKind" | "occurredOn" | "factConfirmed", string>>
+  >({});
   const [toast, setToast] = useState<RecruitmentCase | null>(null);
+  const [toastOutcome, setToastOutcome] = useState<string | null>(null);
   const dirty = Boolean(
-    situation || title || description || sourceUrl || action,
+    situation || title || description || sourceUrl || actionKind,
   );
 
   function clearStoredIntent() {
@@ -103,19 +262,34 @@ function CaptureSession({ userId }: { userId: string }) {
     setTitle("");
     setDescription("");
     setSourceUrl("");
-    setAction(false);
+    setActionKind(null);
+    setOccurredOn("");
+    setFactConfirmed(false);
     setStep(0);
     setError(null);
     setErrors({});
+    setActionErrors({});
     setDuplicates(null);
     setUncertain(false);
     setPayloadFrozen(false);
+    setRetryAvailable(false);
     saveNextRef.current = false;
     frozenRef.current = null;
   }
-  function success(item: RecruitmentCase, addNext: boolean) {
+  function success(
+    item: RecruitmentCase,
+    addNext: boolean,
+    savedAction: AtomicCaptureAction = { kind: "save_only" },
+  ) {
     clearStoredIntent();
     setToast(item);
+    setToastOutcome(
+      `${captureActionLabel(savedAction.kind)}. Status po zapisie: ${item.status}${
+        savedAction.kind !== "save_only"
+          ? `; dzień działania: ${savedAction.occurredOn || "nieznany"}`
+          : "; bez zdarzenia aplikowania lub kontaktu"
+      }.`,
+    );
     resetDraft();
     setOpen(addNext);
     router.refresh();
@@ -158,19 +332,72 @@ function CaptureSession({ userId }: { userId: string }) {
         requireLogin();
         return;
       }
-      const found = await getRecruitmentCaseByRequestId(client, id);
+      const response = await fetch(
+        `/recruitments/commands?requestId=${encodeURIComponent(id)}`,
+        { credentials: "same-origin", cache: "no-store" },
+      );
       if (!currentLifetime()) return;
-      if (found) success(found, false);
-      else {
-        setUncertain(true);
-        setError(
-          "Nie potwierdzono wyniku poprzedniego zapisu. Możesz sprawdzić ponownie lub ponowić zapis z tym samym identyfikatorem i tymi samymi danymi. Brak wyniku nie oznacza cofnięcia zapisu.",
-        );
+      if (response.status === 401 || response.status === 403) {
+        requireLogin();
+        return;
       }
+      if (!response.ok) throw new Error("Receipt recovery unavailable");
+      const result = (await response.json()) as unknown;
+      if (!currentLifetime()) return;
+      if (!result || typeof result !== "object" || Array.isArray(result))
+        throw new Error("Malformed receipt recovery response");
+      const envelope = result as Record<string, unknown>;
+      if (envelope.kind === "receipt") {
+        if (
+          Object.keys(envelope).length !== 2 ||
+          !isAtomicReceipt(envelope.receipt, id)
+        )
+          throw new Error("Malformed receipt recovery response");
+        const receipt = envelope.receipt;
+        if (
+          frozenRef.current &&
+          !sameAtomicIntent(receipt.intent, frozenRef.current.intent)
+        ) {
+          setUncertain(true);
+          setRetryAvailable(false);
+          setError(
+            "Wynik wcześniejszego zapisu dotyczy innych danych. Zachowano bieżący szkic i identyfikator; nie potwierdzono go jako zapisanego.",
+          );
+          return;
+        }
+        success(receipt.case, saveNextRef.current, receipt.intent.action);
+        return;
+      }
+      if (envelope.kind !== "not-found" || Object.keys(envelope).length !== 1)
+        throw new Error("Malformed receipt recovery response");
+      // Legacy save-only requests predate immutable atomic receipts. Keep their
+      // owner-scoped recovery path without promoting them to fact-bearing writes.
+      const legacy = await getRecruitmentCaseByRequestId(client, id);
+      if (!currentLifetime()) return;
+      if (legacy) {
+        if (frozenRef.current) {
+          setUncertain(true);
+          setRetryAvailable(false);
+          setError(
+            "Ten identyfikator należy do wcześniejszego zapisu o innym zamiarze. Zachowano bieżący szkic; nie potwierdzono go jako zapisanego.",
+          );
+          return;
+        }
+        success(legacy, saveNextRef.current);
+        return;
+      }
+      setUncertain(true);
+      const canRetryInMemory = Boolean(frozenRef.current);
+      setRetryAvailable(canRetryInMemory);
+      setError(
+        canRetryInMemory
+          ? "Nie znaleziono potwierdzonego wyniku. Możesz sprawdzić ponownie albo ponowić dokładnie ten sam zapis z niezmienionym identyfikatorem. Brak wyniku nie oznacza cofnięcia zapisu."
+          : "Nie znaleziono potwierdzonego wyniku. Po odświeżeniu nie zachowujemy treści szkicu w przeglądarce, więc nie można bezpiecznie ponowić tego zapisu. Sprawdź swoją listę spraw albo porzuć lokalny zamiar. Brak wyniku nie oznacza cofnięcia zapisu.",
+      );
     } catch {
       if (currentLifetime())
         setError(
-          "Nie można sprawdzić poprzedniego zapisu. Zachowano identyfikator; spróbuj ponownie.",
+          "Nie można teraz sprawdzić poprzedniego zapisu. Zachowano identyfikator; spróbuj ponownie.",
         );
     } finally {
       if (lifetimeRef.current === lifetime) {
@@ -268,15 +495,38 @@ function CaptureSession({ userId }: { userId: string }) {
       const parsed = input();
       if (!parsed.success) {
         setErrors(parsed.errors);
-        report("Sprawdź nazwę sprawy, opis i URL.");
-        requestAnimationFrame(() => titleRef.current?.focus());
+        setError("Popraw błędy wymienione w podsumowaniu.");
+        requestAnimationFrame(() => validationSummaryRef.current?.focus());
         return;
       }
       setErrors({});
     }
-    if (step === 2 && !action) {
-      report("Wybierz „Zapisz tylko sprawę”, aby przejść dalej.");
-      return;
+    if (step === 2) {
+      const issues: typeof actionErrors = {};
+      if (!actionKind) {
+        issues.actionKind = "Wybierz działanie do zarejestrowania.";
+      }
+      if (
+        actionKind &&
+        actionKind !== "save_only" &&
+        occurredOn &&
+        (!isCalendarDate(occurredOn) || occurredOn > warsawToday())
+      ) {
+        issues.occurredOn =
+          "Podaj prawidłowy dzień działania, nie późniejszy niż dzisiaj.";
+      }
+      if (actionKind && actionKind !== "save_only" && !factConfirmed) {
+        issues.factConfirmed =
+          "Potwierdź, że to działanie rzeczywiście miało miejsce.";
+      }
+      if (Object.keys(issues).length > 0) {
+        setActionErrors(issues);
+        requestAnimationFrame(() =>
+          actionValidationSummaryRef.current?.focus(),
+        );
+        return;
+      }
+      setActionErrors({});
     }
     setStep(step + 1);
   }
@@ -293,9 +543,16 @@ function CaptureSession({ userId }: { userId: string }) {
     }
   }
   function start() {
-    if (!liveRef.current || pendingRef.current || recovering) return;
+    if (
+      !liveRef.current ||
+      pendingRef.current ||
+      recovering ||
+      (uncertain && !retryAvailable)
+    )
+      return;
     if (!requestId) resetDraft();
     setToast(null);
+    setToastOutcome(null);
     setOpen(true);
   }
   function requestAbandon() {
@@ -303,32 +560,84 @@ function CaptureSession({ userId }: { userId: string }) {
     setOpen(true);
     setDiscard(true);
   }
+  function guardDuplicateNavigation(
+    event: MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) {
+    if (
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    )
+      return;
+    if (pendingRef.current || recovering) {
+      event.preventDefault();
+      return;
+    }
+    if (dirty || uncertain) {
+      event.preventDefault();
+      setPendingNavigation(href);
+      setDiscard(true);
+    }
+  }
   async function save(addNext = false, allowDuplicate = false) {
-    if (pendingRef.current || !liveRef.current || recovering) return;
+    if (
+      pendingRef.current ||
+      !liveRef.current ||
+      recovering ||
+      (uncertain && !retryAvailable)
+    )
+      return;
     const lifetime = lifetimeRef.current;
     const currentLifetime = () =>
       liveRef.current && lifetimeRef.current === lifetime;
-    const parsed = frozenRef.current
-      ? { success: true as const, data: frozenRef.current }
-      : input();
+    const parsed = input();
     if (!parsed.success) {
       setErrors(parsed.errors);
       setStep(1);
       report("Sprawdź wprowadzone dane.");
       return;
     }
-    if (!action) {
+    const action = makeCaptureAction(actionKind, occurredOn, factConfirmed);
+    if (!frozenRef.current && !action) {
       setStep(2);
-      report("Wybierz „Zapisz tylko sprawę”.");
+      report(
+        !actionKind
+          ? "Wybierz działanie."
+          : "Potwierdź, że to działanie rzeczywiście miało miejsce.",
+      );
       return;
     }
+    if (
+      !frozenRef.current &&
+      action?.kind !== "save_only" &&
+      action?.occurredOn &&
+      (!isCalendarDate(action.occurredOn) || action.occurredOn > warsawToday())
+    ) {
+      setStep(2);
+      report("Podaj prawidłowy dzień działania, nie późniejszy niż dzisiaj.");
+      return;
+    }
+    const command: AtomicCaptureCommand = frozenRef.current ?? {
+      contractVersion: 1,
+      requestId: parsed.data.requestId,
+      intent: {
+        title: parsed.data.title,
+        description: parsed.data.description,
+        sourceUrl: parsed.data.sourceUrl,
+        action: action!,
+      },
+    };
     pendingRef.current = true;
     setPending(true);
     setPayloadFrozen(true);
     saveNextRef.current = addNext;
     setError(null);
-    frozenRef.current = parsed.data;
-    rememberIntent(parsed.data.requestId);
+    frozenRef.current = command;
+    setRetryAvailable(true);
+    rememberIntent(command.requestId);
     try {
       const response = await fetch("/recruitments/commands", {
         method: "POST",
@@ -336,9 +645,19 @@ function CaptureSession({ userId }: { userId: string }) {
         cache: "no-store",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...parsed.data,
-          allowDuplicate,
+          contractVersion: command.contractVersion,
+          requestId: command.requestId,
+          intent: command.intent,
           expectedUserId: userId,
+          ...(allowDuplicate && duplicates
+            ? {
+                duplicateAcknowledgement: {
+                  intentFingerprint: duplicates.intentFingerprint,
+                  matchSetFingerprint: duplicates.matchSetFingerprint,
+                  createSeparateCase: true,
+                },
+              }
+            : {}),
         }),
         signal: AbortSignal.timeout(20000),
       });
@@ -352,12 +671,14 @@ function CaptureSession({ userId }: { userId: string }) {
           frozenRef.current = null;
           setPayloadFrozen(false);
           setUncertain(false);
+          setRetryAvailable(false);
           clearStoredIntent();
           report(
             "Dane nie zostały przyjęte. Sprawdź formularz i spróbuj ponownie.",
           );
         } else {
           setUncertain(true);
+          if (response.status === 409) setRetryAvailable(false);
           report(
             response.status === 409
               ? "Ten identyfikator zapisu dotyczy innych danych. Sprawdź wynik wcześniejszego zapisu; niczego nie nadpisano."
@@ -366,21 +687,37 @@ function CaptureSession({ userId }: { userId: string }) {
         }
         return;
       }
-      const result = (await response.json()) as CreateCaseResult;
+      const result = (await response.json()) as unknown;
       if (!currentLifetime()) return;
-      if (result.kind === "duplicates") {
+      if (isAtomicDuplicateResult(result)) {
         setDuplicates(result);
         setUncertain(false);
         frozenRef.current = null;
         setPayloadFrozen(false);
+        setRetryAvailable(false);
         clearStoredIntent();
         requestAnimationFrame(() => feedbackRef.current?.focus());
       } else if (
-        (result.kind === "created" || result.kind === "replayed") &&
-        result.case?.id
-      )
-        success(result.case, addNext);
-      else {
+        result &&
+        typeof result === "object" &&
+        ((result as { kind?: unknown }).kind === "created" ||
+          (result as { kind?: unknown }).kind === "replayed") &&
+        isAtomicReceipt(
+          (result as { receipt?: unknown }).receipt,
+          command.requestId,
+        )
+      ) {
+        const receipt = (result as { receipt: AtomicCaptureReceipt }).receipt;
+        if (sameAtomicIntent(receipt.intent, command.intent)) {
+          success(receipt.case, addNext, receipt.intent.action);
+        } else {
+          setUncertain(true);
+          setRetryAvailable(false);
+          report(
+            "Wynik zapisu dotyczy innych danych. Zachowano bieżący szkic i identyfikator; nie potwierdzono go jako zapisanego.",
+          );
+        }
+      } else {
         setUncertain(true);
         report("Nie potwierdzono wyniku zapisu. Ponów tę samą operację.");
       }
@@ -399,6 +736,11 @@ function CaptureSession({ userId }: { userId: string }) {
     }
   }
   const summary = input();
+  const currentAction = makeCaptureAction(
+    actionKind,
+    occurredOn,
+    factConfirmed,
+  );
   const frozen = payloadFrozen || pending;
   if (!sessionLive) return null;
   return (
@@ -407,7 +749,7 @@ function CaptureSession({ userId }: { userId: string }) {
         ref={triggerRef}
         type="button"
         onClick={start}
-        disabled={recovering}
+        disabled={recovering || (uncertain && !retryAvailable)}
         className={primaryClass}
       >
         <Plus aria-hidden="true" size={18} />
@@ -446,8 +788,17 @@ function CaptureSession({ userId }: { userId: string }) {
       <SavedCaseNotice
         item={open ? null : toast}
         floating
-        onDismiss={() => setToast(null)}
+        onNavigate={guardDuplicateNavigation}
+        onDismiss={() => {
+          setToast(null);
+          setToastOutcome(null);
+        }}
       />
+      {!open && toastOutcome && (
+        <p role="status" className="basis-full text-sm text-muted-foreground">
+          {toastOutcome}
+        </p>
+      )}
       <Dialog.Root
         open={open}
         disablePointerDismissal
@@ -485,8 +836,17 @@ function CaptureSession({ userId }: { userId: string }) {
             <div className={toast ? "mt-4" : undefined}>
               <SavedCaseNotice
                 item={open ? toast : null}
-                onDismiss={() => setToast(null)}
+                onNavigate={guardDuplicateNavigation}
+                onDismiss={() => {
+                  setToast(null);
+                  setToastOutcome(null);
+                }}
               />
+              {open && toastOutcome && (
+                <p role="status" className="mt-2 text-sm text-muted-foreground">
+                  {toastOutcome}
+                </p>
+              )}
             </div>
             <ol
               className="mt-6 grid grid-cols-4 gap-2 border-b border-border pb-5"
@@ -554,6 +914,51 @@ function CaptureSession({ userId }: { userId: string }) {
               )}
               {step === 1 && (
                 <>
+                  {Object.keys(errors).length > 0 && (
+                    <div
+                      ref={validationSummaryRef}
+                      role="alert"
+                      aria-label="Podsumowanie błędów sprawy"
+                      tabIndex={-1}
+                      className="space-y-2 rounded-md border border-destructive bg-card p-4 text-sm text-destructive outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <p className="font-semibold">Sprawdź dane sprawy</p>
+                      <ul className="list-disc space-y-1 pl-5">
+                        {Object.entries(errors).map(([field, message]) => {
+                          const targetId =
+                            field === "title"
+                              ? "case-title"
+                              : field === "sourceUrl"
+                                ? "case-url"
+                                : field === "description"
+                                  ? "case-description"
+                                  : null;
+                          if (!targetId || !message) return null;
+                          return (
+                            <li key={field}>
+                              <a
+                                href={`#${targetId}`}
+                                className="inline-flex min-h-11 items-center underline underline-offset-4 [overflow-wrap:anywhere]"
+                                onClick={(event) => {
+                                  event.preventDefault();
+                                  if (
+                                    field === "description" &&
+                                    descriptionDetailsRef.current
+                                  )
+                                    descriptionDetailsRef.current.open = true;
+                                  requestAnimationFrame(() =>
+                                    document.getElementById(targetId)?.focus(),
+                                  );
+                                }}
+                              >
+                                {message}
+                              </a>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <label
                       htmlFor="case-title"
@@ -629,7 +1034,7 @@ function CaptureSession({ userId }: { userId: string }) {
                       </p>
                     )}
                   </div>
-                  <details>
+                  <details ref={descriptionDetailsRef}>
                     <summary className="min-h-11 cursor-pointer py-3 text-sm font-medium underline underline-offset-4">
                       Więcej szczegółów
                     </summary>
@@ -644,7 +1049,10 @@ function CaptureSession({ userId }: { userId: string }) {
                         id="case-description"
                         rows={5}
                         value={description}
-                        onChange={(event) => setDescription(event.target.value)}
+                        onChange={(event) => {
+                          setDescription(event.target.value);
+                          setDuplicates(null);
+                        }}
                         disabled={frozen}
                         aria-invalid={Boolean(errors.description)}
                         aria-describedby={`case-description-hint${errors.description ? " case-description-error" : ""}`}
@@ -670,23 +1078,201 @@ function CaptureSession({ userId }: { userId: string }) {
                 </>
               )}
               {step === 2 && (
-                <fieldset className="space-y-3">
-                  <legend className="sr-only">Działanie przy zapisie</legend>
-                  <label className="flex min-h-14 cursor-pointer items-start gap-3 rounded-lg border border-input p-4 text-sm has-checked:border-primary has-checked:bg-accent">
-                    <input
-                      type="radio"
-                      name="case-action"
-                      checked={action}
-                      onChange={() => setAction(true)}
-                      disabled={frozen}
-                      className="mt-0.5 size-4 accent-primary"
-                    />
-                    <span>Zapisz tylko sprawę</span>
-                  </label>
+                <fieldset
+                  className="space-y-3"
+                  disabled={frozen}
+                  aria-invalid={Boolean(actionErrors.actionKind)}
+                  aria-describedby={
+                    actionErrors.actionKind
+                      ? "case-action-kind-error"
+                      : undefined
+                  }
+                >
+                  <legend className="mb-2 text-sm font-medium">
+                    Co chcesz rzeczywiście zarejestrować?
+                  </legend>
                   <p className="text-sm leading-6 text-muted-foreground">
-                    Nowa sprawa otrzyma status „Zapisane”. Zapis nie oznacza
-                    aplikowania, wysłania CV ani kontaktu.
+                    Wybór Sytuacji nie wybiera Działania. Możesz zapisać samą
+                    sprawę albo jawnie potwierdzić jeden rzeczywisty fakt.
                   </p>
+                  {Object.keys(actionErrors).length > 0 && (
+                    <div
+                      ref={actionValidationSummaryRef}
+                      role="alert"
+                      aria-label="Podsumowanie błędów działania"
+                      tabIndex={-1}
+                      className="space-y-2 rounded-md border border-destructive bg-card p-4 text-sm text-destructive outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      <p className="font-semibold">Sprawdź działanie</p>
+                      <ul className="list-disc space-y-1 pl-5">
+                        {Object.entries(actionErrors).map(
+                          ([field, message]) => {
+                            const targetId =
+                              field === "actionKind"
+                                ? "case-action-save_only"
+                                : field === "occurredOn"
+                                  ? "case-action-date"
+                                  : field === "factConfirmed"
+                                    ? "case-action-confirmation"
+                                    : null;
+                            if (!targetId || !message) return null;
+                            return (
+                              <li key={field}>
+                                <a
+                                  href={`#${targetId}`}
+                                  className="inline-flex min-h-11 items-center underline underline-offset-4 [overflow-wrap:anywhere]"
+                                  onClick={(event) => {
+                                    event.preventDefault();
+                                    requestAnimationFrame(() =>
+                                      document
+                                        .getElementById(targetId)
+                                        ?.focus(),
+                                    );
+                                  }}
+                                >
+                                  {message}
+                                </a>
+                              </li>
+                            );
+                          },
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                  {(
+                    [
+                      ["save_only", "Zapisz tylko sprawę"],
+                      ["application", "Rzeczywiście aplikowano"],
+                      ["contact_inbound", "Kontakt przychodzący (inbound)"],
+                      ["contact_outbound", "Kontakt wychodzący (outbound)"],
+                    ] as const
+                  ).map(([kind, label]) => (
+                    <label
+                      key={kind}
+                      className="flex min-h-14 cursor-pointer items-start gap-3 rounded-lg border border-input p-4 text-sm has-checked:border-primary has-checked:bg-accent"
+                    >
+                      <input
+                        id={`case-action-${kind}`}
+                        type="radio"
+                        name="case-action"
+                        value={kind}
+                        checked={actionKind === kind}
+                        onChange={() => {
+                          setActionKind(kind);
+                          setFactConfirmed(false);
+                          setActionErrors({});
+                          setDuplicates(null);
+                        }}
+                        aria-invalid={
+                          kind === "save_only" && actionErrors.actionKind
+                            ? true
+                            : undefined
+                        }
+                        className="mt-0.5 size-4 accent-primary"
+                      />
+                      <span>{label}</span>
+                    </label>
+                  ))}
+                  {actionErrors.actionKind && (
+                    <p
+                      id="case-action-kind-error"
+                      className="text-sm text-destructive"
+                    >
+                      {actionErrors.actionKind}
+                    </p>
+                  )}
+                  {actionKind === "save_only" && (
+                    <p className="text-sm leading-6 text-muted-foreground">
+                      Sprawa otrzyma status „Zapisane”. Nie zapisze się fakt
+                      aplikowania ani kontaktu, także gdy Sytuacja opisuje
+                      wykonaną aplikację.
+                    </p>
+                  )}
+                  {actionKind && actionKind !== "save_only" && (
+                    <div className="space-y-4 rounded-lg border border-border p-4">
+                      <div className="space-y-2">
+                        <label
+                          htmlFor="case-action-date"
+                          className="block text-sm font-medium"
+                        >
+                          Dzień działania (opcjonalnie)
+                        </label>
+                        <input
+                          id="case-action-date"
+                          type="date"
+                          max={warsawToday()}
+                          value={occurredOn}
+                          onChange={(event) => {
+                            setOccurredOn(event.target.value);
+                            setFactConfirmed(false);
+                            setActionErrors((current) => {
+                              const next = { ...current };
+                              delete next.occurredOn;
+                              delete next.factConfirmed;
+                              return next;
+                            });
+                            setDuplicates(null);
+                          }}
+                          aria-invalid={Boolean(actionErrors.occurredOn)}
+                          aria-describedby={`case-action-date-hint${actionErrors.occurredOn ? " case-action-date-error" : ""}`}
+                          className={inputClass}
+                        />
+                        <p
+                          id="case-action-date-hint"
+                          className="text-xs leading-5 text-muted-foreground"
+                        >
+                          Puste pole oznacza, że dzień jest nieznany. Nie
+                          zastępujemy go datą zapisu w CRM.
+                        </p>
+                        {actionErrors.occurredOn && (
+                          <p
+                            id="case-action-date-error"
+                            className="text-sm text-destructive"
+                          >
+                            {actionErrors.occurredOn}
+                          </p>
+                        )}
+                      </div>
+                      <label
+                        htmlFor="case-action-confirmation"
+                        className="flex min-h-11 cursor-pointer items-start gap-3 text-sm"
+                      >
+                        <input
+                          id="case-action-confirmation"
+                          type="checkbox"
+                          checked={factConfirmed}
+                          onChange={(event) => {
+                            setFactConfirmed(event.target.checked);
+                            setActionErrors((current) => {
+                              const next = { ...current };
+                              delete next.factConfirmed;
+                              return next;
+                            });
+                            setDuplicates(null);
+                          }}
+                          aria-invalid={Boolean(actionErrors.factConfirmed)}
+                          aria-describedby={
+                            actionErrors.factConfirmed
+                              ? "case-action-confirmation-error"
+                              : undefined
+                          }
+                          className="mt-0.5 size-4 shrink-0 accent-primary"
+                        />
+                        <span>
+                          Potwierdzam, że to działanie rzeczywiście miało
+                          miejsce
+                        </span>
+                      </label>
+                      {actionErrors.factConfirmed && (
+                        <p
+                          id="case-action-confirmation-error"
+                          className="text-sm text-destructive"
+                        >
+                          {actionErrors.factConfirmed}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </fieldset>
               )}
               {step === 3 && summary.success && (
@@ -695,17 +1281,45 @@ function CaptureSession({ userId }: { userId: string }) {
                     <dt className="text-muted-foreground">
                       Sytuacja (pomocniczo)
                     </dt>
-                    <dd className="mt-1">{situation || "Nie określono"}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">Nazwa sprawy</dt>
-                    <dd className="mt-1 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
-                      {summary.data.title}
+                    <dd className="mt-1 space-y-2">
+                      <span>{situation || "Nie określono"}</span>
+                      <Button
+                        type="button"
+                        disabled={frozen || recovering}
+                        className={buttonClass}
+                        onClick={() => {
+                          setError(null);
+                          setStep(0);
+                        }}
+                      >
+                        Popraw sytuację
+                      </Button>
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-muted-foreground">Status</dt>
-                    <dd className="mt-1">Zapisane</dd>
+                    <dt className="text-muted-foreground">Nazwa sprawy</dt>
+                    <dd className="mt-1 space-y-2">
+                      <span className="block whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
+                        {summary.data.title}
+                      </span>
+                      <Button
+                        type="button"
+                        disabled={frozen || recovering}
+                        className={buttonClass}
+                        onClick={() => {
+                          setError(null);
+                          setStep(1);
+                        }}
+                      >
+                        Popraw dane
+                      </Button>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">Status po zapisie</dt>
+                    <dd className="mt-1">
+                      {actionKind ? captureStatus(actionKind) : "Do ustalenia"}
+                    </dd>
                   </div>
                   {summary.data.description && (
                     <div>
@@ -724,8 +1338,48 @@ function CaptureSession({ userId }: { userId: string }) {
                     </div>
                   )}
                   <div>
-                    <dt className="text-muted-foreground">Działanie</dt>
-                    <dd className="mt-1">Zapisz tylko sprawę</dd>
+                    <dt className="text-muted-foreground">
+                      Rzeczywiście rejestrowane działanie
+                    </dt>
+                    <dd className="mt-1">
+                      {actionKind
+                        ? captureActionLabel(actionKind)
+                        : "Nie wybrano"}
+                    </dd>
+                  </div>
+                  {currentAction && currentAction.kind !== "save_only" && (
+                    <>
+                      <div>
+                        <dt className="text-muted-foreground">
+                          Dzień działania
+                        </dt>
+                        <dd className="mt-1">
+                          {currentAction.occurredOn || "Nieznany"}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-muted-foreground">
+                          Potwierdzenie faktu
+                        </dt>
+                        <dd className="mt-1">Tak</dd>
+                      </div>
+                    </>
+                  )}
+                  <div>
+                    <dt className="text-muted-foreground">Zmiana działania</dt>
+                    <dd className="mt-1">
+                      <Button
+                        type="button"
+                        disabled={frozen || recovering}
+                        className={buttonClass}
+                        onClick={() => {
+                          setError(null);
+                          setStep(2);
+                        }}
+                      >
+                        Popraw działanie
+                      </Button>
+                    </dd>
                   </div>
                 </dl>
               )}
@@ -747,6 +1401,12 @@ function CaptureSession({ userId }: { userId: string }) {
                       <li key={item.id}>
                         <Link
                           href={`/recruitments/${item.id}`}
+                          onClick={(event) =>
+                            guardDuplicateNavigation(
+                              event,
+                              `/recruitments/${item.id}`,
+                            )
+                          }
                           className="inline-flex min-h-11 items-center break-words underline underline-offset-4 [overflow-wrap:anywhere]"
                         >
                           {item.title}
@@ -863,7 +1523,9 @@ function CaptureSession({ userId }: { userId: string }) {
                           ),
                         )
                       }
-                      disabled={pending || recovering}
+                      disabled={
+                        pending || recovering || (uncertain && !retryAvailable)
+                      }
                       className={primaryClass}
                     >
                       {pending && (
@@ -877,7 +1539,9 @@ function CaptureSession({ userId }: { userId: string }) {
                     <Button
                       type="button"
                       onClick={() => void save(true)}
-                      disabled={pending || recovering || uncertain}
+                      disabled={
+                        pending || recovering || (uncertain && !retryAvailable)
+                      }
                       className={buttonClass}
                     >
                       Zapisz i dodaj kolejną
@@ -892,6 +1556,7 @@ function CaptureSession({ userId }: { userId: string }) {
                 if (details.reason === "escape-key")
                   details.event.stopPropagation();
                 setDiscard(value);
+                if (!value) setPendingNavigation(null);
               }}
             >
               <AlertDialog.Portal>
@@ -926,6 +1591,7 @@ function CaptureSession({ userId }: { userId: string }) {
                         event.preventDefault();
                         setDiscard(false);
                         setOpen(false);
+                        setPendingNavigation(null);
                         // Viewing the list is not abandoning or rolling back this intent.
                         if (
                           window.location.pathname === "/recruitments" &&
@@ -940,17 +1606,25 @@ function CaptureSession({ userId }: { userId: string }) {
                     </Link>
                   )}
                   <div className="mt-5 flex flex-wrap gap-3">
-                    <AlertDialog.Close className={buttonClass}>
-                      {uncertain ? "Wróć do zapisu" : "Kontynuuj edycję"}
-                    </AlertDialog.Close>
+                    {(!uncertain || retryAvailable) && (
+                      <AlertDialog.Close
+                        className={buttonClass}
+                        onClick={() => setPendingNavigation(null)}
+                      >
+                        {uncertain ? "Wróć do zapisu" : "Kontynuuj edycję"}
+                      </AlertDialog.Close>
+                    )}
                     <Button
                       type="button"
                       className={primaryClass}
                       onClick={() => {
+                        const destination = pendingNavigation;
                         setDiscard(false);
                         setOpen(false);
                         if (uncertain) clearStoredIntent();
+                        setPendingNavigation(null);
                         resetDraft();
+                        if (destination) router.push(destination);
                       }}
                     >
                       {uncertain ? "Porzuć ten zapis" : "Odrzuć zmiany"}

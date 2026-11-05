@@ -1,0 +1,51 @@
+diff --git a/scripts/recruitment/port-profile.test.ts b/scripts/recruitment/port-profile.test.ts
+index 795ee87..864a618 100644
+--- a/scripts/recruitment/port-profile.test.ts
++++ b/scripts/recruitment/port-profile.test.ts
+@@ -50,16 +50,16 @@ test("port profile renderer preserves legacy config and changes only known isola
+       recruitmentPortProfiles.legacy[key],
+       recruitmentPortProfiles.isolated[key],
+     );
+-  assert.match(isolated, /^\[api\]\nenabled = true\nport = 57021$/m);
+-  assert.match(isolated, /^\[db\]\nport = 57022\nshadow_port = 57020$/m);
+-  assert.match(isolated, /^\[studio\]\nenabled = false\nport = 57023$/m);
+-  assert.match(isolated, /^\[local_smtp\]\nenabled = true\nport = 57024$/m);
++  assert.match(isolated, /^\[api\]\nenabled = true\nport = 57321$/m);
++  assert.match(isolated, /^\[db\]\nport = 57322\nshadow_port = 57320$/m);
++  assert.match(isolated, /^\[studio\]\nenabled = false\nport = 57323$/m);
++  assert.match(isolated, /^\[local_smtp\]\nenabled = true\nport = 57324$/m);
+   const normalized = isolated
+-    .replace("port = 57021", "port = 56621")
+-    .replace("port = 57022", "port = 56622")
+-    .replace("shadow_port = 57020", "shadow_port = 56620")
+-    .replace("port = 57023", "port = 56623")
+-    .replace("port = 57024", "port = 56624");
++    .replace("port = 57321", "port = 56621")
++    .replace("port = 57322", "port = 56622")
++    .replace("shadow_port = 57320", "shadow_port = 56620")
++    .replace("port = 57323", "port = 56623")
++    .replace("port = 57324", "port = 56624");
+   assert.equal(normalized, legacy);
+ });
+ 
+diff --git a/scripts/recruitment/validation.ts b/scripts/recruitment/validation.ts
+index e608dcf..6b75f3d 100644
+--- a/scripts/recruitment/validation.ts
++++ b/scripts/recruitment/validation.ts
+@@ -5,11 +5,11 @@ export const sha256 = (value: string) =>
+ export const recruitmentPortProfiles = {
+   legacy: { api: 56621, db: 56622, shadow: 56620, studio: 56623, smtp: 56624 },
+   isolated: {
+-    api: 57021,
+-    db: 57022,
+-    shadow: 57020,
+-    studio: 57023,
+-    smtp: 57024,
++    api: 57321,
++    db: 57322,
++    shadow: 57320,
++    studio: 57323,
++    smtp: 57324,
+   },
+ } as const;
+ export type RecruitmentPortProfile = keyof typeof recruitmentPortProfiles;

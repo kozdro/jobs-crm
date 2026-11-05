@@ -2,6 +2,61 @@
 import { createHash } from "node:crypto";
 export const sha256 = (value: string) =>
   createHash("sha256").update(value).digest("hex");
+export const recruitmentPortProfiles = {
+  legacy: { api: 56621, db: 56622, shadow: 56620, studio: 56623, smtp: 56624 },
+  isolated: {
+    api: 57021,
+    db: 57022,
+    shadow: 57020,
+    studio: 57023,
+    smtp: 57024,
+  },
+} as const;
+export type RecruitmentPortProfile = keyof typeof recruitmentPortProfiles;
+
+/** Render only the five known local listener ports; all other config is preserved byte-for-byte. */
+export function recruitmentConfigForProfile(
+  template: string,
+  projectId: string,
+  profile: RecruitmentPortProfile,
+) {
+  const ports = recruitmentPortProfiles[profile];
+  let config = template.replace(
+    "jobs-crm-recruitment-local-template",
+    projectId,
+  );
+  const hasPortProfile = ["api", "db", "studio", "local_smtp"].every(
+    (section) => config.includes(`[${section}]\n`),
+  );
+  if (!hasPortProfile) {
+    if (profile === "legacy") return config;
+    throw new Error("Recruitment config section missing");
+  }
+  const sections = [
+    ["api", "port", ports.api],
+    ["db", "port", ports.db],
+    ["db", "shadow_port", ports.shadow],
+    ["studio", "port", ports.studio],
+    ["local_smtp", "port", ports.smtp],
+  ] as const;
+  for (const [section, key, port] of sections) {
+    const heading = `[${section}]`;
+    const start = config.indexOf(`${heading}\n`);
+    if (start < 0) throw new Error("Recruitment config section missing");
+    const bodyStart = start + heading.length + 1;
+    const nextSection = config.indexOf("\n[", bodyStart);
+    const bodyEnd = nextSection < 0 ? config.length : nextSection + 1;
+    const body = config.slice(bodyStart, bodyEnd);
+    const pattern = new RegExp(`(^${key} = )\\d+$`, "m");
+    if (!pattern.test(body))
+      throw new Error("Recruitment config port setting missing");
+    config =
+      config.slice(0, bodyStart) +
+      body.replace(pattern, `$1${port}`) +
+      config.slice(bodyEnd);
+  }
+  return config;
+}
 /** CLI 2.122.0 truncates local project IDs at 40 characters; preserve all random entropy. */
 export function recruitmentProjectId(id: string, nonce: string) {
   if (!/^[a-z][a-z0-9-]{0,30}$/.test(id) || !/^[a-f0-9]{12}$/.test(nonce))
@@ -15,6 +70,8 @@ export interface RecruitmentManifest {
   networkId: string;
   workdir: string;
   configHash: string;
+  /** Missing means the original fixed 566xx profile; new targets bind explicitly to isolated. */
+  portProfile?: RecruitmentPortProfile;
   createdAt: string;
   migrationCheckpoint: string;
   containers?: { id: string; name: string; imageId: string }[];
@@ -44,8 +101,13 @@ export function assertRecruitmentManifest(
     m.networkId !== `network-${m.projectId}` ||
     !/^[a-f0-9]{64}$/.test(m.migrationCheckpoint) ||
     sha256(config) !== m.configHash ||
+    !["legacy", "isolated"].includes(m.portProfile ?? "legacy") ||
     config !==
-      template.replace("jobs-crm-recruitment-local-template", m.projectId)
+      recruitmentConfigForProfile(
+        template,
+        m.projectId,
+        m.portProfile ?? "legacy",
+      )
   )
     throw new Error("Recruitment target manifest/config drift refused");
 }

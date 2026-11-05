@@ -13,6 +13,11 @@ import { getAuthConfig } from "@/shared/server/env";
 
 import { parseRecordCaseEventInput } from "@/modules/recruitment/domain/case-events";
 import { recordRecruitmentCaseEvent } from "@/modules/recruitment/application/case-events";
+import {
+  createQuickCaptureAtomic,
+  getQuickCaptureAtomicReceipt,
+} from "@/modules/recruitment/application/quick-capture-atomic";
+import { parseQuickCaptureAtomicInput } from "@/modules/recruitment/domain/quick-capture-atomic";
 
 export const dynamic = "force-dynamic";
 
@@ -66,9 +71,14 @@ export async function POST(request: NextRequest) {
     const eventAction = payload.action === "record-event";
     const eventPayload = { ...payload };
     if (eventAction) delete eventPayload.action;
+    const atomicAction =
+      Object.hasOwn(payload, "contractVersion") ||
+      Object.hasOwn(payload, "intent");
     const parsed = eventAction
       ? parseRecordCaseEventInput(eventPayload)
-      : parseCreateCaseInput(payload);
+      : atomicAction
+        ? parseQuickCaptureAtomicInput(payload)
+        : parseCreateCaseInput(payload);
     if (!parsed.success)
       return reply({ kind: "invalid", errors: parsed.errors }, 400);
     const client = getRouteClient(request, cookieResponse);
@@ -78,7 +88,9 @@ export async function POST(request: NextRequest) {
     const result =
       "caseId" in parsed.data
         ? await recordRecruitmentCaseEvent(client, parsed.data)
-        : await createRecruitmentCase(client, parsed.data);
+        : "contractVersion" in parsed.data
+          ? await createQuickCaptureAtomic(client, parsed.data)
+          : await createRecruitmentCase(client, parsed.data);
     return reply(result);
   } catch (error) {
     if (error instanceof CaseRepositoryError)
@@ -91,6 +103,47 @@ export async function POST(request: NextRequest) {
         error.kind,
       );
     // Never log/return private SQL/provider payloads or tokens.
+    return failure(503, "unavailable");
+  }
+}
+
+/** Owner-only read of the immutable atomic capture receipt; never mutates. */
+export async function GET(request: NextRequest) {
+  const cookieResponse = protectAuthResponse(NextResponse.json({}));
+  function reply(body: unknown, status = 200) {
+    return protectAuthResponse(
+      NextResponse.json(body, { status, headers: cookieResponse.headers }),
+    );
+  }
+  function failure(status: number, kind: string) {
+    return reply(
+      {
+        error: "Nie udało się sprawdzić poprzedniego zapisu.",
+        kind,
+      },
+      status,
+    );
+  }
+  try {
+    const config = getAuthConfig();
+    if (!config.enabled) return failure(503, "unavailable");
+    if (
+      request.headers.get("host")?.toLowerCase() !== new URL(config.origin).host
+    )
+      return failure(403, "forbidden");
+    const requestId = request.nextUrl.searchParams.get("requestId");
+    if (!requestId || !uuidPattern.test(requestId))
+      return failure(400, "invalid");
+    const client = getRouteClient(request, cookieResponse);
+    const { data, error } = await client.auth.getUser();
+    if (error || !data.user) return failure(401, "unauthenticated");
+    const receipt = await getQuickCaptureAtomicReceipt(client, requestId);
+    return reply(
+      receipt ? { kind: "receipt", receipt } : { kind: "not-found" },
+    );
+  } catch (error) {
+    if (error instanceof CaseRepositoryError)
+      return failure(error.kind === "invalid" ? 400 : 503, error.kind);
     return failure(503, "unavailable");
   }
 }

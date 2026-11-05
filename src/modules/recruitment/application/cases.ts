@@ -21,7 +21,7 @@ export class CaseRepositoryError extends Error {
 }
 
 /** Always projects business read fields, never owner/intent identifiers. */
-function readCase(value: unknown): RecruitmentCase {
+export function readRecruitmentCase(value: unknown): RecruitmentCase {
   if (!value || typeof value !== "object")
     throw new CaseRepositoryError("unavailable");
   const row = value as Record<string, unknown>;
@@ -81,7 +81,7 @@ export async function createRecruitmentCase(
           : "unavailable",
     );
   if (data?.kind === "created" || data?.kind === "replayed")
-    return { kind: data.kind, case: readCase(data.case) };
+    return { kind: data.kind, case: readRecruitmentCase(data.case) };
   if (
     data?.kind === "duplicates" &&
     Array.isArray(data.matches) &&
@@ -89,7 +89,7 @@ export async function createRecruitmentCase(
   )
     return {
       kind: "duplicates",
-      matches: data.matches.map(readCase),
+      matches: data.matches.map(readRecruitmentCase),
       hasMore: data.hasMore,
     };
   throw new CaseRepositoryError("unavailable");
@@ -113,7 +113,7 @@ export async function listRecruitmentCases(client: SupabaseClient, page = 1) {
   if (error || !Array.isArray(data))
     throw new CaseRepositoryError("unavailable");
   return {
-    cases: data.slice(0, casePageSize).map(readCase),
+    cases: data.slice(0, casePageSize).map(readRecruitmentCase),
     hasMore: data.length > casePageSize,
     page,
   };
@@ -131,7 +131,7 @@ async function findCase(
     .eq(column, value)
     .maybeSingle();
   if (error) throw new CaseRepositoryError("unavailable");
-  return data ? readCase(data) : null;
+  return data ? readRecruitmentCase(data) : null;
 }
 export const getRecruitmentCase = (client: SupabaseClient, id: string) =>
   findCase(client, "id", id);

@@ -1,5 +1,7 @@
 # Product Journey UX Hardening — raport
 
+**Status update 2026-11-02:** raport opisuje hardening wykonany przed osobnym Quick Capture Atomic Action. Późniejsza implementacja DEC-061 P1/P2/P3 i jej aktualne QA/review/CI są w [osobnym raporcie](quick-capture-atomic-action-implementation.md).
+
 2026-11-01. Baza aktualnego `main`: `637f330f6dc1215ad2479dd699b8814397e5b5de` (fetch potwierdzony przed pracą i publikacją). [PR #22](https://github.com/kozdro/jobs-crm/pull/22), osobny worktree i gałąź `feat/product-journey-ux-hardening`. Końcowy kod/testy: `4941924df40d7affbcd90d2a721f9f80ed6d7199`; późniejsze dokumenty/dowody są raportowane odrębnie, bez zmiany kodu. Bez merge, deploymentu i ingerencji w persistent DEV/cudze zmiany.
 
 ## Zgodność z decyzjami
@@ -21,28 +23,28 @@ Wpływ ograniczony do UX szkicu/focus/nawigacji i guardu prezentacyjnych fragmen
 
 ## Wykonane kontrole
 
-| Kontrola | Wynik i dokładny zakres |
-| --- | --- |
-| Unit | PASS **534 aplikacyjne** na kodzie `0f93627` + **87 skryptowych** na `eb461e4`; późniejsze zmiany wyłącznie testu browser i dokumentów |
-| TypeScript, lint, format | PASS na `0f93627`; późniejszy test nawigacji lint/format i TypeScript ponownie sprawdzone |
-| Harness sync/check + testy procesu | PASS, **21/21**; nie są testami aplikacji |
-| Boundaries / canary | PASS_R2 / PASS_R3 na wcześniejszym podzakresie; setup FAIL zachowane, bez zmiany kodu kontroli |
-| Pełny lokalny production HTTPS browser | PASS **129/129** na `eb461e4` (118 istniejących +11 nowych); build i integracje **133/133 PASS**, natural exit0 |
-| Finalny świeży target `4941924` | Build PASS, integracje **133/133 PASS**, browser **PASS16/16**, natural exit0 (16 przypadków, nie pełna suite) |
-| Końcowe hosted CI | Dokładny opublikowany head i stan wszystkich jobs w PR; starszy run nie certyfikuje późniejszego SHA |
-| Fizyczne telefony, Safari/Firefox, AT, rzeczywisty zoom | NOT RUN; testy rozmiarów to desktop Chromium z zadanym viewportem |
+| Kontrola                                                | Wynik i dokładny zakres                                                                                                                |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit                                                    | PASS **534 aplikacyjne** na kodzie `0f93627` + **87 skryptowych** na `eb461e4`; późniejsze zmiany wyłącznie testu browser i dokumentów |
+| TypeScript, lint, format                                | PASS na `0f93627`; późniejszy test nawigacji lint/format i TypeScript ponownie sprawdzone                                              |
+| Harness sync/check + testy procesu                      | PASS, **21/21**; nie są testami aplikacji                                                                                              |
+| Boundaries / canary                                     | PASS_R2 / PASS_R3 na wcześniejszym podzakresie; setup FAIL zachowane, bez zmiany kodu kontroli                                         |
+| Pełny lokalny production HTTPS browser                  | PASS **129/129** na `eb461e4` (118 istniejących +11 nowych); build i integracje **133/133 PASS**, natural exit0                        |
+| Finalny świeży target `4941924`                         | Build PASS, integracje **133/133 PASS**, browser **PASS16/16**, natural exit0 (16 przypadków, nie pełna suite)                         |
+| Końcowe hosted CI                                       | Dokładny opublikowany head i stan wszystkich jobs w PR; starszy run nie certyfikuje późniejszego SHA                                   |
+| Fizyczne telefony, Safari/Firefox, AT, rzeczywisty zoom | NOT RUN; testy rozmiarów to desktop Chromium z zadanym viewportem                                                                      |
 
 Środowisko: Node24.22.2, production build + HTTPS Chromium, rzeczywiste lokalne Auth/JWT/Data API/PostgreSQL/RLS, dane syntetyczne, świeże izolowane targety. Manifesty wiążą Git/source/runtime i jawne port adapters; focused config selection jest osobnym adapterem, nie zmianą produktu. [Dowody](evidence/product-journey-hardening/) i [local checks](evidence/product-journey-hardening/local-checks-r1.json). Wyniki pełnej suite i selekcji pozostają oddzielne.
 
 ## Niezależne review i historia FAIL
 
-| Review | Wynik / kandydat / granice |
-| --- | --- |
-| Backend/process | **PASS_STATIC** `08ae103`: prompt guard, macierz/skills/workflow, bez rozszerzenia uprawnień |
-| Frontend R1/R2 | Historyczne **FAIL_STATIC**: blanket scrub legalnych anchorów, brak kontekstowych testów, nieaktualny opis testcount; R2 potwierdził zgodność kanoniczną/naprawę guarda i wskazał błędne oczekiwanie persistence po reload |
-| Frontend R3 | **PASS_STATIC delty** `0f93627→0dc53ed`: rozdzielenie reload od powrotu w tej samej sesji SPA; bez zmiany modelu storage produktu |
-| Security R2 | **PASS_STATIC** `0f93627`: exactallowlist/URL/SDK/PKCE/grants, proces bez rozszerzenia uprawnień; granice propozycji atomowego QC |
-| Security R4 | **PASS_STATIC delty** `0dc53ed→4941924`: rozdzielenie bootstrap/native-only/reload zachowuje session-injection invariant; produkt/guard bez zmiany |
+| Review          | Wynik / kandydat / granice                                                                                                                                                                                                 |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Backend/process | **PASS_STATIC** `08ae103`: prompt guard, macierz/skills/workflow, bez rozszerzenia uprawnień                                                                                                                               |
+| Frontend R1/R2  | Historyczne **FAIL_STATIC**: blanket scrub legalnych anchorów, brak kontekstowych testów, nieaktualny opis testcount; R2 potwierdził zgodność kanoniczną/naprawę guarda i wskazał błędne oczekiwanie persistence po reload |
+| Frontend R3     | **PASS_STATIC delty** `0f93627→0dc53ed`: rozdzielenie reload od powrotu w tej samej sesji SPA; bez zmiany modelu storage produktu                                                                                          |
+| Security R2     | **PASS_STATIC** `0f93627`: exactallowlist/URL/SDK/PKCE/grants, proces bez rozszerzenia uprawnień; granice propozycji atomowego QC                                                                                          |
+| Security R4     | **PASS_STATIC delty** `0dc53ed→4941924`: rozdzielenie bootstrap/native-only/reload zachowuje session-injection invariant; produkt/guard bez zmiany                                                                         |
 
 Każde review to odrębny rodzic read-only przez `harness/scripts/review.py`, dokładnie jeden native generic subagent + canonical role; bez edycji, testów reviewerów i dalszej delegacji autora. Dotychczasowe wrappery exit0, changedFiles=[] i identyczne fingerprinty przed/po. Zakres finalny składa się z tych ocen, nie deklarujemy jednego pełnego review końcowego SHA. [Proces](evidence/product-journey-hardening/process-review-r1.md), [frontend R1](evidence/product-journey-hardening/frontend-review-r1.md), [R2](evidence/product-journey-hardening/frontend-review-r2.md), [R3](evidence/product-journey-hardening/frontend-review-r3.md), [security](evidence/product-journey-hardening/security-review-r2.md).
 
@@ -64,12 +66,12 @@ Pierwsze hosted CI [run41329664121](https://github.com/kozdro/jobs-crm/actions/r
 
 Lokalne raporty i artefakty Product Journey Audit byly moimi wynikami oraz wynikami moich agentow z poprzedniego zadania. Nazwanie ich cudzymi zmianami bylo bledem raportowania; nie stanowily zmian innego autora wymagajacych wykluczenia z PR. Dodano [raport historyczny](../quality/product-journey-audit.md), [browser QA](../quality/product-journey-browser-audit.md), [SDD](../quality/product-journey-sdd-audit.md) oraz [dowody i manifest importu](evidence/product-journey-audit/README.md). Baza637f330, historyczne SHA i FAIL zachowane.
 
-| Historyczny finding | Stan po hardeningu |
-| --- | --- |
-| P3 brak summary Task | NAPRAWIONY; aktualna regresja wymaga summary, dwoch linkow i focus |
-| P2 bardzo dlugi mobilny detal | USPRAWNIONY szescioma skrotami; brak deklaracji skrocenia dokumentu lub pelnego usuniecia problemu usability |
+| Historyczny finding                         | Stan po hardeningu                                                                                                          |
+| ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| P3 brak summary Task                        | NAPRAWIONY; aktualna regresja wymaga summary, dwoch linkow i focus                                                          |
+| P2 bardzo dlugi mobilny detal               | USPRAWNIONY szescioma skrotami; brak deklaracji skrocenia dokumentu lub pelnego usuniecia problemu usability                |
 | Dwie przekrojowe podroze i poprawki asercji | Przejeto/rozwinieto w biezacym hardening.spec.ts; stary test i diagnostic braku summary zachowano jako .ts.txt poza testDir |
-| Pozostale siedem scenariuszy z analizy SDD | Nie oznaczono zbiorczo jako zamkniete; potrzebne osobne dowody dla wszystkich wariantow |
+| Pozostale siedem scenariuszy z analizy SDD  | Nie oznaczono zbiorczo jako zamkniete; potrzebne osobne dowody dla wszystkich wariantow                                     |
 
 Po przedstawieniu szczegolowego kontraktu PO odpowiedzial: "Akceptuję kontrakt P1/P2/P3; implementacja pozostaje osobnym zadaniem." [DEC-061](../decisions/product-decisions.md) zatwierdza kontrakt, bez autoryzacji implementacji, migracji, merge lub deploymentu. Wczesniejsze PROPOSED/BLOCKED_DECISION w opisie przebiegu powyzej sa historia sprzed tej odpowiedzi; aktualna blokada dotyczy rozpoczecia osobnego zadania implementacyjnego, nie akceptacji samego kontraktu.
 
