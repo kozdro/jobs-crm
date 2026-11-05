@@ -740,6 +740,144 @@ for (const mode of ["create", "occurred"] as const) {
   });
 }
 
+test("pending Calendar intent blocks changes to other events while recovery and audit remain available", async ({
+  page,
+}) => {
+  const { client } = await sdkLogin(target, user);
+  const plannedTitle = `Other planned ${randomUUID()}`;
+  const occurredTitle = `Other occurred ${randomUUID()}`;
+  const schedule = {
+    startDate: "2099-05-15",
+    startTime: null,
+    endDate: null,
+    endTime: null,
+    allDay: false,
+    timeZone: "Europe/Warsaw",
+    startOffset: null,
+    endOffset: null,
+  };
+  const create = async (title: string, status: "planned" | "occurred") => {
+    const result = await client.rpc("execute_recruitment_calendar_command", {
+      p_request_id: randomUUID(),
+      p_payload: {
+        operation: "create",
+        values: {
+          title,
+          description: null,
+          caseId: null,
+          status,
+          timeZone: "Europe/Warsaw",
+          actual: null,
+          participants: [],
+          schedule: status === "planned" ? schedule : null,
+        },
+      },
+    });
+    expect(result.error).toBeNull();
+    return result.data.event as {
+      id: string;
+      revision: number;
+      status: string;
+    };
+  };
+  const planned = await create(plannedTitle, "planned");
+  const occurred = await create(occurredTitle, "occurred");
+  await login(page);
+  await page.goto(`${target.appOrigin}/calendar`);
+  await page
+    .getByRole("button", { name: "Dodaj wydarzenie", exact: true })
+    .click();
+  const dialog = page.getByRole("dialog", {
+    name: "Nowe wydarzenie",
+    exact: true,
+  });
+  await dialog
+    .getByLabel("Tytuł wydarzenia", { exact: true })
+    .fill(`Pending ${randomUUID()}`);
+  await dialog.getByLabel("Data", { exact: true }).fill("2099-05-15");
+  await page.route("**/calendar/commands", async (route) => {
+    if (route.request().method() === "POST") await route.abort("failed");
+    else await route.continue();
+  });
+  await dialog
+    .getByRole("button", { name: "Zapisz wydarzenie", exact: true })
+    .click();
+  await expect(dialog.getByRole("alert")).toContainText(
+    "Nie potwierdzono wyniku",
+  );
+  page.once("dialog", (warning) => warning.accept());
+  await dialog
+    .getByRole("button", { name: "Zamknij formularz", exact: true })
+    .click();
+  await expect(dialog).toHaveCount(0);
+  const plannedArticle = page.getByRole("article", {
+    name: plannedTitle,
+    exact: true,
+  });
+  const occurredArticle = page.getByRole("article", {
+    name: occurredTitle,
+    exact: true,
+  });
+  for (const action of [
+    "Edytuj wydarzenie",
+    "Przełóż termin",
+    "Rozlicz wydarzenie",
+  ]) {
+    await expect(
+      plannedArticle.getByRole("button", { name: action, exact: true }),
+    ).toBeDisabled();
+  }
+  await expect(
+    occurredArticle.getByRole("button", {
+      name: "Skoryguj wydarzenie",
+      exact: true,
+    }),
+  ).toBeDisabled();
+  await expect(plannedArticle).toContainText(
+    "Najpierw sprawdź wynik poprzedniego zapisu wydarzenia.",
+  );
+  await expect(
+    page.getByRole("button", { name: "Sprawdź wynik", exact: true }),
+  ).toBeVisible();
+  await expect(
+    plannedArticle.getByRole("button", {
+      name: "Pokaż historię wydarzenia",
+      exact: true,
+    }),
+  ).toBeEnabled();
+  await plannedArticle
+    .getByRole("button", { name: "Pokaż historię wydarzenia", exact: true })
+    .click();
+  await expect(
+    plannedArticle.getByRole("region", { name: "Historia wydarzenia" }),
+  ).toBeVisible();
+  const [plannedAfter, occurredAfter] = await Promise.all([
+    client.rpc("get_recruitment_calendar_event", { p_event_id: planned.id }),
+    client.rpc("get_recruitment_calendar_event", { p_event_id: occurred.id }),
+  ]);
+  expect(plannedAfter.error).toBeNull();
+  expect(occurredAfter.error).toBeNull();
+  expect(plannedAfter.data.revision).toBe(planned.revision);
+  expect(occurredAfter.data.revision).toBe(occurred.revision);
+  await page.unroute("**/calendar/commands");
+  await page
+    .getByRole("button", { name: "Sprawdź wynik", exact: true })
+    .click();
+  await expect(
+    page.getByText(/Nie odnaleziono potwierdzenia. Wynik pozostaje nieznany/),
+  ).toBeVisible();
+  page.once("dialog", (warning) => warning.accept());
+  await page
+    .getByRole("button", { name: "Porzuć oczekiwanie", exact: true })
+    .click();
+  await expect(
+    plannedArticle.getByRole("button", {
+      name: "Edytuj wydarzenie",
+      exact: true,
+    }),
+  ).toBeEnabled();
+});
+
 for (const action of ["Edytuj wydarzenie", "Rozlicz wydarzenie"] as const) {
   test(`canceling ${action} returns focus to the same event action after list refresh`, async ({
     page,

@@ -1349,7 +1349,7 @@ function EventSnapshot({
     </dl>
   );
 }
-function EventRow({
+export function EventRow({
   event,
   userId,
   cases,
@@ -1358,6 +1358,8 @@ function EventRow({
   onActivity,
   onDismiss,
   onFocusMissing,
+  onFocusRecovery,
+  mutationBlocked,
   now,
 }: {
   event: CalendarEvent;
@@ -1367,8 +1369,10 @@ function EventRow({
   contacts: Person[];
   onSaved: () => void;
   onActivity: (event: CalendarEvent, active: boolean, now: Date) => void;
-  onDismiss: () => void;
+  onDismiss: () => boolean;
   onFocusMissing: () => void;
+  onFocusRecovery: () => void;
+  mutationBlocked: boolean;
 }) {
   const [mode, setMode] = useState<"edit" | "resolve" | null>(null);
   const editTrigger = useRef<HTMLButtonElement>(null);
@@ -1384,6 +1388,7 @@ function EventRow({
     next: "edit" | "resolve",
     trigger: "edit" | "resolve" | "reschedule" = next,
   ) {
+    if (mutationBlocked) return;
     triggerKind.current = trigger;
     onActivity(event, true, now);
     setMode(next);
@@ -1461,46 +1466,58 @@ function EventRow({
         </p>
       )}
       {!mode && (
-        <div className="flex flex-wrap gap-2">
-          <button
-            ref={editTrigger}
-            type="button"
-            className={buttonStyles.secondary}
-            onClick={() => begin("edit")}
-          >
-            {event.status === "planned"
-              ? "Edytuj wydarzenie"
-              : "Skoryguj wydarzenie"}
-          </button>
-          {event.status === "planned" && (
-            <>
-              <button
-                ref={rescheduleTrigger}
-                type="button"
-                className={buttonStyles.secondary}
-                onClick={() => begin("edit", "reschedule")}
-              >
-                Przełóż termin
-              </button>
-              <button
-                ref={resolveTrigger}
-                type="button"
-                className={buttonStyles.secondary}
-                onClick={() => begin("resolve")}
-              >
-                Rozlicz wydarzenie
-              </button>
-            </>
+        <>
+          {mutationBlocked && (
+            <p className="text-sm text-muted-foreground">
+              Najpierw sprawdź wynik poprzedniego zapisu wydarzenia.
+            </p>
           )}
-          <button
-            type="button"
-            className={buttonStyles.ghost}
-            aria-expanded={!!audit}
-            onClick={() => void loadAudit()}
-          >
-            {audit ? "Ukryj historię wydarzenia" : "Pokaż historię wydarzenia"}
-          </button>
-        </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              ref={editTrigger}
+              type="button"
+              className={buttonStyles.secondary}
+              disabled={mutationBlocked}
+              onClick={() => begin("edit")}
+            >
+              {event.status === "planned"
+                ? "Edytuj wydarzenie"
+                : "Skoryguj wydarzenie"}
+            </button>
+            {event.status === "planned" && (
+              <>
+                <button
+                  ref={rescheduleTrigger}
+                  type="button"
+                  className={buttonStyles.secondary}
+                  disabled={mutationBlocked}
+                  onClick={() => begin("edit", "reschedule")}
+                >
+                  Przełóż termin
+                </button>
+                <button
+                  ref={resolveTrigger}
+                  type="button"
+                  className={buttonStyles.secondary}
+                  disabled={mutationBlocked}
+                  onClick={() => begin("resolve")}
+                >
+                  Rozlicz wydarzenie
+                </button>
+              </>
+            )}
+            <button
+              type="button"
+              className={buttonStyles.ghost}
+              aria-expanded={!!audit}
+              onClick={() => void loadAudit()}
+            >
+              {audit
+                ? "Ukryj historię wydarzenia"
+                : "Pokaż historię wydarzenia"}
+            </button>
+          </div>
+        </>
       )}
       {mode && (
         <Dialog.Root
@@ -1544,8 +1561,12 @@ function EventRow({
                         ? rescheduleTrigger
                         : editTrigger;
                   end();
-                  onDismiss();
+                  const pending = onDismiss();
                   requestAnimationFrame(() => {
+                    if (pending) {
+                      onFocusRecovery();
+                      return;
+                    }
                     if (target.current?.isConnected) target.current.focus();
                     else onFocusMissing();
                   });
@@ -1707,8 +1728,14 @@ export function CalendarPanel({
     requestAnimationFrame(() => heading.current?.focus());
   }
   const syncPending = useCallback(() => {
-    setPendingState(pendingCommand(userId));
+    const current = pendingCommand(userId);
+    setPendingState(current);
+    return Boolean(current);
   }, [userId]);
+  const focusRecovery = useCallback(() => {
+    if (recoveryTrigger.current?.isConnected) recoveryTrigger.current.focus();
+    else heading.current?.focus();
+  }, []);
   function closePanelForm() {
     const currentPending = pendingCommand(userId);
     const target =
@@ -1835,6 +1862,7 @@ export function CalendarPanel({
         : "Potwierdzono zapoznanie się z odzyskanym zapisem.",
     );
     reload();
+    requestAnimationFrame(() => heading.current?.focus());
   }
   async function restoreFromMemory(draft: MemoryDraft) {
     if (
@@ -2172,6 +2200,8 @@ export function CalendarPanel({
                     onActivity={onActivity}
                     onDismiss={syncPending}
                     onFocusMissing={focusPanel}
+                    onFocusRecovery={focusRecovery}
+                    mutationBlocked={Boolean(pendingState)}
                     now={now}
                   />
                 ))}
