@@ -3,6 +3,8 @@ import {
   revertedDraftCandidate,
   withoutMatchingDraft,
   type MemoryDraft,
+  stripRejectedDraftMetadata,
+  replaceMatchingDraft,
 } from "@/components/calendar/memory-drafts";
 const ownerId = "00000000-0000-4000-8000-000000000001";
 const entry: MemoryDraft = {
@@ -33,6 +35,62 @@ const entry: MemoryDraft = {
   zoneMode: "",
 };
 describe("reverted calendar draft", () => {
+  it("removes only definitively rejected metadata from the exact owner-bound frozen snapshot", () => {
+    const command = {
+      requestId: "00000000-0000-4000-8000-000000000002",
+      operation: "create" as const,
+      values: entry.values,
+    };
+    const frozen = {
+      ...entry,
+      pendingRequestId: command.requestId,
+      pendingCommand: command,
+    };
+    const clean = stripRejectedDraftMetadata(
+      ownerId,
+      entry.id,
+      frozen,
+      command,
+    );
+    expect(clean).not.toBeNull();
+    expect(clean).not.toHaveProperty("pendingRequestId");
+    expect(clean).not.toHaveProperty("pendingCommand");
+    expect(frozen.pendingCommand).toBe(command);
+    expect(
+      stripRejectedDraftMetadata("other", entry.id, frozen, command),
+    ).toBeNull();
+    expect(
+      stripRejectedDraftMetadata(ownerId, entry.id, frozen, { ...command }),
+    ).toBeNull();
+    const store = { ownerId, drafts: [frozen] };
+    expect(
+      replaceMatchingDraft(store, ownerId, entry.id, frozen, clean!).drafts,
+    ).toEqual([clean]);
+    expect(revertedDraftCandidate(false, false, false, clean)).toBe(clean);
+    const newer = {
+      ...frozen,
+      values: { ...frozen.values, title: "Nowszy szkic" },
+    };
+    expect(
+      replaceMatchingDraft(
+        { ownerId, drafts: [newer] },
+        ownerId,
+        entry.id,
+        frozen,
+        clean!,
+      ).drafts,
+    ).toEqual([newer]);
+    expect(
+      replaceMatchingDraft(
+        { ownerId: "other", drafts: [frozen] },
+        ownerId,
+        entry.id,
+        frozen,
+        clean!,
+      ).drafts,
+    ).toEqual([frozen]);
+    expect(revertedDraftCandidate(false, false, false, frozen)).toBeNull();
+  });
   it("removes exactly the previous snapshot when an unsent form returns to baseline", () => {
     const candidate = revertedDraftCandidate(false, false, false, entry);
     expect(candidate).toBe(entry);

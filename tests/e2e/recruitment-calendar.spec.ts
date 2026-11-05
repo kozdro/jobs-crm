@@ -1451,6 +1451,110 @@ test("baseline edit with an unknown pending result retains recovery across SPA n
   expect(current.data.revision).toBe(created.data.event.revision);
 });
 
+for (const next of ["baseline", "newer"] as const) {
+  test(`definitely rejected edit followed by ${next} preserves only the current working state`, async ({
+    page,
+  }) => {
+    await page.addInitScript(() =>
+      Object.defineProperty(window, "navigation", {
+        value: undefined,
+        configurable: true,
+      }),
+    );
+    const { client } = await sdkLogin(target, user);
+    const original = `Rejected baseline ${randomUUID()}`;
+    const created = await client.rpc("execute_recruitment_calendar_command", {
+      p_request_id: randomUUID(),
+      p_payload: {
+        operation: "create",
+        values: {
+          title: original,
+          description: null,
+          caseId: null,
+          status: "planned",
+          timeZone: "Europe/Warsaw",
+          actual: null,
+          participants: [],
+          schedule: {
+            startDate: "2099-05-15",
+            startTime: null,
+            endDate: null,
+            endTime: null,
+            allDay: false,
+            timeZone: "Europe/Warsaw",
+            startOffset: null,
+            endOffset: null,
+          },
+        },
+      },
+    });
+    expect(created.error).toBeNull();
+    await login(page);
+    await page.getByRole("link", { name: "Kalendarz", exact: true }).click();
+    await page
+      .getByRole("article", { name: original, exact: true })
+      .getByRole("button", { name: "Edytuj wydarzenie", exact: true })
+      .click();
+    const dialog = page.getByRole("dialog", {
+      name: "Edytuj wydarzenie",
+      exact: true,
+    });
+    const title = dialog.getByLabel("Tytuł wydarzenia", { exact: true });
+    const rejectedTitle = `Odrzucony ${randomUUID()}`;
+    await title.fill(rejectedTitle);
+    await page.route("**/calendar/commands", async (route) => {
+      if (route.request().method() === "POST")
+        await route.fulfill({ status: 400, json: { kind: "invalid" } });
+      else await route.continue();
+    });
+    await dialog
+      .getByRole("button", { name: "Zapisz wydarzenie", exact: true })
+      .click();
+    await expect(dialog.getByRole("alert")).toContainText(
+      "Nie zapisano wydarzenia",
+    );
+    expect(
+      await page.evaluate(
+        (key) => sessionStorage.getItem(key),
+        `jobs-crm.calendar.pending.${user.id}`,
+      ),
+    ).toBeNull();
+    await page.unroute("**/calendar/commands");
+    const nextTitle =
+      next === "baseline" ? original : `Nowszy szkic ${randomUUID()}`;
+    await title.fill(nextTitle);
+    await page.evaluate(() => history.back());
+    await expect(page).toHaveURL(`${target.appOrigin}/dashboard`);
+    await page.evaluate(() => history.forward());
+    await expect(page).toHaveURL(`${target.appOrigin}/calendar`);
+    await expect(page.getByText(rejectedTitle, { exact: false })).toHaveCount(
+      0,
+    );
+    const restore = page.getByRole("button", {
+      name: "Wczytaj szkic",
+      exact: true,
+    });
+    if (next === "baseline") await expect(restore).toHaveCount(0);
+    else {
+      await expect(restore).toBeVisible();
+      await restore.click();
+      const restored = page.getByRole("dialog", {
+        name: "Zachowany szkic zmiany wydarzenia",
+        exact: true,
+      });
+      await expect(
+        restored.getByLabel("Tytuł wydarzenia", { exact: true }),
+      ).toHaveValue(nextTitle);
+    }
+    const current = await client.rpc("get_recruitment_calendar_event", {
+      p_event_id: created.data.event.id,
+    });
+    expect(current.error).toBeNull();
+    expect(current.data.title).toBe(original);
+    expect(current.data.revision).toBe(created.data.event.revision);
+  });
+}
+
 test("account switch hides A's in-memory draft and pending intent from B", async ({
   page,
 }) => {

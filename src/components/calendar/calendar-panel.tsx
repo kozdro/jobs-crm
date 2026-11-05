@@ -35,6 +35,7 @@ import { calendarInvalidationEvent, invalidateCalendarReads } from "./events";
 import {
   useCalendarMemoryDrafts,
   revertedDraftCandidate,
+  stripRejectedDraftMetadata,
   type MemoryDraft,
 } from "./memory-drafts";
 import {
@@ -413,6 +414,7 @@ export function EventForm({
   const lastDraft = useRef<MemoryDraft | null>(restored ?? null);
   const saveMemory = memory?.save;
   const removeMemory = memory?.remove;
+  const replaceMemory = memory?.replace;
   useEffect(() => {
     if (!dirty && !restored) {
       const candidate = revertedDraftCandidate(
@@ -455,6 +457,21 @@ export function EventForm({
   ]);
   function clearMemory() {
     if (lastDraft.current) removeMemory?.(userId, memoryId, lastDraft.current);
+  }
+  function clearRejectedCommand(command: Command): boolean {
+    if (pending.current !== command) return false;
+    const old = lastDraft.current;
+    const clean = stripRejectedDraftMetadata(userId, memoryId, old, command);
+    if (old && clean) {
+      replaceMemory?.(userId, memoryId, old, clean);
+      if (lastDraft.current === old) lastDraft.current = clean;
+      if (!dirty && !restored) {
+        removeMemory?.(userId, memoryId, clean);
+        if (lastDraft.current === clean) lastDraft.current = null;
+      }
+    }
+    pending.current = null;
+    return true;
   }
   const requestDismiss = useCallback(() => {
     if (
@@ -560,8 +577,9 @@ export function EventForm({
             return;
           }
           if (receipt.event === null && receipt.intent === null) {
+            if (!clearRejectedCommand(command))
+              throw new Error("changed pending intent");
             sessionStorage.removeItem(storageKey(userId));
-            pending.current = null;
             setUncertain(false);
             setStale(true);
             setPreview(false);
@@ -582,13 +600,16 @@ export function EventForm({
         cause !== null &&
         "definite" in cause &&
         Boolean(cause.definite);
-      if (definite && samePending(userId, command.requestId)) {
+      const rejected =
+        definite &&
+        samePending(userId, command.requestId) &&
+        clearRejectedCommand(command);
+      if (rejected) {
         sessionStorage.removeItem(storageKey(userId));
-        pending.current = null;
       }
-      setUncertain(!definite);
+      setUncertain(!rejected);
       setError(
-        definite
+        rejected
           ? "Nie zapisano wydarzenia. Sprawdź dane lub odśwież zmienione wydarzenie."
           : "Nie potwierdzono wyniku. Możesz ponowić dokładnie ten sam zapis; nie twórz nowego.",
       );
