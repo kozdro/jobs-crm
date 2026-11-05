@@ -33,4 +33,14 @@ describe("calendar display", () => {
       calendarSection("occurred", base, new Date("2026-02-03T23:30:00Z")),
     ).toBe("settled");
   });
+  it("changes the read-only attention projection when the exact scheduled instant passes", () => {
+    const timed = { ...base, startTime: "10:00", startOffset: 60 };
+    expect(
+      calendarSection("planned", timed, new Date("2026-02-03T08:59:59Z")),
+    ).toBe("upcoming");
+    expect(
+      calendarSection("planned", timed, new Date("2026-02-03T09:00:01Z")),
+    ).toBe("past");
+    expect(timed.startTime).toBe("10:00");
+  });
 });

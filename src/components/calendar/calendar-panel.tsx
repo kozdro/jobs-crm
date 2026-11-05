@@ -255,6 +255,10 @@ function EventForm({
         ? eventValues(initial)
         : emptyValues(caseId, mode === "occurred")),
   );
+  const [base, setBase] = useState(initial);
+  const [stale, setStale] = useState(false);
+  const [needsConfirm, setNeedsConfirm] = useState(false);
+  const [initialValues] = useState(values);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uncertain, setUncertain] = useState(false);
@@ -269,6 +273,35 @@ function EventForm({
   const [appliedZoneMode, setAppliedZoneMode] = useState<
     "keep-local" | "keep-instant" | undefined
   >(draft?.zoneChangeMode);
+  const dirty =
+    !sameValue(initialValues, values) || zoneDraft !== initialValues.timeZone;
+  useEffect(() => {
+    if (!dirty && !uncertain) return;
+    const beforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+    };
+    const followLink = (event: MouseEvent) => {
+      const target =
+        event.target instanceof Element
+          ? event.target.closest("a[href]")
+          : null;
+      if (
+        target &&
+        !window.confirm(
+          "Masz niezapisane dane wydarzenia. Czy chcesz opuścić formularz?",
+        )
+      ) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    };
+    window.addEventListener("beforeunload", beforeUnload);
+    document.addEventListener("click", followLink, true);
+    return () => {
+      window.removeEventListener("beforeunload", beforeUnload);
+      document.removeEventListener("click", followLink, true);
+    };
+  }, [dirty, uncertain]);
   const schedule = values.schedule;
   const patchSchedule = (patch: Partial<CalendarSchedule>) =>
     setValues((current) =>
@@ -319,6 +352,45 @@ function EventForm({
       invalidateCalendarReads(userId);
       onDone();
     } catch (cause) {
+      if (
+        cause &&
+        typeof cause === "object" &&
+        "kind" in cause &&
+        cause.kind === "stale" &&
+        command.eventId
+      ) {
+        try {
+          const raw = JSON.stringify(command);
+          const receipt = await request(userId, {
+            requestId: command.requestId,
+          });
+          if (sessionStorage.getItem(storageKey(userId)) !== raw)
+            throw new Error("changed");
+          if (exactReceipt(receipt, command)) {
+            sessionStorage.removeItem(storageKey(userId));
+            pending.current = null;
+            invalidateCalendarReads(userId);
+            onDone();
+            return;
+          }
+          if (receipt.event === null && receipt.intent === null) {
+            sessionStorage.removeItem(storageKey(userId));
+            pending.current = null;
+            setUncertain(false);
+            setStale(true);
+            setPreview(false);
+            setError(
+              "Wydarzenie zmieniło się. Zachowano dane formularza. Odśwież podgląd przed potwierdzeniem.",
+            );
+            return;
+          }
+        } catch {
+          /* Preserve uncertain command if receipt cannot be verified. */
+        }
+        setUncertain(true);
+        setError("Nie potwierdzono wyniku. Zachowano ten sam zamiar zapisu.");
+        return;
+      }
       const definite =
         typeof cause === "object" &&
         cause !== null &&
@@ -343,7 +415,7 @@ function EventForm({
   }
   function submit(e: FormEvent) {
     e.preventDefault();
-    if (busy || uncertain) return;
+    if (busy || uncertain || stale) return;
     if (zoneDraft !== values.timeZone) {
       setError("Zastosuj zmianę strefy przed zapisem.");
       return;
@@ -352,18 +424,16 @@ function EventForm({
       setError("Wybierz wynik rozliczenia.");
       return;
     }
-    if (initial && initial.status !== "planned" && !preview) {
+    if (base && (base.status !== "planned" || needsConfirm) && !preview) {
       setPreview(true);
       return;
     }
     const candidate = {
       requestId: crypto.randomUUID(),
-      operation: calendarOperation(mode, initial?.status, values.status),
-      ...(initial
-        ? { eventId: initial.id, expectedRevision: initial.revision }
-        : {}),
-      ...(initial?.schedule?.startTime &&
-      initial.timeZone !== values.timeZone &&
+      operation: calendarOperation(mode, base?.status, values.status),
+      ...(base ? { eventId: base.id, expectedRevision: base.revision } : {}),
+      ...(base?.schedule?.startTime &&
+      base.timeZone !== values.timeZone &&
       appliedZoneMode
         ? { zoneChangeMode: appliedZoneMode }
         : {}),
@@ -378,7 +448,13 @@ function EventForm({
   }
   return (
     <form onSubmit={submit} className="space-y-4" aria-busy={busy}>
-      <fieldset disabled={busy || uncertain} className="space-y-4">
+      <fieldset
+        disabled={busy || uncertain || stale}
+        onChange={() => {
+          if (preview) setPreview(false);
+        }}
+        className="space-y-4"
+      >
         <label className="block text-sm font-medium">
           Tytuł wydarzenia
           <input
@@ -687,7 +763,7 @@ function EventForm({
         </fieldset>
         {(mode === "resolve" ||
           mode === "occurred" ||
-          (initial && initial.status !== "planned")) && (
+          (base && base.status !== "planned")) && (
           <fieldset className="space-y-3 rounded-md border border-border p-3">
             <legend className="px-1 font-semibold">Rzeczywisty wynik</legend>
             <label className="block text-sm font-medium">
@@ -871,15 +947,15 @@ function EventForm({
             </p>
           )}
         </fieldset>
-        {preview && initial && (
+        {preview && base && (
           <div className="rounded-md border border-border p-3 text-sm">
             <h4 className="font-semibold">Podgląd korekty</h4>
             <h5 className="mt-2 font-semibold">Przed zmianą</h5>
-            <EventSnapshot event={initial} contacts={contacts} cases={cases} />
+            <EventSnapshot event={base} contacts={contacts} cases={cases} />
             <h5 className="mt-2 font-semibold">Po zmianie</h5>
             <EventSnapshot
               event={{
-                ...initial,
+                ...base,
                 title: values.title,
                 description: values.description,
                 case_id: values.caseId,
@@ -904,12 +980,69 @@ function EventForm({
           <button
             className={buttonStyles.secondary}
             type="button"
-            onClick={onCancel}
+            onClick={() => {
+              if (
+                !dirty ||
+                window.confirm(
+                  "Masz niezapisane dane wydarzenia. Czy chcesz je odrzucić?",
+                )
+              )
+                onCancel();
+            }}
           >
             Anuluj
           </button>
         </div>
       </fieldset>
+      {stale && base && (
+        <div className="space-y-2">
+          <button
+            type="button"
+            className={buttonStyles.secondary}
+            disabled={busy}
+            onClick={() => {
+              void (async () => {
+                setBusy(true);
+                try {
+                  const result = await request(userId, { eventId: base.id });
+                  const current = result.event as CalendarEvent | null;
+                  if (!current || current.id !== base.id) throw new Error();
+                  setBase(current);
+                  setStale(false);
+                  setNeedsConfirm(true);
+                  setPreview(false);
+                  setError(
+                    "Odświeżono wydarzenie. Sprawdź zachowany szkic i potwierdź podgląd przed zapisem.",
+                  );
+                } catch {
+                  setError(
+                    "Nie udało się odświeżyć wydarzenia. Dane formularza pozostają zachowane.",
+                  );
+                } finally {
+                  setBusy(false);
+                }
+              })();
+            }}
+          >
+            Odśwież podgląd
+          </button>
+          <button
+            type="button"
+            className={buttonStyles.secondary}
+            onClick={() => {
+              if (
+                !dirty ||
+                window.confirm(
+                  "Masz niezapisane dane wydarzenia. Czy chcesz je odrzucić?",
+                )
+              )
+                onCancel();
+            }}
+          >
+            Anuluj
+          </button>
+        </div>
+      )}
       {error && (
         <p role="alert" className="text-sm">
           {error}
@@ -965,6 +1098,12 @@ function EventSnapshot({
           {statusLabel[event.status]}, {formatSchedule(event.schedule)}
         </dd>
       </div>
+      {!event.schedule && (
+        <div>
+          <dt className="inline font-medium">Strefa wydarzenia: </dt>
+          <dd className="inline">{event.timeZone}</dd>
+        </div>
+      )}
       <div>
         <dt className="inline font-medium">Rzeczywisty czas: </dt>
         <dd className="inline">{actualLabel(event.actual)}</dd>
@@ -1002,8 +1141,10 @@ function EventRow({
   contacts,
   onSaved,
   onActivity,
+  now,
 }: {
   event: CalendarEvent;
+  now: Date;
   userId: string;
   cases: Case[];
   contacts: Person[];
@@ -1019,8 +1160,7 @@ function EventRow({
   }, [event.id, mode, onActivity]);
   const [audit, setAudit] = useState<Audit[] | null>(null);
   const [auditError, setAuditError] = useState(false);
-  const expired =
-    calendarSection(event.status, event.schedule, new Date()) === "past";
+  const expired = calendarSection(event.status, event.schedule, now) === "past";
   const eventCase = cases.find((c) => c.id === event.case_id);
   async function loadAudit() {
     if (audit) {
@@ -1049,13 +1189,14 @@ function EventRow({
       <p className="text-sm text-muted-foreground">
         {formatSchedule(event.schedule)}
       </p>
+      {!event.schedule && (
+        <p className="text-sm text-muted-foreground">
+          Strefa wydarzenia: {event.timeZone}
+        </p>
+      )}
       {event.actual && (
         <p className="text-sm">
-          Rzeczywisty termin: {event.actual.date}
-          {event.actual.time
-            ? `, ${event.actual.time}`
-            : ", godzina nieznana"}{" "}
-          ({event.actual.timeZone})
+          Rzeczywisty termin: {actualLabel(event.actual)}
         </p>
       )}
       {event.status === "occurred" && !event.actual && (
@@ -1241,6 +1382,11 @@ export function CalendarPanel({
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [version, setVersion] = useState(0);
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(new Date()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
   const [activeRows, setActiveRows] = useState<string[]>([]);
   const onActivity = useCallback(
     (id: string, active: boolean) =>
@@ -1514,14 +1660,13 @@ export function CalendarPanel({
         [
           "Wymaga rozliczenia",
           list.filter(
-            (e) => calendarSection(e.status, e.schedule, new Date()) === "past",
+            (e) => calendarSection(e.status, e.schedule, now) === "past",
           ),
         ],
         [
           "Nadchodzące wydarzenia",
           list.filter(
-            (e) =>
-              calendarSection(e.status, e.schedule, new Date()) === "upcoming",
+            (e) => calendarSection(e.status, e.schedule, now) === "upcoming",
           ),
         ],
       ]
@@ -1687,6 +1832,7 @@ export function CalendarPanel({
                     contacts={contacts}
                     onSaved={reload}
                     onActivity={onActivity}
+                    now={now}
                   />
                 ))}
               </div>

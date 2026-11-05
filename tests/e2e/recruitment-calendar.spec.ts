@@ -440,3 +440,224 @@ test("stale retry after reload preserves draft and never overwrites a concurrent
   expect(current.error).toBeNull();
   expect(current.data.title).toBe(otherTitle);
 });
+
+test("direct stale conflict preserves edited values for a refreshed preview", async ({
+  page,
+}) => {
+  const { client } = await sdkLogin(target, user);
+  const title = `Direct conflict ${randomUUID()}`;
+  const values = {
+    title,
+    description: null,
+    caseId: null,
+    status: "planned",
+    timeZone: "Europe/Warsaw",
+    actual: null,
+    participants: [],
+    schedule: {
+      startDate: "2099-05-15",
+      startTime: null,
+      endDate: null,
+      endTime: null,
+      allDay: false,
+      timeZone: "Europe/Warsaw",
+      startOffset: null,
+      endOffset: null,
+    },
+  };
+  const created = await client.rpc("execute_recruitment_calendar_command", {
+    p_request_id: randomUUID(),
+    p_payload: { operation: "create", values },
+  });
+  expect(created.error).toBeNull();
+  const eventId = created.data.event.id as string;
+  await login(page);
+  await page.goto(`${target.appOrigin}/calendar`);
+  const event = page.getByRole("article", { name: title, exact: true });
+  await event
+    .getByRole("button", { name: "Edytuj wydarzenie", exact: true })
+    .click();
+  const draftTitle = `Wpisany szkic ${randomUUID()}`;
+  await event.getByLabel("Tytuł wydarzenia", { exact: true }).fill(draftTitle);
+  const changed = await client.rpc("execute_recruitment_calendar_command", {
+    p_request_id: randomUUID(),
+    p_payload: {
+      operation: "edit",
+      eventId,
+      expectedRevision: 0,
+      values: { ...values, description: "Równoczesna zmiana" },
+    },
+  });
+  expect(changed.error).toBeNull();
+  await event
+    .getByRole("button", { name: "Zapisz wydarzenie", exact: true })
+    .click();
+  await expect(page.getByText(/Wydarzenie zmieniło się/)).toBeVisible();
+  await expect(
+    event.getByLabel("Tytuł wydarzenia", { exact: true }),
+  ).toHaveValue(draftTitle);
+  await page
+    .getByRole("button", { name: "Odśwież podgląd", exact: true })
+    .click();
+  await expect(
+    page.getByLabel("Tytuł wydarzenia", { exact: true }),
+  ).toHaveValue(draftTitle);
+  await page
+    .getByRole("button", { name: "Zapisz wydarzenie", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Podgląd korekty", exact: true }),
+  ).toBeVisible();
+  const current = await client.rpc("get_recruitment_calendar_event", {
+    p_event_id: eventId,
+  });
+  expect(current.error).toBeNull();
+  expect(current.data.title).toBe(title);
+  expect(current.data.description).toBe("Równoczesna zmiana");
+});
+
+test("canceling a dirty event form asks before discarding and may be rejected", async ({
+  page,
+}) => {
+  await login(page);
+  await page.goto(`${target.appOrigin}/calendar`);
+  await page
+    .getByRole("button", { name: "Dodaj wydarzenie", exact: true })
+    .click();
+  const title = page.getByLabel("Tytuł wydarzenia", { exact: true });
+  await title.fill("Niezapisane dane");
+  page.once("dialog", (dialog) => dialog.dismiss());
+  await page.getByRole("button", { name: "Anuluj", exact: true }).click();
+  await expect(title).toHaveValue("Niezapisane dane");
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByRole("button", { name: "Anuluj", exact: true }).click();
+  await expect(title).toHaveCount(0);
+});
+
+test("an open calendar moves an event to attention after its deadline without changing status", async ({
+  page,
+}) => {
+  const { client } = await sdkLogin(target, user);
+  const initialNow = Date.now();
+  const due = new Date((Math.floor(initialNow / 60000) + 3) * 60000);
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Europe/Warsaw",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    })
+      .formatToParts(due)
+      .map((p) => [p.type, p.value]),
+  );
+  const day = `${parts.year}-${parts.month}-${parts.day}`;
+  const time = `${parts.hour}:${parts.minute}`;
+  const offset =
+    (Date.UTC(
+      Number(parts.year),
+      Number(parts.month) - 1,
+      Number(parts.day),
+      Number(parts.hour),
+      Number(parts.minute),
+    ) -
+      due.getTime()) /
+    60000;
+  const title = `Upcoming clock ${randomUUID()}`;
+  const created = await client.rpc("execute_recruitment_calendar_command", {
+    p_request_id: randomUUID(),
+    p_payload: {
+      operation: "create",
+      values: {
+        title,
+        description: null,
+        caseId: null,
+        status: "planned",
+        timeZone: "Europe/Warsaw",
+        actual: null,
+        participants: [],
+        schedule: {
+          startDate: day,
+          startTime: time,
+          endDate: null,
+          endTime: null,
+          allDay: false,
+          timeZone: "Europe/Warsaw",
+          startOffset: offset,
+          endOffset: null,
+        },
+      },
+    },
+  });
+  expect(created.error).toBeNull();
+  await login(page);
+  await page.clock.install({ time: new Date(initialNow) });
+  await page.goto(`${target.appOrigin}/calendar`);
+  const event = page.getByRole("article", { name: title, exact: true });
+  await expect(event).toBeVisible();
+  await expect(event).not.toContainText("wymaga rozliczenia");
+  await page.clock.runFor(5 * 60 * 1000);
+  await expect(event).toContainText("wymaga rozliczenia");
+  await expect(event).not.toContainText("Odbyte");
+  const after = await client.rpc("get_recruitment_calendar_event", {
+    p_event_id: created.data.event.id,
+  });
+  expect(after.error).toBeNull();
+  expect(after.data.status).toBe("planned");
+});
+
+test("unplanned event shows its own zone and actual offset in card, audit and case timeline", async ({
+  page,
+}) => {
+  const { client } = await sdkLogin(target, user);
+  const createdCase = await client.rpc("create_recruitment_case", {
+    p_request_id: randomUUID(),
+    p_title: `Offset case ${randomUUID()}`,
+  });
+  expect(createdCase.error).toBeNull();
+  const caseId = createdCase.data.case.id as string;
+  const title = `Actual offset ${randomUUID()}`;
+  const created = await client.rpc("execute_recruitment_calendar_command", {
+    p_request_id: randomUUID(),
+    p_payload: {
+      operation: "create",
+      values: {
+        title,
+        description: null,
+        caseId,
+        status: "occurred",
+        schedule: null,
+        timeZone: "UTC",
+        actual: {
+          date: "2020-10-25",
+          time: "02:30",
+          offset: 120,
+          timeZone: "Europe/Warsaw",
+        },
+        participants: [],
+      },
+    },
+  });
+  expect(created.error).toBeNull();
+  await login(page);
+  await page.goto(`${target.appOrigin}/calendar`);
+  const event = page.getByRole("article", { name: title, exact: true });
+  await expect(event).toContainText("Strefa wydarzenia: UTC");
+  await expect(event).toContainText("02:30 UTC+02:00");
+  await event
+    .getByRole("button", { name: "Pokaż historię wydarzenia", exact: true })
+    .click();
+  const audit = event.getByRole("region", { name: "Historia wydarzenia" });
+  await expect(audit).toContainText("Strefa wydarzenia: UTC");
+  await expect(audit).toContainText("02:30 UTC+02:00");
+  await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
+  const timeline = page.getByRole("region", {
+    name: "Historia sprawy",
+    exact: true,
+  });
+  await expect(timeline).toContainText(title);
+  await expect(timeline).toContainText("Strefa wydarzenia: UTC");
+  await expect(timeline).toContainText("02:30 UTC+02:00");
+});

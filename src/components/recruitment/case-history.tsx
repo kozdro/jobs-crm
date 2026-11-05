@@ -1,5 +1,7 @@
 "use client";
 
+import { formatOffset } from "@/components/calendar/time";
+
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { uuidPattern } from "@/modules/recruitment/domain/recruitment-case";
@@ -205,6 +207,11 @@ function HistoryEntries({
             <p className="text-sm font-semibold">
               Odbyte wydarzenie: {item.event.title}
             </p>
+            {!item.event.schedule && (
+              <p className="mt-1 text-sm text-muted-foreground">
+                Strefa wydarzenia: {item.event.timeZone}
+              </p>
+            )}
             {item.event.actual && (
               <p className="mt-1 text-sm text-muted-foreground">
                 Data zdarzenia:{" "}
@@ -212,7 +219,7 @@ function HistoryEntries({
                   {formatEventDay(item.event.actual.date)}
                 </time>
                 {item.event.actual.time
-                  ? `, ${item.event.actual.time}`
+                  ? `, ${item.event.actual.time}${item.event.actual.offset === null ? "" : ` ${formatOffset(item.event.actual.offset)}`}`
                   : " · godzina nieznana"}{" "}
                 ({item.event.actual.timeZone})
               </p>
