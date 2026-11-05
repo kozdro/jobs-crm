@@ -586,13 +586,13 @@ test("Calendar dialog traps keyboard focus, protects dirty Escape and returns fo
   const title = dialog.getByLabel("Tytuł wydarzenia", { exact: true });
   await expect(title).toBeFocused();
   await page.keyboard.press("Shift+Tab");
-  expect(
-    await dialog.evaluate((el) => el.contains(document.activeElement)),
-  ).toBe(true);
+  await expect
+    .poll(() => dialog.evaluate((el) => el.contains(document.activeElement)))
+    .toBe(true);
   await page.keyboard.press("Tab");
-  expect(
-    await dialog.evaluate((el) => el.contains(document.activeElement)),
-  ).toBe(true);
+  await expect
+    .poll(() => dialog.evaluate((el) => el.contains(document.activeElement)))
+    .toBe(true);
   await title.fill(`Niezapisany dialog ${randomUUID()}`);
   const value = await title.inputValue();
   page.once("dialog", (warning) => warning.dismiss());
@@ -1234,6 +1234,10 @@ test("restored in-memory edit shows fresh server baseline against preserved draf
   await restored
     .getByRole("button", { name: "Potwierdź korektę", exact: true })
     .click();
+  await expect(restored).toHaveCount(0);
+  await expect(
+    page.getByRole("article", { name: draftTitle, exact: true }),
+  ).toBeVisible();
   const saved = await client.rpc("get_recruitment_calendar_event", {
     p_event_id: eventId,
   });
