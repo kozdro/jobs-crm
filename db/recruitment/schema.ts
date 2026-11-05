@@ -257,6 +257,12 @@ export const recruitmentCaseLifecycle = pgTable(
     taskResolutions: jsonb("task_resolutions")
       .default(sql`'[]'::jsonb`)
       .notNull(),
+    expectedEventSnapshot: jsonb("expected_event_snapshot")
+      .default(sql`'[]'::jsonb`)
+      .notNull(),
+    eventResolutions: jsonb("event_resolutions")
+      .default(sql`'[]'::jsonb`)
+      .notNull(),
     previousStatus: text("previous_status").notNull(),
     previousStage: text("previous_stage"),
     resultingStatus: text("resulting_status").notNull(),
@@ -573,6 +579,150 @@ export const recruitmentTaskCommand = pgTable(
     index("recruitment_task_command_audit_idx").on(
       t.ownerId,
       t.taskId,
+      t.recordedAt,
+      t.id,
+    ),
+  ],
+).enableRLS();
+
+/** DEC-062 Calendar: current projection with immutable command audit. */
+export const recruitmentCalendarEvent = pgTable(
+  "recruitment_calendar_event",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    title: text("title").notNull(),
+    description: text("description"),
+    caseId: uuid("case_id"),
+    status: text("status").notNull(),
+    schedule: jsonb("schedule"),
+    timeZone: text("time_zone").notNull(),
+    actual: jsonb("actual"),
+    revision: integer("revision").default(0).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    unique("recruitment_calendar_owner_id_unique").on(t.ownerId, t.id),
+    foreignKey({
+      name: "recruitment_calendar_owner_fk",
+      columns: [t.ownerId],
+      foreignColumns: [authUsers.id],
+    }),
+    foreignKey({
+      name: "recruitment_calendar_owned_case_fk",
+      columns: [t.ownerId, t.caseId],
+      foreignColumns: [recruitmentCase.ownerId, recruitmentCase.id],
+    }),
+    check(
+      "recruitment_calendar_title_valid",
+      sql`char_length(${t.title}) BETWEEN 1 AND 160 AND ${t.title}=public.recruitment_trim(${t.title})`,
+    ),
+    check(
+      "recruitment_calendar_description_valid",
+      sql`${t.description} IS NULL OR char_length(${t.description})<=2000`,
+    ),
+    check(
+      "recruitment_calendar_status_valid",
+      sql`${t.status} IN ('planned','occurred','not_occurred','cancelled')`,
+    ),
+    check("recruitment_calendar_revision_valid", sql`${t.revision}>=0`),
+    index("recruitment_calendar_owner_case_idx").on(
+      t.ownerId,
+      t.caseId,
+      t.status,
+      t.id,
+    ),
+  ],
+).enableRLS();
+
+export const recruitmentCalendarParticipant = pgTable(
+  "recruitment_calendar_participant",
+  {
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    eventId: uuid("event_id").notNull(),
+    contactId: uuid("contact_id").notNull(),
+    attendance: text("attendance").notNull(),
+  },
+  (t) => [
+    unique("recruitment_calendar_participant_unique").on(
+      t.ownerId,
+      t.eventId,
+      t.contactId,
+    ),
+    foreignKey({
+      name: "recruitment_calendar_participant_event_fk",
+      columns: [t.ownerId, t.eventId],
+      foreignColumns: [
+        recruitmentCalendarEvent.ownerId,
+        recruitmentCalendarEvent.id,
+      ],
+    }),
+    foreignKey({
+      name: "recruitment_calendar_participant_contact_fk",
+      columns: [t.ownerId, t.contactId],
+      foreignColumns: [catalogProfile.ownerId, catalogProfile.id],
+    }),
+    check(
+      "recruitment_calendar_participant_attendance_valid",
+      sql`${t.attendance} IN ('unknown','attended','absent')`,
+    ),
+    index("recruitment_calendar_participant_contact_idx").on(
+      t.ownerId,
+      t.contactId,
+      t.eventId,
+    ),
+  ],
+).enableRLS();
+
+export const recruitmentCalendarCommand = pgTable(
+  "recruitment_calendar_command",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    requestId: uuid("request_id").notNull(),
+    eventId: uuid("event_id").notNull(),
+    payload: jsonb("payload").notNull(),
+    result: jsonb("result").notNull(),
+    operation: text("operation").notNull(),
+    beforeValues: jsonb("before_values"),
+    afterValues: jsonb("after_values").notNull(),
+    closureId: uuid("closure_id"),
+    recordedAt: timestamp("recorded_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    unique("recruitment_calendar_command_owner_request_unique").on(
+      t.ownerId,
+      t.requestId,
+    ),
+    foreignKey({
+      name: "recruitment_calendar_command_owned_event_fk",
+      columns: [t.ownerId, t.eventId],
+      foreignColumns: [
+        recruitmentCalendarEvent.ownerId,
+        recruitmentCalendarEvent.id,
+      ],
+    }),
+    foreignKey({
+      name: "recruitment_calendar_command_closure_fk",
+      columns: [t.closureId],
+      foreignColumns: [recruitmentCaseLifecycle.id],
+    }),
+    index("recruitment_calendar_command_audit_idx").on(
+      t.ownerId,
+      t.eventId,
       t.recordedAt,
       t.id,
     ),

@@ -1,5 +1,21 @@
 # Kwestie otwarte i bramki decyzyjne (OPEN)
 
+## Calendar Core — zatwierdzenie 1A–9A, 2026-11-05
+
+[DEC-062](product-decisions.md) częściowo rozstrzyga OPEN-002/004/020/021/029/030/037 dla pełnego kontraktu Calendar Core, w tym pola, czas, DST, korekty, uczestnictwo, zamkniętą sprawę i Dashboard. PO autoryzował implementację i osobny PR bez merge/deploymentu. Wcześniejsze adnotacje w tej sekcji o tych kwestiach jako OPEN lub o braku autoryzacji opisują historyczny stan przed zatwierdzeniem. Inne części tych OPEN, globalne zasady korekt, retencji/usuwania, bezpieczeństwa i bramki publiczne pozostają w mocy.
+
+## Calendar Core — częściowe rozstrzygnięcie P1, 2026-11-05
+
+[DEC-062](product-decisions.md): OPEN-029 częściowo rozstrzygnięte dla trzech skutków CalendarEvent oraz atomowego zamknięcia razem z Task, kontrolą współbieżności, idempotencją i audytem. OPEN-021/029 częściowo rozstrzygnięto także dla definicji zbioru otwartych wydarzeń przy close: zaplanowane i nierozliczone powiązane wydarzenie także po terminie lub przełożeniu; rozliczone i zapisane od razu jako odbyte poza zbiorem. Skutki dla uczestników i zachowanie po wznowieniu sprawy pozostają OPEN; implementacja integracji pozostaje zablokowana, a istniejący Calendar guard zachowany do prawidłowej integracji. Pozostałe części OPEN-002/021/030/037 i inne bramki nie są zamknięte.
+
+**Aktualizacja uczestników DEC-062:** wyłącznie skutki trzech akcji close dla istniejących jawnych powiązań uczestników są zatwierdzone: powiązania i ich charakter zostają, bez inferencji obecności, zmiany kontakt–sprawa, komunikacji czy fikcyjnych faktów; audyt poprzedniej relacji wydarzenie–sprawa pozostaje. Powyższe wskazanie skutków dla uczestników jako OPEN jest historyczne. Dalsze reguły uczestnictwa, wznowienie oraz pozostałe części OPEN-021/029/030 pozostają OPEN.
+
+**Aktualizacja wznowienia DEC-062:** samo wznowienie nie zmienia stanu ani bieżących powiązań CalendarEvent, nie odtwarza stanu z close ani nie nadpisuje późniejszych świadomych zmian; nie reaktywuje anulowanych i nie przyłącza odłączonych. Poprzednie zakończenia i pełny audyt pozostają. Wskazanie wznowienia jako OPEN powyżej jest historyczne. P1 APPROVED w ustalonym zakresie; pozostałe części OPEN-021/029/030 oraz inne bramki pozostają OPEN, w tym dopuszczalność zmian wydarzeń przy zamkniętej sprawie.
+
+**P2 — precyzja planowanego terminu, DEC-062:** OPEN-002/037 częściowo rozstrzygnięte: dzień wymagany, godzina opcjonalna/nieznana bez wartości domyślnej i bez utożsamiania z całodniowością. Strefy, DST, całodniowość i granica uznania bezgodzinowego wydarzenia za minione dla propozycji rozliczenia pozostają OPEN; wcześniejsze wskazania braku polityki Calendar oznaczają stan przed tym ograniczonym doprecyzowaniem. Pozostałe formularze i polityki czasu nie są rozstrzygnięte.
+
+**P2 — strefa DEC-062:** każde CalendarEvent ma jawnie określoną strefę IANA także bez godziny; interpretacja terminu jest niezależna od aktualnej strefy urządzenia. Wskazanie wyboru strefy jako OPEN powyżej jest historyczne. Pozostałe części OPEN-037, w tym granica minionego dnia bez godziny, DST, zmiana strefy i całodniowość, pozostają OPEN.
+
 ## Quick Capture — kontrakt atomowy zatwierdzony, wykonanie osobno — 2026-11-01
 
 [DEC-061](product-decisions.md): PO zaakceptował pełny [kontrakt P1/P2/P3](../technical/quick-capture-atomic-action-proposal.md), **bez autoryzacji implementacji**. Poniższe częściowe rozstrzygnięcia dotyczą kontraktu, nie wyników testów lub gotowej funkcji.

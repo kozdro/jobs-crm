@@ -1,5 +1,7 @@
 # Jobs CRM — UX Blueprint: kontrakty przepływów i stanów
 
+**Calendar Core DEC-062, 1A–9A APPROVED:** formularz rozróżnia nieznaną godzinę i jawną całodniowość; pokazuje strefę i wymagane rozstrzygnięcie zmiany strefy/DST. W rozliczeniu osobno zbiera rzeczywisty czas lub unknown oraz jawny faktyczny udział każdej osoby. Korekta pokazuje before/after i zachowuje audyt. Propozycja rozliczenia dostępna na Dashboardzie, w Kalendarzu i kontekście sprawy, bez automatycznej mutacji. Starsze wzmianki o tych decyzjach jako OPEN są historyczne. [Pełny kontrakt](../decisions/product-decisions.md).
+
 **Status:** DRAFT, 2026-10-28. **Podstawa:** [blueprint](blueprint.md), [screen blueprints](screen-blueprints.md), [otwarte decyzje](../decisions/open-questions.md).
 To opis UX i sprawdzeń prototypu, nie nowy FR/AC ani zatwierdzenie procesów domenowych.
 
@@ -76,7 +78,10 @@ Każdy przepływ opisuje: wejście → decyzję użytkownika → stan po zapisie
 
 ## F08: Wydarzenie przełożone lub po terminie (UC-010/011; UX-011/005)
 
+Przy close [DEC-062](../decisions/product-decisions.md) zatwierdza skutki anuluj/zachowaj/odłącz, definicję otwartości, zachowanie istniejących powiązań uczestników i wspólną atomowość z Task; samo wznowienie nie zmienia wydarzeń. Pozostałe reguły uczestnictwa i inne kwestie pozostają OPEN. Nie jest to dowód implementacji.
+
 1. Wydarzenie planowane może zmienić termin, ale pozostaje tym samym wydarzeniem; wcześniejsze terminy pozostają odtwarzalne.
+   Planowany dzień jest wymagany, godzina opcjonalna i nieznana bez domyślnej wartości ani oznaczenia całodniowości; każde wydarzenie ma jawną strefę IANA niezależną od strefy urządzenia (DEC-062). Granica minionego dnia bez godziny nadal OPEN.
 2. Po terminie bez potwierdzenia oznacz „wymaga rozliczenia”, nie „odbyte”. Pokaż akcje faktycznego rozliczenia odbyte/nieodbyte/anulowane.
 3. Rzeczywiście odbyta rozmowa może być dodana wstecz bez fikcyjnego wcześniejszego zaplanowania.
 4. Wielu uczestników nie tworzy kopii zdarzenia. Tylko osoby faktycznie powiązane widzą je w swoich historiach.

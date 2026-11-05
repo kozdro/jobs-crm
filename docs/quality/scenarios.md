@@ -1,5 +1,7 @@
 # Scenariusze użytkowe i plan testów E2E — UC/TC
 
+**Calendar Core DEC-062, 1A–9A — plan NOT RUN:** TC-010/011/012/013/019/022 i zależna część TC-028 wymagają pokrycia zatwierdzonego [kontraktu](../decisions/product-decisions.md): różne precyzje i strefy, granice DST/dnia, rzeczywisty czas/unknown, korekty i audyt, potwierdzony/brak/nieznany udział, ogólne i zamknięta sprawa, propozycje na trzech powierzchniach oraz mieszany atomowy close Task/Event. Sprawdź owner A/B/anon i bezpośrednie RPC/Data API, konflikt zbioru, rollback i replay. TC-028 obejmuje osobną notatkę inline; jej wykonania nie domniemywać. Historyczne wskazania tych podzakresów jako OPEN opisują stan przed zatwierdzeniem.
+
 **Status:** `BASELINED`. Scenariusze odzwierciedlają zatwierdzone zachowania z discovery; konkretne dane testowe, komunikaty i wartości `OPEN-*` wymagają decyzji. **`TC-*` oznacza zaplanowany przypadek testowy, nie uruchomiony test.**
 
 Scenariusze są testami zgodności specyfikacji, nie dekoracją dokumentacji. W każdym: warunek wejścia → kroki → wynik pozytywny → ważny test negatywny. Po implementacji zautomatyzuj odpowiednie `TC-*` oraz dodaj testy integracyjne i jednostkowe dla szczegółów.
@@ -202,6 +204,10 @@ Scenariusze są testami zgodności specyfikacji, nie dekoracją dokumentacji. W 
 ## UC-012 — Zamknięcie sprawy z otwartymi zadaniami
 
 **Tasks Core DEC-060 — zatwierdzony podscenariusz:** przygotuj otwarte zadania dla wszystkich trzech rozstrzygnięć, wykonane zadanie, zadanie ogólne oraz cudze zadanie. Przy close jawnie rozstrzygnij każde własne otwarte powiązane; sprawdź atomowe anuluj/zachowaj/odłącz i audyt relacji. Anulowanie formularza bez skutków. Nowe/zmienione zadanie od preview wymaga konfliktu i nowej decyzji, forced rollback nie pozostawia zmian, retry nie powiela skutków. Próba obejścia przez Data API odrzucona. Dodanie przyszłego CalendarEvent bez integracji nadal blokuje close. Pełny TC-012 poniżej wymaga wydarzenia i nadal nie jest pokryty przez task-only przyrost.
+
+**Calendar Core DEC-062 — plan, NOT RUN:** mieszany zbiór otwartych Task i CalendarEvent oraz trzy zatwierdzone skutki dla każdego wydarzenia, audyt odłączonej relacji, atomowość, współbieżność, idempotencja i brak częściowych skutków. Weryfikuj włączenie zaplanowanych nierozliczonych przed terminem, po terminie i po przełożeniu oraz wyłączenie rozliczonych i rozmów zapisanych od razu jako odbyte; upływ czasu sam nie zmienia stanu. Dla wielu uczestników sprawdź każdą akcję, zachowanie powiązań i ich charakteru, brak zmian kontakt–sprawa, inferencji obecności, komunikacji i fikcyjnych faktów, audyt oraz rollback. W TC-013 sprawdź, że wznowienie nie zmienia aktualnych statusów ani powiązań, nie odtwarza snapshotu i zachowuje zakończenia oraz audyt; późniejsze świadome zmiany testuj tylko jeśli zostaną dopuszczone. Pozostałe reguły uczestnictwa OPEN.
+
+**Calendar P2 DEC-062 — plan, NOT RUN:** planowany termin wymaga dnia; sprawdź zapis z godziną i bez, brak zastępczego `00:00` i brak oznaczenia całodniowości oraz zachowanie nieznanej precyzji po przełożeniu. Sprawdź jawną strefę IANA każdego wydarzenia także bez godziny i niezależność interpretacji od strefy urządzenia. Granica minionego dnia bez godziny wymaga dalszej decyzji PO.
 
 **Test:** `TC-012` · **Wymagania:** `FR-LC-016`, `FR-LC-017`, `FR-LC-018`, `FR-TN-011`, `FR-RW-008` · **Reguły:** `BR-008`, `BR-010`, `BR-011`
 **Bramki:** `OPEN-001`, `OPEN-029`, `OPEN-040`

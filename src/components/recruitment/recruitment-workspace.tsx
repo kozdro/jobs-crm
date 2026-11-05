@@ -1105,7 +1105,18 @@ function WorkspaceDrawer({
               ) : (
                 <ol className="mt-2 divide-y divide-border">
                   {result.history.map((item) => {
-                    const entry = item.type === "fact" ? item.fact : item.entry;
+                    const entry =
+                      item.type === "fact"
+                        ? item.fact
+                        : item.type === "calendar"
+                          ? item.event
+                          : item.entry;
+                    const occurredOn =
+                      item.type === "calendar"
+                        ? (item.event.actual?.date ?? null)
+                        : item.type === "fact"
+                          ? item.fact.occurred_on
+                          : item.entry.occurred_on;
                     const label =
                       item.type === "fact"
                         ? {
@@ -1118,9 +1129,11 @@ function WorkspaceDrawer({
                                 ? "Kontakt przychodzący"
                                 : "Kontakt wychodzący",
                           }[item.fact.kind]
-                        : item.entry.kind === "close"
-                          ? "Zakończono sprawę"
-                          : "Wznowiono sprawę";
+                        : item.type === "calendar"
+                          ? `Odbyte wydarzenie: ${item.event.title}`
+                          : item.entry.kind === "close"
+                            ? "Zakończono sprawę"
+                            : "Wznowiono sprawę";
                     return (
                       <li
                         key={`${item.type}:${entry.id}`}
@@ -1144,8 +1157,8 @@ function WorkspaceDrawer({
                           <p>Wynik: {item.entry.outcome}</p>
                         )}
                         <p className="mt-1 text-muted-foreground">
-                          {entry.occurred_on
-                            ? `Data zdarzenia: ${entry.occurred_on}`
+                          {occurredOn
+                            ? `Data zdarzenia: ${occurredOn}`
                             : "Data zdarzenia nieznana"}
                         </p>
                       </li>

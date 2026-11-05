@@ -1,5 +1,7 @@
 # Katalog wymagań funkcjonalnych — FR
 
+**Calendar Core, DEC-062 (1A–9A APPROVED):** FR-HE-001–003/005–013, FR-CC-009/010, FR-DB-003, FR-LC-017/018 i FR-TN-011 obejmują pełny [kontrakt Calendar](../decisions/product-decisions.md): własne ogólne i powiązane wydarzenia, terminy i ich historię, rzeczywiste rozliczenie, audytowane korekty i uczestnictwo, zamkniętą sprawę, Dashboard oraz atomowe close z Task. Wcześniejsze adnotacje o braku tych decyzji są historyczne. Pozostałe zakresy wskazanych OPEN nie zostają zamknięte.
+
 **Stan:** `BASELINED` na 2026-10-27. Wymagania wcześniejszych modułów formalizują zatwierdzony zakres (`APPROVED`); dopisany obszar `AD` odróżnia niezmienniki `APPROVED` od funkcji `PROPOSED`. Szczegóły zależne od `OPEN` **nie** są zatwierdzone. Dotychczasowe moduły należą do publicznego MVP; pozycje `PROPOSED` nie powiększają automatycznie zakresu MVP. Kolejność implementacji pozostaje `OPEN` — nie przypisujemy sztucznego rankingu Must/Should.
 
 **Legenda:** `ID` to trwały identyfikator, `DEC/BR` to normatywne źródła, `OPEN` to zależności do rozstrzygnięcia przed implementacją danego przepływu, `AC` to kryteria w [katalogu AC](../quality/acceptance-criteria.md). Status `APPROVED` dotyczy wcześniejszych modułów tylko w podanym zakresie; w tabeli `AD` status jest wskazany dla każdego FR.
@@ -133,6 +135,10 @@ Każdy FR ma co najmniej jedno testowalne AC. Macierz powiązań ze scenariuszam
 | **FR-HE-011** | Sam upływ terminu nie oznacza automatycznie odbycia wydarzenia. | DEC-024 BR-017 | — | AC-HE-011 |
 | **FR-HE-012** | System proponuje potwierdzenie wydarzenia, które minęło bez rozliczenia. | DEC-024 BR-017 | OPEN-021 | AC-HE-012 |
 | **FR-HE-013** | Jedno wydarzenie może obejmować wielu uczestników. | DEC-025 BR-027 | OPEN-021/OPEN-030 | AC-HE-013 |
+
+**Calendar Core — DEC-062:** P1 zatwierdzone w ustalonym zakresie dla FR-LC-017/018 i FR-TN-011: skutki wyborów i ich powiązań uczestników, definicja otwartości, atomowe close z Task i brak zmian wydarzeń przez samo wznowienie. Pozostałe reguły uczestników i inne kwestie OPEN; brak implementacji i pełnego pokrycia. [Analiza](../technical/calendar-core-analysis.md).
+
+**P2 — częściowe DEC-062:** planowany termin wymaga dnia, godzina jest opcjonalna i może być nieznana bez domyślnej godziny ani uznania wydarzenia za całodniowe. Każde CalendarEvent ma jawną strefę IANA, także bez godziny; interpretacja terminu nie zależy od strefy urządzenia. Granica minionego terminu bez godziny i pozostałe polityki czasu oraz pola OPEN.
 
 ## TN — Tasks & Notifications
 

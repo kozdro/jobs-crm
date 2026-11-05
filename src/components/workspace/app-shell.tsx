@@ -63,17 +63,19 @@ export function AppShell({
     desktop.addEventListener("change", closeOnDesktop);
     return () => desktop.removeEventListener("change", closeOnDesktop);
   }, []);
-  const currentModule = pathname.startsWith("/tasks")
-    ? "Zadania"
-    : pathname.startsWith("/recruitments")
-      ? "Rekrutacje"
-      : pathname.startsWith("/companies")
-        ? "Firmy"
-        : pathname.startsWith("/contacts")
-          ? "Kontakty"
-          : pathname === "/account"
-            ? "Konto"
-            : "Dashboard";
+  const currentModule = pathname.startsWith("/calendar")
+    ? "Kalendarz"
+    : pathname.startsWith("/tasks")
+      ? "Zadania"
+      : pathname.startsWith("/recruitments")
+        ? "Rekrutacje"
+        : pathname.startsWith("/companies")
+          ? "Firmy"
+          : pathname.startsWith("/contacts")
+            ? "Kontakty"
+            : pathname === "/account"
+              ? "Konto"
+              : "Dashboard";
   return (
     <div className="flex min-h-dvh">
       <a

@@ -155,6 +155,8 @@ ADR-0005 wymaga atomowego zapisu całego zaakceptowanego zbioru i rollbacku bł�
 
 ## 9. Kalendarz — UX-011
 
+**DEC-062, 1A–9A APPROVED:** obsługuj zdarzenie ogólne lub związane ze sprawą, czas nieznany lub rzeczywisty, jawnie wybraną całodniowość, zmiany strefy i DST, jawny udział, korekty z before/after i audytem; Dashboard i kontekst sprawy pokazują właściwe propozycje. Wcześniejsze wskazania tych reguł jako OPEN są historyczne. [Kontrakt](../decisions/product-decisions.md).
+
 - **Rekomendacja widoku:** agenda z możliwością przejścia do kalendarza (np. tydzień/miesiąc jako wariant do prototypu), nie sztywny wybór zatwierdzonych formatów czasu.
 - Karta wydarzenia pokazuje datę planowaną, sprawę i osoby jeśli powiązane; brak danych nie wytwarza uczestnika.
 - Akcje przy wydarzeniu: przełóż termin, rozlicz jako odbyte/nieodbyte/anulowane zgodnie z zatwierdzonymi możliwościami. Przełożenie zachowuje poprzedni termin w historii tego samego wydarzenia, nie dodaje nowego statusu „Przełożone”.

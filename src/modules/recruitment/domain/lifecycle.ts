@@ -1,3 +1,4 @@
+import type { CalendarEvent, CalendarResolution } from "./calendar";
 import type { Task, TaskResolution } from "./tasks";
 import { isCalendarDate, warsawToday } from "./case-events";
 import { uuidPattern } from "./recruitment-case";
@@ -34,8 +35,12 @@ export type ConfirmLifecycleInput = LifecycleInput & {
   expectedClosureRevision: number;
   expectedTaskSnapshot?: string[];
   taskResolutions?: TaskResolution[];
+  expectedEventSnapshot?: string[];
+  eventResolutions?: CalendarResolution[];
 };
 export type LifecyclePreview = {
+  openEvents?: CalendarEvent[];
+  eventSnapshot?: string[];
   openTasks?: Task[];
   taskSnapshot?: string[];
   caseRevision: number;
@@ -47,6 +52,8 @@ export type LifecyclePreview = {
   after: ClosureValues | null;
 };
 export type LifecycleEntry = {
+  expected_event_snapshot?: string[];
+  event_resolutions?: CalendarResolution[];
   expected_task_snapshot?: string[];
   task_resolutions?: TaskResolution[];
   id: string;
@@ -106,6 +113,8 @@ export function parseLifecycleInput(
           "expectedClosureRevision",
           "expectedTaskSnapshot",
           "taskResolutions",
+          "expectedEventSnapshot",
+          "eventResolutions",
         ]
       : []),
   ];
@@ -190,6 +199,45 @@ export function parseLifecycleInput(
         new Set(resolutions.map((x) => x?.taskId)).size !== resolutions.length)
     )
       errors.taskResolutions = "Rozstrzygnij każde otwarte zadanie.";
+    const eventSnapshot = row.expectedEventSnapshot ?? [];
+    const eventResolutions = row.eventResolutions ?? [];
+    if (
+      !Array.isArray(eventSnapshot) ||
+      eventSnapshot.some(
+        (x) =>
+          typeof x !== "string" ||
+          !/^[0-9a-fA-F-]{36}:[0-9]+$/.test(x) ||
+          !uuidPattern.test(x.split(":")[0]) ||
+          !Number.isSafeInteger(Number(x.split(":")[1])) ||
+          Number(x.split(":")[1]) >= 2147483647,
+      ) ||
+      new Set(eventSnapshot).size !== eventSnapshot.length
+    )
+      errors.expectedEventSnapshot = "Odśwież podgląd wydarzeń.";
+    if (
+      !Array.isArray(eventResolutions) ||
+      eventResolutions.some(
+        (x) =>
+          !x ||
+          typeof x !== "object" ||
+          Array.isArray(x) ||
+          Object.keys(x).some((k) => !["eventId", "action"].includes(k)) ||
+          typeof x.eventId !== "string" ||
+          !uuidPattern.test(x.eventId) ||
+          !["cancel", "keep", "detach"].includes(x.action),
+      ) ||
+      (Array.isArray(eventResolutions) &&
+        new Set(eventResolutions.map((x) => x?.eventId)).size !==
+          eventResolutions.length)
+    )
+      errors.eventResolutions = "Rozstrzygnij każde otwarte wydarzenie.";
+    if (
+      row.operation !== "close" &&
+      ((Array.isArray(eventSnapshot) && eventSnapshot.length) ||
+        (Array.isArray(eventResolutions) && eventResolutions.length))
+    )
+      errors.eventResolutions =
+        "Wydarzenia rozstrzyga się przy zamykaniu sprawy.";
     if (
       row.operation !== "close" &&
       ((Array.isArray(snapshot) && snapshot.length) ||
@@ -216,6 +264,12 @@ export function parseLifecycleInput(
           expectedClosureRevision: row.expectedClosureRevision as number,
           ...(row.expectedTaskSnapshot !== undefined
             ? { expectedTaskSnapshot: row.expectedTaskSnapshot as string[] }
+            : {}),
+          ...(row.expectedEventSnapshot !== undefined
+            ? { expectedEventSnapshot: row.expectedEventSnapshot as string[] }
+            : {}),
+          ...(row.eventResolutions !== undefined
+            ? { eventResolutions: row.eventResolutions as CalendarResolution[] }
             : {}),
           ...(row.taskResolutions !== undefined
             ? { taskResolutions: row.taskResolutions as TaskResolution[] }

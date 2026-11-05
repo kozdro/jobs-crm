@@ -37,6 +37,11 @@ export type WorkspaceData = {
   columns: Partial<Record<WorkspaceStatus, WorkspacePage>>;
 };
 export type WorkspaceTimelineItem =
+  | {
+      type: "calendar";
+      event: import("./calendar").CalendarEvent;
+      recordedAt: string;
+    }
   | { type: "fact"; fact: CaseEvent }
   | { type: "lifecycle"; entry: LifecycleEntry };
 export type WorkspacePreview = {

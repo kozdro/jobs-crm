@@ -1,5 +1,7 @@
 "use client";
 
+import { invalidateCalendarReads } from "@/components/calendar/events";
+
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { invalidateTaskReads } from "@/components/tasks/events";
@@ -167,6 +169,9 @@ export function LifecycleForm({
   const [taskResolutions, setTaskResolutions] = useState<
     Record<string, "cancel" | "keep" | "detach">
   >({});
+  const [eventResolutions, setEventResolutions] = useState<
+    Record<string, "cancel" | "keep" | "detach">
+  >({});
   const [pending, setPending] = useState(false);
   const [uncertain, setUncertain] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -233,6 +238,7 @@ export function LifecycleForm({
     }
     announce(caseId);
     invalidateTaskReads(userId, caseId);
+    invalidateCalendarReads(userId, caseId);
     router.refresh();
     onClose();
     requestAnimationFrame(() =>
@@ -272,6 +278,7 @@ export function LifecycleForm({
         return;
       }
       setTaskResolutions({});
+      setEventResolutions({});
       setPreview(body.preview);
     } catch {
       if (current())
@@ -312,6 +319,15 @@ export function LifecycleForm({
         );
         return;
       }
+      if (
+        operation === "close" &&
+        preview.openEvents?.some((event) => !eventResolutions[event.id])
+      ) {
+        report(
+          "Wybierz Anuluj, Zachowaj albo Odłącz dla każdego otwartego wydarzenia.",
+        );
+        return;
+      }
       command = {
         ...value,
         requestId: crypto.randomUUID(),
@@ -319,6 +335,15 @@ export function LifecycleForm({
         expectedClosureRevision: preview.closureRevision,
         expectedTaskSnapshot:
           operation === "close" ? (preview.taskSnapshot ?? []) : [],
+        expectedEventSnapshot:
+          operation === "close" ? (preview.eventSnapshot ?? []) : [],
+        eventResolutions:
+          operation === "close"
+            ? (preview.openEvents ?? []).map((event) => ({
+                eventId: event.id,
+                action: eventResolutions[event.id],
+              }))
+            : [],
         taskResolutions:
           operation === "close"
             ? (preview.openTasks ?? []).map((task) => ({
@@ -655,6 +680,71 @@ export function LifecycleForm({
               ))}
             </section>
           )}
+          {operation === "close" && (preview.openEvents?.length ?? 0) > 0 && (
+            <section
+              aria-label="Otwarte wydarzenia przy zamknięciu"
+              className="space-y-4"
+            >
+              <h5 className="text-sm font-semibold">
+                Rozstrzygnij każde otwarte wydarzenie
+              </h5>
+              <p className="text-sm leading-6 text-muted-foreground">
+                Anuluj anuluje wydarzenie i zachowuje powiązanie. Zachowaj
+                pozostawia otwarte przy sprawie. Odłącz pozostawia otwarte
+                wydarzenie ogólne. Uczestnicy pozostają bez zmiany, żadna
+                decyzja nie potwierdza obecności. Zmiany i audyt zapiszą się
+                razem z zakończeniem.
+              </p>
+              {preview.openEvents?.map((event) => (
+                <fieldset
+                  key={event.id}
+                  disabled={pending || uncertain}
+                  className="min-w-0 rounded-md border border-border p-3"
+                >
+                  <legend className="max-w-full px-1 text-sm font-semibold [overflow-wrap:anywhere]">
+                    {event.title}
+                  </legend>
+                  <p className="text-sm">
+                    {event.schedule?.startDate}
+                    {event.schedule?.startTime
+                      ? ` ${event.schedule.startTime}`
+                      : " · godzina nieznana"}{" "}
+                    {event.timeZone}
+                  </p>
+                  <div className="flex flex-wrap gap-x-5 gap-y-1">
+                    {(
+                      [
+                        ["cancel", "Anuluj"],
+                        ["keep", "Zachowaj"],
+                        ["detach", "Odłącz"],
+                      ] as const
+                    ).map(([action, label]) => (
+                      <label
+                        key={action}
+                        className="flex min-h-11 items-center gap-2 text-sm"
+                      >
+                        <input
+                          type="radio"
+                          name={`${id}-calendar-${event.id}`}
+                          value={action}
+                          checked={eventResolutions[event.id] === action}
+                          onChange={() => {
+                            setEventResolutions((current) => ({
+                              ...current,
+                              [event.id]: action,
+                            }));
+                            setConfirmed(false);
+                          }}
+                          className="size-4 accent-primary"
+                        />
+                        {label}
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              ))}
+            </section>
+          )}
           <label className="flex min-h-11 items-start gap-3 text-sm leading-6">
             <input
               type="checkbox"
@@ -832,6 +922,7 @@ export function LifecycleRecovery({
     setMessage(text);
     announce(caseId);
     invalidateTaskReads(userId, caseId);
+    invalidateCalendarReads(userId, caseId);
     router.refresh();
   }
   async function resolve(retry: boolean) {

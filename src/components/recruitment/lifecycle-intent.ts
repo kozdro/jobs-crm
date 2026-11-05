@@ -1,4 +1,8 @@
 import {
+  parseCalendarCommand,
+  type CalendarEvent,
+} from "@/modules/recruitment/domain/calendar";
+import {
   closureOutcomes,
   isOfferOutcome,
   parseLifecycleInput,
@@ -66,6 +70,46 @@ function isTaskResolutions(
       value.length
   );
 }
+function isEventResolutions(
+  value: unknown,
+): value is NonNullable<ConfirmLifecycleInput["eventResolutions"]> {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (item) =>
+        record(item) &&
+        Object.keys(item).length === 2 &&
+        id(item.eventId) &&
+        ["cancel", "keep", "detach"].includes(item.action as string),
+    ) &&
+    new Set(value.map((item) => item.eventId.toLowerCase())).size ===
+      value.length
+  );
+}
+function isCalendarEvent(value: unknown): value is CalendarEvent {
+  if (
+    !record(value) ||
+    !id(value.id) ||
+    !revision(value.revision) ||
+    !["string"].includes(typeof value.created_at) ||
+    !["string"].includes(typeof value.updated_at)
+  )
+    return false;
+  return parseCalendarCommand({
+    requestId: value.id,
+    operation: "create",
+    values: {
+      title: value.title,
+      description: value.description,
+      caseId: value.case_id,
+      status: value.status,
+      schedule: value.schedule,
+      timeZone: value.timeZone,
+      actual: value.actual,
+      participants: value.participants,
+    },
+  }).success;
+}
 export function isClosureValues(value: unknown): value is ClosureValues {
   return (
     record(value) &&
@@ -87,6 +131,19 @@ export function isLifecyclePreview(value: unknown): value is LifecyclePreview {
     (value.after === null || isClosureValues(value.after)) &&
     (value.openTasks === undefined ||
       (Array.isArray(value.openTasks) && value.openTasks.every(isTask))) &&
+    (value.openEvents === undefined ||
+      (Array.isArray(value.openEvents) &&
+        value.openEvents.every(isCalendarEvent))) &&
+    (value.eventSnapshot === undefined ||
+      isTaskSnapshot(value.eventSnapshot)) &&
+    (value.openEvents === undefined ||
+      (Array.isArray(value.eventSnapshot) &&
+        value.openEvents.length === value.eventSnapshot.length &&
+        value.openEvents.every(
+          (item: CalendarEvent) =>
+            value.eventSnapshot instanceof Array &&
+            value.eventSnapshot.includes(`${item.id}:${item.revision}`),
+        ))) &&
     (value.taskSnapshot === undefined ||
       (Array.isArray(value.taskSnapshot) &&
         value.taskSnapshot.every(
@@ -121,7 +178,11 @@ export function isLifecycleEntry(value: unknown): value is LifecycleEntry {
     (value.expected_task_snapshot === undefined ||
       isTaskSnapshot(value.expected_task_snapshot)) &&
     (value.task_resolutions === undefined ||
-      isTaskResolutions(value.task_resolutions))
+      isTaskResolutions(value.task_resolutions)) &&
+    (value.expected_event_snapshot === undefined ||
+      isTaskSnapshot(value.expected_event_snapshot)) &&
+    (value.event_resolutions === undefined ||
+      isEventResolutions(value.event_resolutions))
   );
 }
 export function isClosureRevision(value: unknown): value is ClosureRevision {
@@ -177,6 +238,10 @@ export function parseLifecycleIntent(
           isTaskSnapshot(value.command.expectedTaskSnapshot)) &&
         (value.command.taskResolutions === undefined ||
           isTaskResolutions(value.command.taskResolutions)) &&
+        (value.command.expectedEventSnapshot === undefined ||
+          isTaskSnapshot(value.command.expectedEventSnapshot)) &&
+        (value.command.eventResolutions === undefined ||
+          isEventResolutions(value.command.eventResolutions)) &&
         parsed.data.caseId === caseId &&
         parsed.data.requestId === result.requestId &&
         Object.entries(parsed.data).every(
@@ -221,6 +286,19 @@ export function lifecycleResultMatches(
     items
       .map((item) => [item.taskId.toLowerCase(), item.action] as const)
       .sort(([a], [b]) => a.localeCompare(b));
+  const sortEventResolutions = (
+    items: NonNullable<ConfirmLifecycleInput["eventResolutions"]>,
+  ) =>
+    items
+      .map((item) => [item.eventId.toLowerCase(), item.action] as const)
+      .sort(([a], [b]) => a.localeCompare(b));
+  if (
+    JSON.stringify(value.expected_event_snapshot ?? []) !==
+      JSON.stringify(command.expectedEventSnapshot ?? []) ||
+    JSON.stringify(sortEventResolutions(value.event_resolutions ?? [])) !==
+      JSON.stringify(sortEventResolutions(command.eventResolutions ?? []))
+  )
+    return false;
   // Omitted fields mean the legacy empty task intent, never a wildcard. A
   // stored command with removed task fields must not consume a taskful receipt.
   if (
@@ -260,7 +338,9 @@ export function lifecycleRecoveryMatches(
       value.case_id === intent.caseId &&
       value.request_id === intent.requestId &&
       (value.expected_task_snapshot ?? []).length === 0 &&
-      (value.task_resolutions ?? []).length === 0
+      (value.task_resolutions ?? []).length === 0 &&
+      (value.expected_event_snapshot ?? []).length === 0 &&
+      (value.event_resolutions ?? []).length === 0
     );
   }
   const value = result.revision;
@@ -296,6 +376,10 @@ export function lifecycleIntentsEquivalent(
     command.requestId,
     command.expectedCaseRevision,
     command.expectedClosureRevision,
+    [...(command.expectedEventSnapshot ?? [])],
+    (command.eventResolutions ?? [])
+      .map((item) => [item.eventId.toLowerCase(), item.action] as const)
+      .sort(([a], [b]) => a.localeCompare(b)),
     [...(command.expectedTaskSnapshot ?? [])],
     (command.taskResolutions ?? [])
       .map((item) => [item.taskId.toLowerCase(), item.action] as const)

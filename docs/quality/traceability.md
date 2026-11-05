@@ -1,5 +1,22 @@
 # Requirements Traceability — FR → AC → UC/TC
 
+## Calendar Core — DEC-062, 1A–9A APPROVED
+
+| Wymagania / kryteria | Plan dowodów | Status |
+|---|---|---|
+| HE-006/007, AC-HE-006-01/007-03–06 | TC-010; pola, relacje i audyt, DST, strefy, precyzja oraz poprzedni termin | NOT RUN |
+| HE-001–003/005/008–012, AC-HE-008-02/009-01/012-02 | TC-011/022/028; faktyczny czas, korekty, brak automatycznego odbycia, granice i propozycja | NOT RUN |
+| HE-013, CC-009/010, AC-HE-013-01, AC-CC-009/010 | TC-019; wielu uczestników, udział potwierdzony/nieznany/brak, korekty, chronologia rzeczywistych dat, jeden fakt w historii kontaktu i sprawy | NOT RUN |
+| DB-003, AC-DB-003-01 | Dashboard/Kalendarz/sprawa, kontekst i stany | NOT RUN |
+| LC-017/018, TN-011 | TC-012/013; mieszany close Task/Event, wszystkie wybory, atomowość, konflikt, replay, wznowienie | NOT RUN |
+| Prywatność i dostęp | A/B/anon, listy, ID, relacje, audyt, Data API/RPC, RLS | NOT RUN |
+
+Starsze adnotacje o brakujących decyzjach Calendar w tym dokumencie są historyczne; testy pozostają planem do uzyskania dowodów. TC-028 obejmuje także niezależną notatkę inline, której pokrycia nie wolno zakładać.
+
+Calendar Core: [DEC-062](../decisions/product-decisions.md) zatwierdza P1 w ustalonym zakresie dla FR-LC-017/018 i FR-TN-011, w tym AC-LC-017-04 i AC-LC-018-04/05; pełne TC-012/013 pozostają **NOT RUN**, a pozostałe reguły uczestnictwa i inne kwestie OPEN. [Analiza i plan](../technical/calendar-core-analysis.md).
+
+P2 częściowo zatwierdzone: precyzja planowanego terminu i jawna strefa IANA wydarzenia, w tym AC-HE-007-03/04; scenariusze Calendar pozostają **NOT RUN**. Granica minionego terminu bez godziny oraz pozostałe reguły stref OPEN.
+
 ## Tasks Core — DEC-060, 2026-11-01
 
 | FR / AC | Plan / zakres | Stan wykonania |
