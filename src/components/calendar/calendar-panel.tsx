@@ -38,6 +38,7 @@ import {
   setStartTime,
   canDismissCalendarForm,
   showCalendarRows,
+  calendarDismissFocus,
 } from "./form-logic";
 
 type Person = { id: string; name: string };
@@ -1253,16 +1254,26 @@ export function EventForm({
         </p>
       )}
       {uncertain && (
-        <button
-          type="button"
-          className={buttonStyles.secondary}
-          disabled={busy}
-          onClick={() => {
-            if (pending.current) void send(pending.current);
-          }}
-        >
-          Ponów ten sam zapis
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            className={buttonStyles.secondary}
+            disabled={busy}
+            onClick={() => {
+              if (pending.current) void send(pending.current);
+            }}
+          >
+            Ponów ten sam zapis
+          </button>
+          <button
+            type="button"
+            className={buttonStyles.secondary}
+            disabled={busy}
+            onClick={requestDismiss}
+          >
+            Zamknij formularz
+          </button>
+        </div>
       )}
     </form>
   );
@@ -1629,6 +1640,7 @@ export function CalendarPanel({
   const createTrigger = useRef<HTMLButtonElement>(null);
   const occurredTrigger = useRef<HTMLButtonElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
+  const recoveryTrigger = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLElement>(null);
   const dismissRef = useRef<(() => void) | null>(null);
   const [pendingState, setPendingState] = useState<Pending | null | "invalid">(
@@ -1697,6 +1709,36 @@ export function CalendarPanel({
   const syncPending = useCallback(() => {
     setPendingState(pendingCommand(userId));
   }, [userId]);
+  function closePanelForm() {
+    const currentPending = pendingCommand(userId);
+    const target =
+      mode === "occurred"
+        ? occurredTrigger
+        : mode === "create"
+          ? createTrigger
+          : heading;
+    setMemoryInitial(undefined);
+    setRestoreMemory(null);
+    setMode(null);
+    syncPending();
+    requestAnimationFrame(() => {
+      const focus = calendarDismissFocus(
+        currentPending === "invalid"
+          ? "invalid"
+          : currentPending
+            ? "valid"
+            : "none",
+      );
+      const destination =
+        focus === "recovery"
+          ? recoveryTrigger.current
+          : focus === "heading"
+            ? heading.current
+            : target.current;
+      if (destination?.isConnected) destination.focus();
+      else heading.current?.focus();
+    });
+  }
   const focusPanel = useCallback(() => heading.current?.focus(), []);
   useEffect(() => {
     const onChange = (event: Event) => {
@@ -2000,6 +2042,7 @@ export function CalendarPanel({
           {pendingState !== "invalid" && (
             <div className="flex flex-wrap gap-2">
               <button
+                ref={recoveryTrigger}
                 type="button"
                 className={buttonStyles.secondary}
                 disabled={recovering}
@@ -2090,19 +2133,7 @@ export function CalendarPanel({
                   reload();
                   requestAnimationFrame(() => heading.current?.focus());
                 }}
-                onCancel={() => {
-                  const target =
-                    mode === "occurred"
-                      ? occurredTrigger
-                      : mode === "create"
-                        ? createTrigger
-                        : heading;
-                  setMemoryInitial(undefined);
-                  setRestoreMemory(null);
-                  setMode(null);
-                  syncPending();
-                  requestAnimationFrame(() => target.current?.focus());
-                }}
+                onCancel={closePanelForm}
               />
             </Dialog.Popup>
           </Dialog.Portal>

@@ -5,6 +5,7 @@ import {
   setStartTime,
   canDismissCalendarForm,
   showCalendarRows,
+  calendarDismissFocus,
 } from "@/components/calendar/form-logic";
 import type { CalendarSchedule } from "@/modules/recruitment/domain/calendar-time";
 const schedule: CalendarSchedule = {
@@ -18,6 +19,11 @@ const schedule: CalendarSchedule = {
   endOffset: 60,
 };
 describe("calendar correction and recovery", () => {
+  it("directs focus to recovery for a pending result and away from hidden triggers", () => {
+    expect(calendarDismissFocus("valid")).toBe("recovery");
+    expect(calendarDismissFocus("invalid")).toBe("heading");
+    expect(calendarDismissFocus("none")).toBe("trigger");
+  });
   it("keeps rows during refresh only when their owner and query scope still match", () => {
     expect(showCalendarRows("owner-a:case-a:1", "owner-a:case-a:1")).toBe(true);
     expect(showCalendarRows("owner-a:case-a:1", "owner-b:case-a:1")).toBe(

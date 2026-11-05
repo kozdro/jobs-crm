@@ -668,6 +668,78 @@ test("uncertain Calendar dialog cannot be dismissed silently and keeps pending i
   ).toBe(stored);
 });
 
+for (const mode of ["create", "occurred"] as const) {
+  test(`unknown ${mode} can be closed using a visible button with confirmation and focus on recovery`, async ({
+    page,
+  }) => {
+    await login(page);
+    await page.goto(`${target.appOrigin}/calendar`);
+    const action =
+      mode === "create" ? "Dodaj wydarzenie" : "Zapisz odbytą rozmowę";
+    const dialogName =
+      mode === "create" ? "Nowe wydarzenie" : "Zapisz odbytą rozmowę";
+    await page.getByRole("button", { name: action, exact: true }).click();
+    const dialog = page.getByRole("dialog", { name: dialogName, exact: true });
+    const title = `Unknown ${mode} ${randomUUID()}`;
+    await dialog.getByLabel("Tytuł wydarzenia", { exact: true }).fill(title);
+    if (mode === "create")
+      await dialog.getByLabel("Data", { exact: true }).fill("2099-05-15");
+    await page.route("**/calendar/commands", async (route) => {
+      if (route.request().method() === "POST") await route.abort("failed");
+      else await route.continue();
+    });
+    await dialog
+      .getByRole("button", { name: "Zapisz wydarzenie", exact: true })
+      .click();
+    await expect(dialog.getByRole("alert")).toContainText(
+      "Nie potwierdzono wyniku",
+    );
+    const close = dialog.getByRole("button", {
+      name: "Zamknij formularz",
+      exact: true,
+    });
+    await expect(close).toBeVisible();
+    await expect(close).toBeEnabled();
+    let warningText = "";
+    page.once("dialog", (warning) => {
+      warningText = warning.message();
+      void warning.dismiss();
+    });
+    await close.click();
+    expect(warningText).toContain("Wynik zapisu jest nieznany");
+    await expect(dialog).toBeVisible();
+    page.once("dialog", (warning) => warning.accept());
+    await close.click();
+    await expect(dialog).toHaveCount(0);
+    const recovery = page.getByRole("button", {
+      name: "Sprawdź wynik",
+      exact: true,
+    });
+    await expect(recovery).toBeVisible();
+    await expect
+      .poll(async () =>
+        page.evaluate(() => {
+          const focused = document.activeElement;
+          return (
+            focused?.textContent?.trim() === "Sprawdź wynik" ||
+            (focused?.tagName === "H2" &&
+              focused.textContent?.trim() === "Kalendarz")
+          );
+        }),
+      )
+      .toBe(true);
+    const stored = await page.evaluate(
+      (key) => sessionStorage.getItem(key),
+      `jobs-crm.calendar.pending.${user.id}`,
+    );
+    expect(Object.keys(JSON.parse(stored!)).sort()).toEqual([
+      "ownerId",
+      "requestId",
+    ]);
+    expect(stored).not.toContain(title);
+  });
+}
+
 for (const action of ["Edytuj wydarzenie", "Rozlicz wydarzenie"] as const) {
   test(`canceling ${action} returns focus to the same event action after list refresh`, async ({
     page,

@@ -12,6 +12,17 @@ export function showCalendarRows(
   return loadedScope === requestedScope;
 }
 
+/** Pending recovery replaces create triggers, so focus must not target them. */
+export function calendarDismissFocus(
+  pending: "valid" | "invalid" | "none",
+): "recovery" | "heading" | "trigger" {
+  return pending === "valid"
+    ? "recovery"
+    : pending === "invalid"
+      ? "heading"
+      : "trigger";
+}
+
 export function canDismissCalendarForm(
   busy: boolean,
   uncertain: boolean,
