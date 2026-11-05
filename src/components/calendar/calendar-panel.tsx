@@ -32,7 +32,11 @@ import {
   sectionDuringEdit,
 } from "./time";
 import { calendarInvalidationEvent, invalidateCalendarReads } from "./events";
-import { useCalendarMemoryDrafts, type MemoryDraft } from "./memory-drafts";
+import {
+  useCalendarMemoryDrafts,
+  revertedDraftCandidate,
+  type MemoryDraft,
+} from "./memory-drafts";
 import {
   actualLabel,
   calendarOperation,
@@ -410,7 +414,19 @@ export function EventForm({
   const saveMemory = memory?.save;
   const removeMemory = memory?.remove;
   useEffect(() => {
-    if (!dirty && !restored) return;
+    if (!dirty && !restored) {
+      const candidate = revertedDraftCandidate(
+        dirty,
+        Boolean(restored),
+        Boolean(pending.current),
+        lastDraft.current,
+      );
+      if (candidate) {
+        removeMemory?.(userId, memoryId, candidate);
+        if (lastDraft.current === candidate) lastDraft.current = null;
+      }
+      return;
+    }
     const entry: MemoryDraft = {
       id: memoryId,
       ownerId: userId,
@@ -435,6 +451,7 @@ export function EventForm({
     zoneMode,
     appliedZoneMode,
     saveMemory,
+    removeMemory,
   ]);
   function clearMemory() {
     if (lastDraft.current) removeMemory?.(userId, memoryId, lastDraft.current);

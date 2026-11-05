@@ -23,7 +23,36 @@ export type MemoryDraft = {
   pendingRequestId?: string;
   pendingCommand?: CalendarCommandInput;
 };
-type Store = { ownerId: string | null; drafts: MemoryDraft[] };
+export type Store = { ownerId: string | null; drafts: MemoryDraft[] };
+/** Only the exact snapshot may be consumed; another owner or newer revision wins. */
+export function withoutMatchingDraft(
+  current: Store,
+  owner: string,
+  id: string,
+  expected: MemoryDraft,
+): Store {
+  if (current.ownerId !== owner) return current;
+  return {
+    ...current,
+    drafts: current.drafts.filter((d) => d.id !== id || d !== expected),
+  };
+}
+/** Reverted input is no longer a draft, except restored or pending commands. */
+export function revertedDraftCandidate(
+  dirty: boolean,
+  restored: boolean,
+  pending: boolean,
+  entry: MemoryDraft | null,
+): MemoryDraft | null {
+  return !dirty &&
+    !restored &&
+    !pending &&
+    entry &&
+    !entry.pendingRequestId &&
+    !entry.pendingCommand
+    ? entry
+    : null;
+}
 type Context = {
   store: Store;
   activate: (owner: string) => void;
@@ -59,16 +88,7 @@ export function CalendarMemoryDraftProvider({
   );
   const remove = useCallback(
     (owner: string, id: string, expected: MemoryDraft) =>
-      setStore((current) =>
-        current.ownerId !== owner
-          ? current
-          : {
-              ...current,
-              drafts: current.drafts.filter(
-                (d) => d.id !== id || d !== expected,
-              ),
-            },
-      ),
+      setStore((current) => withoutMatchingDraft(current, owner, id, expected)),
     [],
   );
   const value = useMemo(

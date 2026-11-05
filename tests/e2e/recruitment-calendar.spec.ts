@@ -1277,6 +1277,180 @@ test("browser without Navigation API restores the working draft after back and f
   ).toHaveValue(title);
 });
 
+for (const mode of ["create", "edit"] as const) {
+  test(`${mode} draft returned to baseline is not restored after SPA navigation`, async ({
+    page,
+  }) => {
+    await page.addInitScript(() =>
+      Object.defineProperty(window, "navigation", {
+        value: undefined,
+        configurable: true,
+      }),
+    );
+    let original = "";
+    if (mode === "edit") {
+      const { client } = await sdkLogin(target, user);
+      original = `Original baseline ${randomUUID()}`;
+      const created = await client.rpc("execute_recruitment_calendar_command", {
+        p_request_id: randomUUID(),
+        p_payload: {
+          operation: "create",
+          values: {
+            title: original,
+            description: null,
+            caseId: null,
+            status: "planned",
+            timeZone: "Europe/Warsaw",
+            actual: null,
+            participants: [],
+            schedule: {
+              startDate: "2099-05-15",
+              startTime: null,
+              endDate: null,
+              endTime: null,
+              allDay: false,
+              timeZone: "Europe/Warsaw",
+              startOffset: null,
+              endOffset: null,
+            },
+          },
+        },
+      });
+      expect(created.error).toBeNull();
+    }
+    await login(page);
+    await page.getByRole("link", { name: "Kalendarz", exact: true }).click();
+    if (mode === "create")
+      await page
+        .getByRole("button", { name: "Dodaj wydarzenie", exact: true })
+        .click();
+    else
+      await page
+        .getByRole("article", { name: original, exact: true })
+        .getByRole("button", { name: "Edytuj wydarzenie", exact: true })
+        .click();
+    const name = mode === "create" ? "Nowe wydarzenie" : "Edytuj wydarzenie";
+    const dialog = page.getByRole("dialog", { name, exact: true });
+    const title = dialog.getByLabel("Tytuł wydarzenia", { exact: true });
+    const temporary = `Discarded temporary ${randomUUID()}`;
+    await title.fill(temporary);
+    await title.fill(original);
+    await expect(title).toHaveValue(original);
+    await page.evaluate(() => history.back());
+    await expect(page).toHaveURL(`${target.appOrigin}/dashboard`);
+    await page.evaluate(() => history.forward());
+    await expect(page).toHaveURL(`${target.appOrigin}/calendar`);
+    await expect(
+      page.getByRole("button", { name: "Wczytaj szkic", exact: true }),
+    ).toHaveCount(0);
+    await expect(page.getByText(temporary, { exact: false })).toHaveCount(0);
+    if (mode === "edit")
+      await expect(
+        page.getByRole("article", { name: original, exact: true }),
+      ).toBeVisible();
+  });
+}
+
+test("baseline edit with an unknown pending result retains recovery across SPA navigation", async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    Object.defineProperty(window, "navigation", {
+      value: undefined,
+      configurable: true,
+    }),
+  );
+  const { client } = await sdkLogin(target, user);
+  const original = `Pending baseline ${randomUUID()}`;
+  const created = await client.rpc("execute_recruitment_calendar_command", {
+    p_request_id: randomUUID(),
+    p_payload: {
+      operation: "create",
+      values: {
+        title: original,
+        description: null,
+        caseId: null,
+        status: "planned",
+        timeZone: "Europe/Warsaw",
+        actual: null,
+        participants: [],
+        schedule: {
+          startDate: "2099-05-15",
+          startTime: null,
+          endDate: null,
+          endTime: null,
+          allDay: false,
+          timeZone: "Europe/Warsaw",
+          startOffset: null,
+          endOffset: null,
+        },
+      },
+    },
+  });
+  expect(created.error).toBeNull();
+  await login(page);
+  await page.getByRole("link", { name: "Kalendarz", exact: true }).click();
+  const article = page.getByRole("article", { name: original, exact: true });
+  await article
+    .getByRole("button", { name: "Edytuj wydarzenie", exact: true })
+    .click();
+  const dialog = page.getByRole("dialog", {
+    name: "Edytuj wydarzenie",
+    exact: true,
+  });
+  const title = dialog.getByLabel("Tytuł wydarzenia", { exact: true });
+  await title.fill(`Temporary ${randomUUID()}`);
+  await title.fill(original);
+  await page.route("**/calendar/commands", async (route) => {
+    if (route.request().method() === "POST") await route.abort("failed");
+    else await route.continue();
+  });
+  await dialog
+    .getByRole("button", { name: "Zapisz wydarzenie", exact: true })
+    .click();
+  await expect(dialog.getByRole("alert")).toContainText(
+    "Nie potwierdzono wyniku",
+  );
+  const key = `jobs-crm.calendar.pending.${user.id}`;
+  const pending = await page.evaluate(
+    (storageKey) => sessionStorage.getItem(storageKey),
+    key,
+  );
+  expect(pending).not.toBeNull();
+  page.once("dialog", (warning) => warning.accept());
+  await dialog
+    .getByRole("button", { name: "Zamknij formularz", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Sprawdź wynik", exact: true }),
+  ).toBeVisible();
+  await page.unroute("**/calendar/commands");
+  await page.evaluate(() => history.back());
+  await expect(page).toHaveURL(`${target.appOrigin}/dashboard`);
+  await page.evaluate(() => history.forward());
+  await expect(page).toHaveURL(`${target.appOrigin}/calendar`);
+  await expect(
+    page.getByRole("button", { name: "Sprawdź wynik", exact: true }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      (storageKey) => sessionStorage.getItem(storageKey),
+      key,
+    ),
+  ).toBe(pending);
+  await page
+    .getByRole("button", { name: "Sprawdź wynik", exact: true })
+    .click();
+  await expect(
+    page.getByText(/Nie odnaleziono potwierdzenia. Wynik pozostaje nieznany/),
+  ).toBeVisible();
+  const current = await client.rpc("get_recruitment_calendar_event", {
+    p_event_id: created.data.event.id,
+  });
+  expect(current.error).toBeNull();
+  expect(current.data.revision).toBe(created.data.event.revision);
+});
+
 test("account switch hides A's in-memory draft and pending intent from B", async ({
   page,
 }) => {
