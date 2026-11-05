@@ -410,7 +410,8 @@ export function isCurrentLifecycleIntent(
       !current.invalidCommand &&
       !current.command &&
       expected.command &&
-      (expected.command.expectedEventSnapshot?.length ?? 0) > 0
+      ((expected.command.expectedEventSnapshot?.length ?? 0) > 0 ||
+        (expected.command.eventResolutions?.length ?? 0) > 0)
     )
       return (
         current.ownerId === expected.ownerId &&
@@ -443,13 +444,21 @@ export function persistLifecycleIntent(
   expected: LifecycleIntent & { command: ConfirmLifecycleInput },
 ): "stored" | "conflict" | "unavailable" {
   const serialized = JSON.stringify(
-    (expected.command.expectedEventSnapshot?.length ?? 0) > 0
+    (expected.command.expectedEventSnapshot?.length ?? 0) > 0 ||
+      (expected.command.eventResolutions?.length ?? 0) > 0
       ? {
           ownerId: expected.ownerId,
           caseId: expected.caseId,
           requestId: expected.requestId,
         }
-      : expected,
+      : (() => {
+          // Preserve the pre-Calendar task-only format; empty Calendar fields
+          // add no intent and should not expand the persisted payload.
+          const command = { ...expected.command };
+          delete command.expectedEventSnapshot;
+          delete command.eventResolutions;
+          return { ...expected, command };
+        })(),
   );
   try {
     const existing = storage.getItem(key);

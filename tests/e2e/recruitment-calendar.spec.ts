@@ -594,7 +594,7 @@ test("browser without Navigation API restores the working draft after back and f
   await page.evaluate(() => history.forward());
   await expect(page).toHaveURL(`${target.appOrigin}/calendar`);
   await page
-    .getByRole("button", { name: "Wczytaj szkic roboczy", exact: true })
+    .getByRole("button", { name: "Wczytaj szkic", exact: true })
     .click();
   await expect(
     page.getByLabel("Tytuł wydarzenia", { exact: true }),

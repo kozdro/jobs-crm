@@ -53,6 +53,26 @@ const entry: LifecycleEntry = {
   event_resolutions: [{ eventId, action: "detach" }],
 };
 describe("calendar mixed close recovery", () => {
+  it("retains the pre-Calendar task-only storage format when Calendar choices are empty", () => {
+    let raw: string | null = null;
+    const storage = {
+      getItem: () => raw,
+      setItem: (_key: string, value: string) => {
+        raw = value;
+      },
+    };
+    const noEvents = {
+      ...command,
+      expectedEventSnapshot: [],
+      eventResolutions: [],
+    };
+    const intent = { ownerId, caseId, requestId, command: noEvents };
+    expect(persistLifecycleIntent(storage, "pending", intent)).toBe("stored");
+    const persisted = JSON.parse(raw!);
+    expect(persisted.command).not.toHaveProperty("expectedEventSnapshot");
+    expect(persisted.command).not.toHaveProperty("eventResolutions");
+    expect(isCurrentLifecycleIntent(storage, "pending", intent)).toBe(true);
+  });
   it("persists only owner, case and request identifiers for mixed calendar close", () => {
     let raw: string | null = null;
     const storage = {

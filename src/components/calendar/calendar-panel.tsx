@@ -243,7 +243,7 @@ function OffsetField({
   );
 }
 
-function EventForm({
+export function EventForm({
   userId,
   initial,
   restored,
@@ -264,8 +264,12 @@ function EventForm({
   onDone: () => void;
   onCancel: () => void;
 }) {
-  const [values, setValues] = useState<Values>(() =>
-    initial ? eventValues(initial) : emptyValues(caseId, mode === "occurred"),
+  const [values, setValues] = useState<Values>(
+    () =>
+      restored?.values ??
+      (initial
+        ? eventValues(initial)
+        : emptyValues(caseId, mode === "occurred")),
   );
   const [base, setBase] = useState(initial);
   const [stale, setStale] = useState(false);
@@ -297,7 +301,9 @@ function EventForm({
     "keep-local" | "keep-instant" | undefined
   >(restored?.zoneChangeMode);
   const dirty =
-    !sameValue(initialValues, values) || zoneDraft !== initialValues.timeZone;
+    Boolean(restored) ||
+    !sameValue(initialValues, values) ||
+    zoneDraft !== initialValues.timeZone;
   useEffect(() => {
     if (!dirty && !uncertain) return;
     const beforeUnload = (event: BeforeUnloadEvent) => {

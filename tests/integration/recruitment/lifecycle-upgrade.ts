@@ -545,7 +545,7 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
       ]);
       const [saved] = await tx.unsafe(
         "select public.create_recruitment_case_atomic($1::uuid,$2::jsonb,null) result",
-        [atomicRequest, JSON.stringify(atomicIntent)],
+        [atomicRequest, tx.json(atomicIntent)],
       );
       assert.equal(saved.result.kind, "created");
     });
@@ -592,7 +592,7 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
       ]);
       const [replayed] = await tx.unsafe(
         "select public.create_recruitment_case_atomic($1::uuid,$2::jsonb,null) result",
-        [atomicRequest, JSON.stringify(atomicIntent)],
+        [atomicRequest, tx.json(atomicIntent)],
       );
       assert.equal(replayed.result.kind, "replayed");
     });
@@ -644,7 +644,7 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
       };
       const [createdEvent] = await tx.unsafe(
         "select public.execute_recruitment_calendar_command($1::uuid,$2::jsonb) result",
-        [randomUUID(), JSON.stringify(payload)],
+        [randomUUID(), tx.json(payload)],
       );
       assert.equal(createdEvent.result.kind, "created");
       assert.equal(createdEvent.result.event.case_id, caseId);
@@ -690,10 +690,10 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
           caseId,
           p.result.caseRevision,
           p.result.closureRevision,
-          JSON.stringify(p.result.taskSnapshot),
-          JSON.stringify([{ taskId: existingTask.id, action: "keep" }]),
-          JSON.stringify(p.result.eventSnapshot),
-          JSON.stringify([{ eventId, action: "detach" }]),
+          tx.json(p.result.taskSnapshot),
+          tx.json([{ taskId: existingTask.id, action: "keep" }]),
+          tx.json(p.result.eventSnapshot),
+          tx.json([{ eventId, action: "detach" }]),
         ],
       );
       assert.equal(closed.result.kind, "created");
