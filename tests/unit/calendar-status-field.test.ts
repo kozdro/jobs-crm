@@ -13,6 +13,9 @@ describe("calendar resolution field", () => {
       }),
     );
     expect(html).toContain('id="resolution-status"');
+    expect(html).toContain(
+      '<label for="resolution-status" class="block text-sm font-medium">Wynik</label>',
+    );
     expect(html).toContain('aria-invalid="true"');
     expect(html).toContain('aria-describedby="resolution-status-error"');
     expect(html).toContain('id="resolution-status-error"');

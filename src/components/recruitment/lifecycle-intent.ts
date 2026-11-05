@@ -17,6 +17,21 @@ import { isTask } from "@/components/tasks/client";
 import { uuidPattern } from "@/modules/recruitment/domain/recruitment-case";
 
 export const lifecycleIntentStorageKey = "jobs-crm.lifecycle.pending";
+/** Empty Calendar choices retain the pre-Calendar command contract on both
+ * first dispatch and retry; non-empty choices must never be discarded. */
+export function normalizeLifecycleCalendarIntent(
+  command: ConfirmLifecycleInput,
+): ConfirmLifecycleInput {
+  if (
+    (command.expectedEventSnapshot?.length ?? 0) > 0 ||
+    (command.eventResolutions?.length ?? 0) > 0
+  )
+    return command;
+  const result = { ...command };
+  delete result.expectedEventSnapshot;
+  delete result.eventResolutions;
+  return result;
+}
 export type LifecycleIntent = {
   ownerId: string;
   caseId: string;

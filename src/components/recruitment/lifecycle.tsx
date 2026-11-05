@@ -36,6 +36,7 @@ import {
   lifecycleRecoveryMatches,
   parseLifecycleIntent,
   persistAndFreezeLifecycleIntent,
+  normalizeLifecycleCalendarIntent,
   type LifecycleIntent,
 } from "./lifecycle-intent";
 
@@ -329,7 +330,7 @@ export function LifecycleForm({
         );
         return;
       }
-      command = {
+      command = normalizeLifecycleCalendarIntent({
         ...value,
         requestId: crypto.randomUUID(),
         expectedCaseRevision: preview.caseRevision,
@@ -352,7 +353,7 @@ export function LifecycleForm({
                 action: taskResolutions[task.id],
               }))
             : [],
-      };
+      });
     }
     let persisted: ReturnType<typeof persistAndFreezeLifecycleIntent> =
       "unavailable";

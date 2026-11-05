@@ -269,27 +269,27 @@ export function CalendarStatusField({
 }) {
   return (
     <>
-      <label className="block text-sm font-medium">
+      <label htmlFor={id} className="block text-sm font-medium">
         Wynik
-        <select
-          id={id}
-          aria-invalid={Boolean(error)}
-          aria-describedby={error ? `${id}-error` : undefined}
-          className={`${inputStyles} mt-1`}
-          required
-          value={value}
-          onChange={(event) =>
-            onChange(event.target.value as CalendarEvent["status"])
-          }
-        >
-          <option value="planned" disabled>
-            Wybierz wynik
-          </option>
-          <option value="occurred">Odbyte</option>
-          <option value="not_occurred">Nieodbyte</option>
-          <option value="cancelled">Anulowane</option>
-        </select>
       </label>
+      <select
+        id={id}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `${id}-error` : undefined}
+        className={`${inputStyles} mt-1`}
+        required
+        value={value}
+        onChange={(event) =>
+          onChange(event.target.value as CalendarEvent["status"])
+        }
+      >
+        <option value="planned" disabled>
+          Wybierz wynik
+        </option>
+        <option value="occurred">Odbyte</option>
+        <option value="not_occurred">Nieodbyte</option>
+        <option value="cancelled">Anulowane</option>
+      </select>
       {error && (
         <p id={`${id}-error`} className="text-sm text-destructive">
           {error}

@@ -5,6 +5,7 @@ import {
   lifecycleRecoveryMatches,
   persistLifecycleIntent,
   isCurrentLifecycleIntent,
+  normalizeLifecycleCalendarIntent,
 } from "@/components/recruitment/lifecycle-intent";
 import type {
   ConfirmLifecycleInput,
@@ -61,16 +62,17 @@ describe("calendar mixed close recovery", () => {
         raw = value;
       },
     };
-    const noEvents = {
+    const noEvents = normalizeLifecycleCalendarIntent({
       ...command,
       expectedEventSnapshot: [],
       eventResolutions: [],
-    };
+    });
     const intent = { ownerId, caseId, requestId, command: noEvents };
     expect(persistLifecycleIntent(storage, "pending", intent)).toBe("stored");
     const persisted = JSON.parse(raw!);
     expect(persisted.command).not.toHaveProperty("expectedEventSnapshot");
     expect(persisted.command).not.toHaveProperty("eventResolutions");
+    expect(persisted.command).toEqual(noEvents);
     expect(isCurrentLifecycleIntent(storage, "pending", intent)).toBe(true);
   });
   it("persists only owner, case and request identifiers for mixed calendar close", () => {
@@ -81,7 +83,9 @@ describe("calendar mixed close recovery", () => {
         raw = value;
       },
     };
-    const intent = { ownerId, caseId, requestId, command };
+    const normalized = normalizeLifecycleCalendarIntent(command);
+    expect(normalized).toEqual(command);
+    const intent = { ownerId, caseId, requestId, command: normalized };
     expect(persistLifecycleIntent(storage, "pending", intent)).toBe("stored");
     expect(JSON.parse(raw!)).toEqual({ ownerId, caseId, requestId });
     expect(raw).not.toContain(eventId);
