@@ -3,6 +3,8 @@ import {
   lifecycleIntentsEquivalent,
   lifecycleResultMatches,
   lifecycleRecoveryMatches,
+  persistLifecycleIntent,
+  isCurrentLifecycleIntent,
 } from "@/components/recruitment/lifecycle-intent";
 import type {
   ConfirmLifecycleInput,
@@ -51,6 +53,20 @@ const entry: LifecycleEntry = {
   event_resolutions: [{ eventId, action: "detach" }],
 };
 describe("calendar mixed close recovery", () => {
+  it("persists only owner, case and request identifiers for mixed calendar close", () => {
+    let raw: string | null = null;
+    const storage = {
+      getItem: () => raw,
+      setItem: (_key: string, value: string) => {
+        raw = value;
+      },
+    };
+    const intent = { ownerId, caseId, requestId, command };
+    expect(persistLifecycleIntent(storage, "pending", intent)).toBe("stored");
+    expect(JSON.parse(raw!)).toEqual({ ownerId, caseId, requestId });
+    expect(raw).not.toContain(eventId);
+    expect(isCurrentLifecycleIntent(storage, "pending", intent)).toBe(true);
+  });
   it("binds confirmation and retry to all event decisions and exact snapshot", () => {
     const intent = { ownerId, caseId, requestId, command };
     expect(lifecycleResultMatches({ entry }, command)).toBe(true);

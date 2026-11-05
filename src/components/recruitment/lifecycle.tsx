@@ -29,6 +29,7 @@ import {
   clearMatchingLifecycleIntent,
   isCurrentLifecycleIntent,
   isClosureRevision,
+  isLifecycleEntry,
   isLifecyclePreview,
   lifecycleIntentStorageKey,
   lifecycleResultMatches,
@@ -893,6 +894,8 @@ export function LifecycleRecovery({
   const [intent, setIntent] = useState<LifecycleIntent | null>(null);
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [unverifiedReceipt, setUnverifiedReceipt] =
+    useState<LifecycleEntry | null>(null);
   const alive = useRef(true);
   const epoch = useRef(0);
   const busy = useRef(false);
@@ -958,7 +961,21 @@ export function LifecycleRecovery({
           saved,
           "Potwierdzono wcześniejszy zapis. Pobieranie aktualnego stanu sprawy…",
         );
-      else if (retry && response.status === 409 && body?.kind === "stale")
+      else if (
+        response.ok &&
+        !saved.command &&
+        body &&
+        isLifecycleEntry(body.entry) &&
+        body.entry.case_id === caseId &&
+        body.entry.request_id === saved.requestId &&
+        (body.entry.expected_event_snapshot?.length ?? 0) > 0 &&
+        currentPending(saved)
+      ) {
+        setUnverifiedReceipt(body.entry);
+        setMessage(
+          "Odnaleziono zapis zakończenia z wydarzeniami. Po odświeżeniu strony nie można porównać go z pierwotną treścią; sprawdź wynik i potwierdź.",
+        );
+      } else if (retry && response.status === 409 && body?.kind === "stale")
         complete(
           saved,
           "Poprzedni zamiar nie został zastosowany, ponieważ stan się zmienił. Pobierz nowy podgląd i potwierdź operację.",
@@ -1021,6 +1038,56 @@ export function LifecycleRecovery({
           )}
         </div>
       )}
+      {intent && unverifiedReceipt && (
+        <div className="space-y-2 text-sm">
+          <p>
+            Odzyskany zapis:{" "}
+            {unverifiedReceipt.kind === "close"
+              ? "zakończenie sprawy"
+              : "wznowienie"}
+            ; wynik: {unverifiedReceipt.outcome ?? "nie dotyczy"};
+            rozstrzygniętych wydarzeń:{" "}
+            {unverifiedReceipt.event_resolutions?.length ?? 0}.
+          </p>
+          <button
+            type="button"
+            className={buttonStyles.secondary}
+            onClick={() => {
+              if (intent && currentPending(intent)) {
+                setUnverifiedReceipt(null);
+                complete(
+                  intent,
+                  "Potwierdzono zapoznanie się z odzyskanym zapisem.",
+                );
+              } else setMessage(changedIntentMessage);
+            }}
+          >
+            Potwierdź odzyskany zapis cyklu
+          </button>
+        </div>
+      )}
+      {intent &&
+        !intent.command &&
+        !intent.invalidCommand &&
+        !unverifiedReceipt && (
+          <button
+            type="button"
+            className={buttonStyles.secondary}
+            onClick={() => {
+              if (
+                window.confirm(
+                  "Wynik może być nieznany. Czy na pewno chcesz porzucić oczekiwanie?",
+                )
+              )
+                complete(
+                  intent,
+                  "Porzucono oczekiwanie; nie oznacza to cofnięcia ewentualnego zapisu.",
+                );
+            }}
+          >
+            Porzuć oczekiwanie zapisu cyklu
+          </button>
+        )}
     </div>
   );
 }

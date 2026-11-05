@@ -354,118 +354,96 @@ test("history distinguishes the two occurrences of a repeated DST hour", async (
   await expect(history).toContainText("2026-10-25, 02:30 UTC+01:00");
 });
 
-test("stale retry after reload preserves draft and never overwrites a concurrent edit", async ({
-  page,
-}) => {
-  const { client } = await sdkLogin(target, user);
-  const originalTitle = `Racing calendar ${randomUUID()}`;
-  const values = {
-    title: originalTitle,
-    description: null,
-    caseId: null,
-    status: "planned",
-    timeZone: "Europe/Warsaw",
-    actual: null,
-    participants: [],
-    schedule: {
-      startDate: "2099-05-15",
-      startTime: null,
-      endDate: null,
-      endTime: null,
-      allDay: false,
-      timeZone: "Europe/Warsaw",
-      startOffset: null,
-      endOffset: null,
-    },
-  };
-  const create = await client.rpc("execute_recruitment_calendar_command", {
-    p_request_id: randomUUID(),
-    p_payload: { operation: "create", values },
+for (const delivered of [true, false]) {
+  test(`reload recovery keeps only owner/request identifiers when response is ${delivered ? "lost after commit" : "undelivered"}`, async ({
+    page,
+  }) => {
+    await login(page);
+    await page.goto(`${target.appOrigin}/calendar`);
+    await page
+      .getByRole("button", { name: "Dodaj wydarzenie", exact: true })
+      .click();
+    const title = `Prywatny zamiar ${randomUUID()}`;
+    await page.getByLabel("Tytuł wydarzenia", { exact: true }).fill(title);
+    await page.getByLabel("Data", { exact: true }).fill("2099-05-15");
+    let requestId = "";
+    await page.route("**/calendar/commands", async (route) => {
+      if (route.request().method() !== "POST") return route.continue();
+      requestId = route.request().postDataJSON().requestId;
+      if (delivered) {
+        const response = await route.fetch();
+        expect(response.status()).toBe(200);
+      }
+      await route.abort("failed");
+    });
+    await page
+      .getByRole("button", { name: "Zapisz wydarzenie", exact: true })
+      .click();
+    await expect(page.getByRole("alert")).toBeVisible();
+    expect(requestId).toBeTruthy();
+    const key = `jobs-crm.calendar.pending.${user.id}`;
+    const stored = await page.evaluate(
+      (storageKey) => sessionStorage.getItem(storageKey),
+      key,
+    );
+    expect(stored).not.toContain(title);
+    const storageContents = await page.evaluate(() =>
+      JSON.stringify({ ...sessionStorage, ...localStorage }),
+    );
+    expect(storageContents).not.toContain(title);
+    expect(JSON.parse(stored!)).toEqual({ ownerId: user.id, requestId });
+    await page.unroute("**/calendar/commands");
+    await page.reload();
+    await expect(
+      page.getByRole("button", { name: "Ponów ten sam zapis", exact: true }),
+    ).toHaveCount(0);
+    await page
+      .getByRole("button", { name: "Sprawdź wynik", exact: true })
+      .click();
+    if (delivered) {
+      await expect(
+        page.getByText(`Odzyskane wydarzenie: ${title}`, { exact: false }),
+      ).toBeVisible();
+      expect(
+        await page.evaluate(
+          (storageKey) => sessionStorage.getItem(storageKey),
+          key,
+        ),
+      ).toBe(stored);
+      await page
+        .getByRole("button", { name: "Potwierdź wynik", exact: true })
+        .click();
+      await expect(
+        page.getByRole("article", { name: title, exact: true }),
+      ).toBeVisible();
+    } else {
+      await expect(
+        page.getByText(
+          /Nie odnaleziono potwierdzenia. Wynik pozostaje nieznany/,
+        ),
+      ).toBeVisible();
+      expect(
+        await page.evaluate(
+          (storageKey) => sessionStorage.getItem(storageKey),
+          key,
+        ),
+      ).toBe(stored);
+      page.once("dialog", (dialog) => dialog.accept());
+      await page
+        .getByRole("button", { name: "Porzuć oczekiwanie", exact: true })
+        .click();
+      await expect(
+        page.getByRole("article", { name: title, exact: true }),
+      ).toHaveCount(0);
+    }
+    expect(
+      await page.evaluate(
+        (storageKey) => sessionStorage.getItem(storageKey),
+        key,
+      ),
+    ).toBeNull();
   });
-  expect(create.error).toBeNull();
-  const eventId = create.data.event.id as string;
-  await login(page);
-  await page.goto(`${target.appOrigin}/calendar`);
-  const event = page.getByRole("article", { name: originalTitle, exact: true });
-  await event
-    .getByRole("button", { name: "Edytuj wydarzenie", exact: true })
-    .click();
-  const draftTitle = `Niezapisany szkic ${randomUUID()}`;
-  await event.getByLabel("Tytuł wydarzenia", { exact: true }).fill(draftTitle);
-  await page.route("**/calendar/commands", async (route) => {
-    if (route.request().method() === "POST") await route.abort("failed");
-    else await route.continue();
-  });
-  await event
-    .getByRole("button", { name: "Zapisz wydarzenie", exact: true })
-    .click();
-  await expect(page.getByRole("alert")).toBeVisible();
-  await page.unroute("**/calendar/commands");
-  const otherTitle = `Zmiana równoczesna ${randomUUID()}`;
-  const changed = await client.rpc("execute_recruitment_calendar_command", {
-    p_request_id: randomUUID(),
-    p_payload: {
-      operation: "edit",
-      eventId,
-      expectedRevision: 0,
-      values: { ...values, title: otherTitle },
-    },
-  });
-  expect(changed.error).toBeNull();
-  await page.reload();
-  await page
-    .getByRole("button", { name: "Ponów ten sam zapis", exact: true })
-    .click();
-  await expect(
-    page.getByText(
-      "Zapis odrzucono, ponieważ wydarzenie zmieniło się. Zachowaj szkic i odśwież dane.",
-      { exact: true },
-    ),
-  ).toBeVisible();
-  await page
-    .getByRole("button", { name: "Zachowaj szkic i odblokuj", exact: true })
-    .click();
-  await expect(
-    page.getByRole("article", { name: otherTitle, exact: true }),
-  ).toBeVisible();
-  await page
-    .getByRole("button", { name: "Wczytaj zachowany szkic", exact: true })
-    .click();
-  await expect(
-    page.getByLabel("Tytuł wydarzenia", { exact: true }),
-  ).toHaveValue(draftTitle);
-  const current = await client.rpc("get_recruitment_calendar_event", {
-    p_event_id: eventId,
-  });
-  expect(current.error).toBeNull();
-  expect(current.data.title).toBe(otherTitle);
-  await page
-    .getByRole("button", { name: "Zapisz wydarzenie", exact: true })
-    .click();
-  const preview = page.getByRole("heading", {
-    name: "Podgląd korekty",
-    exact: true,
-  });
-  await expect(preview).toBeVisible();
-  const previewContainer = preview.locator("..");
-  await expect(previewContainer).toContainText(otherTitle);
-  await expect(previewContainer).toContainText(draftTitle);
-  const beforeConfirm = await client.rpc("get_recruitment_calendar_event", {
-    p_event_id: eventId,
-  });
-  expect(beforeConfirm.data.title).toBe(otherTitle);
-  await page
-    .getByRole("button", { name: "Potwierdź korektę", exact: true })
-    .click();
-  await expect(
-    page.getByRole("article", { name: draftTitle, exact: true }),
-  ).toBeVisible();
-  const saved = await client.rpc("get_recruitment_calendar_event", {
-    p_event_id: eventId,
-  });
-  expect(saved.error).toBeNull();
-  expect(saved.data.title).toBe(draftTitle);
-});
+}
 
 test("direct stale conflict preserves edited values for a refreshed preview", async ({
   page,

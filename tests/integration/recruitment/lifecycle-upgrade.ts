@@ -54,13 +54,18 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
     };
     assert.equal(
       journal.entries.length,
-      15,
+      16,
       "Upgrade test must cover the exact current migration history",
     );
     assert.equal(
-      journal.entries.at(-1)?.tag,
+      journal.entries[14]?.tag,
       "0014_quick_capture_atomic_action",
       "The exact current migration history includes DEC-061 atomic capture",
+    );
+    assert.equal(
+      journal.entries.at(-1)?.tag,
+      "0015_calendar_core",
+      "Upgrade test must apply the exact Calendar Core migration",
     );
     for (const entry of journal.entries.slice(0, 7)) await apply(entry.tag);
     const owner = randomUUID();
@@ -526,6 +531,185 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
       0,
       "Legacy replay does not invent an atomic receipt for a pre-0014 case",
     );
+    const atomicRequest = randomUUID();
+    const atomicIntent = {
+      title: `Pre-calendar atomic ${randomUUID()}`,
+      description: null,
+      sourceUrl: null,
+      action: { kind: "save_only" },
+    };
+    await upgrade.begin(async (tx) => {
+      await tx.unsafe("set local role authenticated");
+      await tx.unsafe("select set_config('request.jwt.claim.sub',$1,true)", [
+        owner,
+      ]);
+      const [saved] = await tx.unsafe(
+        "select public.create_recruitment_case_atomic($1::uuid,$2::jsonb,null) result",
+        [atomicRequest, JSON.stringify(atomicIntent)],
+      );
+      assert.equal(saved.result.kind, "created");
+    });
+    const beforeCalendar = await Promise.all(
+      atomicUpgradeTables.map((table) =>
+        upgrade!.unsafe(`select * from public.${table} order by id`),
+      ),
+    );
+    const beforeReceipts = await upgrade.unsafe(
+      "select * from recruitment_private.recruitment_case_capture_receipt order by owner_id,request_id",
+    );
+    assert.equal(beforeReceipts.length, 1);
+    await apply(journal.entries[15].tag);
+    const afterCalendar = await Promise.all(
+      atomicUpgradeTables.map((table) =>
+        upgrade!.unsafe(`select * from public.${table} order by id`),
+      ),
+    );
+    assert.deepEqual(
+      afterCalendar.map((rows, index) =>
+        rows.map((row) => {
+          if (atomicUpgradeTables[index] !== "recruitment_case_lifecycle")
+            return { ...row };
+          const { expected_event_snapshot, event_resolutions, ...old } = row;
+          assert.deepEqual(expected_event_snapshot, []);
+          assert.deepEqual(event_resolutions, []);
+          return old;
+        }),
+      ),
+      beforeCalendar.map((rows) => rows.map((row) => ({ ...row }))),
+      "0015 preserves existing cases, facts, corrections, lifecycle, catalog, Tasks and audit",
+    );
+    assert.deepEqual(
+      await upgrade.unsafe(
+        "select * from recruitment_private.recruitment_case_capture_receipt order by owner_id,request_id",
+      ),
+      beforeReceipts,
+      "0015 preserves existing capture receipts",
+    );
+    await upgrade.begin(async (tx) => {
+      await tx.unsafe("set local role authenticated");
+      await tx.unsafe("select set_config('request.jwt.claim.sub',$1,true)", [
+        owner,
+      ]);
+      const [replayed] = await tx.unsafe(
+        "select public.create_recruitment_case_atomic($1::uuid,$2::jsonb,null) result",
+        [atomicRequest, JSON.stringify(atomicIntent)],
+      );
+      assert.equal(replayed.result.kind, "replayed");
+    });
+    for (const table of [
+      "recruitment_calendar_event",
+      "recruitment_calendar_participant",
+      "recruitment_calendar_command",
+    ]) {
+      const rows: { n: number }[] = await upgrade.unsafe(
+        `select count(*)::int n from public.${table}`,
+      );
+      assert.equal(
+        rows[0].n,
+        0,
+        "0015 must not invent Calendar events, participants or audit",
+      );
+    }
+    const contactId = existingCatalog[0][0].id as string;
+    const [existingTask] =
+      await upgrade`select id from public.recruitment_task where case_id=${caseId}::uuid`;
+    const beforeNewCalendarCase =
+      await upgrade`select * from public.recruitment_case where id=${caseId}::uuid`;
+    await upgrade.begin(async (tx) => {
+      await tx.unsafe("set local role authenticated");
+      await tx.unsafe("select set_config('request.jwt.claim.sub',$1,true)", [
+        owner,
+      ]);
+      const payload = {
+        operation: "create",
+        values: {
+          title: "Synthetic calendar after upgrade",
+          description: null,
+          caseId,
+          status: "planned",
+          timeZone: "Europe/Warsaw",
+          actual: null,
+          participants: [{ contactId, attendance: "unknown" }],
+          schedule: {
+            startDate: "2099-05-15",
+            startTime: null,
+            endDate: null,
+            endTime: null,
+            allDay: false,
+            timeZone: "Europe/Warsaw",
+            startOffset: null,
+            endOffset: null,
+          },
+        },
+      };
+      const [createdEvent] = await tx.unsafe(
+        "select public.execute_recruitment_calendar_command($1::uuid,$2::jsonb) result",
+        [randomUUID(), JSON.stringify(payload)],
+      );
+      assert.equal(createdEvent.result.kind, "created");
+      assert.equal(createdEvent.result.event.case_id, caseId);
+      assert.deepEqual(createdEvent.result.event.participants, [
+        { contactId, attendance: "unknown" },
+      ]);
+    });
+    assert.deepEqual(
+      await upgrade`select * from public.recruitment_case where id=${caseId}::uuid`,
+      beforeNewCalendarCase,
+      "A Calendar event on an upgraded closed case does not reopen it",
+    );
+    await upgrade.begin(async (tx) => {
+      await tx.unsafe("set local role authenticated");
+      await tx.unsafe("select set_config('request.jwt.claim.sub',$1,true)", [
+        owner,
+      ]);
+      const [reopen] = await tx.unsafe(
+        "select public.preview_recruitment_case_lifecycle($1::uuid,'reopen',null,null,null,false) result",
+        [caseId],
+      );
+      const [resumed] = await tx.unsafe(
+        "select public.confirm_recruitment_case_lifecycle_calendar($1::uuid,$2::uuid,'reopen',$3::integer,$4::integer,null,null,null,false,'[]'::jsonb,'[]'::jsonb,'[]'::jsonb,'[]'::jsonb) result",
+        [
+          randomUUID(),
+          caseId,
+          reopen.result.caseRevision,
+          reopen.result.closureRevision,
+        ],
+      );
+      assert.equal(resumed.result.kind, "created");
+      const [p] = await tx.unsafe(
+        "select public.preview_recruitment_case_lifecycle($1::uuid,'close',null,'Inny',null,false) result",
+        [caseId],
+      );
+      assert.equal(p.result.openTasks.length, 1);
+      assert.equal(p.result.openEvents.length, 1);
+      const eventId = p.result.openEvents[0].id as string;
+      const [closed] = await tx.unsafe(
+        "select public.confirm_recruitment_case_lifecycle_calendar($1::uuid,$2::uuid,'close',$3::integer,$4::integer,null,'Inny',null,false,$5::jsonb,$6::jsonb,$7::jsonb,$8::jsonb) result",
+        [
+          randomUUID(),
+          caseId,
+          p.result.caseRevision,
+          p.result.closureRevision,
+          JSON.stringify(p.result.taskSnapshot),
+          JSON.stringify([{ taskId: existingTask.id, action: "keep" }]),
+          JSON.stringify(p.result.eventSnapshot),
+          JSON.stringify([{ eventId, action: "detach" }]),
+        ],
+      );
+      assert.equal(closed.result.kind, "created");
+      const [event] = await tx.unsafe(
+        "select case_id,status from public.recruitment_calendar_event where id=$1::uuid",
+        [eventId],
+      );
+      assert.equal(event.case_id, null);
+      assert.equal(event.status, "planned");
+      const [participant] = await tx.unsafe(
+        "select contact_id,attendance from public.recruitment_calendar_participant where event_id=$1::uuid",
+        [eventId],
+      );
+      assert.equal(participant.contact_id, contactId);
+      assert.equal(participant.attendance, "unknown");
+    });
   } finally {
     if (upgrade) await upgrade.end();
     if (created) await admin`drop database ${admin(database)}`;

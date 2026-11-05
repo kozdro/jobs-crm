@@ -290,6 +290,82 @@ test(
     );
 
     await t.test(
+      "participant creation and removal use audited edit; direct INSERT, UPDATE and DELETE are refused",
+      async () => {
+        const contact = ok<{ profile: { id: string } }>(
+          await call("execute_catalog_command", {
+            p_request_id: randomUUID(),
+            p_payload: {
+              operation: "create-profile",
+              profileType: "contact",
+              name: `Edit participant ${randomUUID()}`,
+              email: null,
+            },
+          }),
+        ).profile.id;
+        const initial = create();
+        const event = ok<{ event: Event }>(await command(initial)).event;
+        denied(
+          await api("/rest/v1/recruitment_calendar_participant", "POST", {
+            event_id: event.id,
+            contact_id: contact,
+            attendance: "unknown",
+          }),
+        );
+        const addedValues = {
+          ...initial.values,
+          participants: [{ contactId: contact, attendance: "unknown" }],
+        };
+        const added = ok<{ event: Event }>(
+          await command({
+            operation: "edit",
+            eventId: event.id,
+            expectedRevision: event.revision,
+            values: addedValues,
+          }),
+        ).event;
+        assert.deepEqual(added.participants, [
+          { contactId: contact, attendance: "unknown" },
+        ]);
+        denied(
+          await api(
+            `/rest/v1/recruitment_calendar_participant?event_id=eq.${event.id}`,
+            "PATCH",
+            { attendance: "attended" },
+          ),
+        );
+        denied(
+          await api(
+            `/rest/v1/recruitment_calendar_participant?event_id=eq.${event.id}`,
+            "DELETE",
+          ),
+        );
+        const removed = ok<{ event: Event }>(
+          await command({
+            operation: "edit",
+            eventId: event.id,
+            expectedRevision: added.revision,
+            values: initial.values,
+          }),
+        ).event;
+        assert.deepEqual(removed.participants, []);
+        const entries = ok<Row[]>(
+          await api(
+            `/rest/v1/recruitment_calendar_command?select=*&event_id=eq.${event.id}&order=recorded_at.asc`,
+          ),
+        );
+        assert.equal(entries.length, 3);
+        assert.deepEqual((entries[1].after_values as Row).participants, [
+          { contactId: contact, attendance: "unknown" },
+        ]);
+        assert.deepEqual((entries[2].before_values as Row).participants, [
+          { contactId: contact, attendance: "unknown" },
+        ]);
+        assert.deepEqual((entries[2].after_values as Row).participants, []);
+      },
+    );
+
+    await t.test(
       "DST gaps are rejected and both explicit offsets in a repeated local hour remain distinct",
       async () => {
         const timed = {

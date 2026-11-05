@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   actualLabel,
   calendarOperation,
-  preserveRejectedIntent,
   setStartTime,
 } from "@/components/calendar/form-logic";
 import type { CalendarSchedule } from "@/modules/recruitment/domain/calendar-time";
@@ -50,31 +49,5 @@ describe("calendar correction and recovery", () => {
         timeZone: "Europe/Warsaw",
       }),
     ).toContain("UTC+01:00");
-  });
-  it("retains a rejected draft and never consumes a replaced pending intent", () => {
-    const map = new Map([["pending", "one"]]);
-    const storage = {
-      getItem: (k: string) => map.get(k) ?? null,
-      setItem: (k: string, v: string) => {
-        map.set(k, v);
-      },
-      removeItem: (k: string) => {
-        map.delete(k);
-      },
-    };
-    expect(preserveRejectedIntent(storage, "pending", "draft", "wrong")).toBe(
-      false,
-    );
-    expect(map.get("pending")).toBe("one");
-    expect(preserveRejectedIntent(storage, "pending", "draft", "one")).toBe(
-      true,
-    );
-    expect(map.get("draft")).toBe("one");
-    expect(map.has("pending")).toBe(false);
-    map.set("pending", "two");
-    expect(preserveRejectedIntent(storage, "pending", "draft", "two")).toBe(
-      false,
-    );
-    expect(map.get("pending")).toBe("two");
   });
 });

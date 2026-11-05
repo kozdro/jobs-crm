@@ -77,7 +77,11 @@ CREATE POLICY calendar_command_insert ON public.recruitment_calendar_command FOR
 CREATE FUNCTION public.recruitment_calendar_projection_guard() RETURNS trigger LANGUAGE plpgsql SECURITY INVOKER SET search_path='' AS $fn$
 BEGIN
  IF pg_catalog.pg_trigger_depth()<2 OR auth.uid() IS NULL OR COALESCE(NEW.owner_id,OLD.owner_id) IS DISTINCT FROM auth.uid() THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Calendar command required'; END IF;
- IF TG_TABLE_NAME='recruitment_calendar_event' AND TG_OP='UPDATE' AND (NEW.id IS DISTINCT FROM OLD.id OR NEW.owner_id IS DISTINCT FROM OLD.owner_id OR NEW.created_at IS DISTINCT FROM OLD.created_at) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Immutable calendar identity'; END IF;
+ IF TG_TABLE_NAME='recruitment_calendar_event' THEN
+   IF TG_OP='UPDATE' THEN
+     IF NEW.id IS DISTINCT FROM OLD.id OR NEW.owner_id IS DISTINCT FROM OLD.owner_id OR NEW.created_at IS DISTINCT FROM OLD.created_at THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Immutable calendar identity'; END IF;
+   END IF;
+ END IF;
  IF TG_OP='DELETE' THEN RETURN OLD; END IF;
  RETURN NEW;
 END;$fn$;
@@ -292,8 +296,8 @@ BEGIN
    IF jsonb_typeof(x) IS DISTINCT FROM 'object' OR (SELECT count(*) FROM jsonb_object_keys(x))<>2 OR EXISTS(SELECT 1 FROM jsonb_object_keys(x) k WHERE k NOT IN ('eventId','action')) OR jsonb_typeof(x->'eventId') IS DISTINCT FROM 'string' OR x->>'action' IS NULL OR x->>'action' NOT IN ('cancel','keep','detach') THEN RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Invalid event resolution'; END IF;
    PERFORM (x->>'eventId')::uuid;
  END LOOP;
- IF (SELECT count(*) FROM jsonb_array_elements(p))<>(SELECT count(DISTINCT (x->>'eventId')::uuid) FROM jsonb_array_elements(p) x) THEN RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Duplicate event resolution'; END IF;
- RETURN COALESCE((SELECT jsonb_agg(jsonb_build_object('eventId',(x->>'eventId')::uuid,'action',x->>'action') ORDER BY (x->>'eventId')::uuid) FROM jsonb_array_elements(p) x),'[]'::jsonb);
+ IF (SELECT count(*) FROM jsonb_array_elements(p))<>(SELECT count(DISTINCT (item.value->>'eventId')::uuid) FROM jsonb_array_elements(p) AS item(value)) THEN RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Duplicate event resolution'; END IF;
+ RETURN COALESCE((SELECT jsonb_agg(jsonb_build_object('eventId',(item.value->>'eventId')::uuid,'action',item.value->>'action') ORDER BY (item.value->>'eventId')::uuid) FROM jsonb_array_elements(p) AS item(value)),'[]'::jsonb);
 EXCEPTION WHEN invalid_text_representation THEN RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Invalid event identifier';
 END;$fn$;
 --> statement-breakpoint

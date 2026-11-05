@@ -682,6 +682,9 @@ test(
               "catalog_command",
               "catalog_profile",
               "catalog_relation",
+              "recruitment_calendar_command",
+              "recruitment_calendar_event",
+              "recruitment_calendar_participant",
               "recruitment_case",
               "recruitment_case_event",
               "recruitment_case_event_revision",
@@ -692,6 +695,49 @@ test(
             ],
           );
           assert.ok(relations.every((row) => row.relrowsecurity === true));
+          for (const role of ["anon", "authenticated"]) {
+            for (const [table, privileges] of [
+              ["recruitment_calendar_event", ["SELECT", "INSERT", "UPDATE"]],
+              [
+                "recruitment_calendar_participant",
+                ["SELECT", "INSERT", "DELETE"],
+              ],
+              ["recruitment_calendar_command", ["SELECT"]],
+            ] as const) {
+              for (const privilege of [
+                "SELECT",
+                "INSERT",
+                "UPDATE",
+                "DELETE",
+                "TRUNCATE",
+              ] as const) {
+                const [grant] =
+                  await sql`select has_table_privilege(${role},${`public.${table}`},${privilege}) allowed`;
+                assert.equal(
+                  grant.allowed,
+                  role === "authenticated" &&
+                    (privileges as readonly string[]).includes(privilege),
+                  `${role} ${table} ${privilege}`,
+                );
+              }
+            }
+            for (const column of [
+              "request_id",
+              "payload",
+              "event_id",
+              "owner_id",
+              "before_values",
+              "after_values",
+            ]) {
+              const [grant] =
+                await sql`select has_column_privilege(${role},'public.recruitment_calendar_command',${column},'INSERT') allowed`;
+              assert.equal(
+                grant.allowed,
+                role === "authenticated" &&
+                  ["request_id", "payload"].includes(column),
+              );
+            }
+          }
           for (const role of ["anon", "authenticated"]) {
             const [p] =
               await sql`select has_table_privilege(${role},'public.recruitment_case','SELECT') can_select,has_table_privilege(${role},'public.recruitment_case','INSERT') table_insert,has_table_privilege(${role},'public.recruitment_case','UPDATE') can_update,has_table_privilege(${role},'public.recruitment_case','DELETE') can_delete,has_table_privilege(${role},'public.recruitment_case','TRUNCATE') can_truncate`;

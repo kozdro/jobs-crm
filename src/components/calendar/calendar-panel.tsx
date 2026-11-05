@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   useCallback,
   useEffect,
+  useId,
   useRef,
   useState,
   type FormEvent,
@@ -27,18 +28,9 @@ import {
   formatSchedule,
   sectionDuringEdit,
 } from "./time";
-import {
-  readWorkingDraft,
-  workPrefix,
-  type WorkingDraft,
-} from "./working-draft";
 import { calendarInvalidationEvent, invalidateCalendarReads } from "./events";
-import {
-  actualLabel,
-  calendarOperation,
-  preserveRejectedIntent,
-  setStartTime,
-} from "./form-logic";
+import { useCalendarMemoryDrafts, type MemoryDraft } from "./memory-drafts";
+import { actualLabel, calendarOperation, setStartTime } from "./form-logic";
 
 type Person = { id: string; name: string };
 type Case = { id: string; title: string; status: string };
@@ -51,7 +43,6 @@ const statusLabel: Record<string, string> = {
   cancelled: "Anulowane",
 };
 const storageKey = (owner: string) => `jobs-crm.calendar.pending.${owner}`;
-const draftKey = (owner: string) => `jobs-crm.calendar.rejected-draft.${owner}`;
 
 async function request(
   userId: string,
@@ -121,17 +112,32 @@ function exactReceipt(
         event.revision === command.expectedRevision! + 1))
   );
 }
-function pendingCommand(userId: string): Command | null | "invalid" {
-  const raw = sessionStorage.getItem(storageKey(userId));
-  if (raw === null) return null;
+type Pending = { ownerId: string; requestId: string };
+function pendingCommand(userId: string): Pending | null | "invalid" {
   try {
-    const parsed = parseCalendarCommand(JSON.parse(raw));
-    return parsed.success && JSON.stringify(parsed.data) === raw
-      ? parsed.data
+    const raw = sessionStorage.getItem(storageKey(userId));
+    if (raw === null) return null;
+    const v: unknown = JSON.parse(raw);
+    if (!v || typeof v !== "object" || Array.isArray(v)) return "invalid";
+    const record = v as Record<string, unknown>;
+    return Object.keys(record).sort().join(",") === "ownerId,requestId" &&
+      record.ownerId === userId &&
+      typeof record.requestId === "string" &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        record.requestId,
+      )
+      ? { ownerId: userId, requestId: record.requestId }
       : "invalid";
   } catch {
     return "invalid";
   }
+}
+function pendingRaw(userId: string, requestId: string) {
+  return JSON.stringify({ ownerId: userId, requestId });
+}
+function samePending(userId: string, requestId: string) {
+  const value = pendingCommand(userId);
+  return !!value && value !== "invalid" && value.requestId === requestId;
 }
 function defaultSchedule(): CalendarSchedule {
   return {
@@ -240,8 +246,7 @@ function OffsetField({
 function EventForm({
   userId,
   initial,
-  draft,
-  working,
+  restored,
   caseId,
   cases,
   contacts,
@@ -251,8 +256,7 @@ function EventForm({
 }: {
   userId: string;
   initial?: CalendarEvent;
-  draft?: Command;
-  working?: { key: string; data: WorkingDraft };
+  restored?: MemoryDraft;
   caseId?: string;
   cases: Case[];
   contacts: Person[];
@@ -260,22 +264,22 @@ function EventForm({
   onDone: () => void;
   onCancel: () => void;
 }) {
-  const [values, setValues] = useState<Values>(
-    () =>
-      working?.data.values ??
-      draft?.values ??
-      (initial
-        ? eventValues(initial)
-        : emptyValues(caseId, mode === "occurred")),
+  const [values, setValues] = useState<Values>(() =>
+    initial ? eventValues(initial) : emptyValues(caseId, mode === "occurred"),
   );
   const [base, setBase] = useState(initial);
   const [stale, setStale] = useState(false);
   const [needsConfirm, setNeedsConfirm] = useState(
-    Boolean((draft || working) && initial),
+    Boolean(restored && initial),
   );
-  const [initialValues] = useState(values);
+  const [initialValues] = useState(() =>
+    initial ? eventValues(initial) : emptyValues(caseId, mode === "occurred"),
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const fieldPrefix = useId();
+  const fieldId = (field: string) => `${fieldPrefix}-${field}`;
   const [uncertain, setUncertain] = useState(false);
   const [preview, setPreview] = useState(false);
   const pending = useRef<Command | null>(null);
@@ -284,14 +288,14 @@ function EventForm({
     titleInput.current?.focus();
   }, []);
   const [zoneDraft, setZoneDraft] = useState(
-    working?.data.zoneDraft ?? values.timeZone,
+    restored?.zoneDraft ?? values.timeZone,
   );
   const [zoneMode, setZoneMode] = useState<"wall" | "instant" | "">(
-    working?.data.zoneMode ?? "",
+    restored?.zoneMode ?? "",
   );
   const [appliedZoneMode, setAppliedZoneMode] = useState<
     "keep-local" | "keep-instant" | undefined
-  >(working?.data.zoneChangeMode ?? draft?.zoneChangeMode);
+  >(restored?.zoneChangeMode);
   const dirty =
     !sameValue(initialValues, values) || zoneDraft !== initialValues.timeZone;
   useEffect(() => {
@@ -336,15 +340,15 @@ function EventForm({
       navigation?.removeEventListener("navigate", onNavigate);
     };
   }, [dirty, uncertain]);
-  const [workStorageKey] = useState(
-    () => working?.key ?? `${workPrefix(userId)}${crypto.randomUUID()}`,
-  );
-  const workPrevious = useRef<string | null>(
-    working ? JSON.stringify(working.data) : null,
-  );
+  const memory = useCalendarMemoryDrafts();
+  const [memoryId] = useState(() => restored?.id ?? crypto.randomUUID());
+  const lastDraft = useRef<MemoryDraft | null>(restored ?? null);
+  const saveMemory = memory?.save;
+  const removeMemory = memory?.remove;
   useEffect(() => {
-    if (!dirty && !working) return;
-    const snapshot: WorkingDraft = {
+    if (!dirty && !restored) return;
+    const entry: MemoryDraft = {
+      id: memoryId,
       ownerId: userId,
       eventId: base?.id ?? null,
       mode,
@@ -353,47 +357,23 @@ function EventForm({
       zoneMode,
       ...(appliedZoneMode ? { zoneChangeMode: appliedZoneMode } : {}),
     };
-    const raw = JSON.stringify(snapshot);
-    try {
-      const current = sessionStorage.getItem(workStorageKey);
-      if (current !== workPrevious.current) {
-        void Promise.resolve().then(() =>
-          setError(
-            "Szkic roboczy zmienił się w innej sesji karty. Zachowaj dane i odśwież widok.",
-          ),
-        );
-        return;
-      }
-      sessionStorage.setItem(workStorageKey, raw);
-      if (sessionStorage.getItem(workStorageKey) !== raw) throw new Error();
-      workPrevious.current = raw;
-    } catch {
-      void Promise.resolve().then(() =>
-        setError(
-          "Nie można zachować szkicu roboczego w tej karcie. Nie opuszczaj formularza przed zapisem.",
-        ),
-      );
-    }
+    lastDraft.current = entry;
+    saveMemory?.(entry);
   }, [
     dirty,
-    working,
+    restored,
+    memoryId,
+    userId,
     base?.id,
     mode,
     values,
     zoneDraft,
     zoneMode,
-    userId,
-    workStorageKey,
     appliedZoneMode,
+    saveMemory,
   ]);
-  function clearWorking() {
-    try {
-      const raw = workPrevious.current;
-      if (raw !== null && sessionStorage.getItem(workStorageKey) === raw)
-        sessionStorage.removeItem(workStorageKey);
-    } catch {
-      /* Never remove a changed draft. */
-    }
+  function clearMemory() {
+    if (lastDraft.current) removeMemory?.(userId, memoryId, lastDraft.current);
   }
   const schedule = values.schedule;
   const patchSchedule = (patch: Partial<CalendarSchedule>) =>
@@ -404,28 +384,30 @@ function EventForm({
     );
   async function send(command: Command) {
     if (busy) return;
-    if (
-      draft &&
-      sessionStorage.getItem(draftKey(userId)) !== JSON.stringify(draft)
-    ) {
-      setError("Zachowany szkic zmienił się. Odśwież dane przed zapisem.");
-      return;
-    }
     setBusy(true);
     setError(null);
     try {
       const stored = sessionStorage.getItem(storageKey(userId));
-      if (stored && stored !== JSON.stringify(command)) {
+      if (stored && !samePending(userId, command.requestId)) {
         setError(
           "Istnieje inny oczekujący zapis wydarzenia. Nie nadpisano go.",
         );
         return;
       }
-      sessionStorage.setItem(storageKey(userId), JSON.stringify(command));
-      if (
-        sessionStorage.getItem(storageKey(userId)) !== JSON.stringify(command)
-      )
-        throw new Error("storage");
+      sessionStorage.setItem(
+        storageKey(userId),
+        pendingRaw(userId, command.requestId),
+      );
+      if (!samePending(userId, command.requestId)) throw new Error("storage");
+      if (lastDraft.current) {
+        const frozen = {
+          ...lastDraft.current,
+          pendingRequestId: command.requestId,
+          pendingCommand: command,
+        };
+        lastDraft.current = frozen;
+        saveMemory?.(frozen);
+      }
       pending.current = command;
       const result = await request(userId, command, true);
       if (
@@ -436,14 +418,14 @@ function EventForm({
       const receipt = await request(userId, { requestId: command.requestId });
       if (
         !exactReceipt(receipt, command) ||
-        sessionStorage.getItem(storageKey(userId)) !== JSON.stringify(command)
+        !samePending(userId, command.requestId)
       )
         throw new Error("receipt mismatch");
       sessionStorage.removeItem(storageKey(userId));
       pending.current = null;
       setUncertain(false);
       invalidateCalendarReads(userId);
-      clearWorking();
+      clearMemory();
       onDone();
     } catch (cause) {
       if (
@@ -454,7 +436,7 @@ function EventForm({
         command.eventId
       ) {
         try {
-          const raw = JSON.stringify(command);
+          const raw = pendingRaw(userId, command.requestId);
           const receipt = await request(userId, {
             requestId: command.requestId,
           });
@@ -464,7 +446,7 @@ function EventForm({
             sessionStorage.removeItem(storageKey(userId));
             pending.current = null;
             invalidateCalendarReads(userId);
-            clearWorking();
+            clearMemory();
             onDone();
             return;
           }
@@ -491,10 +473,7 @@ function EventForm({
         cause !== null &&
         "definite" in cause &&
         Boolean(cause.definite);
-      if (
-        definite &&
-        sessionStorage.getItem(storageKey(userId)) === JSON.stringify(command)
-      ) {
+      if (definite && samePending(userId, command.requestId)) {
         sessionStorage.removeItem(storageKey(userId));
         pending.current = null;
       }
@@ -513,6 +492,7 @@ function EventForm({
     if (busy || uncertain || stale) return;
     if (zoneDraft !== values.timeZone) {
       setError("Zastosuj zmianę strefy przed zapisem.");
+      setFieldErrors({ timeZone: "Zastosuj zmianę strefy przed zapisem." });
       return;
     }
     if (mode === "resolve" && values.status === "planned") {
@@ -536,17 +516,24 @@ function EventForm({
     };
     const parsed = parseCalendarCommand(candidate);
     if (!parsed.success) {
-      setError(Object.values(parsed.errors).join(" "));
+      setFieldErrors(parsed.errors);
+      setError("Sprawdź oznaczone pola formularza.");
+      const first = Object.keys(parsed.errors)[0];
+      requestAnimationFrame(() =>
+        document.getElementById(fieldId(first))?.focus(),
+      );
       return;
     }
+    setFieldErrors({});
     void send(parsed.data);
   }
   return (
-    <form onSubmit={submit} className="space-y-4" aria-busy={busy}>
+    <form noValidate onSubmit={submit} className="space-y-4" aria-busy={busy}>
       <fieldset
         disabled={busy || uncertain || stale}
         onChange={() => {
           if (preview) setPreview(false);
+          if (Object.keys(fieldErrors).length) setFieldErrors({});
         }}
         className="space-y-4"
       >
@@ -554,6 +541,11 @@ function EventForm({
           Tytuł wydarzenia
           <input
             ref={titleInput}
+            id={fieldId("title")}
+            aria-invalid={Boolean(fieldErrors.title)}
+            aria-describedby={
+              fieldErrors.title ? `${fieldId("title")}-error` : undefined
+            }
             className={`${inputStyles} mt-1`}
             required
             maxLength={160}
@@ -563,9 +555,24 @@ function EventForm({
             }
           />
         </label>
+        {fieldErrors.title && (
+          <p
+            id={`${fieldId("title")}-error`}
+            className="text-sm text-destructive"
+          >
+            {fieldErrors.title}
+          </p>
+        )}
         <label className="block text-sm font-medium">
           Opis
           <textarea
+            id={fieldId("description")}
+            aria-invalid={Boolean(fieldErrors.description)}
+            aria-describedby={
+              fieldErrors.description
+                ? `${fieldId("description")}-error`
+                : undefined
+            }
             className={`${inputStyles} mt-1`}
             maxLength={2000}
             value={values.description ?? ""}
@@ -574,9 +581,22 @@ function EventForm({
             }
           />
         </label>
+        {fieldErrors.description && (
+          <p
+            id={`${fieldId("description")}-error`}
+            className="text-sm text-destructive"
+          >
+            {fieldErrors.description}
+          </p>
+        )}
         <label className="block text-sm font-medium">
           Sprawa
           <select
+            id={fieldId("caseId")}
+            aria-invalid={Boolean(fieldErrors.caseId)}
+            aria-describedby={
+              fieldErrors.caseId ? `${fieldId("caseId")}-error` : undefined
+            }
             className={`${inputStyles} mt-1`}
             value={values.caseId ?? ""}
             onChange={(e) =>
@@ -591,12 +611,27 @@ function EventForm({
             ))}
           </select>
         </label>
+        {fieldErrors.caseId && (
+          <p
+            id={`${fieldId("caseId")}-error`}
+            className="text-sm text-destructive"
+          >
+            {fieldErrors.caseId}
+          </p>
+        )}
         {schedule && (
           <fieldset className="space-y-3 rounded-md border border-border p-3">
             <legend className="px-1 font-semibold">Planowany termin</legend>
             <label className="block text-sm font-medium">
               Data
               <input
+                id={fieldId("schedule")}
+                aria-invalid={Boolean(fieldErrors.schedule)}
+                aria-describedby={
+                  fieldErrors.schedule
+                    ? `${fieldId("schedule")}-error`
+                    : undefined
+                }
                 className={`${inputStyles} mt-1`}
                 type="date"
                 required
@@ -609,6 +644,14 @@ function EventForm({
                 }
               />
             </label>
+            {fieldErrors.schedule && (
+              <p
+                id={`${fieldId("schedule")}-error`}
+                className="text-sm text-destructive"
+              >
+                {fieldErrors.schedule}
+              </p>
+            )}
             <label className="flex min-h-11 items-center gap-2 text-sm">
               <input
                 type="checkbox"
@@ -713,6 +756,13 @@ function EventForm({
           <label className="block text-sm font-medium">
             Strefa czasowa
             <input
+              id={fieldId("timeZone")}
+              aria-invalid={Boolean(fieldErrors.timeZone)}
+              aria-describedby={
+                fieldErrors.timeZone
+                  ? `${fieldId("timeZone")}-error`
+                  : undefined
+              }
               className={`${inputStyles} mt-1`}
               required
               value={zoneDraft}
@@ -722,6 +772,14 @@ function EventForm({
               }}
             />
           </label>
+          {fieldErrors.timeZone && (
+            <p
+              id={`${fieldId("timeZone")}-error`}
+              className="text-sm text-destructive"
+            >
+              {fieldErrors.timeZone}
+            </p>
+          )}
           {zoneDraft !== values.timeZone && (
             <>
               <p className="text-sm">
@@ -896,6 +954,13 @@ function EventForm({
                 <label className="block text-sm font-medium">
                   Rzeczywista data
                   <input
+                    id={fieldId("actual")}
+                    aria-invalid={Boolean(fieldErrors.actual)}
+                    aria-describedby={
+                      fieldErrors.actual
+                        ? `${fieldId("actual")}-error`
+                        : undefined
+                    }
                     className={`${inputStyles} mt-1`}
                     type="date"
                     value={values.actual?.date ?? ""}
@@ -914,6 +979,14 @@ function EventForm({
                     }
                   />
                 </label>
+                {fieldErrors.actual && (
+                  <p
+                    id={`${fieldId("actual")}-error`}
+                    className="text-sm text-destructive"
+                  >
+                    {fieldErrors.actual}
+                  </p>
+                )}
                 {values.actual?.date && (
                   <>
                     <label className="block text-sm font-medium">
@@ -975,8 +1048,24 @@ function EventForm({
             )}
           </fieldset>
         )}
-        <fieldset className="space-y-2 rounded-md border border-border p-3">
+        <fieldset
+          className="space-y-2 rounded-md border border-border p-3"
+          aria-describedby={
+            fieldErrors.participants
+              ? `${fieldId("participants")}-error`
+              : undefined
+          }
+        >
           <legend className="px-1 font-semibold">Uczestnicy</legend>
+          {fieldErrors.participants && (
+            <p
+              id={`${fieldId("participants")}-error`}
+              role="alert"
+              className="text-sm text-destructive"
+            >
+              {fieldErrors.participants}
+            </p>
+          )}
           <p className="text-sm">
             Dodanie osoby do planu nie potwierdza jej obecności.
           </p>
@@ -1082,7 +1171,7 @@ function EventForm({
                   "Masz niezapisane dane wydarzenia. Czy chcesz je odrzucić?",
                 )
               ) {
-                clearWorking();
+                clearMemory();
                 onCancel();
               }
             }}
@@ -1133,7 +1222,7 @@ function EventForm({
                   "Masz niezapisane dane wydarzenia. Czy chcesz je odrzucić?",
                 )
               ) {
-                clearWorking();
+                clearMemory();
                 onCancel();
               }
             }}
@@ -1464,6 +1553,17 @@ export function CalendarPanel({
   compact?: boolean;
 }) {
   const router = useRouter();
+  const memory = useCalendarMemoryDrafts();
+  const activateMemory = memory?.activate;
+  useEffect(() => {
+    activateMemory?.(userId);
+  }, [activateMemory, userId]);
+  const [restoreMemory, setRestoreMemory] = useState<MemoryDraft | null>(null);
+  const [memoryInitial, setMemoryInitial] = useState<
+    CalendarEvent | undefined
+  >();
+  const memoryDrafts =
+    memory?.store.ownerId === userId ? memory.store.drafts : [];
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [cases, setCases] = useState<Case[]>(
     caseId ? [{ id: caseId, title: caseTitle ?? "Sprawa", status: "" }] : [],
@@ -1472,36 +1572,10 @@ export function CalendarPanel({
   const [mode, setMode] = useState<
     "create" | "occurred" | "edit" | "resolve" | null
   >(null);
-  const [rejected, setRejected] = useState(false);
-  const [draft, setDraft] = useState<Command | null>(null);
-  const [draftInitial, setDraftInitial] = useState<CalendarEvent | undefined>();
-  const [restoringDraft, setRestoringDraft] = useState(false);
-  const [workingDrafts, setWorkingDrafts] = useState<
-    { key: string; data: WorkingDraft }[]
-  >([]);
-  const [restoringWork, setRestoringWork] = useState<{
-    key: string;
-    data: WorkingDraft;
-  } | null>(null);
-  const scanWorking = useCallback(() => {
-    try {
-      const result: { key: string; data: WorkingDraft }[] = [];
-      for (let i = 0; i < sessionStorage.length; i++) {
-        const key = sessionStorage.key(i);
-        if (!key?.startsWith(workPrefix(userId))) continue;
-        const raw = sessionStorage.getItem(key);
-        const data = raw && readWorkingDraft(raw, userId);
-        if (data) result.push({ key, data });
-      }
-      setWorkingDrafts(result);
-    } catch {
-      /* Draft storage can be unavailable. */
-    }
-  }, [userId]);
   const createTrigger = useRef<HTMLButtonElement>(null);
   const occurredTrigger = useRef<HTMLButtonElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
-  const [pendingState, setPendingState] = useState<Command | null | "invalid">(
+  const [pendingState, setPendingState] = useState<Pending | null | "invalid">(
     null,
   );
   const [recoveryMessage, setRecoveryMessage] = useState<string | null>(null);
@@ -1551,14 +1625,13 @@ export function CalendarPanel({
         : "Kalendarz";
   const reload = useCallback(() => {
     setVersion((v) => v + 1);
-    scanWorking();
     router.refresh();
     try {
       setPendingState(pendingCommand(userId));
     } catch {
       setPendingState("invalid");
     }
-  }, [userId, router, scanWorking]);
+  }, [userId, router]);
   useEffect(() => {
     const onChange = (event: Event) => {
       const detail = (
@@ -1578,164 +1651,111 @@ export function CalendarPanel({
     void Promise.resolve().then(() => {
       try {
         setPendingState(pendingCommand(userId));
-        scanWorking();
-        const rawDraft = sessionStorage.getItem(draftKey(userId));
-        if (rawDraft) {
-          const parsed = parseCalendarCommand(JSON.parse(rawDraft));
-          if (parsed.success && JSON.stringify(parsed.data) === rawDraft)
-            setDraft(parsed.data);
-        }
       } catch {
         setPendingState("invalid");
       }
     });
-  }, [userId, scanWorking]);
-  async function recover(retry: boolean) {
+  }, [userId]);
+  const [recovered, setRecovered] = useState<CalendarEvent | null>(null);
+  const [recoveredReceipt, setRecoveredReceipt] = useState<Record<
+    string,
+    unknown
+  > | null>(null);
+  async function recover() {
     if (!pendingState || pendingState === "invalid" || recovering) return;
-    const command = pendingState;
-    const raw = JSON.stringify(command);
+    const intent = pendingState;
     setRecovering(true);
     setRecoveryMessage(null);
     try {
-      if (sessionStorage.getItem(storageKey(userId)) !== raw)
-        throw new Error("changed");
-      if (retry) await request(userId, command, true);
-      const receipt = await request(userId, { requestId: command.requestId });
-      if (
-        !exactReceipt(receipt, command) ||
-        sessionStorage.getItem(storageKey(userId)) !== raw
-      )
-        throw new Error("unknown");
-      sessionStorage.removeItem(storageKey(userId));
-      setPendingState(null);
-      reload();
-      invalidateCalendarReads(userId);
-      setRecoveryMessage("Potwierdzono zapis wydarzenia.");
-    } catch (cause) {
-      if (
-        retry &&
-        cause &&
-        typeof cause === "object" &&
-        "kind" in cause &&
-        cause.kind === "stale" &&
-        "definite" in cause &&
-        cause.definite
-      ) {
-        try {
-          const receipt = await request(userId, {
-            requestId: command.requestId,
-          });
-          if (
-            exactReceipt(receipt, command) &&
-            sessionStorage.getItem(storageKey(userId)) === raw
-          ) {
-            sessionStorage.removeItem(storageKey(userId));
-            setPendingState(null);
-            reload();
-            setRecoveryMessage("Potwierdzono zapis wydarzenia.");
-            return;
-          }
-          if (
-            receipt.event === null &&
-            receipt.intent === null &&
-            sessionStorage.getItem(storageKey(userId)) === raw
-          ) {
-            setRejected(true);
-            setRecoveryMessage(
-              "Zapis odrzucono, ponieważ wydarzenie zmieniło się. Zachowaj szkic i odśwież dane.",
-            );
-            return;
-          }
-        } catch {
-          /* Unknown receipt must remain pending. */
-        }
+      if (!samePending(userId, intent.requestId)) throw new Error();
+      const receipt = await request(userId, { requestId: intent.requestId });
+      if (!samePending(userId, intent.requestId)) throw new Error();
+      if (receipt.event && typeof receipt.event === "object") {
+        setRecovered(receipt.event as CalendarEvent);
+        setRecoveredReceipt(receipt);
+        setRecoveryMessage(
+          "Odnaleziono zapis. Porównanie z pierwotną treścią po odświeżeniu strony nie jest możliwe; sprawdź wynik i potwierdź.",
+        );
+      } else {
+        setRecovered(null);
+        setRecoveredReceipt(null);
+        setRecoveryMessage(
+          "Nie odnaleziono potwierdzenia. Wynik pozostaje nieznany. Możesz sprawdzić ponownie lub świadomie porzucić oczekiwanie.",
+        );
       }
+    } catch {
       setRecoveryMessage(
-        "Nie potwierdzono wyniku. Zachowano dokładnie ten sam zamiar; sprawdź ponownie lub ponów go.",
+        "Nie można sprawdzić wyniku. Oczekiwanie pozostaje zachowane.",
       );
     } finally {
       setRecovering(false);
     }
   }
-  async function restoreWorking(work: { key: string; data: WorkingDraft }) {
-    if (pendingState || mode) return;
-    try {
-      const raw = JSON.stringify(work.data);
-      if (sessionStorage.getItem(work.key) !== raw) throw new Error();
-      let current: CalendarEvent | undefined;
-      if (work.data.eventId) {
-        const result = await request(userId, { eventId: work.data.eventId });
-        if (
-          !result.event ||
-          typeof result.event !== "object" ||
-          (result.event as CalendarEvent).id !== work.data.eventId
-        )
-          throw new Error();
-        current = result.event as CalendarEvent;
-      }
-      if (sessionStorage.getItem(work.key) !== raw) throw new Error();
-      setDraftInitial(current);
-      setRestoringWork(work);
-      setMode(work.data.mode);
-    } catch {
-      setRecoveryMessage(
-        "Nie można wczytać aktualnego wydarzenia. Szkic roboczy pozostaje zachowany.",
-      );
-    }
-  }
-  function saveRejectedDraft() {
-    if (!rejected || !pendingState || pendingState === "invalid") return;
-    const raw = JSON.stringify(pendingState);
+  function acknowledge(discard: boolean) {
     if (
-      !preserveRejectedIntent(
-        sessionStorage,
-        storageKey(userId),
-        draftKey(userId),
-        raw,
-      )
+      !pendingState ||
+      pendingState === "invalid" ||
+      !samePending(userId, pendingState.requestId)
     ) {
-      setRecoveryMessage(
-        "Nie można bezpiecznie zachować szkicu. Nie usunięto oczekującego zamiaru.",
-      );
+      setRecoveryMessage("Zachowane oczekiwanie zmieniło się. Odśwież dane.");
       return;
     }
-    setDraft(pendingState);
+    if (
+      discard &&
+      !window.confirm(
+        "Wynik może być nieznany. Czy na pewno chcesz porzucić oczekiwanie?",
+      )
+    )
+      return;
+    sessionStorage.removeItem(storageKey(userId));
+    if (!discard && recoveredReceipt && memory?.store.ownerId === userId) {
+      const matching = memory.store.drafts.filter(
+        (entry) =>
+          entry.pendingRequestId === pendingState.requestId &&
+          entry.pendingCommand &&
+          exactReceipt(recoveredReceipt, entry.pendingCommand) &&
+          sameValue(entry.values, entry.pendingCommand.values),
+      );
+      for (const entry of matching) memory.remove(userId, entry.id, entry);
+    }
     setPendingState(null);
-    setRejected(false);
+    setRecovered(null);
+    setRecoveredReceipt(null);
     setRecoveryMessage(
-      "Szkic zachowano. Przed ponownym zapisem odświeżono dane wydarzenia.",
+      discard
+        ? "Porzucono oczekiwanie. Nie oznacza to cofnięcia ewentualnego zapisu."
+        : "Potwierdzono zapoznanie się z odzyskanym zapisem.",
     );
     reload();
   }
-  async function restoreDraft() {
-    if (!draft || pendingState) return;
+  async function restoreFromMemory(draft: MemoryDraft) {
+    if (
+      pendingState ||
+      mode ||
+      activeRows.length > 0 ||
+      draft.ownerId !== userId
+    )
+      return;
     try {
-      const raw = JSON.stringify(draft);
-      if (sessionStorage.getItem(draftKey(userId)) !== raw) throw new Error();
       let current: CalendarEvent | undefined;
-      if (draft.operation !== "create") {
-        const result = await request(userId, { eventId: draft.eventId });
+      if (draft.eventId) {
+        const body = await request(userId, { eventId: draft.eventId });
         if (
-          !result.event ||
-          typeof result.event !== "object" ||
-          (result.event as CalendarEvent).id !== draft.eventId
+          !body.event ||
+          typeof body.event !== "object" ||
+          (body.event as CalendarEvent).id !== draft.eventId
         )
           throw new Error();
-        current = result.event as CalendarEvent;
+        current = body.event as CalendarEvent;
       }
-      if (sessionStorage.getItem(draftKey(userId)) !== raw) throw new Error();
-      setDraftInitial(current);
-      setRestoringDraft(true);
-      setMode(
-        draft.operation === "create"
-          ? draft.values.schedule
-            ? "create"
-            : "occurred"
-          : draft.operation,
-      );
+      if (!memory?.store.drafts.some((entry) => entry === draft))
+        throw new Error();
+      setMemoryInitial(current);
+      setRestoreMemory(draft);
+      setMode(draft.mode);
     } catch {
       setRecoveryMessage(
-        "Nie można wczytać aktualnego wydarzenia. Szkic pozostaje zachowany.",
+        "Nie można odczytać aktualnego wydarzenia; szkic pozostaje w pamięci tej karty.",
       );
     }
   }
@@ -1904,57 +1924,51 @@ export function CalendarPanel({
                 type="button"
                 className={buttonStyles.secondary}
                 disabled={recovering}
-                onClick={() => void recover(false)}
+                onClick={() => void recover()}
               >
                 Sprawdź wynik
               </button>
-              <button
-                type="button"
-                className={buttonStyles.secondary}
-                disabled={recovering}
-                onClick={() => void recover(true)}
-              >
-                Ponów ten sam zapis
-              </button>
+              {recovered ? (
+                <>
+                  <p>
+                    Odzyskane wydarzenie: {recovered.title},{" "}
+                    {statusLabel[recovered.status]},{" "}
+                    {formatSchedule(recovered.schedule)}
+                  </p>
+                  <button
+                    type="button"
+                    className={buttonStyles.secondary}
+                    onClick={() => acknowledge(false)}
+                  >
+                    Potwierdź wynik
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  className={buttonStyles.secondary}
+                  onClick={() => acknowledge(true)}
+                >
+                  Porzuć oczekiwanie
+                </button>
+              )}
             </div>
           )}
         </div>
       )}
       {recoveryMessage && <p role="status">{recoveryMessage}</p>}
-      {rejected && (
-        <button
-          type="button"
-          className={buttonStyles.secondary}
-          onClick={saveRejectedDraft}
-        >
-          Zachowaj szkic i odblokuj
-        </button>
-      )}
-      {draft && !mode && !pendingState && (
-        <div className="rounded-md border border-border p-3">
-          <p className="text-sm">Zachowany szkic: {draft.values.title}</p>
-          <button
-            type="button"
-            className={buttonStyles.secondary}
-            onClick={() => void restoreDraft()}
-          >
-            Wczytaj zachowany szkic
-          </button>
-        </div>
-      )}
       {!mode &&
         !pendingState &&
-        workingDrafts.map((work) => (
-          <div key={work.key} className="rounded-md border border-border p-3">
-            <p className="text-sm">
-              Szkic roboczy: {work.data.values.title || "Bez tytułu"}
-            </p>
+        activeRows.length === 0 &&
+        memoryDrafts.map((d) => (
+          <div key={d.id} className="rounded-md border border-border p-3">
+            <p>Szkic w pamięci: {d.values.title || "Bez tytułu"}</p>
             <button
               type="button"
               className={buttonStyles.secondary}
-              onClick={() => void restoreWorking(work)}
+              onClick={() => void restoreFromMemory(d)}
             >
-              Wczytaj szkic roboczy
+              Wczytaj szkic
             </button>
           </div>
         ))}
@@ -1970,25 +1984,14 @@ export function CalendarPanel({
           <EventForm
             userId={userId}
             caseId={caseId}
-            initial={draftInitial}
-            draft={restoringDraft ? (draft ?? undefined) : undefined}
-            working={restoringWork ?? undefined}
+            initial={memoryInitial}
+            restored={restoreMemory ?? undefined}
             cases={cases}
             contacts={contacts}
             mode={mode}
             onDone={() => {
-              if (
-                restoringDraft &&
-                draft &&
-                sessionStorage.getItem(draftKey(userId)) ===
-                  JSON.stringify(draft)
-              ) {
-                sessionStorage.removeItem(draftKey(userId));
-                setDraft(null);
-              }
-              setDraftInitial(undefined);
-              setRestoringDraft(false);
-              setRestoringWork(null);
+              setMemoryInitial(undefined);
+              setRestoreMemory(null);
               setMode(null);
               reload();
               requestAnimationFrame(() => heading.current?.focus());
@@ -1996,11 +1999,9 @@ export function CalendarPanel({
             onCancel={() => {
               const target =
                 mode === "occurred" ? occurredTrigger : createTrigger;
+              setMemoryInitial(undefined);
+              setRestoreMemory(null);
               setMode(null);
-              setDraftInitial(undefined);
-              setRestoringDraft(false);
-              setRestoringWork(null);
-              scanWorking();
               requestAnimationFrame(() => target.current?.focus());
             }}
           />

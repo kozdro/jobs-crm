@@ -43,26 +43,3 @@ export function actualLabel(
   }
   return `${actual.date}${time} (${actual.timeZone})`;
 }
-/** Copies an exact rejected intent before clearing it. Never overwrite a newer draft or pending intent. */
-export function preserveRejectedIntent(
-  storage: Pick<Storage, "getItem" | "setItem" | "removeItem">,
-  pendingKey: string,
-  draftKey: string,
-  raw: string,
-): boolean {
-  try {
-    if (storage.getItem(pendingKey) !== raw) return false;
-    const existing = storage.getItem(draftKey);
-    if (existing !== null && existing !== raw) return false;
-    storage.setItem(draftKey, raw);
-    if (
-      storage.getItem(draftKey) !== raw ||
-      storage.getItem(pendingKey) !== raw
-    )
-      return false;
-    storage.removeItem(pendingKey);
-    return storage.getItem(pendingKey) === null;
-  } catch {
-    return false;
-  }
-}

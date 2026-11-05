@@ -403,6 +403,20 @@ export function isCurrentLifecycleIntent(
       expected.ownerId,
       expected.caseId,
     );
+    // Calendar choices remain only in memory. The UUID binds this tab's
+    // frozen command to its owner-scoped receipt without persisting payload.
+    if (
+      current &&
+      !current.invalidCommand &&
+      !current.command &&
+      expected.command &&
+      (expected.command.expectedEventSnapshot?.length ?? 0) > 0
+    )
+      return (
+        current.ownerId === expected.ownerId &&
+        current.caseId === expected.caseId &&
+        current.requestId === expected.requestId
+      );
     return current !== null && lifecycleIntentsEquivalent(current, expected);
   } catch {
     return false;
@@ -428,7 +442,15 @@ export function persistLifecycleIntent(
   key: string,
   expected: LifecycleIntent & { command: ConfirmLifecycleInput },
 ): "stored" | "conflict" | "unavailable" {
-  const serialized = JSON.stringify(expected);
+  const serialized = JSON.stringify(
+    (expected.command.expectedEventSnapshot?.length ?? 0) > 0
+      ? {
+          ownerId: expected.ownerId,
+          caseId: expected.caseId,
+          requestId: expected.requestId,
+        }
+      : expected,
+  );
   try {
     const existing = storage.getItem(key);
     if (existing !== null)
