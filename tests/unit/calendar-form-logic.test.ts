@@ -19,18 +19,14 @@ const schedule: CalendarSchedule = {
 };
 describe("calendar correction and recovery", () => {
   it("keeps rows during refresh only when their owner and query scope still match", () => {
-    expect(
-      showCalendarRows("owner-a:case-a:1", "owner-a:case-a:1", false),
-    ).toBe(true);
-    expect(
-      showCalendarRows("owner-a:case-a:1", "owner-b:case-a:1", false),
-    ).toBe(false);
-    expect(
-      showCalendarRows("owner-a:case-a:1", "owner-a:case-a:2", false),
-    ).toBe(false);
-    expect(showCalendarRows("owner-a:case-a:1", "owner-a:case-a:1", true)).toBe(
+    expect(showCalendarRows("owner-a:case-a:1", "owner-a:case-a:1")).toBe(true);
+    expect(showCalendarRows("owner-a:case-a:1", "owner-b:case-a:1")).toBe(
       false,
     );
+    expect(showCalendarRows("owner-a:case-a:1", "owner-a:case-a:2")).toBe(
+      false,
+    );
+    expect(showCalendarRows(null, "owner-a:case-a:1")).toBe(false);
   });
   it("guards every dialog dismissal while saving, dirty or uncertain", () => {
     const confirm = vi.fn(() => false);

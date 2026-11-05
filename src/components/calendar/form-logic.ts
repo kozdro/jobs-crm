@@ -8,9 +8,8 @@ import type { CalendarSchedule } from "@/modules/recruitment/domain/calendar-tim
 export function showCalendarRows(
   loadedScope: string | null,
   requestedScope: string,
-  error: boolean,
 ): boolean {
-  return loadedScope === requestedScope && !error;
+  return loadedScope === requestedScope;
 }
 
 export function canDismissCalendarForm(
