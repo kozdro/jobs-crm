@@ -720,6 +720,77 @@ for (const action of ["Edytuj wydarzenie", "Rozlicz wydarzenie"] as const) {
   });
 }
 
+test("failed refresh after cancel keeps the event visible, reports stale data and restores focus", async ({
+  page,
+}) => {
+  const { client } = await sdkLogin(target, user);
+  const title = `Focus on failed refresh ${randomUUID()}`;
+  const created = await client.rpc("execute_recruitment_calendar_command", {
+    p_request_id: randomUUID(),
+    p_payload: {
+      operation: "create",
+      values: {
+        title,
+        description: null,
+        caseId: null,
+        status: "planned",
+        timeZone: "Europe/Warsaw",
+        actual: null,
+        participants: [],
+        schedule: {
+          startDate: "2099-05-15",
+          startTime: null,
+          endDate: null,
+          endTime: null,
+          allDay: false,
+          timeZone: "Europe/Warsaw",
+          startOffset: null,
+          endOffset: null,
+        },
+      },
+    },
+  });
+  expect(created.error).toBeNull();
+  await login(page);
+  await page.goto(`${target.appOrigin}/calendar`);
+  const article = page.getByRole("article", { name: title, exact: true });
+  const trigger = article.getByRole("button", {
+    name: "Edytuj wydarzenie",
+    exact: true,
+  });
+  await trigger.click();
+  const dialog = page.getByRole("dialog", {
+    name: "Edytuj wydarzenie",
+    exact: true,
+  });
+  await expect(dialog).toBeVisible();
+  let failedReads = 0;
+  await page.route("**/calendar/commands?*", async (route) => {
+    if (route.request().method() === "GET") {
+      failedReads++;
+      await route.abort("failed");
+    } else await route.continue();
+  });
+  await dialog.getByRole("button", { name: "Anuluj", exact: true }).click();
+  await expect.poll(() => failedReads).toBeGreaterThan(0);
+  await expect(dialog).toHaveCount(0);
+  await expect(article).toBeVisible();
+  await expect(trigger).toBeFocused();
+  await expect(
+    page
+      .getByRole("alert")
+      .filter({ hasText: "Wyświetlone dane mogą być nieaktualne." }),
+  ).toBeVisible();
+  await page.unroute("**/calendar/commands?*");
+  await page
+    .getByRole("button", { name: "Spróbuj ponownie", exact: true })
+    .click();
+  await expect(article).toBeVisible();
+  await expect(
+    page.getByText("Wyświetlone dane mogą być nieaktualne.", { exact: false }),
+  ).toHaveCount(0);
+});
+
 for (const direction of ["back", "forward"] as const) {
   test(`browser ${direction} protects a dirty calendar form in SPA navigation`, async ({
     page,

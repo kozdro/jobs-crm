@@ -2112,6 +2112,9 @@ export function CalendarPanel({
       {error && (
         <div role="alert">
           <p>{error}</p>
+          {showCalendarRows(loadedScope, readScope) && (
+            <p>Wyświetlone dane mogą być nieaktualne.</p>
+          )}
           <button
             type="button"
             className={`${buttonStyles.secondary} max-w-full whitespace-normal [overflow-wrap:anywhere]`}
@@ -2121,7 +2124,7 @@ export function CalendarPanel({
           </button>
         </div>
       )}
-      {showCalendarRows(loadedScope, readScope, Boolean(error)) &&
+      {showCalendarRows(loadedScope, readScope) &&
         groups.map(([label, items]) => (
           <section key={label} aria-label={label}>
             <h3 className="font-semibold">{label}</h3>
