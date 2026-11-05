@@ -1,5 +1,7 @@
 # Kwestie otwarte i bramki decyzyjne (OPEN)
 
+**Calendar Core — szkic w pamięci, DEC-062:** PO zatwierdził wyłącznie zachowanie niezapisanego szkicu Calendar w RAM działającej aplikacji pomiędzy ekranami; bez `sessionStorage`, `localStorage` i zapisu na serwerze, z utratą po pełnym odświeżeniu lub zamknięciu karty. To częściowe doprecyzowanie nie rozstrzyga pozostałych polityk danych, retencji i usuwania, w tym OPEN-032, ani nie rozszerza zgody na inne prywatne payloady. Ograniczenie DEC-061 dotyczące dodatkowego przechowywania pozostaje w mocy poza tą wskazaną pamięcią RAM.
+
 ## Calendar Core — zatwierdzenie 1A–9A, 2026-11-05
 
 [DEC-062](product-decisions.md) częściowo rozstrzyga OPEN-002/004/020/021/029/030/037 dla pełnego kontraktu Calendar Core, w tym pola, czas, DST, korekty, uczestnictwo, zamkniętą sprawę i Dashboard. PO autoryzował implementację i osobny PR bez merge/deploymentu. Wcześniejsze adnotacje w tej sekcji o tych kwestiach jako OPEN lub o braku autoryzacji opisują historyczny stan przed zatwierdzeniem. Inne części tych OPEN, globalne zasady korekt, retencji/usuwania, bezpieczeństwa i bramki publiczne pozostają w mocy.

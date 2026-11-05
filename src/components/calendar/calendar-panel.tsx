@@ -39,6 +39,9 @@ import {
   canDismissCalendarForm,
   showCalendarRows,
   calendarDismissFocus,
+  eventDialogName,
+  panelDialogName,
+  calendarDialogA11y,
 } from "./form-logic";
 
 type Person = { id: string; name: string };
@@ -1375,6 +1378,7 @@ export function EventRow({
   mutationBlocked: boolean;
 }) {
   const [mode, setMode] = useState<"edit" | "resolve" | null>(null);
+  const dialogTitleId = useId();
   const editTrigger = useRef<HTMLButtonElement>(null);
   const resolveTrigger = useRef<HTMLButtonElement>(null);
   const rescheduleTrigger = useRef<HTMLButtonElement>(null);
@@ -1529,15 +1533,21 @@ export function EventRow({
           <Dialog.Portal>
             <Dialog.Backdrop className="fixed inset-0 z-50 bg-overlay" />
             <Dialog.Popup
+              {...calendarDialogA11y(
+                eventDialogName(mode, event.status),
+                dialogTitleId,
+              ).popup}
               finalFocus={false}
               className="fixed left-1/2 top-1/2 z-50 max-h-[calc(100dvh-2rem)] w-[min(42rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-md border border-border bg-card p-4 shadow-xl sm:p-6"
             >
-              <Dialog.Title className="mb-2 text-lg font-semibold">
-                {mode === "resolve"
-                  ? "Rozlicz wydarzenie"
-                  : event.status === "planned"
-                    ? "Edytuj wydarzenie"
-                    : "Skoryguj wydarzenie"}
+              <Dialog.Title
+                {...calendarDialogA11y(
+                  eventDialogName(mode, event.status),
+                  dialogTitleId,
+                ).title}
+                className="mb-2 text-lg font-semibold"
+              >
+                {eventDialogName(mode, event.status)}
               </Dialog.Title>
               <Dialog.Description className="mb-4 text-sm text-muted-foreground">
                 Sprawdź dane przed zapisem. Anulowanie nie zmienia wydarzenia.
@@ -1639,6 +1649,7 @@ export function CalendarPanel({
   compact?: boolean;
 }) {
   const router = useRouter();
+  const dialogTitleId = useId();
   const memory = useCalendarMemoryDrafts();
   const activateMemory = memory?.activate;
   useEffect(() => {
@@ -2132,15 +2143,17 @@ export function CalendarPanel({
           <Dialog.Portal>
             <Dialog.Backdrop className="fixed inset-0 z-50 bg-overlay" />
             <Dialog.Popup
+              {...calendarDialogA11y(panelDialogName(mode), dialogTitleId)
+                .popup}
               finalFocus={false}
               className="fixed left-1/2 top-1/2 z-50 max-h-[calc(100dvh-2rem)] w-[min(42rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-md border border-border bg-card p-4 shadow-xl sm:p-6"
             >
-              <Dialog.Title className="mb-2 text-lg font-semibold">
-                {mode === "create"
-                  ? "Nowe wydarzenie"
-                  : mode === "occurred"
-                    ? "Zapisz odbytą rozmowę"
-                    : "Zachowany szkic zmiany wydarzenia"}
+              <Dialog.Title
+                {...calendarDialogA11y(panelDialogName(mode), dialogTitleId)
+                  .title}
+                className="mb-2 text-lg font-semibold"
+              >
+                {panelDialogName(mode)}
               </Dialog.Title>
               <Dialog.Description className="mb-4 text-sm text-muted-foreground">
                 Sprawdź dane przed zapisem. Anulowanie nie zmienia wydarzenia.

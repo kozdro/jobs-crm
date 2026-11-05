@@ -605,6 +605,85 @@ test("Calendar dialog traps keyboard focus, protects dirty Escape and returns fo
   await expect(trigger).toBeFocused();
 });
 
+test("every Calendar form dialog exposes its own accessible name and focuses the title", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 375, height: 800 });
+  const { client } = await sdkLogin(target, user);
+  const plannedTitle = `Named planned ${randomUUID()}`;
+  const occurredTitle = `Named occurred ${randomUUID()}`;
+  const values = {
+    title: plannedTitle,
+    description: null,
+    caseId: null,
+    status: "planned",
+    timeZone: "Europe/Warsaw",
+    actual: null,
+    participants: [],
+    schedule: {
+      startDate: "2099-05-15",
+      startTime: null,
+      endDate: null,
+      endTime: null,
+      allDay: false,
+      timeZone: "Europe/Warsaw",
+      startOffset: null,
+      endOffset: null,
+    },
+  };
+  const planned = await client.rpc("execute_recruitment_calendar_command", {
+    p_request_id: randomUUID(),
+    p_payload: { operation: "create", values },
+  });
+  expect(planned.error).toBeNull();
+  const occurred = await client.rpc("execute_recruitment_calendar_command", {
+    p_request_id: randomUUID(),
+    p_payload: {
+      operation: "create",
+      values: {
+        ...values,
+        title: occurredTitle,
+        status: "occurred",
+        schedule: null,
+      },
+    },
+  });
+  expect(occurred.error).toBeNull();
+  await login(page);
+  await page.goto(`${target.appOrigin}/calendar`);
+  for (const [action, name] of [
+    ["Dodaj wydarzenie", "Nowe wydarzenie"],
+    ["Zapisz odbytą rozmowę", "Zapisz odbytą rozmowę"],
+  ]) {
+    await page.getByRole("button", { name: action, exact: true }).click();
+    const dialog = page.getByRole("dialog", { name, exact: true });
+    await expect(dialog).toBeVisible();
+    await expect(
+      dialog.getByLabel("Tytuł wydarzenia", { exact: true }),
+    ).toBeFocused();
+    await dialog.getByRole("button", { name: "Anuluj", exact: true }).click();
+    await expect(dialog).toHaveCount(0);
+  }
+  for (const [title, action, name] of [
+    [plannedTitle, "Edytuj wydarzenie", "Edytuj wydarzenie"],
+    [plannedTitle, "Przełóż termin", "Edytuj wydarzenie"],
+    [plannedTitle, "Rozlicz wydarzenie", "Rozlicz wydarzenie"],
+    [occurredTitle, "Skoryguj wydarzenie", "Skoryguj wydarzenie"],
+  ]) {
+    await page
+      .getByRole("article", { name: title, exact: true })
+      .getByRole("button", { name: action, exact: true })
+      .click();
+    const dialog = page.getByRole("dialog", { name, exact: true });
+    await expect(dialog).toBeVisible();
+    await expect(
+      dialog.getByLabel("Tytuł wydarzenia", { exact: true }),
+    ).toBeFocused();
+    await dialog.getByRole("button", { name: "Anuluj", exact: true }).click();
+    await expect(dialog).toHaveCount(0);
+  }
+});
+
 test("uncertain Calendar dialog cannot be dismissed silently and keeps pending identifiers", async ({
   page,
 }) => {
@@ -1134,6 +1213,9 @@ test("restored in-memory edit shows fresh server baseline against preserved draf
     name: "Zachowany szkic zmiany wydarzenia",
     exact: true,
   });
+  await expect(
+    restored.getByLabel("Tytuł wydarzenia", { exact: true }),
+  ).toBeFocused();
   await expect(
     restored.getByLabel("Tytuł wydarzenia", { exact: true }),
   ).toHaveValue(draftTitle);

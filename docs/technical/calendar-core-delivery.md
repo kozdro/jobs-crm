@@ -4,6 +4,8 @@
 
 ## Autoryzacja i zakres
 
+**Późniejsze doprecyzowanie PO — DEC-062:** niezapisany szkic Calendar może pozostawać wyłącznie w pamięci RAM działającej aplikacji podczas przejścia między ekranami. Nie trafia do `sessionStorage`, `localStorage` ani na serwer i znika po pełnym odświeżeniu lub zamknięciu karty. To ograniczone dopuszczenie dodatkowej pamięci RAM względem DEC-061 nie obejmuje innych payloadów, trwałego przechowywania ani polityki retencji. Zatwierdzenie jest decyzją produktową; jego implementacja i testy wymagają osobnych dowodów na późniejszym kandydacie.
+
 PO 2026-11-05 zatwierdził [DEC-062, warianty 1A–9A](../decisions/product-decisions.md), z wcześniejszymi P1/P2 w mocy, oraz zlecił pełną implementację, QA, niezależne backend/frontend/security review i osobny PR. Merge i deployment nie są autoryzowane. Calendar Core obejmuje własne wydarzenia ogólne i powiązane ze sprawą, historię planu i faktu, uczestników, Dashboard, oś sprawy i atomowe rozstrzygnięcie wydarzeń oraz Task przy close. Dane są właścicielskie, a upływ czasu nie tworzy faktu odbycia.
 
 Zewnętrzna synchronizacja, komunikacja, przypomnienia i Global Search nie są realizowane w tym slice; ich wymagania nie są zniesione. Pełny TC-028 zależy również od niezależnej notatki inline. Pozostałe części OPEN-002/004/020/021/029/030/037 oraz OPEN-032 i bramki publiczne pozostają otwarte; zatwierdzenie Calendar nie ustanawia ogólnej polityki retencji. [DEC-061](../decisions/product-decisions.md) ogranicza dodatkowe przechowywanie prywatnych payloadów w przeglądarce. [ADR-0008](../decisions/adr/0008-postgres-fulltext.md) zachowuje docelowe wyszukiwanie opisów wydarzeń.

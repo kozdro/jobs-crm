@@ -78,6 +78,8 @@ Każdy przepływ opisuje: wejście → decyzję użytkownika → stan po zapisie
 
 ## F08: Wydarzenie przełożone lub po terminie (UC-010/011; UX-011/005)
 
+**Szkic Calendar — DEC-062 APPROVED:** niezapisany szkic pozostaje wyłącznie w RAM działającej aplikacji podczas nawigacji między ekranami. Nie jest zapisywany do `sessionStorage`, `localStorage` ani na serwerze; pełne odświeżenie lub zamknięcie karty go usuwa. Przy powrocie do edycji zachowaj świadomy podgląd i aktualny kontekst, zgodnie z pozostałymi kontraktami konfliktu i zapisu. Nie rozszerza to polityki innych szkiców ani payloadów.
+
 Przy close [DEC-062](../decisions/product-decisions.md) zatwierdza skutki anuluj/zachowaj/odłącz, definicję otwartości, zachowanie istniejących powiązań uczestników i wspólną atomowość z Task; samo wznowienie nie zmienia wydarzeń. Pozostałe reguły uczestnictwa i inne kwestie pozostają OPEN. Nie jest to dowód implementacji.
 
 1. Wydarzenie planowane może zmienić termin, ale pozostaje tym samym wydarzeniem; wcześniejsze terminy pozostają odtwarzalne.

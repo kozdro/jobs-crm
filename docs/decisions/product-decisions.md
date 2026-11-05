@@ -2,6 +2,8 @@
 
 ## Calendar Core — pełny kontrakt i autoryzacja, 2026-11-05
 
+**Doprecyzowanie DEC-062 — szkic Calendar, PO:** PO jawnie zatwierdził zachowanie niezapisanego szkicu Calendar wyłącznie w pamięci RAM działającej aplikacji podczas przechodzenia między ekranami. Szkic nie jest zapisywany w `sessionStorage`, `localStorage` ani na serwerze; pełne odświeżenie lub zamknięcie karty powoduje jego utratę. To ograniczone dopuszczenie dodatkowej pamięci RAM dotyczy tylko szkicu Calendar i współistnieje z ograniczeniem DEC-061 dotyczącym dodatkowego przechowywania prywatnych payloadów. Nie zatwierdza trwałej persystencji, nowej retencji, danych ani innych zastosowań. Nie zmienia wcześniejszych P1/P2 ani wariantów 1A–9A.
+
 **DEC-062 — APPROVED, rozszerzenie:** PO w rozmowie „Calendar Core” jawnie zatwierdził „wszystkie rekomendowane warianty 1A–9A”, pozostawiając wcześniejsze P1 i P2 w mocy, oraz autoryzował pełny vertical slice, QA, niezależne review i osobny PR, bez merge i deploymentu. Wcześniejsze wpisy DEC-062 zachowują historyczny stan częściowych decyzji; ich wskazania OPEN lub braku zgody na implementację poprzedzają tę decyzję. Zatwierdzenie dotyczy następującego kontraktu:
 
 1. **1A — pola i relacja:** wymagany tytuł 1–160 znaków po trim, opcjonalny opis do 2000. Wydarzenie ogólne albo z jedną własną sprawą; jawne powiązanie, odłączenie i zmiana powiązania z audytem poprzedniej relacji. Uczestnicy opcjonalni.

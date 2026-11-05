@@ -4,6 +4,33 @@ import type {
 } from "@/modules/recruitment/domain/calendar";
 import type { CalendarSchedule } from "@/modules/recruitment/domain/calendar-time";
 
+export function eventDialogName(
+  mode: "edit" | "resolve",
+  status: CalendarStatus,
+): string {
+  return mode === "resolve"
+    ? "Rozlicz wydarzenie"
+    : status === "planned"
+      ? "Edytuj wydarzenie"
+      : "Skoryguj wydarzenie";
+}
+export function panelDialogName(
+  mode: "create" | "occurred" | "edit" | "resolve",
+): string {
+  return mode === "create"
+    ? "Nowe wydarzenie"
+    : mode === "occurred"
+      ? "Zapisz odbytą rozmowę"
+      : "Zachowany szkic zmiany wydarzenia";
+}
+/** Explicit ID linkage avoids depending on the timing of title registration. */
+export function calendarDialogA11y(name: string, id: string) {
+  return {
+    popup: { "aria-label": name, "aria-labelledby": id },
+    title: { id },
+  };
+}
+
 /** A refresh keeps the current rows mounted only for the same read scope. */
 export function showCalendarRows(
   loadedScope: string | null,
