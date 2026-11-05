@@ -80,14 +80,14 @@ Każdy przepływ opisuje: wejście → decyzję użytkownika → stan po zapisie
 
 **Szkic Calendar — DEC-062 APPROVED:** niezapisany szkic pozostaje wyłącznie w RAM działającej aplikacji podczas nawigacji między ekranami. Nie jest zapisywany do `sessionStorage`, `localStorage` ani na serwerze; pełne odświeżenie lub zamknięcie karty go usuwa. Przy powrocie do edycji zachowaj świadomy podgląd i aktualny kontekst, zgodnie z pozostałymi kontraktami konfliktu i zapisu. Nie rozszerza to polityki innych szkiców ani payloadów.
 
-Przy close [DEC-062](../decisions/product-decisions.md) zatwierdza skutki anuluj/zachowaj/odłącz, definicję otwartości, zachowanie istniejących powiązań uczestników i wspólną atomowość z Task; samo wznowienie nie zmienia wydarzeń. Pozostałe reguły uczestnictwa i inne kwestie pozostają OPEN. Nie jest to dowód implementacji.
+Przy close [DEC-062](../decisions/product-decisions.md) zatwierdza skutki anuluj/zachowaj/odłącz, definicję otwartości, zachowanie istniejących powiązań uczestników i wspólną atomowość z Task; samo wznowienie nie zmienia wydarzeń. DEC-062 rozstrzyga także uczestnictwo, czas i korekty w zakresie 1A–9A; pozostałe części powiązanych OPEN zachowują swój status. Nie jest to dowód implementacji.
 
 1. Wydarzenie planowane może zmienić termin, ale pozostaje tym samym wydarzeniem; wcześniejsze terminy pozostają odtwarzalne.
-   Planowany dzień jest wymagany, godzina opcjonalna i nieznana bez domyślnej wartości ani oznaczenia całodniowości; każde wydarzenie ma jawną strefę IANA niezależną od strefy urządzenia (DEC-062). Granica minionego dnia bez godziny nadal OPEN.
+   Planowany dzień jest wymagany, godzina opcjonalna i nieznana bez domyślnej wartości ani oznaczenia całodniowości; każde wydarzenie ma jawną strefę IANA niezależną od strefy urządzenia (DEC-062). Dzień bez godziny uznaje się za miniony, gdy data w strefie wydarzenia jest późniejsza od ostatniego dnia terminu.
 2. Po terminie bez potwierdzenia oznacz „wymaga rozliczenia”, nie „odbyte”. Pokaż akcje faktycznego rozliczenia odbyte/nieodbyte/anulowane.
 3. Rzeczywiście odbyta rozmowa może być dodana wstecz bez fikcyjnego wcześniejszego zaplanowania.
 4. Wielu uczestników nie tworzy kopii zdarzenia. Tylko osoby faktycznie powiązane widzą je w swoich historiach.
-5. Przełożenie nie tworzy dodatkowego stałego statusu „Przełożone”; zasady enum/uczestników/dat OPEN-021/030/037.
+5. Przełożenie nie tworzy dodatkowego stałego statusu „Przełożone”; zatwierdzone stany, uczestnictwo i daty określa DEC-062, a pozostałe części OPEN-021/030/037 pozostają otwarte.
 
 ## F09: Zadania, sugestie i powiadomienia (UC-023/030/037; UX-001/010)
 

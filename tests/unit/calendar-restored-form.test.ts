@@ -50,6 +50,62 @@ const restored: MemoryDraft = {
   zoneMode: "wall",
 };
 describe("restored calendar form", () => {
+  it("accepts supplementary Unicode points through the stated limits without UTF-16 truncation", () => {
+    const draft = {
+      ...restored,
+      values: {
+        ...restored.values,
+        title: "😀".repeat(160),
+        description: "😀".repeat(2000),
+      },
+    };
+    const html = renderToStaticMarkup(
+      createElement(EventForm, {
+        userId: owner,
+        initial: current,
+        restored: draft,
+        cases: [],
+        contacts: [],
+        mode: "edit",
+        onDone: () => {},
+        onCancel: () => {},
+      }),
+    );
+    expect(html).toContain('value="' + "😀".repeat(160) + '"');
+    expect(html).toContain("😀".repeat(2000));
+    expect(html).toContain("160/160 znaków");
+    expect(html).toContain("2000/2000 znaków");
+    expect(html).not.toMatch(/maxlength=/i);
+    expect(html).not.toContain("Podaj tytuł od 1 do 160 znaków.");
+    expect(html).not.toContain("Opis może mieć do 2000 znaków.");
+  });
+  it("marks and describes both over-limit Unicode fields inline", () => {
+    const draft = {
+      ...restored,
+      values: {
+        ...restored.values,
+        title: "😀".repeat(161),
+        description: "😀".repeat(2001),
+      },
+    };
+    const html = renderToStaticMarkup(
+      createElement(EventForm, {
+        userId: owner,
+        initial: current,
+        restored: draft,
+        cases: [],
+        contacts: [],
+        mode: "edit",
+        onDone: () => {},
+        onCancel: () => {},
+      }),
+    );
+    expect(html).toContain("161/160 znaków");
+    expect(html).toContain("2001/2000 znaków");
+    expect(html).toContain("Podaj tytuł od 1 do 160 znaków.");
+    expect(html).toContain("Opis może mieć do 2000 znaków.");
+    expect((html.match(/aria-invalid="true"/g) ?? []).length).toBe(2);
+  });
   it("renders the actual saved draft instead of overwriting it with the fresh server baseline", () => {
     const html = renderToStaticMarkup(
       createElement(EventForm, {

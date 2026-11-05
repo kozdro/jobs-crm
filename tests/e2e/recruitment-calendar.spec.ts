@@ -183,6 +183,70 @@ test("clearing the start time clears the prior end time when it is shown again",
   await expect(end).toHaveValue("");
 });
 
+test("Calendar Unicode limits count code points for typing, bulk insertion, validation and save", async ({
+  page,
+}) => {
+  const { client } = await sdkLogin(target, user);
+  await login(page);
+  await page.goto(`${target.appOrigin}/calendar`);
+  await page
+    .getByRole("button", { name: "Dodaj wydarzenie", exact: true })
+    .click();
+  const dialog = page.getByRole("dialog", {
+    name: "Nowe wydarzenie",
+    exact: true,
+  });
+  const title = dialog.getByLabel("Tytuł wydarzenia", { exact: true });
+  const description = dialog.getByLabel("Opis", { exact: true });
+  await title.focus();
+  await page.keyboard.insertText("😀".repeat(100));
+  await expect(title).toHaveValue("😀".repeat(100));
+  await title.fill("😀".repeat(161));
+  await expect(title).toHaveValue("😀".repeat(161));
+  await dialog.getByLabel("Data", { exact: true }).fill("2099-05-15");
+  let writes = 0;
+  await page.route("**/calendar/commands", async (route) => {
+    if (route.request().method() === "POST") writes++;
+    await route.continue();
+  });
+  await dialog
+    .getByRole("button", { name: "Zapisz wydarzenie", exact: true })
+    .click();
+  await expect(
+    dialog.getByText("Podaj tytuł od 1 do 160 znaków.", { exact: true }),
+  ).toBeVisible();
+  expect(writes).toBe(0);
+  const acceptedTitle = "😀".repeat(160);
+  await title.fill(acceptedTitle);
+  await description.fill("🧪".repeat(2001));
+  await expect(description).toHaveValue("🧪".repeat(2001));
+  await dialog
+    .getByRole("button", { name: "Zapisz wydarzenie", exact: true })
+    .click();
+  await expect(
+    dialog.getByText("Opis może mieć do 2000 znaków.", { exact: true }),
+  ).toBeVisible();
+  expect(writes).toBe(0);
+  const acceptedDescription = "🧪".repeat(2000);
+  await description.fill(acceptedDescription);
+  await expect(description).toHaveValue(acceptedDescription);
+  await dialog
+    .getByRole("button", { name: "Zapisz wydarzenie", exact: true })
+    .click();
+  await expect(dialog).toHaveCount(0);
+  await expect(
+    page.getByRole("article", { name: acceptedTitle, exact: true }),
+  ).toBeVisible();
+  expect(writes).toBe(1);
+  const events = await client.rpc("list_recruitment_calendar_events", {});
+  expect(events.error).toBeNull();
+  const saved = (
+    events.data as { title: string; description: string | null }[]
+  ).filter((event) => event.title === acceptedTitle);
+  expect(saved).toHaveLength(1);
+  expect(saved[0].description).toBe(acceptedDescription);
+});
+
 test("DST repeated hour needs an occurrence and updates its offset when the day changes", async ({
   page,
 }) => {

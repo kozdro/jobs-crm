@@ -13,6 +13,7 @@ import {
   type RefObject,
 } from "react";
 import { buttonStyles, inputStyles } from "@/components/ui/styles";
+import { unicodeLength } from "@/modules/recruitment/domain/recruitment-case";
 import {
   validOffsets,
   scheduleInstant,
@@ -416,6 +417,14 @@ export function EventForm({
     };
   }, [dismissRef, requestDismiss]);
   const schedule = values.schedule;
+  const titleLength = unicodeLength(values.title.trim());
+  const descriptionLength = unicodeLength(values.description ?? "");
+  const titleError =
+    fieldErrors.title ??
+    (titleLength > 160 ? "Podaj tytuł od 1 do 160 znaków." : undefined);
+  const descriptionError =
+    fieldErrors.description ??
+    (descriptionLength > 2000 ? "Opis może mieć do 2000 znaków." : undefined);
   const patchSchedule = (patch: Partial<CalendarSchedule>) =>
     setValues((current) =>
       current.schedule
@@ -539,10 +548,6 @@ export function EventForm({
       setError("Wybierz wynik rozliczenia.");
       return;
     }
-    if (base && (base.status !== "planned" || needsConfirm) && !preview) {
-      setPreview(true);
-      return;
-    }
     const candidate = {
       requestId: crypto.randomUUID(),
       operation: calendarOperation(mode, base?.status, values.status),
@@ -565,6 +570,10 @@ export function EventForm({
       return;
     }
     setFieldErrors({});
+    if (base && (base.status !== "planned" || needsConfirm) && !preview) {
+      setPreview(true);
+      return;
+    }
     void send(parsed.data);
   }
   return (
@@ -582,51 +591,55 @@ export function EventForm({
           <input
             ref={titleInput}
             id={fieldId("title")}
-            aria-invalid={Boolean(fieldErrors.title)}
-            aria-describedby={
-              fieldErrors.title ? `${fieldId("title")}-error` : undefined
-            }
+            aria-invalid={Boolean(titleError)}
+            aria-describedby={`${fieldId("title")}-count${titleError ? ` ${fieldId("title")}-error` : ""}`}
             className={`${inputStyles} mt-1`}
             required
-            maxLength={160}
             value={values.title}
             onChange={(e) =>
               setValues((v) => ({ ...v, title: e.target.value }))
             }
           />
         </label>
-        {fieldErrors.title && (
+        <p
+          id={`${fieldId("title")}-count`}
+          className="text-sm text-muted-foreground"
+        >
+          {titleLength}/160 znaków
+        </p>
+        {titleError && (
           <p
             id={`${fieldId("title")}-error`}
             className="text-sm text-destructive"
           >
-            {fieldErrors.title}
+            {titleError}
           </p>
         )}
         <label className="block text-sm font-medium">
           Opis
           <textarea
             id={fieldId("description")}
-            aria-invalid={Boolean(fieldErrors.description)}
-            aria-describedby={
-              fieldErrors.description
-                ? `${fieldId("description")}-error`
-                : undefined
-            }
+            aria-invalid={Boolean(descriptionError)}
+            aria-describedby={`${fieldId("description")}-count${descriptionError ? ` ${fieldId("description")}-error` : ""}`}
             className={`${inputStyles} mt-1`}
-            maxLength={2000}
             value={values.description ?? ""}
             onChange={(e) =>
               setValues((v) => ({ ...v, description: e.target.value || null }))
             }
           />
         </label>
-        {fieldErrors.description && (
+        <p
+          id={`${fieldId("description")}-count`}
+          className="text-sm text-muted-foreground"
+        >
+          {descriptionLength}/2000 znaków
+        </p>
+        {descriptionError && (
           <p
             id={`${fieldId("description")}-error`}
             className="text-sm text-destructive"
           >
-            {fieldErrors.description}
+            {descriptionError}
           </p>
         )}
         <label className="block text-sm font-medium">
