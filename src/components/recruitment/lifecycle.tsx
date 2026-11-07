@@ -1,5 +1,7 @@
 "use client";
 
+import { invalidateCalendarReads } from "@/components/calendar/events";
+
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { invalidateTaskReads } from "@/components/tasks/events";
@@ -27,12 +29,14 @@ import {
   clearMatchingLifecycleIntent,
   isCurrentLifecycleIntent,
   isClosureRevision,
+  isLifecycleEntry,
   isLifecyclePreview,
   lifecycleIntentStorageKey,
   lifecycleResultMatches,
   lifecycleRecoveryMatches,
   parseLifecycleIntent,
   persistAndFreezeLifecycleIntent,
+  normalizeLifecycleCalendarIntent,
   type LifecycleIntent,
 } from "./lifecycle-intent";
 
@@ -167,6 +171,9 @@ export function LifecycleForm({
   const [taskResolutions, setTaskResolutions] = useState<
     Record<string, "cancel" | "keep" | "detach">
   >({});
+  const [eventResolutions, setEventResolutions] = useState<
+    Record<string, "cancel" | "keep" | "detach">
+  >({});
   const [pending, setPending] = useState(false);
   const [uncertain, setUncertain] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -233,6 +240,7 @@ export function LifecycleForm({
     }
     announce(caseId);
     invalidateTaskReads(userId, caseId);
+    invalidateCalendarReads(userId, caseId);
     router.refresh();
     onClose();
     requestAnimationFrame(() =>
@@ -272,6 +280,7 @@ export function LifecycleForm({
         return;
       }
       setTaskResolutions({});
+      setEventResolutions({});
       setPreview(body.preview);
     } catch {
       if (current())
@@ -312,13 +321,31 @@ export function LifecycleForm({
         );
         return;
       }
-      command = {
+      if (
+        operation === "close" &&
+        preview.openEvents?.some((event) => !eventResolutions[event.id])
+      ) {
+        report(
+          "Wybierz Anuluj, Zachowaj albo Odłącz dla każdego otwartego wydarzenia.",
+        );
+        return;
+      }
+      command = normalizeLifecycleCalendarIntent({
         ...value,
         requestId: crypto.randomUUID(),
         expectedCaseRevision: preview.caseRevision,
         expectedClosureRevision: preview.closureRevision,
         expectedTaskSnapshot:
           operation === "close" ? (preview.taskSnapshot ?? []) : [],
+        expectedEventSnapshot:
+          operation === "close" ? (preview.eventSnapshot ?? []) : [],
+        eventResolutions:
+          operation === "close"
+            ? (preview.openEvents ?? []).map((event) => ({
+                eventId: event.id,
+                action: eventResolutions[event.id],
+              }))
+            : [],
         taskResolutions:
           operation === "close"
             ? (preview.openTasks ?? []).map((task) => ({
@@ -326,7 +353,7 @@ export function LifecycleForm({
                 action: taskResolutions[task.id],
               }))
             : [],
-      };
+      });
     }
     let persisted: ReturnType<typeof persistAndFreezeLifecycleIntent> =
       "unavailable";
@@ -655,6 +682,71 @@ export function LifecycleForm({
               ))}
             </section>
           )}
+          {operation === "close" && (preview.openEvents?.length ?? 0) > 0 && (
+            <section
+              aria-label="Otwarte wydarzenia przy zamknięciu"
+              className="space-y-4"
+            >
+              <h5 className="text-sm font-semibold">
+                Rozstrzygnij każde otwarte wydarzenie
+              </h5>
+              <p className="text-sm leading-6 text-muted-foreground">
+                Anuluj anuluje wydarzenie i zachowuje powiązanie. Zachowaj
+                pozostawia otwarte przy sprawie. Odłącz pozostawia otwarte
+                wydarzenie ogólne. Uczestnicy pozostają bez zmiany, żadna
+                decyzja nie potwierdza obecności. Zmiany i audyt zapiszą się
+                razem z zakończeniem.
+              </p>
+              {preview.openEvents?.map((event) => (
+                <fieldset
+                  key={event.id}
+                  disabled={pending || uncertain}
+                  className="min-w-0 rounded-md border border-border p-3"
+                >
+                  <legend className="max-w-full px-1 text-sm font-semibold [overflow-wrap:anywhere]">
+                    {event.title}
+                  </legend>
+                  <p className="text-sm">
+                    {event.schedule?.startDate}
+                    {event.schedule?.startTime
+                      ? ` ${event.schedule.startTime}`
+                      : " · godzina nieznana"}{" "}
+                    {event.timeZone}
+                  </p>
+                  <div className="flex flex-wrap gap-x-5 gap-y-1">
+                    {(
+                      [
+                        ["cancel", "Anuluj"],
+                        ["keep", "Zachowaj"],
+                        ["detach", "Odłącz"],
+                      ] as const
+                    ).map(([action, label]) => (
+                      <label
+                        key={action}
+                        className="flex min-h-11 items-center gap-2 text-sm"
+                      >
+                        <input
+                          type="radio"
+                          name={`${id}-calendar-${event.id}`}
+                          value={action}
+                          checked={eventResolutions[event.id] === action}
+                          onChange={() => {
+                            setEventResolutions((current) => ({
+                              ...current,
+                              [event.id]: action,
+                            }));
+                            setConfirmed(false);
+                          }}
+                          className="size-4 accent-primary"
+                        />
+                        {label}
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              ))}
+            </section>
+          )}
           <label className="flex min-h-11 items-start gap-3 text-sm leading-6">
             <input
               type="checkbox"
@@ -803,6 +895,8 @@ export function LifecycleRecovery({
   const [intent, setIntent] = useState<LifecycleIntent | null>(null);
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [unverifiedReceipt, setUnverifiedReceipt] =
+    useState<LifecycleEntry | null>(null);
   const alive = useRef(true);
   const epoch = useRef(0);
   const busy = useRef(false);
@@ -832,6 +926,7 @@ export function LifecycleRecovery({
     setMessage(text);
     announce(caseId);
     invalidateTaskReads(userId, caseId);
+    invalidateCalendarReads(userId, caseId);
     router.refresh();
   }
   async function resolve(retry: boolean) {
@@ -867,7 +962,21 @@ export function LifecycleRecovery({
           saved,
           "Potwierdzono wcześniejszy zapis. Pobieranie aktualnego stanu sprawy…",
         );
-      else if (retry && response.status === 409 && body?.kind === "stale")
+      else if (
+        response.ok &&
+        !saved.command &&
+        body &&
+        isLifecycleEntry(body.entry) &&
+        body.entry.case_id === caseId &&
+        body.entry.request_id === saved.requestId &&
+        (body.entry.expected_event_snapshot?.length ?? 0) > 0 &&
+        currentPending(saved)
+      ) {
+        setUnverifiedReceipt(body.entry);
+        setMessage(
+          "Odnaleziono zapis zakończenia z wydarzeniami. Po odświeżeniu strony nie można porównać go z pierwotną treścią; sprawdź wynik i potwierdź.",
+        );
+      } else if (retry && response.status === 409 && body?.kind === "stale")
         complete(
           saved,
           "Poprzedni zamiar nie został zastosowany, ponieważ stan się zmienił. Pobierz nowy podgląd i potwierdź operację.",
@@ -930,6 +1039,56 @@ export function LifecycleRecovery({
           )}
         </div>
       )}
+      {intent && unverifiedReceipt && (
+        <div className="space-y-2 text-sm">
+          <p>
+            Odzyskany zapis:{" "}
+            {unverifiedReceipt.kind === "close"
+              ? "zakończenie sprawy"
+              : "wznowienie"}
+            ; wynik: {unverifiedReceipt.outcome ?? "nie dotyczy"};
+            rozstrzygniętych wydarzeń:{" "}
+            {unverifiedReceipt.event_resolutions?.length ?? 0}.
+          </p>
+          <button
+            type="button"
+            className={buttonStyles.secondary}
+            onClick={() => {
+              if (intent && currentPending(intent)) {
+                setUnverifiedReceipt(null);
+                complete(
+                  intent,
+                  "Potwierdzono zapoznanie się z odzyskanym zapisem.",
+                );
+              } else setMessage(changedIntentMessage);
+            }}
+          >
+            Potwierdź odzyskany zapis cyklu
+          </button>
+        </div>
+      )}
+      {intent &&
+        !intent.command &&
+        !intent.invalidCommand &&
+        !unverifiedReceipt && (
+          <button
+            type="button"
+            className={buttonStyles.secondary}
+            onClick={() => {
+              if (
+                window.confirm(
+                  "Wynik może być nieznany. Czy na pewno chcesz porzucić oczekiwanie?",
+                )
+              )
+                complete(
+                  intent,
+                  "Porzucono oczekiwanie; nie oznacza to cofnięcia ewentualnego zapisu.",
+                );
+            }}
+          >
+            Porzuć oczekiwanie zapisu cyklu
+          </button>
+        )}
     </div>
   );
 }

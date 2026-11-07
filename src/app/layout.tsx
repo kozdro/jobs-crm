@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { getServerEnv } from "@/shared/server/env";
 
 import "./globals.css";
+import { CalendarMemoryDraftProvider } from "@/components/calendar/memory-drafts";
 
 export const metadata: Metadata = {
   title: "Jobs CRM",
@@ -15,7 +16,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
   return (
     <html lang="pl">
-      <body>{children}</body>
+      <body>
+        <CalendarMemoryDraftProvider>{children}</CalendarMemoryDraftProvider>
+      </body>
     </html>
   );
 }

@@ -75,12 +75,12 @@ describe("Workspace presentation boundaries", () => {
       "Kontakty",
     ])
       expect(html).toContain(name);
-    expect((html.match(/aria-disabled="true"/g) ?? []).length).toBe(2);
-    expect((html.match(/<a /g) ?? []).length).toBe(5);
+    expect((html.match(/aria-disabled="true"/g) ?? []).length).toBe(1);
+    expect((html.match(/<a /g) ?? []).length).toBe(6);
     expect(html).toContain('href="/companies"');
     expect(html).toContain('href="/contacts"');
     expect(html).toContain('href="/tasks"');
-    expect(html).not.toContain("/calendar");
+    expect(html).toContain('href="/calendar"');
     expect(html).not.toContain("/documents");
   });
   it("retains compact record data and exact destination while escaping free text", () => {

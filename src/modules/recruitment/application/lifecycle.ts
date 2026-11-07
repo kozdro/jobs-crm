@@ -1,3 +1,4 @@
+import { readCalendarEvent } from "./calendar";
 import { readTask } from "./tasks";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { CaseRepositoryError } from "./cases";
@@ -17,6 +18,11 @@ import {
   type LifecycleStatus,
 } from "../domain/lifecycle";
 export type TimelineItem =
+  | {
+      type: "calendar";
+      event: import("../domain/calendar").CalendarEvent;
+      recordedAt: string;
+    }
   | { type: "fact"; fact: CaseEvent }
   | { type: "lifecycle"; entry: LifecycleEntry };
 const statuses: LifecycleStatus[] = [
@@ -91,7 +97,28 @@ export function readLifecyclePreview(value: unknown): LifecyclePreview {
     )
   )
     return unavailable();
+  const openEvents =
+    r.openEvents === undefined
+      ? []
+      : Array.isArray(r.openEvents)
+        ? r.openEvents.map(readCalendarEvent)
+        : unavailable();
+  const eventSnapshot = r.eventSnapshot === undefined ? [] : r.eventSnapshot;
+  if (
+    !Array.isArray(eventSnapshot) ||
+    eventSnapshot.some((x) => typeof x !== "string") ||
+    new Set(eventSnapshot).size !== eventSnapshot.length ||
+    openEvents.length !== eventSnapshot.length ||
+    openEvents.some(
+      (e) =>
+        e.status !== "planned" ||
+        !eventSnapshot.includes(`${e.id}:${e.revision}`),
+    )
+  )
+    return unavailable();
   return {
+    openEvents,
+    eventSnapshot: eventSnapshot as string[],
     openTasks,
     taskSnapshot: taskSnapshot as string[],
     caseRevision: r.caseRevision,
@@ -156,6 +183,8 @@ export function readLifecycleEntry(value: unknown): LifecycleEntry {
         expectedClosureRevision: 0,
         expectedTaskSnapshot: r.expected_task_snapshot,
         taskResolutions: r.task_resolutions,
+        expectedEventSnapshot: r.expected_event_snapshot,
+        eventResolutions: r.event_resolutions,
       },
       true,
       new Date("9999-12-31T12:00:00Z"),
@@ -170,6 +199,15 @@ export function readLifecycleEntry(value: unknown): LifecycleEntry {
       offerConfirmed: r.offer_confirmed,
     });
   return {
+    ...(r.expected_event_snapshot !== undefined
+      ? { expected_event_snapshot: r.expected_event_snapshot as string[] }
+      : {}),
+    ...(r.event_resolutions !== undefined
+      ? {
+          event_resolutions:
+            r.event_resolutions as import("../domain/calendar").CalendarResolution[],
+        }
+      : {}),
     ...(r.expected_task_snapshot !== undefined
       ? { expected_task_snapshot: r.expected_task_snapshot as string[] }
       : {}),
@@ -266,17 +304,31 @@ export async function confirmLifecycle(
   const parsed = parseLifecycleInput(input, true);
   if (!parsed.success || !("requestId" in parsed.data))
     throw new CaseRepositoryError("invalid");
+  // Existing task-only callers retain their receipt contract. The database event
+  // guard still rejects their close when any open CalendarEvent exists, and the
+  // old RPC rejects replay of a receipt carrying Calendar decisions.
+  const calendarAware =
+    parsed.data.expectedEventSnapshot !== undefined ||
+    parsed.data.eventResolutions !== undefined;
+  const taskArgs = {
+    ...rpcInput(parsed.data),
+    p_request_id: parsed.data.requestId,
+    p_expected_case_revision: parsed.data.expectedCaseRevision,
+    p_expected_closure_revision: parsed.data.expectedClosureRevision,
+    p_expected_task_snapshot: parsed.data.expectedTaskSnapshot ?? [],
+    p_task_resolutions: parsed.data.taskResolutions ?? [],
+  };
   const { data, error } = await client.rpc(
-    "confirm_recruitment_case_lifecycle_tasks",
-    {
-      ...rpcInput(parsed.data),
-      p_request_id: parsed.data.requestId,
-      p_expected_case_revision: parsed.data.expectedCaseRevision,
-      p_expected_closure_revision: parsed.data.expectedClosureRevision,
-      // An omitted Task payload means empty arrays, never permission to skip replay validation.
-      p_expected_task_snapshot: parsed.data.expectedTaskSnapshot ?? [],
-      p_task_resolutions: parsed.data.taskResolutions ?? [],
-    },
+    calendarAware
+      ? "confirm_recruitment_case_lifecycle_calendar"
+      : "confirm_recruitment_case_lifecycle_tasks",
+    calendarAware
+      ? {
+          ...taskArgs,
+          p_expected_event_snapshot: parsed.data.expectedEventSnapshot ?? [],
+          p_event_resolutions: parsed.data.eventResolutions ?? [],
+        }
+      : taskArgs,
   );
   if (error) rpcError(error.code);
   if (data?.kind !== "created" && data?.kind !== "replayed")
@@ -317,6 +369,19 @@ export async function confirmLifecycle(
       items
         .map(({ taskId, action }) => [taskId.toLowerCase(), action] as const)
         .sort(([leftId], [rightId]) => leftId.localeCompare(rightId));
+    const sortEvents = (
+      items: import("../domain/calendar").CalendarResolution[],
+    ) =>
+      items
+        .map(({ eventId, action }) => [eventId.toLowerCase(), action] as const)
+        .sort(([a], [b]) => a.localeCompare(b));
+    if (
+      JSON.stringify(entry.expected_event_snapshot ?? []) !==
+        JSON.stringify(parsed.data.expectedEventSnapshot ?? []) ||
+      JSON.stringify(sortEvents(entry.event_resolutions ?? [])) !==
+        JSON.stringify(sortEvents(parsed.data.eventResolutions ?? []))
+    )
+      return unavailable();
     if (
       JSON.stringify(entry.expected_task_snapshot ?? []) !==
         JSON.stringify(parsed.data.expectedTaskSnapshot ?? []) ||
@@ -328,7 +393,7 @@ export async function confirmLifecycle(
   return { kind: data.kind, entry, revision };
 }
 const entryColumns =
-  "id,request_id,case_id,kind,cycle,occurred_on,recorded_at,outcome,offer_confirmed,previous_status,previous_stage,resulting_status,resulting_stage,revision,original,expected_case_revision,expected_task_snapshot,task_resolutions";
+  "id,request_id,case_id,kind,cycle,occurred_on,recorded_at,outcome,offer_confirmed,previous_status,previous_stage,resulting_status,resulting_stage,revision,original,expected_case_revision,expected_task_snapshot,task_resolutions,expected_event_snapshot,event_resolutions";
 const revisionColumns =
   "id,request_id,case_id,closure_id,revision,recorded_at,before:before_values,after:after_values,expected_case_revision,expected_closure_revision";
 function pageRange(caseId: string, page: number) {
@@ -368,7 +433,7 @@ export async function listRecruitmentTimeline(
   const offset = pageRange(caseId, page);
   const { data, error } = await client
     .from("recruitment_case_timeline")
-    .select("type,payload")
+    .select("type,payload,recorded_at")
     .eq("case_id", caseId)
     .order("occurred_on", { ascending: false, nullsFirst: false })
     .order("recorded_at", { ascending: false })
@@ -380,6 +445,16 @@ export async function listRecruitmentTimeline(
       const fact = readEvent(row.payload);
       if (fact.case_id !== caseId) return unavailable();
       return { type: "fact", fact };
+    }
+    if (row.type === "calendar") {
+      const event = readCalendarEvent(row.payload);
+      if (
+        event.case_id !== caseId ||
+        event.status !== "occurred" ||
+        !instant(row.recorded_at)
+      )
+        return unavailable();
+      return { type: "calendar", event, recordedAt: row.recorded_at };
     }
     if (row.type === "lifecycle") {
       const entry = readLifecycleEntry(row.payload);
@@ -426,12 +501,18 @@ export async function getLifecycleByRequestId(
   const { data: l, error: le } = await client
     .from("recruitment_case_lifecycle")
     .select(
-      "id,request_id,case_id,kind,cycle,occurred_on,recorded_at,outcome,offer_confirmed,previous_status,previous_stage,resulting_status,resulting_stage,expected_case_revision,expected_task_snapshot,task_resolutions",
+      "id,request_id,case_id,kind,cycle,occurred_on,recorded_at,outcome,offer_confirmed,previous_status,previous_stage,resulting_status,resulting_stage,expected_case_revision,expected_task_snapshot,task_resolutions,expected_event_snapshot,event_resolutions",
     )
     .eq("case_id", caseId)
     .eq("request_id", requestId)
     .maybeSingle();
-  if (le) return unavailable();
+  if (
+    le ||
+    (l &&
+      (!Array.isArray(l.expected_event_snapshot) ||
+        !Array.isArray(l.event_resolutions)))
+  )
+    return unavailable();
   const { data: r, error: re } = await client
     .from("recruitment_closure_revision")
     .select(revisionColumns)

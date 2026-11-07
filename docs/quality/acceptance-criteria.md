@@ -1,5 +1,20 @@
 # Kanoniczne kryteria akceptacji (AC)
 
+## Calendar Core — kryteria decyzji DEC-062 (1A–9A)
+
+| ID | Kryterium | FR |
+|---|---|---|
+| AC-HE-006-01 | Właściciel tworzy i edytuje wydarzenie ogólne lub przy jednej własnej sprawie, także zakończonej; jawne zmiany relacji zachowują audyt i nie wznawiają sprawy. Tytuł po trim ma 1–160 znaków, opcjonalny opis do 2000. | FR-HE-006 |
+| AC-HE-007-05 | Jawna całodniowość, nieznana godzina i znana godzina pozostają rozróżnione; opcjonalny koniec nie poprzedza początku. Przy zmianie strefy dla czasu znanego użytkownik wybiera zachowanie lokalnego czasu albo momentu; dzień bez godziny i całodniowy zachowują datę. | FR-HE-007 |
+| AC-HE-007-06 | Nieistniejąca godzina DST odrzucona z wyjaśnieniem; niejednoznaczna wymaga wyboru wystąpienia. Poprzednia precyzja i strefa terminu są odtwarzalne. | FR-HE-007 |
+| AC-HE-008-02 | Potwierdzenie odbytego lub zapis rozmowy po fakcie dopuszcza rzeczywisty dzień i opcjonalną godzinę albo jawny nieznany czas; przyszły fakt odrzucony, czas zapisu oddzielny, plan nie jest automatycznie faktem. | FR-HE-008/010 |
+| AC-HE-009-01 | Po rozliczeniu użytkownik może świadomie skorygować wynik, czas i dane z podglądem before/after; oryginał i audyt pozostają bez nowego zdarzenia lub zmiany statusu sprawy. | FR-HE-009 |
+| AC-HE-012-02 | Dla znanej godziny propozycja po końcu, jeśli podany, albo po godzinie; przy nieznanej godzinie lub całodniowym dopiero po ostatnim dniu w strefie wydarzenia. Bez mutacji stanu. | FR-HE-012 |
+| AC-HE-013-01 | Planowani uczestnicy dodawani/usuwani jawnie; faktyczny udział, brak udziału lub nieznany i późniejsze korekty jawne i audytowane. Historia kontaktu zawiera wyłącznie potwierdzony udział tego samego wydarzenia. | FR-HE-013 |
+| AC-DB-003-01 | Dashboard pokazuje osobno przyszłe nierozliczone i wymagające rozliczenia wydarzenia, również ogólne i przy zamkniętej sprawie; propozycja dostępna także w Kalendarzu i kontekście sprawy bez mutacji. | FR-DB-003/HE-012 |
+
+Kryteria są planem weryfikacji; ich zapis nie dowodzi wykonania testów.
+
 **Stan:** `BASELINED`; `AC-*` formalizują warunki weryfikacji powiązanych `FR-*`. Kryteria dotyczące `FR PROPOSED` są warunkowe, a szczegóły zależne od `OPEN-*` nie są kompletnymi kontraktami implementacyjnymi.
 
 **Struktura:** zachowujemy główne AC i dodatkowe kryteria z sufiksem `-01`, `-02` itd. Wszystkie kryteria danego FR są umieszczone razem w sekcji jego modułu. Pełną listę powiązań zawiera [traceability](traceability.md). Bazowy katalog był `PLANNED / NOT EXECUTED`; późniejsze wykonania są raportowane oddzielnie dla dokładnego zakresu i kandydata, bez nadania całemu katalogowi PASS.
@@ -33,9 +48,12 @@
 | **AC-LC-016-02** | Po wskazaniu zatwierdzonego wyniku zakończenie nadal wymaga rozstrzygnięcia otwartych zadań/wydarzeń; bez tego nie zostaje finalizowane (OPEN-029). | FR-LC-016 |
 | **AC-LC-017** | Mając zamkniętą sprawę, gdy użytkownik ją później wznawia i ponownie kończy, poprzednie zakończenie nadal pozostaje możliwe do odtworzenia. | FR-LC-017 |
 | **AC-LC-017-01** | Ponowne zamknięcie po wznowieniu nie nadpisuje poprzedniego wyniku. | FR-LC-017 |
+| **AC-LC-017-04** | Wznowienie sprawy nie zmienia bieżących statusów ani powiązań wydarzeń, nie reaktywuje anulowanych ani nie przyłącza odłączonych, nie odtwarza stanu z close i nie nadpisuje późniejszych świadomych zmian; wcześniejsze zakończenia i pełny audyt pozostają. | FR-LC-017 |
 | **AC-LC-018** | Mając otwarte zadanie lub wydarzenie, gdy użytkownik rozpoczyna zamknięcie, system wymaga świadomego rozstrzygnięcia każdego otwartego elementu przed zakończeniem operacji. | FR-LC-018 |
 | **AC-LC-018-01** | Nierozstrzygnięte otwarte zadanie/wydarzenie blokuje ciche zamknięcie; szczegóły opcji OPEN-029. | FR-LC-018 |
-| **AC-LC-018-02** | Dla każdego otwartego elementu użytkownik wybiera anuluj, zachowaj albo odłącz; nie przesądzamy efektu technicznego OPEN-029. | FR-LC-018 |
+| **AC-LC-018-02** | Dla każdego otwartego elementu użytkownik wybiera anuluj, zachowaj albo odłącz; skutki dla Task i częściowo dla CalendarEvent określają DEC-060/062, pozostałe szczegóły OPEN-029. | FR-LC-018 |
+| **AC-LC-018-04** | W zbiorze wymagającym rozstrzygnięcia są powiązane zaplanowane i nierozliczone wydarzenia także po terminie oraz przełożeniu; poza nim są rozliczone jako odbyte, nieodbyte lub anulowane i rozmowy zapisane od razu jako odbyte. Upływ czasu sam nie zmienia stanu. | FR-LC-018 |
+| **AC-LC-018-05** | Każda z trzech akcji close zachowuje jawne powiązania uczestników z tym samym wydarzeniem i ich charakter, nie zmienia niezależnych relacji kontakt–sprawa, nie stwierdza obecności ani jej braku i nie wysyła komunikacji ani nie tworzy fikcyjnych faktów. Przy odłączeniu wcześniejsza relacja wydarzenie–sprawa pozostaje w audycie. | FR-LC-018 |
 | **AC-LC-019** | Mając Zakończone i historię zakończenia, gdy użytkownik wznawia sprawę, istniejący wynik pozostaje w historii, a sprawę można kontynuować. | FR-LC-019 |
 | **AC-LC-019-01** | Wznowienie pozostawia poprzednie zakończenia i pozwala na następny cykl. | FR-LC-019 |
 | **AC-LC-019-02** | Powtórne zamknięcie po wznowieniu tworzy nowy historyczny wynik bez zmiany starego. | FR-LC-019 |
@@ -156,6 +174,8 @@
 | **AC-HE-007** | Mając wydarzenie z terminem, gdy użytkownik je przekłada, można wskazać nowy termin bez oznaczenia starego terminu jako odbytego. | FR-HE-007 |
 | **AC-HE-007-01** | Przełożenie zachowuje dawny termin tego samego wydarzenia bez statusu Przełożone; enum OPEN-021. | FR-HE-007 |
 | **AC-HE-007-02** | Wcześniejszy termin po przełożeniu jest możliwy do odtworzenia, bez fikcyjnego odnotowania odbycia w starym terminie. | FR-HE-007 |
+| **AC-HE-007-03** | Planowany termin wymaga dnia; godzina może pozostać nieznana, bez podstawiania `00:00` ani utożsamiania braku godziny z całodniowością. Przy przełożeniu zachowana jest faktyczna precyzja wcześniejszego terminu. | FR-HE-007 |
+| **AC-HE-007-04** | Każde wydarzenie ma jawną strefę IANA także przy nieznanej godzinie; interpretacja terminu po przełożeniu nie zależy od aktualnej strefy urządzenia, a sama strefa nie uzupełnia godziny. | FR-HE-007 |
 | **AC-HE-008** | Mając wydarzenie nierozliczone, gdy użytkownik świadomie potwierdza jego odbycie, dopiero wtedy jest rozpoznane jako odbyte. | FR-HE-008 |
 | **AC-HE-008-01** | Odbycie wymaga świadomego potwierdzenia; sama zmiana terminu nie wystarcza. | FR-HE-008 |
 | **AC-HE-009** | Mając wydarzenie zaplanowane, użytkownik może rozliczyć je jako anulowane albo nieodbyte, bez fikcyjnego wpisu „odbyto”. | FR-HE-009 |

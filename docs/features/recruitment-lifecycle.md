@@ -1,5 +1,7 @@
 # Feature: Recruitment Lifecycle & Stages
 
+**Calendar Core, DEC-062:** P1 zatwierdzono w ustalonym zakresie: trzy skutki dla otwartych wydarzeń, definicja otwartości, zachowanie powiązań uczestników, atomowe close z Task i brak zmian wydarzeń przez samo wznowienie. Pozostałe reguły uczestnictwa i inne kwestie pozostają OPEN; implementacja Calendar i pełny TC-012 nie są wykonane. [Analiza](../technical/calendar-core-analysis.md).
+
 ## Tasks Core — integracja BR-011, DEC-060 (2026-11-01)
 
 Zamknięcie rozszerza się o rzeczywiste otwarte Task: jawne anuluj/zachowaj/odłącz każdego elementu, atomowo z close, audytem i kontrolą wersji/zbioru. Anuluj utrzymuje relację i zmienia Task na Anulowane; zachowaj utrzymuje otwarte z relacją; odłącz pozostawia otwarte ogólne z audytem dawnej relacji. Task przy zamkniętej sprawie nie wznawia jej; wznowienie sprawy nie reaktywuje zadań. [Kontrakt i plan](../technical/tasks-core-analysis.md). Guard przyszłych CalendarEvent zachowany; pełny TC-012 nadal poza task-only przyrostem. Historyczny zakres 3C bez Tasks poniżej nie stanowi uchylenia tej integracji.

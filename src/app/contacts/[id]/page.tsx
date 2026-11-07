@@ -1,3 +1,4 @@
+import { CalendarPanel } from "@/components/calendar/calendar-panel";
 import { notFound, redirect } from "next/navigation";
 import { Workspace } from "@/components/recruitment/workspace";
 import { CatalogProfileScreen } from "@/components/companies-contacts/catalog";
@@ -21,6 +22,9 @@ export default async function ContactPage({
         id={id}
         type="contact"
       />
+      <div className="mt-5">
+        <CalendarPanel userId={user.id} contactId={id} />
+      </div>
     </Workspace>
   );
 }

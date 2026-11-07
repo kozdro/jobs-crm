@@ -1,3 +1,4 @@
+import { CalendarPanel } from "@/components/calendar/calendar-panel";
 import Link from "next/link";
 import { TasksPanel } from "@/components/tasks/tasks-panel";
 import { redirect } from "next/navigation";
@@ -17,6 +18,9 @@ export default async function DashboardPage() {
     >
       <div className="mb-8">
         <TasksPanel key={user.id} userId={user.id} compact />
+      </div>
+      <div className="mb-8">
+        <CalendarPanel userId={user.id} compact />
       </div>
       <section className="ui-panel max-w-4xl p-6 sm:p-9">
         <Bookmark

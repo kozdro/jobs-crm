@@ -1,5 +1,7 @@
 "use client";
 
+import { formatOffset } from "@/components/calendar/time";
+
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { uuidPattern } from "@/modules/recruitment/domain/recruitment-case";
@@ -42,7 +44,11 @@ type HistoryResult =
   | { events: CaseEvent[]; page: number; hasMore: boolean }
   | { entries: TimelineItem[]; page: number; hasMore: boolean };
 function timelineDay(item: TimelineItem) {
-  return item.type === "fact" ? item.fact.occurred_on : item.entry.occurred_on;
+  return item.type === "fact"
+    ? item.fact.occurred_on
+    : item.type === "calendar"
+      ? (item.event.actual?.date ?? null)
+      : item.entry.occurred_on;
 }
 type EditControls = { active: Editing; select: (event: Editing) => void };
 function HistoryEntry({
@@ -196,6 +202,61 @@ function HistoryEntries({
             active={active}
             select={select}
           />
+        ) : item.type === "calendar" ? (
+          <li key={`${userId}:${item.event.id}`} className="py-4 first:pt-0">
+            <p className="text-sm font-semibold">
+              Odbyte wydarzenie: {item.event.title}
+            </p>
+            {!item.event.schedule && (
+              <p className="mt-1 text-sm text-muted-foreground">
+                Strefa wydarzenia: {item.event.timeZone}
+              </p>
+            )}
+            {item.event.actual && (
+              <p className="mt-1 text-sm text-muted-foreground">
+                Data zdarzenia:{" "}
+                <time dateTime={item.event.actual.date}>
+                  {formatEventDay(item.event.actual.date)}
+                </time>
+                {item.event.actual.time
+                  ? `, ${item.event.actual.time}${item.event.actual.offset === null ? "" : ` ${formatOffset(item.event.actual.offset)}`}`
+                  : " · godzina nieznana"}{" "}
+                ({item.event.actual.timeZone})
+              </p>
+            )}
+            {item.event.actual &&
+              item.event.actual.date <
+                new Intl.DateTimeFormat("en-CA", {
+                  timeZone: item.event.actual.timeZone,
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                }).format(new Date(item.recordedAt)) && (
+                <p className="mt-1 text-[13px] text-muted-foreground">
+                  Dodano po dacie zdarzenia.
+                </p>
+              )}
+            {item.event.description && (
+              <p className="mt-1 whitespace-pre-wrap text-sm">
+                {item.event.description}
+              </p>
+            )}
+            <details className="mt-1">
+              <summary className="ui-link min-h-11 cursor-pointer py-3 text-[13px]">
+                Szczegóły rejestracji
+              </summary>
+              <p className="text-[13px] text-muted-foreground">
+                Odbycie zapisano w CRM:{" "}
+                <CaseCreatedTime value={item.recordedAt} />
+              </p>
+            </details>
+            <a
+              href="#case-calendar"
+              className="ui-link inline-flex min-h-11 items-center text-sm"
+            >
+              Otwórz wydarzenia sprawy
+            </a>
+          </li>
         ) : (
           <LifecycleHistoryEntry
             key={`${userId}:${item.entry.id}`}

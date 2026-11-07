@@ -1,5 +1,26 @@
 # Requirements Traceability — FR → AC → UC/TC
 
+## Calendar Core — DEC-062, 1A–9A APPROVED
+
+**Aktualizacja wykonania:** PO zatwierdził pełny kontrakt DEC-062, w tym granicę minionego dnia bez godziny oraz reguły czasu i uczestnictwa w podzakresie Calendar. W izolowanym przebiegu dla `eba19a8228e03e1976b02d5500ea5c8d77587adc` migracje 16/16, integracja 170/170 i browser HTTPS Chromium 181/181 zakończyły się PASS. Szczegółowa macierz zakresu, środowiska, review i ograniczeń znajduje się w [Calendar Core — task packet](../technical/calendar-core-delivery.md). Wyniki tego kandydata nie są automatycznie wynikami późniejszego commitu dokumentacji; **hosted CI dla końcowego SHA pozostaje PENDING** do sprawdzenia na Git/PR. Pełny TC-028 obejmuje także niezależną notatkę inline i pozostaje tylko częściowo pokryty dowodami Calendar.
+
+Poniższa tabela zachowuje **historyczny stan planu sprzed wykonania**: wpisy NOT RUN opisują tamtą migawkę, a nie wynik `eba19a8`. Dla aktualnych dowodów i ich granic używaj task packetu.
+
+| Wymagania / kryteria | Plan dowodów | Status |
+|---|---|---|
+| HE-006/007, AC-HE-006-01/007-03–06 | TC-010; pola, relacje i audyt, DST, strefy, precyzja oraz poprzedni termin | NOT RUN |
+| HE-001–003/005/008–012, AC-HE-008-02/009-01/012-02 | TC-011/022/028; faktyczny czas, korekty, brak automatycznego odbycia, granice i propozycja | NOT RUN |
+| HE-013, CC-009/010, AC-HE-013-01, AC-CC-009/010 | TC-019; wielu uczestników, udział potwierdzony/nieznany/brak, korekty, chronologia rzeczywistych dat, jeden fakt w historii kontaktu i sprawy | NOT RUN |
+| DB-003, AC-DB-003-01 | Dashboard/Kalendarz/sprawa, kontekst i stany | NOT RUN |
+| LC-017/018, TN-011 | TC-012/013; mieszany close Task/Event, wszystkie wybory, atomowość, konflikt, replay, wznowienie | NOT RUN |
+| Prywatność i dostęp | A/B/anon, listy, ID, relacje, audyt, Data API/RPC, RLS | NOT RUN |
+
+Starsze adnotacje o brakujących decyzjach Calendar i niewykonanych testach w tym dokumencie są historyczne. TC-028 obejmuje także niezależną notatkę inline, której pokrycia nie wolno zakładać.
+
+**Stan historyczny przed 1A–9A i wykonaniem:** [DEC-062](../decisions/product-decisions.md) zatwierdzał P1 w ustalonym zakresie dla FR-LC-017/018 i FR-TN-011, w tym AC-LC-017-04 i AC-LC-018-04/05; pełne TC-012/013 były **NOT RUN**, a pozostałe reguły uczestnictwa i inne kwestie OPEN. Późniejsza decyzja i dowody opisane są powyżej. [Analiza i plan](../technical/calendar-core-analysis.md).
+
+**Stan historyczny przed 1A–9A:** P2 obejmowało częściowo zatwierdzoną precyzję planowanego terminu i jawną strefę IANA wydarzenia, w tym AC-HE-007-03/04; scenariusze Calendar były **NOT RUN**, a granica minionego terminu bez godziny oraz pozostałe reguły stref pozostawały OPEN. Późniejsze zatwierdzenie DEC-062 obejmuje te wskazane kwestie w zakresie Calendar; pozostałe części OPEN nie zostały zamknięte.
+
 ## Tasks Core — DEC-060, 2026-11-01
 
 | FR / AC | Plan / zakres | Stan wykonania |
@@ -12,7 +33,7 @@
 
 [Kontrakt i plan](../technical/tasks-core-analysis.md). Historyczne wpisy 3C bez Tasks zachowano; DEC-060 rozszerza wyłącznie część Task BR-011, nie integrację Calendar.
 
-**Stan:** `BASELINED` (powiązania planistyczne). Macierz służy do szybkiego doboru kontekstu dla agenta. **Każde AC jest kryterium na papierze, a TC oznacza jedynie plan testu, nie potwierdzony wynik.**
+**Stan:** `BASELINED` (powiązania planistyczne). Macierz służy do szybkiego doboru kontekstu dla agenta. Sam identyfikator AC lub TC nie potwierdza jego wykonania; wyniki poszczególnych kandydatów są raportowane osobno, m.in. w powiązanym wyżej task packecie Calendar.
 
 - **FR/AC** — zatwierdzone zachowanie i jego weryfikacja.
 - **UC/TC** — reprezentatywne scenariusze i odpowiadające im planowane testy.
