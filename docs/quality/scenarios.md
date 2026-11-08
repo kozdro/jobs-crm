@@ -1,5 +1,7 @@
 # Scenariusze użytkowe i plan testów E2E — UC/TC
 
+**DEC-063 — rozszerzenia UC/TC-023/037:** patrz [macierz kontraktu](../technical/reminders-follow-up-contract.md). Obejmuje daty/strefy i DST, wyłączenie/potwierdzenie/reload, wygaszenie i ponowne świadome ustawienie, korekty/void i nowszy kontakt, close/reopen, trwałe odrzucenie podstawy, historyczny/niepewny import, brak automatycznych zapisów oraz izolację właścicieli. Plan nie jest dowodem wykonania; e-mail UC-023 pozostaje osobno.
+
 **Calendar Core DEC-062, 1A–9A — plan NOT RUN:** TC-010/011/012/013/019/022 i zależna część TC-028 wymagają pokrycia zatwierdzonego [kontraktu](../decisions/product-decisions.md): różne precyzje i strefy, granice DST/dnia, rzeczywisty czas/unknown, korekty i audyt, potwierdzony/brak/nieznany udział, ogólne i zamknięta sprawa, propozycje na trzech powierzchniach oraz mieszany atomowy close Task/Event. Sprawdź owner A/B/anon i bezpośrednie RPC/Data API, konflikt zbioru, rollback i replay. TC-028 obejmuje osobną notatkę inline; jej wykonania nie domniemywać. Historyczne wskazania tych podzakresów jako OPEN opisują stan przed zatwierdzeniem.
 
 **Status:** `BASELINED`. Scenariusze odzwierciedlają zatwierdzone zachowania z discovery; konkretne dane testowe, komunikaty i wartości `OPEN-*` wymagają decyzji. **`TC-*` oznacza zaplanowany przypadek testowy, nie uruchomiony test.**

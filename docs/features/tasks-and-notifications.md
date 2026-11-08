@@ -1,5 +1,7 @@
 # Feature: Tasks & Notifications
 
+**DEC-063, APPROVED:** [kontrakt Reminders & Follow-up](../technical/reminders-follow-up-contract.md) rozszerza historyczny zakres Tasks Core o świadome przypomnienia in-app i jedną konfigurowalną sugestię follow-up. Zadanie i jego termin nie włączają przypomnienia automatycznie. Sugestia nie jest zadaniem ani faktem komunikacji; brak odpowiedzi w CRM nie dowodzi rzeczywistego braku odpowiedzi. E-mail pozostaje celem MVP, osobnym przyszłym przyrostem; push nie jest w pierwszym wydaniu.
+
 ## Tasks Core — DEC-060, 2026-11-01
 
 **APPROVED 1A/2A/3A/4A**, pełne wykonanie i osobny PR autoryzowane, bez merge/deploymentu. [Dokładny kontrakt i plan](../technical/tasks-core-analysis.md). Tytuł 1–160 po trim, opis opcjonalny do 2000, termin opcjonalny dzień także przyszły. Statusy Do zrobienia (początkowy), Wykonane, Anulowane; przywrócenie jawne. Ogólne lub własna sprawa, także zakończona, bez jej wznowienia. Moduł Zadania, kontekst sprawy i neutralny podgląd otwartych na Dashboardzie, bez reguł pilności.

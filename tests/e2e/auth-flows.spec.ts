@@ -683,9 +683,18 @@ test("AUTH-05/07 FQA-27/29 delayed actual browser refresh then network loss thro
   let mode: "delay" | "network" | "reject" = "delay";
   let delayed = 0,
     networkFailures = 0,
-    rejected = 0;
+    rejected = 0,
+    blockedReminderReads = 0;
   const refreshUrl = /\/auth\/v1\/token\?grant_type=refresh_token(?:&|$)/;
+  const reminderUrl = /\/reminders\/commands(?:\?|$)/;
   try {
+    // The browser Auth outage alone cannot block a server-side refresh performed
+    // by a reminder read. Model both unavailable browser paths for this case.
+    await context.route(reminderUrl, async (route) => {
+      if (route.request().method() !== "GET") return route.continue();
+      blockedReminderReads++;
+      await route.abort("connectionrefused");
+    });
     await context.route(refreshUrl, async (route) => {
       if (mode === "delay") {
         delayed++;
@@ -710,6 +719,7 @@ test("AUTH-05/07 FQA-27/29 delayed actual browser refresh then network loss thro
     const page = await context.newPage();
     const unrelated = await independent.newPage();
     await Promise.all([login(page, user), login(unrelated, other)]);
+    await expect.poll(() => blockedReminderReads).toBeGreaterThan(0);
     const refreshed = page.waitForResponse(
       (response) =>
         refreshUrl.test(response.url()) && response.status() === 200,
@@ -746,6 +756,7 @@ test("AUTH-05/07 FQA-27/29 delayed actual browser refresh then network loss thro
     ).toBe(401);
     await identity(independent, target.appOrigin, other);
     await context.unroute(refreshUrl);
+    await context.unroute(reminderUrl);
     await login(page, user);
     await identity(context, target.appOrigin, user);
     console.info(
@@ -760,6 +771,115 @@ test("AUTH-05/07 FQA-27/29 delayed actual browser refresh then network loss thro
           unrelatedBPreserved: true,
         }),
     );
+  } finally {
+    await context.close();
+    await independent.close();
+  }
+});
+
+test("AUTH-05/07 server reminder read can refresh A while browser refresh fails, preserving isolation", async ({
+  browser,
+}) => {
+  test.setTimeout(210000);
+  const context = await browser.newContext({ ignoreHTTPSErrors: true });
+  const independent = await browser.newContext({ ignoreHTTPSErrors: true });
+  const user = await account(target);
+  const other = await account(target);
+  const refreshUrl = /\/auth\/v1\/token\?grant_type=refresh_token(?:&|$)/;
+  const reminderUrl = /\/reminders\/commands(?:\?|$)/;
+  let mode: "delay" | "network" = "delay";
+  let delayed = 0,
+    networkFailures = 0,
+    blockedReads = 0,
+    allowedProbes = 0;
+  try {
+    await context.route(reminderUrl, async (route) => {
+      if (route.request().method() !== "GET") return route.continue();
+      if (route.request().headers()["x-f3-reminder-probe"] === "1") {
+        allowedProbes++;
+        return route.continue();
+      }
+      blockedReads++;
+      await route.abort("connectionrefused");
+    });
+    await context.route(refreshUrl, async (route) => {
+      if (mode === "delay") {
+        delayed++;
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        return route.continue();
+      }
+      networkFailures++;
+      await route.abort("connectionrefused");
+    });
+    const page = await context.newPage();
+    const unrelated = await independent.newPage();
+    await Promise.all([login(page, user), login(unrelated, other)]);
+    await expect.poll(() => blockedReads).toBeGreaterThan(0);
+    const refreshed = page.waitForResponse(
+      (response) =>
+        refreshUrl.test(response.url()) && response.status() === 200,
+      { timeout: 65000 },
+    );
+    await refreshed;
+    expect(delayed).toBeGreaterThan(0);
+    const original = await sdkSessionCookie(context);
+    expect(original.expires_at * 1000).toBeGreaterThan(Date.now());
+    mode = "network";
+    await expect
+      .poll(() => networkFailures, {
+        timeout: 65000,
+        intervals: [250, 500, 1000],
+      })
+      .toBeGreaterThan(0);
+
+    // Only the explicitly marked BFF request may pass; background reads cannot
+    // refresh cookies while we attribute the expiry change to this request.
+    while (Date.now() < original.expires_at * 1000 + 1500) {
+      await new Promise((resolve) =>
+        setTimeout(
+          resolve,
+          Math.min(5000, original.expires_at * 1000 + 1500 - Date.now()),
+        ),
+      );
+    }
+    expect((await sdkSessionCookie(context)).expires_at).toBe(
+      original.expires_at,
+    );
+    expect(Date.now()).toBeGreaterThan(original.expires_at * 1000);
+    const probeResponse = page.waitForResponse(
+      (response) =>
+        reminderUrl.test(response.url()) &&
+        response.request().headers()["x-f3-reminder-probe"] === "1",
+    );
+    await page.evaluate(async (userId) => {
+      await fetch(
+        `/reminders/commands?${new URLSearchParams({ expectedUserId: userId })}`,
+        {
+          cache: "no-store",
+          credentials: "same-origin",
+          headers: { "x-f3-reminder-probe": "1" },
+        },
+      );
+    }, user.id);
+    const probe = await probeResponse;
+    expect(allowedProbes).toBe(1);
+    // The synthetic Auth-only stack has no reminder RPC; the attempted BFF
+    // read still authenticates and must carry any SDK cookie changes safely.
+    expect(probe.status()).toBe(503);
+    expect(
+      (await probe.headersArray()).some(
+        (header) => header.name.toLowerCase() === "set-cookie",
+      ),
+    ).toBe(true);
+    await expect
+      .poll(async () => (await sdkSessionCookie(context)).expires_at)
+      .toBeGreaterThan(original.expires_at);
+    const advanced = await sdkSessionCookie(context);
+    expect(advanced.expires_at * 1000).toBeGreaterThan(Date.now());
+    await identity(context, target.appOrigin, user);
+    await identity(independent, target.appOrigin, other);
+    expect(allowedProbes).toBe(1);
+    expect(networkFailures).toBeGreaterThan(0);
   } finally {
     await context.close();
     await independent.close();

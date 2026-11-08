@@ -75,7 +75,9 @@ export async function recordRecruitmentCaseEvent(
   const { data, error } = await client.rpc(
     stageAction
       ? "record_recruitment_case_stage_event"
-      : "record_recruitment_case_event",
+      : parsed.data.kind === "contact"
+        ? "record_manual_recruitment_contact"
+        : "record_recruitment_case_event",
     stageAction
       ? {
           p_request_id: parsed.data.requestId,
@@ -88,7 +90,9 @@ export async function recordRecruitmentCaseEvent(
       : {
           p_request_id: parsed.data.requestId,
           p_case_id: parsed.data.caseId,
-          p_kind: parsed.data.kind,
+          ...(parsed.data.kind === "contact"
+            ? {}
+            : { p_kind: parsed.data.kind }),
           p_direction: parsed.data.direction,
           p_occurred_on: parsed.data.occurredOn,
         },

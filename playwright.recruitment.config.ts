@@ -5,7 +5,9 @@ export default defineConfig({
   forbidOnly: true,
   retries: 0,
   workers: 1,
-  reporter: process.env.CI ? [["list"], ["github"]] : "list",
+  reporter: process.env.CI
+    ? [["list"], ["github"], ["./scripts/auth/safe-browser-reporter.ts"]]
+    : [["list"], ["./scripts/auth/safe-browser-reporter.ts"]],
   use: {
     ...devices["Desktop Chrome"],
     baseURL: "https://127.0.0.1:3153",

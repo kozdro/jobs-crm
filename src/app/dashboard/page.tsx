@@ -1,3 +1,4 @@
+import { RemindersDashboard } from "@/components/reminders/reminders-dashboard";
 import { CalendarPanel } from "@/components/calendar/calendar-panel";
 import Link from "next/link";
 import { TasksPanel } from "@/components/tasks/tasks-panel";
@@ -16,6 +17,9 @@ export default async function DashboardPage() {
       title="Dashboard"
       description="Twoja przestrzeń do porządkowania rekrutacji."
     >
+      <div className="mb-8">
+        <RemindersDashboard userId={user.id} />
+      </div>
       <div className="mb-8">
         <TasksPanel key={user.id} userId={user.id} compact />
       </div>

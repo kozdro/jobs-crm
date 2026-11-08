@@ -84,13 +84,15 @@ describe("Lifecycle command identity and response boundary", () => {
     const response = await POST(request());
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ kind: "created", event });
-    expect(mocks.rpc).toHaveBeenCalledWith("record_recruitment_case_event", {
-      p_request_id: input.requestId,
-      p_case_id: input.caseId,
-      p_kind: input.kind,
-      p_direction: input.direction,
-      p_occurred_on: input.occurredOn,
-    });
+    expect(mocks.rpc).toHaveBeenCalledWith(
+      "record_manual_recruitment_contact",
+      {
+        p_request_id: input.requestId,
+        p_case_id: input.caseId,
+        p_direction: input.direction,
+        p_occurred_on: input.occurredOn,
+      },
+    );
     expect(mocks.getUser.mock.invocationCallOrder[0]).toBeLessThan(
       mocks.rpc.mock.invocationCallOrder[0],
     );

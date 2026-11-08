@@ -1,5 +1,7 @@
 "use client";
 import Link from "next/link";
+import { useReminders } from "@/components/reminders/hooks";
+import { ReminderControls } from "@/components/reminders/reminder-controls";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Task, TaskAudit } from "@/modules/recruitment/domain/tasks";
@@ -142,15 +144,18 @@ function TaskRow({
   onSaved,
   onReload,
   onActivityChange,
+  reminderRead,
 }: {
   userId: string;
   task: Task;
+  reminderRead: ReturnType<typeof useReminders>;
   onSaved: () => void;
   onReload: () => void;
   onActivityChange: (taskId: string, editing: boolean) => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [audit, setAudit] = useState(false);
+  const [reminderBusy, setReminderBusy] = useState(false);
   const [awaitingRead, setAwaitingRead] = useState<Task | null>(null);
   const refreshing =
     awaitingRead !== null && !taskReadAcknowledges(task, awaitingRead);
@@ -164,7 +169,7 @@ function TaskRow({
   useEffect(() => {
     onActivityChange(
       task.id,
-      editing || mutation.pending || mutation.uncertain,
+      editing || mutation.pending || mutation.uncertain || reminderBusy,
     );
   }, [
     onActivityChange,
@@ -172,9 +177,14 @@ function TaskRow({
     editing,
     mutation.pending,
     mutation.uncertain,
+    reminderBusy,
   ]);
   const disabled =
-    refreshing || mutation.pending || mutation.uncertain || mutation.stale;
+    refreshing ||
+    mutation.pending ||
+    mutation.uncertain ||
+    mutation.stale ||
+    reminderBusy;
   const statusChange = (status: Task["status"]) => {
     if (disabled) return;
     onActivityChange(task.id, true);
@@ -314,6 +324,12 @@ function TaskRow({
           />
         </section>
       )}
+      <ReminderControls
+        userId={userId}
+        task={task}
+        onActivityChange={setReminderBusy}
+        read={reminderRead}
+      />
       {audit && (
         <TaskAuditPanel
           key={`${task.id}:${task.revision}`}
@@ -336,6 +352,7 @@ export function TasksPanel({
   compact?: boolean;
 }) {
   const router = useRouter();
+  const reminderRead = useReminders(userId);
   const [page, setPage] = useState(1);
   const [adding, setAdding] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -466,6 +483,7 @@ export function TasksPanel({
                   key={`${userId}:${task.id}:${task.revision}`}
                   userId={userId}
                   task={task}
+                  reminderRead={reminderRead}
                   onSaved={completeRow}
                   onReload={reload}
                   onActivityChange={updateActivity}

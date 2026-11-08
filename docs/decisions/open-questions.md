@@ -1,5 +1,11 @@
 # Kwestie otwarte i bramki decyzyjne (OPEN)
 
+## Reminders & Follow-up — częściowe rozstrzygnięcie DEC-063, 2026-11-07
+
+**Doprecyzowanie RAM DEC-063:** PO dopuścił wyłącznie szkic i zamrożone żądanie tego slice'a w owner-scoped RAM między ekranami; usunięcie po reloadzie/zamknięciu, brak ujawnienia po zmianie konta/logout, bez browser storage/cookies/logów i innych magazynów. To nie zmienia ogólnej polityki DEC-061/062 ani pozostałych otwartych polityk danych.
+
+[DEC-063](product-decisions.md) rozstrzyga OPEN-008 dla jednej jawnie konfigurowanej reguły follow-up i wykluczenia niepewnego/importowego pochodzenia, OPEN-009 dla świadomej konfiguracji in-app i OPEN-040 dla wskazanego cyklu przypomnienia. Strefa IANA i data/godzina przypomnienia są zatwierdzone wyłącznie w tym zakresie. Pozostałe sygnały/reguły, polityki kanału e-mail/zgód i inne aspekty tych OPEN pozostają otwarte. Wcześniejsze opisy braku rozstrzygnięcia dla tego zakresu są historyczne. Opcjonalny e-mail pozostaje celem MVP, a nie wykonanym wymaganiem.
+
 **Calendar Core — szkic w pamięci, DEC-062:** PO zatwierdził wyłącznie zachowanie niezapisanego szkicu Calendar w RAM działającej aplikacji pomiędzy ekranami; bez `sessionStorage`, `localStorage` i zapisu na serwerze, z utratą po pełnym odświeżeniu lub zamknięciu karty. To częściowe doprecyzowanie nie rozstrzyga pozostałych polityk danych, retencji i usuwania, w tym OPEN-032, ani nie rozszerza zgody na inne prywatne payloady. Ograniczenie DEC-061 dotyczące dodatkowego przechowywania pozostaje w mocy poza tą wskazaną pamięcią RAM.
 
 ## Calendar Core — zatwierdzenie 1A–9A, 2026-11-05

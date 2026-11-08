@@ -1,5 +1,7 @@
 # Kanoniczne kryteria akceptacji (AC)
 
+**DEC-063 — kryteria podzakresu:** AC-TN-004: wyłączone domyślnie, świadomy osobny termin/strefa, widoczność po nastaniu w aplikacji/powrocie, trwałe potwierdzenie/wyłączenie i idempotencja; wykonanie/anulowanie wygasza, przywrócenie oraz zmiana terminu lub relacji wymagają ponownego świadomego potwierdzenia. AC-TN-007–010/DB-004: tylko otwarta sprawa i ważny datowany kontakt wychodzący wiarygodnego pochodzenia po jawnie ustawionym odstępie w strefie; aktualizacja po nowszym kontakcie, korekcie/void, close i trwałym odrzuceniu tej samej podstawy nawet po reopen; sugestia odrębna, bez inferencji braku odpowiedzi lub automatycznych faktów. AC-IM-013: historyczny import nie powoduje zaległych sugestii, niepewne pochodzenie jest wykluczone. Szczegóły testów [kontraktu](../technical/reminders-follow-up-contract.md); AC-TN-005 e-mail pozostaje osobnym zakresem.
+
 ## Calendar Core — kryteria decyzji DEC-062 (1A–9A)
 
 | ID | Kryterium | FR |
