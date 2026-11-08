@@ -10,6 +10,7 @@
 | DEC-054/056/060/062 APPROVED | Rzeczywisty datowany outbound i korekty/void są faktami lifecycle; zadania, close/reopen i Calendar zachowują swoje reguły. Testy zmian podstawy i mixed close. |
 | UX Blueprint oraz UX-001/010, F09 | Odrębna sugestia, przejście do kontekstu lub świadomego formularza; stany puste, błędy i dostępność; bez domniemanego alarmu od samego terminu. Browser/keyboard QA. |
 | Technical Discovery, ADR-0005 i przyjęta architektura Auth/RLS | Transakcje i idempotencja odpowiednich komend, izolacja właściciela na każdym końcu, bez service role w ścieżce użytkownika. Retry/rollback, A/B/anon, direct Data API/RPC. |
+| ADR-0012 ACCEPTED, FQA-27/29 | Autonomiczny odczyt BFF może odnawiać sesję po stronie serwera. Testy rozdzielają awarię browser→Auth i browser→reminder BFF od dostępnego BFF z zaufaną tożsamością A/B; pełna awaria server→Auth bez fault injection pozostaje NOT RUN. |
 | OPEN-008/009/040 PARTIALLY RESOLVED | Wyłącznie wyraźnie opisany zakres DEC-063; pozostałe reguły oraz e-mail i zgody nadal wymagają właściwych decyzji. |
 
 ## Kontrakt zachowania
