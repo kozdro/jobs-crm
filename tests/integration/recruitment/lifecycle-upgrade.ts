@@ -54,7 +54,7 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
     };
     assert.equal(
       journal.entries.length,
-      16,
+      19,
       "Upgrade test must cover the exact current migration history",
     );
     assert.equal(
@@ -63,7 +63,7 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
       "The exact current migration history includes DEC-061 atomic capture",
     );
     assert.equal(
-      journal.entries.at(-1)?.tag,
+      journal.entries[15]?.tag,
       "0015_calendar_core",
       "Upgrade test must apply the exact Calendar Core migration",
     );
@@ -709,6 +709,60 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
       );
       assert.equal(participant.contact_id, contactId);
       assert.equal(participant.attendance, "unknown");
+    });
+    const legacyContactCase = randomUUID();
+    const legacyContactRequest = randomUUID();
+    await upgrade`insert into public.recruitment_case(id,owner_id,request_id,title) values(${legacyContactCase}::uuid,${owner}::uuid,${randomUUID()}::uuid,'Legacy unverified contact')`;
+    await upgrade.begin(async (tx) => {
+      await tx.unsafe("set local role authenticated");
+      await tx.unsafe("select set_config('request.jwt.claim.sub',$1,true)", [
+        owner,
+      ]);
+      await tx.unsafe(
+        "select public.record_recruitment_case_event($1::uuid,$2::uuid,'contact','outbound','2000-01-01'::date)",
+        [legacyContactRequest, legacyContactCase],
+      );
+    });
+    const legacyFacts =
+      await upgrade`select * from public.recruitment_case_event where case_id=${legacyContactCase}::uuid`;
+    for (const entry of journal.entries.slice(16)) await apply(entry.tag);
+    assert.deepEqual(
+      await upgrade`select * from public.recruitment_case_event where case_id=${legacyContactCase}::uuid`,
+      legacyFacts,
+      "Upgrade never rewrites legacy facts",
+    );
+    assert.equal(
+      (
+        await upgrade`select * from public.recruitment_manual_contact where case_id=${legacyContactCase}::uuid`
+      ).length,
+      0,
+      "Upgrade never invents verified provenance",
+    );
+    await upgrade.begin(async (tx) => {
+      await tx.unsafe("set local role authenticated");
+      await tx.unsafe("select set_config('request.jwt.claim.sub',$1,true)", [
+        owner,
+      ]);
+      await tx.unsafe(
+        "select public.execute_recruitment_reminder_command($1::uuid,$2::jsonb)",
+        [
+          randomUUID(),
+          tx.json({
+            operation: "set-rule",
+            intervalDays: 3,
+            timeZone: "Europe/Warsaw",
+          }),
+        ],
+      );
+      const [snapshot] = await tx.unsafe(
+        "select public.read_recruitment_reminders() result",
+      );
+      assert.equal(
+        snapshot.result.suggestions.some(
+          (s: { caseId: string }) => s.caseId === legacyContactCase,
+        ),
+        false,
+      );
     });
   } finally {
     if (upgrade) await upgrade.end();

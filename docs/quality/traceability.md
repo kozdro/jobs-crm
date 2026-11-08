@@ -1,5 +1,20 @@
 # Requirements Traceability — FR → AC → UC/TC
 
+## Reminders & Follow-up — DEC-063
+
+| FR / AC | UC/TC i plan | Stan |
+|---|---|---|
+| TN-004 / AC-TN-004 | UC/TC-037: świadomy datetime/IANA, trwały cykl i granice | PASS w zakresie automatycznym DEC-063; dowody poniżej |
+| TN-007–010, DB-004 / AC-TN-007–010, AC-DB-004 | UC/TC-023: reguła, fakt, korekta, odrzucenie i bez skutków ubocznych | PASS w zakresie automatycznym DEC-063; dowody poniżej |
+| IM-013 / AC-IM-013 | UC/TC-017: historyczny import i niepewne pochodzenie fail-closed | PARTIAL: upgrade i brak zaufanego pochodzenia sprawdzone; rzeczywisty importer jeszcze nie istnieje |
+| TN-005 / AC-TN-005 | Opcjonalny e-mail pozostaje celem MVP, osobny przyrost | NOT RUN / poza przyrostem |
+
+**Dowód lokalny:** izolowany `run-8ca7a739`, Node 24.22.2, 2026-11-08: migracje 19/19, build, integracje 184/184 i HTTPS Chromium 189/189 PASS; test E2E SHA-256 `4bfca2fc2f78caceea578f573ea9337a2e2e1bcb62ab2095ca3b1bbf388cf0f2`. Testy obejmują owner A/B/anon, korekty, mixed close i recovery w zakresie zautomatyzowanych scenariuszy. Wcześniejsze pełne FAIL i diagnostyka są opisane w raporcie PR, nie unieważnione tym wynikiem. Hosted CI dla końcowego SHA wymaga osobnej weryfikacji.
+
+**Recovery DEC-063:** automatycznie sprawdzono przejścia między ekranami, retry, logout/zmianę właściciela, reload i brak prywatnego payloadu w badanych magazynach przeglądarki. Fizyczne zamknięcie karty/urządzenia oraz rzeczywista technologia asystująca: NOT RUN. Brak gwarancji odtworzenia po reloadzie.
+
+[Kontrakt i plan](../technical/reminders-follow-up-contract.md) · [Raport weryfikacji i historia prób](../technical/reminders-follow-up-delivery.md). Starsze wpisy opisują historyczny stan ich slice'ów.
+
 ## Calendar Core — DEC-062, 1A–9A APPROVED
 
 **Aktualizacja wykonania:** PO zatwierdził pełny kontrakt DEC-062, w tym granicę minionego dnia bez godziny oraz reguły czasu i uczestnictwa w podzakresie Calendar. W izolowanym przebiegu dla `eba19a8228e03e1976b02d5500ea5c8d77587adc` migracje 16/16, integracja 170/170 i browser HTTPS Chromium 181/181 zakończyły się PASS. Szczegółowa macierz zakresu, środowiska, review i ograniczeń znajduje się w [Calendar Core — task packet](../technical/calendar-core-delivery.md). Wyniki tego kandydata nie są automatycznie wynikami późniejszego commitu dokumentacji; **hosted CI dla końcowego SHA pozostaje PENDING** do sprawdzenia na Git/PR. Pełny TC-028 obejmuje także niezależną notatkę inline i pozostaje tylko częściowo pokryty dowodami Calendar.

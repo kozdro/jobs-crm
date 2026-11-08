@@ -1,5 +1,7 @@
 # Feature: Dashboard
 
+**DEC-063:** Dashboard prezentuje kwalifikujące się sugestie follow-up osobno od zadań. Widoczność wynika z jawnej konfiguracji użytkownika i ważnej podstawy; odrzucenie jest trwałe dla tej podstawy. Nie przedstawia braku odpowiedzi w CRM jako faktu. [Kontrakt](../technical/reminders-follow-up-contract.md).
+
 **Stan:** `BASELINED` (główna zawartość `APPROVED`). **Aktor:** użytkownik po logowaniu. **FR:** `FR-DB-001`–`FR-DB-008`.
 
 ## Cel

@@ -1,5 +1,7 @@
 # Katalog wymagań funkcjonalnych — FR
 
+**DEC-063 — APPROVED, zakres Reminders & Follow-up:** FR-TN-004/007–010, FR-DB-004 i FR-IM-013 doprecyzowuje [kontrakt](../technical/reminders-follow-up-contract.md). Historia wyłączeń DEC-060 zachowuje swój ówczesny zakres. FR-TN-005 i AC-TN-005 pozostają zatwierdzonym celem MVP i nie są realizowane w tym przyroście; FR-TN-006 zachowuje wyłączenie push.
+
 **Calendar Core, DEC-062 (1A–9A APPROVED):** FR-HE-001–003/005–013, FR-CC-009/010, FR-DB-003, FR-LC-017/018 i FR-TN-011 obejmują pełny [kontrakt Calendar](../decisions/product-decisions.md): własne ogólne i powiązane wydarzenia, terminy i ich historię, rzeczywiste rozliczenie, audytowane korekty i uczestnictwo, zamkniętą sprawę, Dashboard oraz atomowe close z Task. Wcześniejsze adnotacje o braku tych decyzji są historyczne. Pozostałe zakresy wskazanych OPEN nie zostają zamknięte.
 
 **Stan:** `BASELINED` na 2026-10-27. Wymagania wcześniejszych modułów formalizują zatwierdzony zakres (`APPROVED`); dopisany obszar `AD` odróżnia niezmienniki `APPROVED` od funkcji `PROPOSED`. Szczegóły zależne od `OPEN` **nie** są zatwierdzone. Dotychczasowe moduły należą do publicznego MVP; pozycje `PROPOSED` nie powiększają automatycznie zakresu MVP. Kolejność implementacji pozostaje `OPEN` — nie przypisujemy sztucznego rankingu Must/Should.

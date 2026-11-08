@@ -14,6 +14,13 @@ const signupResult = z.strictObject({
   errorCode: code,
 });
 const observationSchemas = {
+  F3_BROWSER_FAILURE: z.strictObject({
+    fileHash: z.string().regex(/^[a-f0-9]{64}$/),
+    line: z.number().int().min(1).max(1000000),
+    status: z.enum(["failed", "timedOut", "interrupted"]),
+    category: z.enum(["timeout", "assertion", "browser-closed", "other"]),
+    retry: z.number().int().min(0).max(1000),
+  }),
   F3_BFCACHE_OBSERVATION: z.strictObject({
     cacheExclusionObserved: z.literal(true),
     backResponseSource: z.enum(["history-navigation", "explicit-SSR-request"]),

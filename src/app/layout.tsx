@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 import { getServerEnv } from "@/shared/server/env";
 
 import "./globals.css";
+import { ReminderDraftProvider } from "@/components/reminders/memory-drafts";
+import { ReminderMemoryProvider } from "@/components/reminders/memory-commands";
 import { CalendarMemoryDraftProvider } from "@/components/calendar/memory-drafts";
 
 export const metadata: Metadata = {
@@ -17,7 +19,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="pl">
       <body>
-        <CalendarMemoryDraftProvider>{children}</CalendarMemoryDraftProvider>
+        <CalendarMemoryDraftProvider>
+          <ReminderMemoryProvider>
+            <ReminderDraftProvider>{children}</ReminderDraftProvider>
+          </ReminderMemoryProvider>
+        </CalendarMemoryDraftProvider>
       </body>
     </html>
   );

@@ -1,5 +1,7 @@
 # Reguły biznesowe (BR) — kanoniczny katalog
 
+**DEC-063 — doprecyzowanie BR-020/024:** wyłącznie jawnie ustawiona reguła może pokazać sugestię follow-up dla otwartej sprawy i ważnego datowanego kontaktu wychodzącego; import historyczny oraz niepewne pochodzenie są wykluczone fail-closed. Odrzucenie tej podstawy pozostaje skuteczne po wznowieniu sprawy. Szczegóły i ograniczenia w [kontrakcie](../technical/reminders-follow-up-contract.md).
+
 **Tasks Core, DEC-060 (2026-11-01):** BR-011 dla zadań: anuluj zmienia na Anulowane z relacją; zachowaj utrzymuje otwarte z relacją; odłącz pozostawia otwarte ogólne z audytem poprzedniej relacji. Każdy wybór atomowo z zamknięciem i kontrolą współbieżności. Task przy zakończonej sprawie nie wznawia sprawy; wznowienie sprawy nie przywraca statusów Task. CalendarEvent nadal wymagają przyszłej integracji, fail-closed guard zachowany. [Kontrakt](../technical/tasks-core-analysis.md).
 
 **Stan:** `BASELINED`. Każda reguła to interpretacja zatwierdzonego baseline'u; nierozstrzygnięte szczegóły zawierają odniesienia `OPEN`. Reguły dotyczą zachowania, nie technologii.

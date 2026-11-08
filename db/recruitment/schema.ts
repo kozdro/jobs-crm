@@ -728,3 +728,77 @@ export const recruitmentCalendarCommand = pgTable(
     ),
   ],
 ).enableRLS();
+
+/** DEC-063: immutable user intents; projections are derived from these commands. */
+export const recruitmentReminderCommand = pgTable(
+  "recruitment_reminder_command",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    requestId: uuid("request_id").notNull(),
+    orderNo: integer("order_no").notNull(),
+    payload: jsonb("payload").notNull(),
+    result: jsonb("result").notNull(),
+    recordedAt: timestamp("recorded_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    unique("recruitment_reminder_command_owner_request_unique").on(
+      t.ownerId,
+      t.requestId,
+    ),
+    unique("recruitment_reminder_command_owner_order_unique").on(
+      t.ownerId,
+      t.orderNo,
+    ),
+    foreignKey({
+      name: "recruitment_reminder_command_owner_fk",
+      columns: [t.ownerId],
+      foreignColumns: [authUsers.id],
+    }),
+    index("recruitment_reminder_command_owner_order_idx").on(
+      t.ownerId,
+      t.recordedAt,
+      t.id,
+    ),
+  ],
+).enableRLS();
+
+/** A marker is created only together with a new, explicitly recorded contact. */
+export const recruitmentManualContact = pgTable(
+  "recruitment_manual_contact",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    requestId: uuid("request_id").notNull(),
+    caseId: uuid("case_id").notNull(),
+    direction: text("direction").notNull(),
+    occurredOn: date("occurred_on"),
+    eventId: uuid("event_id").notNull(),
+  },
+  (t) => [
+    unique("recruitment_manual_contact_owner_request_unique").on(
+      t.ownerId,
+      t.requestId,
+    ),
+    unique("recruitment_manual_contact_owner_event_unique").on(
+      t.ownerId,
+      t.eventId,
+    ),
+    foreignKey({
+      name: "recruitment_manual_contact_case_fk",
+      columns: [t.ownerId, t.caseId],
+      foreignColumns: [recruitmentCase.ownerId, recruitmentCase.id],
+    }),
+    foreignKey({
+      name: "recruitment_manual_contact_event_fk",
+      columns: [t.eventId],
+      foreignColumns: [recruitmentCaseEvent.id],
+    }),
+  ],
+).enableRLS();

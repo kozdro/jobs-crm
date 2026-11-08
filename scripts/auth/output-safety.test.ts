@@ -117,6 +117,24 @@ test("structured observations cannot smuggle unknown credential or arbitrary tex
   }
 });
 
+test("browser failure diagnostics accept only bounded, non-text metadata", () => {
+  const value = {
+    fileHash: "a".repeat(64),
+    line: 42,
+    status: "failed",
+    category: "assertion",
+    retry: 0,
+  };
+  const output = capture();
+  output.push(`F3_BROWSER_FAILURE ${JSON.stringify(value)}`);
+  assert.deepEqual(output.verify().observations[0].values, value);
+  const unsafe = capture();
+  unsafe.push(
+    `F3_BROWSER_FAILURE ${JSON.stringify({ ...value, error: "private@example.test" })}`,
+  );
+  assert.throws(() => unsafe.verify(), /withheld/);
+});
+
 test("zero or partial reporter evidence cannot give successful Auth measurement acceptance", () => {
   const summary = {
     bytes: 0,

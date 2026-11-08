@@ -857,7 +857,18 @@ test(
         ];
         for (const intent of invalid) {
           const requestId = randomUUID();
-          denied(await api(a.token, rpc, "POST", command(requestId, intent)));
+          const rejected = await api(
+            a.token,
+            rpc,
+            "POST",
+            command(requestId, intent),
+          );
+          denied(rejected);
+          if (
+            "occurredOn" in intent.action &&
+            intent.action.occurredOn === "2000-02-30"
+          )
+            assert.equal(errorCode(rejected), "22023");
           assert.deepEqual(
             await countRows(a.id, requestId, "recruitment_case"),
             [],

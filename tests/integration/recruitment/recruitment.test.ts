@@ -690,6 +690,8 @@ test(
               "recruitment_case_event_revision",
               "recruitment_case_lifecycle",
               "recruitment_closure_revision",
+              "recruitment_manual_contact",
+              "recruitment_reminder_command",
               "recruitment_task",
               "recruitment_task_command",
             ],
@@ -703,6 +705,8 @@ test(
                 ["SELECT", "INSERT", "DELETE"],
               ],
               ["recruitment_calendar_command", ["SELECT"]],
+              ["recruitment_manual_contact", ["SELECT"]],
+              ["recruitment_reminder_command", ["SELECT"]],
             ] as const) {
               for (const privilege of [
                 "SELECT",
@@ -718,6 +722,51 @@ test(
                   role === "authenticated" &&
                     (privileges as readonly string[]).includes(privilege),
                   `${role} ${table} ${privilege}`,
+                );
+              }
+            }
+            for (const [table, permitted, columns] of [
+              [
+                "recruitment_reminder_command",
+                ["request_id", "payload"],
+                [
+                  "request_id",
+                  "payload",
+                  "id",
+                  "owner_id",
+                  "result",
+                  "recorded_at",
+                  "order_no",
+                ],
+              ],
+              [
+                "recruitment_manual_contact",
+                [
+                  "request_id",
+                  "case_id",
+                  "direction",
+                  "occurred_on",
+                  "event_id",
+                ],
+                [
+                  "request_id",
+                  "case_id",
+                  "direction",
+                  "occurred_on",
+                  "event_id",
+                  "id",
+                  "owner_id",
+                ],
+              ],
+            ] as const) {
+              for (const column of columns) {
+                const [grant] =
+                  await sql`select has_column_privilege(${role},${`public.${table}`},${column},'INSERT') allowed`;
+                assert.equal(
+                  grant.allowed,
+                  role === "authenticated" &&
+                    (permitted as readonly string[]).includes(column),
+                  `${role} ${table}.${column} INSERT`,
                 );
               }
             }

@@ -1,5 +1,7 @@
 # Jobs CRM — UX Blueprint: kontrakty przepływów i stanów
 
+**DEC-063 — F09:** przypomnienie jest osobną, jawnie włączaną konfiguracją daty/godziny/strefy; jego stan, potwierdzenie i wyłączenie są widoczne. Zmiana terminu/relacji i przywrócenie nie reaktywują go bez ponownego potwierdzenia. Dashboard prezentuje sugestię osobno od zadań, z odrzuceniem oraz przejściem do kontekstu lub świadomego formularza; nie sugeruje pewnego braku odpowiedzi. [Kontrakt](../technical/reminders-follow-up-contract.md). Historyczny opis F09 dotyczący wyłącznie DEC-060 pozostaje świadectwem poprzedniego slice'a.
+
 **Calendar Core DEC-062, 1A–9A APPROVED:** formularz rozróżnia nieznaną godzinę i jawną całodniowość; pokazuje strefę i wymagane rozstrzygnięcie zmiany strefy/DST. W rozliczeniu osobno zbiera rzeczywisty czas lub unknown oraz jawny faktyczny udział każdej osoby. Korekta pokazuje before/after i zachowuje audyt. Propozycja rozliczenia dostępna na Dashboardzie, w Kalendarzu i kontekście sprawy, bez automatycznej mutacji. Starsze wzmianki o tych decyzjach jako OPEN są historyczne. [Pełny kontrakt](../decisions/product-decisions.md).
 
 **Status:** DRAFT, 2026-10-28. **Podstawa:** [blueprint](blueprint.md), [screen blueprints](screen-blueprints.md), [otwarte decyzje](../decisions/open-questions.md).
