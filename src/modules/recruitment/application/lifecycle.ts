@@ -17,12 +17,15 @@ import {
   type ClosureRevision,
   type LifecycleStatus,
 } from "../domain/lifecycle";
+import type { CaseNote } from "../domain/case-note";
+export type { CaseNote } from "../domain/case-note";
 export type TimelineItem =
   | {
       type: "calendar";
       event: import("../domain/calendar").CalendarEvent;
       recordedAt: string;
     }
+  | { type: "note"; note: CaseNote }
   | { type: "fact"; fact: CaseEvent }
   | { type: "lifecycle"; entry: LifecycleEntry };
 const statuses: LifecycleStatus[] = [
@@ -455,6 +458,24 @@ export async function listRecruitmentTimeline(
       )
         return unavailable();
       return { type: "calendar", event, recordedAt: row.recorded_at };
+    }
+    if (row.type === "note") {
+      const n = object(row.payload);
+      if (
+        !uuid(n.id) ||
+        n.case_id !== caseId ||
+        typeof n.body !== "string" ||
+        !n.body.trim() ||
+        [...n.body].length > 10000 ||
+        (n.date_kind !== "ordinary" && n.date_kind !== "historical") ||
+        !date(n.occurred_on) ||
+        (n.date_kind === "ordinary" && n.occurred_on !== null) ||
+        typeof n.voided !== "boolean" ||
+        !number(n.revision) ||
+        !instant(n.created_at)
+      )
+        return unavailable();
+      return { type: "note", note: n as CaseNote };
     }
     if (row.type === "lifecycle") {
       const entry = readLifecycleEntry(row.payload);

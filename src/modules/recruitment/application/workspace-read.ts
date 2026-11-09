@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { CaseRepositoryError } from "./cases";
+import { CaseRepositoryError, resolveLegacyCaseLinks } from "./cases";
 import { listRecruitmentTimeline } from "./lifecycle";
 import {
   recruitmentStatuses,
@@ -130,7 +130,10 @@ async function readPage(
     .limit(6, { referencedTable: "organizations" })
     .range(offset, offset + workspacePageSize);
   if (error || !Array.isArray(data)) return unavailable();
-  const cases = data.slice(0, workspacePageSize).map(readCase);
+  const cases = await resolveLegacyCaseLinks(
+    client,
+    data.slice(0, workspacePageSize).map(readCase),
+  );
   if (cases.some((c) => !statuses.includes(c.status))) return unavailable();
   return { cases, hasMore: data.length > workspacePageSize, page };
 }
@@ -181,7 +184,7 @@ export async function loadWorkspacePreview(
     .maybeSingle();
   if (error) return unavailable();
   if (!data) return null;
-  const item = readCase(data);
+  const [item] = await resolveLegacyCaseLinks(client, [readCase(data)]);
   const [contactResult, timeline] = await Promise.all([
     client
       .from("catalog_relation")

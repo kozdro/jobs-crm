@@ -1,5 +1,9 @@
 # Requirements Traceability — FR → AC → UC/TC
 
+## Global Search — DEC-064, 2026-11-10
+
+FR/AC-GS-001–008, HE-001/004/005, LC-021/023/025, NV-002 i AD-002 wiążą się z UC/TC-020, TC-024 oraz TC-034 zgodnie z [macierzą i planem QA](../technical/global-search-analysis.md). 1A/2A/3A mają status APPROVED; wykonanie, wyniki testów i review są odrębne i do czasu udokumentowania pozostają NOT RUN. Całość TC-024/034 obejmuje także brakujące moduły, dlatego nie uzyskuje automatycznego PASS po tym slice.
+
 ## Optional Email Reminders — DEC-027, 2026-11-09
 
 FR/AC-TN-005 i rozszerzenie UC/TC-023: wybór kanału, owner A/B/anon, wycofanie, lifecycle, 6h, prywatność, retry/unknown i operacyjna retencja. **PLANNED / NOT RUN** do wykonania testów na wskazanym kandydacie. Regression AC-TN-004 i DEC-063 pozostaje wymagana; fake transport nie dowodzi rzeczywistego doręczenia.

@@ -1732,12 +1732,14 @@ export function CalendarPanel({
   caseId,
   caseTitle,
   contactId,
+  targetEventId,
   compact = false,
 }: {
   userId: string;
   caseId?: string;
   caseTitle?: string;
   contactId?: string;
+  targetEventId?: string;
   compact?: boolean;
 }) {
   const router = useRouter();
@@ -1778,6 +1780,31 @@ export function CalendarPanel({
   const [loadedScope, setLoadedScope] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
   const [version, setVersion] = useState(0);
+  const [targetEvent, setTargetEvent] = useState<CalendarEvent | null>(null);
+  const [targetError, setTargetError] = useState(false);
+  const targetRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!targetEventId) return;
+    let active = true;
+    void request(userId, { eventId: targetEventId })
+      .then((body) => {
+        const item = body.event as CalendarEvent | undefined;
+        if (!active) return;
+        if (!item || item.id !== targetEventId) {
+          setTargetError(true);
+          return;
+        }
+        setTargetEvent(item);
+        setTargetError(false);
+        requestAnimationFrame(() => targetRef.current?.focus());
+      })
+      .catch(() => {
+        if (active) setTargetError(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, [targetEventId, userId, version]);
   const readScope = `${userId}:${caseId ?? ""}:${contactId ?? ""}:${compact}:${page}`;
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
@@ -2273,6 +2300,31 @@ export function CalendarPanel({
         </Dialog.Root>
       )}
       {loading && <p role="status">Ładowanie wydarzeń…</p>}
+      {targetEventId && targetError && (
+        <p role="alert">Nie można otworzyć wskazanego wydarzenia.</p>
+      )}
+      {targetEvent && !targetError && (
+        <div
+          ref={targetRef}
+          tabIndex={-1}
+          className="scroll-mt-6 rounded-md border border-border p-3 outline-none"
+          aria-label="Wskazane wydarzenie"
+        >
+          <EventRow
+            event={targetEvent}
+            userId={userId}
+            cases={cases}
+            contacts={contacts}
+            onSaved={savedRow}
+            onActivity={onActivity}
+            onDismiss={syncPending}
+            onFocusMissing={focusPanel}
+            onFocusRecovery={focusRecovery}
+            mutationBlocked={Boolean(pendingState)}
+            now={now}
+          />
+        </div>
+      )}
       {error && (
         <div role="alert">
           <p>{error}</p>

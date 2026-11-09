@@ -258,6 +258,8 @@ AC-AD-002 obejmuje Task/listę/direct ID/relacje/audyt/recovery i bezpośredni D
 
 ## GS — Global Search
 
+**DEC-064 APPROVED:** pełne kryteria i plan weryfikacji 1A/2A/3A znajdują się w [analizie](../technical/global-search-analysis.md). Wykonanie AC, integracji i E2E należy raportować osobno z dowodami.
+
 | ID | Test akceptacji (Given / When / Then, opisowo) | Powiązany FR |
 |---|---|---|
 | **AC-GS-001** | Gdy użytkownik wpisuje rozpoznawalną nazwę stanowiska ze sprawy, wyniki uwzględniają odpowiednią sprawę. | FR-GS-001 |

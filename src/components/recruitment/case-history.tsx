@@ -22,6 +22,7 @@ import {
   type CaseEvent,
 } from "@/modules/recruitment/domain/case-events";
 import { CaseCreatedTime } from "./case-content";
+import { NoteEditor, NoteEntry } from "./case-content-tools";
 
 export function formatEventDay(day: string) {
   const [year, month, date] = day.split("-");
@@ -46,9 +47,13 @@ type HistoryResult =
 function timelineDay(item: TimelineItem) {
   return item.type === "fact"
     ? item.fact.occurred_on
-    : item.type === "calendar"
-      ? (item.event.actual?.date ?? null)
-      : item.entry.occurred_on;
+    : item.type === "note"
+      ? item.note.date_kind === "ordinary"
+        ? warsawToday(new Date(item.note.created_at))
+        : item.note.occurred_on
+      : item.type === "calendar"
+        ? (item.event.actual?.date ?? null)
+        : item.entry.occurred_on;
 }
 type EditControls = { active: Editing; select: (event: Editing) => void };
 function HistoryEntry({
@@ -202,6 +207,12 @@ function HistoryEntries({
             active={active}
             select={select}
           />
+        ) : item.type === "note" && userId ? (
+          <NoteEntry
+            key={`${userId}:${item.note.id}`}
+            owner={userId}
+            note={item.note}
+          />
         ) : item.type === "calendar" ? (
           <li key={`${userId}:${item.event.id}`} className="py-4 first:pt-0">
             <p className="text-sm font-semibold">
@@ -257,7 +268,7 @@ function HistoryEntries({
               Otwórz wydarzenia sprawy
             </a>
           </li>
-        ) : (
+        ) : item.type === "lifecycle" ? (
           <LifecycleHistoryEntry
             key={`${userId}:${item.entry.id}`}
             entry={item.entry}
@@ -273,7 +284,7 @@ function HistoryEntries({
             }
             onClose={() => select(null)}
           />
-        ),
+        ) : null,
       )}
     </ol>
   );
@@ -296,6 +307,7 @@ export function CaseHistory({
     return `/recruitments/${caseId}?${params}#history`;
   }
   const [active, setActive] = useState<Editing>(null);
+  const [addingNote, setAddingNote] = useState(false);
   const [locked, setLocked] = useState(false);
   function select(value: Editing) {
     if (value && userId) {
@@ -342,6 +354,22 @@ export function CaseHistory({
       >
         Historia sprawy
       </h2>
+      {userId &&
+        (addingNote ? (
+          <NoteEditor
+            owner={userId}
+            caseId={caseId}
+            onCancel={() => setAddingNote(false)}
+          />
+        ) : (
+          <button
+            type="button"
+            className="ui-link min-h-11 py-2 text-sm"
+            onClick={() => setAddingNote(true)}
+          >
+            + Notatka
+          </button>
+        ))}
       {userId && (
         <HistoryRecovery
           key={`${userId}:${caseId}`}

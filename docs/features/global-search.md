@@ -1,6 +1,6 @@
 # Feature: Global Search
 
-**Stan:** `BASELINED` (zakres wyszukiwania `APPROVED`, ranking `OPEN`). **Aktor:** użytkownik z dowolnego modułu. **FR:** `FR-GS-001`–`FR-GS-008`.
+**Stan:** `BASELINED` (zakres i ranking 1A `APPROVED` według DEC-064; przyszłe archiwum pozostaje `OPEN`). **Aktor:** użytkownik z dowolnego modułu. **FR:** `FR-GS-001`–`FR-GS-008`. Kontrakt 1A/2A/3A i plan: [analiza](../technical/global-search-analysis.md). Decyzja nie jest dowodem implementacji.
 
 ## Cel
 
@@ -18,7 +18,7 @@ Odnaleźć starszy kontekst rekrutacyjny bez znajomości nazwy sprawy; dotrzeć 
 - Zero trafień nie oznacza zmiany danych; zapewnij jednoznaczny pusty wynik.
 - URL korespondencji jest tylko adresem i nie upoważnia do indeksowania jej treści.
 - W pierwszym wydaniu **nie** wyszukujemy semantycznie ani w zawartości dokumentów.
-- Dopasowanie, sortowanie trafień, uprawnienia do wyników i stan archiwum wymagają `OPEN-038/OPEN-013/OPEN-005`.
+- Dopasowanie i sortowanie określa DEC-064 dla obecnych danych; przyszły stan archiwum oraz publiczne bramki bezpieczeństwa pozostają w `OPEN-038/OPEN-013/OPEN-005`.
 
 ## Powiązania
 

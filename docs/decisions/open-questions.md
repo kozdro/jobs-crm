@@ -1,5 +1,9 @@
 # Kwestie otwarte i bramki decyzyjne (OPEN)
 
+## Global Search — częściowe rozstrzygnięcie DEC-064, 2026-11-10
+
+PO zatwierdził 1A/2A/3A [kontraktu](../technical/global-search-analysis.md): OPEN-038 jest rozstrzygnięty dla opisanego dopasowania, rankingu, paginacji i obecnych danych bez osobnego archiwum; jego przyszła archiwizacja oraz cele wydajności pozostają OPEN. OPEN-002/004/020 rozstrzygnięto wyłącznie dla pól, dat, korekt i unieważnienia Notes oraz odpowiednich operacji CaseLinks. OPEN-025/026 rozstrzygnięto dla opisanych ról i kanonikalizacji CaseLink; identyfikacja publikacji, inne źródła i kanały pozostają OPEN. Ogólna retencja, hard delete oraz pozostałe obszary OPEN nie zostały rozstrzygnięte. Historyczne wiersze poniżej zachowują pierwotny kontekst.
+
 ## Optional Email Reminders — częściowe rozstrzygnięcie DEC-027, 2026-11-09
 
 PO zatwierdził zakres e-maila opisany w [DEC-027](product-decisions.md#optional-email-reminders--doprecyzowanie-dec-027-2026-11-09): w tym zakresie OPEN-009/040 częściowo rozstrzygnięte, a 30 dni dotyczy wyłącznie minimalnych metadanych prób po stanie końcowym. Pozostałe preferencje, zasady audytu zgody, retencja/usuwanie, ochrona i dopuszczenie publiczne pozostają OPEN. OPEN-013/014 zachowują zależne bramki bezpieczeństwa, dostawcy, sekretów, kosztów, monitoringu i operacji; decyzja nie autoryzuje provisioningu, płatnych zasobów ani deploymentu. Wcześniejsze opisy braku decyzji dla tego zakresu są historyczne.

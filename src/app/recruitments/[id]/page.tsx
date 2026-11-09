@@ -6,6 +6,10 @@ import { notFound, redirect } from "next/navigation";
 import { Workspace } from "@/components/recruitment/workspace";
 import { CaseEventForm } from "@/components/recruitment/case-event-form";
 import { CaseHistory } from "@/components/recruitment/case-history";
+import {
+  CaseLinks,
+  NoteTarget,
+} from "@/components/recruitment/case-content-tools";
 import { listRecruitmentTimeline } from "@/modules/recruitment/application/lifecycle";
 import { LifecycleActions } from "@/components/recruitment/lifecycle";
 import { CaseContent } from "@/components/recruitment/case-content";
@@ -25,6 +29,9 @@ export default async function RecruitmentDetailPage({
   searchParams: Promise<{
     historyPage?: string | string[];
     workspaceReturn?: string | string[];
+    noteId?: string | string[];
+    linkId?: string | string[];
+    linkSource?: string | string[];
   }>;
 }) {
   const user = await getTrustedUser();
@@ -75,6 +82,7 @@ export default async function RecruitmentDetailPage({
       >
         {[
           ["case-details", "Dane sprawy"],
+          ["case-links", "Linki"],
           ["case-relations", "Powiązania"],
           ["case-tasks", "Zadania"],
           ["case-calendar", "Wydarzenia"],
@@ -95,6 +103,21 @@ export default async function RecruitmentDetailPage({
         <div id="case-details" tabIndex={-1} className="scroll-mt-6">
           <CaseContent item={item} />
         </div>
+        <CaseLinks
+          owner={user.id}
+          caseId={item.id}
+          targetId={
+            typeof query.linkId === "string" && uuidPattern.test(query.linkId)
+              ? query.linkId
+              : undefined
+          }
+          targetSource={
+            typeof query.linkSource === "string" &&
+            ["legacy", "additional"].includes(query.linkSource)
+              ? query.linkSource
+              : undefined
+          }
+        />
         <div id="case-relations" tabIndex={-1} className="mt-5 scroll-mt-6">
           <RelationsPanel
             key={`${user.id}:${item.id}`}
@@ -135,6 +158,15 @@ export default async function RecruitmentDetailPage({
           />
         </div>
         <div id="case-history" tabIndex={-1} className="scroll-mt-6">
+          {typeof query.noteId === "string" &&
+            uuidPattern.test(query.noteId) && (
+              <NoteTarget
+                owner={user.id}
+                caseId={item.id}
+                noteId={query.noteId}
+                currentPage={historyPage}
+              />
+            )}
           <CaseHistory
             key={`${user.id}:${item.id}:${historyPage}`}
             userId={user.id}

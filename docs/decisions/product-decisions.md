@@ -1,5 +1,15 @@
 # Rejestr decyzji produktowych (DEC)
 
+## Global Search, Notes i CaseLinks — DEC-064, 2026-11-10
+
+**APPROVED — źródło: jawna decyzja PO w bieżącej rozmowie „Jobs CRM — Global Search: zatwierdzam warianty 1A, 2A i 3A”.** PO zatwierdził warianty 1A/2A/3A [analizy](../technical/global-search-analysis.md), autoryzując pełną implementację, QA, niezależny review i jeden osobny PR bez merge, deploymentu i provisioningu produkcyjnego. Warianty te doprecyzowują DEC-038/014/020–022 w opisanym zakresie, nie zmieniając ADR-0008 ani ADR-0012.
+
+1A: sześć grup wyszukiwania, PostgreSQL FTS/GIN z dopasowaniem uzupełniającym, normalizacją i rankingiem opisanymi w analizie, paginacja wszystkich wyników, nakładka oraz pełna strona i nawigacja do rzeczywistego kontekstu. Zakończone sprawy są odnajdywalne; brak gwarancji pełnej fleksji polskiej. Zapytania Search mogą pozostawać w owner-scoped RAM podczas nawigacji; nie są utrwalane w URL, historii, storage, cookies ani telemetrii, a pełny reload, logout lub zmiana konta kończy dostęp do poprzedniego stanu.
+
+2A: własne notatki przy sprawie, 1–10000 punktów kodowych, inline, prawdziwe/nieznane daty, świadomy zapis, korekty z audytem i terminalne unieważnienie; Search pokazuje jedynie aktualne ważne treści. 3A: wiele uporządkowanych linków z zatwierdzonymi rolami, korekty/audyt/unieważnienie, bez wnioskowania o aplikowaniu i bez pobierania korespondencji. Stary `source_url`, Quick Capture, dedupe, receipty i idempotentne retry zachowują zgodność określoną w analizie.
+
+Decyzja częściowo rozstrzyga OPEN-002/004/020/025/026/038 wyłącznie dla tego kontraktu; pozostałe zakresy i publiczne bramki pozostają otwarte. Zatwierdzenie nie jest dowodem wykonania testów ani implementacji. Stan wdrożenia i dowody podaje osobny raport.
+
 ## Optional Email Reminders — doprecyzowanie DEC-027, 2026-11-09
 
 **Security Hardening PR #26 — APPROVED, PO 2026-11-09:** PO autoryzuje naprawę istniejącego PR i samodzielny wybór najmniejszej bezpiecznej implementacji. Kontekst zgody musi niezależnie wiązać konkretny zweryfikowany adres i zatwierdzony kontekst także przy pominiętych zdarzeniach Auth, A→B→A, utracie weryfikacji, cofniętym dryfcie triggera i współbieżności. Niewiarygodny lub brakujący dowód blokuje dispatch. Zachowane idempotencja, retry/unknown, prywatność i okno 6h. Własne jednorazowe QA bez eskalacji; bez merge/deploymentu/provisioningu i naruszania lokalnego main `5f9e7fb`. Szczegóły implementacyjne i ich dowody: [task packet](../technical/optional-email-reminders-delivery.md#pr-26--security-hardening-2026-11-09).

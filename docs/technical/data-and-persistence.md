@@ -1,5 +1,7 @@
 # Persystencja i dane — kontrakt logiczny
 
+**DEC-064 — APPROVED:** kontrakt bieżących notatek, CaseLinks i PostgreSQL FTS został opisany w [analizie Global Search](global-search-analysis.md). Relacyjny widok invoker obejmuje historyczny `source_url` i kontrolowane zmiany, zachowując starsze snapshoty zamiarów; nowe dane nadal wymagają RLS, kontroli relacji oraz testów przed deklaracją działania. Brak nowej ogólnej polityki usuwania/retencji.
+
 **APPROVED:** SQL / PostgreSQL, shared schema, owner isolation, stan + historia biznesowa + audyt, Drizzle dla definicji/migracji, użytkowe zapytania przez Supabase Data API/RLS. **PROPOSED:** poniższe nazwy tabel/indeksów — nie są migracją. Aktualny kontrakt Auth/dostępu: [ADR-0012](../decisions/adr/0012-supabase-native-auth-sessions-rls.md), bez własnego magazynu sesji/brokera.
 
 ## Szkic logiczny

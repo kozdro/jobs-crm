@@ -1,5 +1,7 @@
 # Jobs CRM — UX Blueprint: kontrakty przepływów i stanów
 
+**DEC-064 — F07/F12, APPROVED 2026-11-10:** pełne sześć grup Search w nakładce i na pełnej stronie, owner-scoped RAM dla zapytania, rzeczywista nawigacja do rekordu; inline Notes z korektą i audytem oraz uporządkowane CaseLinks. [Kontrakt UX](global-search-slice.md) i [analiza](../technical/global-search-analysis.md). Historyczne wzmianki poniżej o OPEN opisują pozostały zakres.
+
 **DEC-027 — F09, APPROVED 2026-11-09:** przy istniejącym przypomnieniu użytkownik świadomie wybiera lub wyłącza e-mail na widoczny zweryfikowany adres właściciela. Stan, brak weryfikacji i potrzeba ponownej zgody po zmianie adresu są zrozumiałe; sama konfiguracja in-app nie włącza kanału. Zachować dostępność klawiaturą i stany błędów. Szczegółowy kontrakt: [decyzja PO](../decisions/product-decisions.md#optional-email-reminders--doprecyzowanie-dec-027-2026-11-09).
 
 **DEC-063 — F09:** przypomnienie jest osobną, jawnie włączaną konfiguracją daty/godziny/strefy; jego stan, potwierdzenie i wyłączenie są widoczne. Zmiana terminu/relacji i przywrócenie nie reaktywują go bez ponownego potwierdzenia. Dashboard prezentuje sugestię osobno od zadań, z odrzuceniem oraz przejściem do kontekstu lub świadomego formularza; nie sugeruje pewnego braku odpowiedzi. [Kontrakt](../technical/reminders-follow-up-contract.md). Historyczny opis F09 dotyczący wyłącznie DEC-060 pozostaje świadectwem poprzedniego slice'a.
