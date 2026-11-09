@@ -308,6 +308,7 @@ export function CaseHistory({
   }
   const [active, setActive] = useState<Editing>(null);
   const [addingNote, setAddingNote] = useState(false);
+  const addNoteTrigger = useRef<HTMLButtonElement>(null);
   const [locked, setLocked] = useState(false);
   function select(value: Editing) {
     if (value && userId) {
@@ -359,10 +360,14 @@ export function CaseHistory({
           <NoteEditor
             owner={userId}
             caseId={caseId}
-            onCancel={() => setAddingNote(false)}
+            onCancel={() => {
+              setAddingNote(false);
+              requestAnimationFrame(() => addNoteTrigger.current?.focus());
+            }}
           />
         ) : (
           <button
+            ref={addNoteTrigger}
             type="button"
             className="ui-link min-h-11 py-2 text-sm"
             onClick={() => setAddingNote(true)}

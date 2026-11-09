@@ -2,15 +2,14 @@
 
 import { useCallback, useEffect, useId, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { buttonStyles, inputStyles } from "@/components/ui/styles";
 import { useUnsavedWarning } from "@/components/reminders/use-unsaved-warning";
 import {
   isCalendarDate,
   warsawToday,
 } from "@/modules/recruitment/domain/case-events";
-import { claimContentIntent, clearContentIntent } from "./content-intent";
-import { uuidPattern } from "@/modules/recruitment/domain/recruitment-case";
+import { useContentRecovery } from "./content-recovery";
+import { canDiscardContentDraft } from "./content-intent";
 
 export type Note = {
   id: string;
@@ -41,7 +40,6 @@ type Audit = {
   after_values: unknown;
   recorded_at: string;
 };
-type Command = { requestId: string; payload: Record<string, unknown> };
 const roles = [
   ["primary_offer", "Główne ogłoszenie"],
   ["additional_offer", "Dodatkowe ogłoszenie"],
@@ -52,9 +50,6 @@ const roles = [
   ["other", "Inne"],
   ["unspecified", "Nieokreślona"],
 ] as const;
-function marker(owner: string, caseId: string) {
-  return `jobs-crm.content.pending.${owner}.${caseId}`;
-}
 async function readContent(owner: string, query: Record<string, string>) {
   const params = new URLSearchParams({ expectedUserId: owner, ...query });
   const response = await fetch(`/recruitments/content?${params}`, {
@@ -65,223 +60,10 @@ async function readContent(owner: string, query: Record<string, string>) {
   return (await response.json()) as Record<string, unknown>;
 }
 function useContentCommand(owner: string, caseId: string, changed: () => void) {
-  const [pending, setPending] = useState<Command | null>(null);
-  const [unknown, setUnknown] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [duplicate, setDuplicate] = useState<{
-    id: string;
-    source: string;
-  } | null>(null);
-  const [recovery, setRecovery] = useState(false);
-  const key = marker(owner, caseId);
-  useEffect(() => {
-    if (!unknown && !busy) return;
-    const blockNavigation = (event: MouseEvent) => {
-      if (event.target instanceof Element && event.target.closest("a[href]")) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        setMessage(
-          "Najpierw sprawdź wynik zapisu lub ponów identyczny zamiar.",
-        );
-      }
-    };
-    document.addEventListener("click", blockNavigation, true);
-    return () => document.removeEventListener("click", blockNavigation, true);
-  }, [unknown, busy]);
-  useEffect(() => {
-    let id: string | null = null;
-    try {
-      id = sessionStorage.getItem(key);
-    } catch {
-      /* no stored payload */
-    }
-    if (!id) return;
-    let active = true;
-    void readContent(owner, { requestId: id })
-      .then((receipt) => {
-        if (!active) return;
-        if (
-          receipt.kind === "saved" ||
-          receipt.kind === "replayed" ||
-          receipt.kind === "found"
-        ) {
-          try {
-            if (!clearContentIntent(sessionStorage, key, id)) {
-              setRecovery(true);
-              setMessage(
-                "Stan zamiaru zmienił się. Sprawdź wynik nowszego zapisu.",
-              );
-              return;
-            }
-          } catch {
-            setRecovery(true);
-            return;
-          }
-          setRecovery(false);
-          setMessage("Poprzedni zapis został potwierdzony.");
-          changed();
-        } else {
-          setRecovery(true);
-          setMessage(
-            "Nie udało się ustalić wyniku poprzedniego zapisu. Odśwież i sprawdź dane przed kolejną zmianą.",
-          );
-        }
-      })
-      .catch(() => {
-        if (active) {
-          setRecovery(true);
-          setMessage("Nie udało się sprawdzić wyniku poprzedniego zapisu.");
-        }
-      });
-    return () => {
-      active = false;
-    };
-    // Only check persisted intent on mount/identity change. `changed` may change after a refresh.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [owner, caseId, key]);
-  const execute = useCallback(
-    async (command: Command) => {
-      setBusy(true);
-      setMessage(null);
-      setDuplicate(null);
-      try {
-        if (!claimContentIntent(sessionStorage, key, command.requestId)) {
-          setRecovery(true);
-          setMessage("Najpierw sprawdź wynik poprzedniego zapisu.");
-          setBusy(false);
-          return;
-        }
-      } catch {
-        setMessage(
-          "Nie można bezpiecznie przygotować zapisu. Sprawdź ustawienia przeglądarki.",
-        );
-        setBusy(false);
-        return;
-      }
-      setPending(command);
-      try {
-        const response = await fetch("/recruitments/content", {
-          method: "POST",
-          cache: "no-store",
-          credentials: "same-origin",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ expectedUserId: owner, ...command }),
-          signal: AbortSignal.timeout(20000),
-        });
-        const result = (await response.json().catch(() => null)) as {
-          kind?: string;
-          match?: { id?: unknown; source?: unknown };
-        } | null;
-        if (
-          response.ok &&
-          (result?.kind === "saved" || result?.kind === "replayed")
-        ) {
-          try {
-            if (!clearContentIntent(sessionStorage, key, command.requestId))
-              throw new Error("intent not cleared");
-          } catch {
-            setUnknown(true);
-            setMessage(
-              "Odpowiedź zapisu otrzymano, ale nie można zweryfikować stanu zamiaru.",
-            );
-            return;
-          }
-          setPending(null);
-          setUnknown(false);
-          setMessage("Zapisano.");
-          changed();
-          return;
-        }
-        if (response.status < 500 && response.status !== 408) {
-          try {
-            if (!clearContentIntent(sessionStorage, key, command.requestId))
-              throw new Error("intent not cleared");
-          } catch {
-            setRecovery(true);
-            setMessage("Nie można zweryfikować stanu poprzedniego zamiaru.");
-            return;
-          }
-          setPending(null);
-          setUnknown(false);
-          if (
-            result?.kind === "duplicate" &&
-            typeof result.match?.id === "string" &&
-            uuidPattern.test(result.match.id) &&
-            (result.match.source === "legacy" ||
-              result.match.source === "additional")
-          ) {
-            setDuplicate({ id: result.match.id, source: result.match.source });
-          }
-          setMessage(
-            result?.kind === "stale"
-              ? "Dane zmieniły się. Odśwież i potwierdź zmianę ponownie."
-              : result?.kind === "duplicate"
-                ? "Ten link już istnieje w tej sprawie."
-                : result?.kind === "conflict"
-                  ? "Zamiar jest nieaktualny. Odśwież dane i spróbuj ponownie."
-                  : "Nie udało się zapisać. Sprawdź dane.",
-          );
-          return;
-        }
-        throw new Error("uncertain");
-      } catch {
-        setUnknown(true);
-        setMessage(
-          "Wynik zapisu jest niepewny. Sprawdź wynik lub ponów identyczny zapis.",
-        );
-      } finally {
-        setBusy(false);
-      }
-    },
-    [changed, key, owner],
-  );
-  return {
-    execute,
-    pending,
-    unknown,
-    busy,
-    message,
-    recovery,
-    duplicate,
-    caseId,
-  };
+  return useContentRecovery(owner, caseId, changed);
 }
-function Feedback({
-  command,
-}: {
-  command: ReturnType<typeof useContentCommand>;
-}) {
-  return (
-    <>
-      {command.message && (
-        <p
-          role={command.unknown || command.recovery ? "alert" : "status"}
-          className="text-sm"
-        >
-          {command.message}
-        </p>
-      )}
-      {command.duplicate && (
-        <Link
-          className="ui-link block min-h-11 py-2 text-sm"
-          href={`/recruitments/${encodeURIComponent(command.caseId)}?linkId=${encodeURIComponent(command.duplicate.id)}&linkSource=${encodeURIComponent(command.duplicate.source)}#case-links`}
-        >
-          Otwórz istniejący link
-        </Link>
-      )}
-      {command.unknown && command.pending && (
-        <button
-          type="button"
-          className={buttonStyles.secondary}
-          disabled={command.busy}
-          onClick={() => void command.execute(command.pending!)}
-        >
-          Ponów identyczny zapis
-        </button>
-      )}
-    </>
-  );
+function Feedback() {
+  return null;
 }
 function AuditHistory({
   owner,
@@ -490,7 +272,7 @@ export function NoteEditor({
         </label>
       )}
       {error && <p role="alert">{error}</p>}
-      <Feedback command={command} />
+      <Feedback />
       <div className="flex gap-2">
         <button
           className={buttonStyles.primary}
@@ -516,6 +298,12 @@ export function NoteEntry({ owner, note }: { owner: string; note: Note }) {
   const changed = useCallback(() => router.refresh(), [router]);
   const command = useContentCommand(owner, note.case_id, changed);
   const [editing, setEditing] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const longBody = Array.from(note.body).length > 400;
+  const displayed =
+    longBody && !expanded
+      ? `${Array.from(note.body).slice(0, 400).join("")}…`
+      : note.body;
   return (
     <li
       id={`note-${note.id}`}
@@ -529,20 +317,53 @@ export function NoteEntry({ owner, note }: { owner: string; note: Note }) {
         <p className="text-sm">Skorygowano</p>
       )}
       <p className="whitespace-pre-wrap break-words text-sm [overflow-wrap:anywhere]">
-        {note.body}
+        {displayed}
       </p>
+      {longBody && (
+        <button
+          type="button"
+          className={buttonStyles.ghost}
+          aria-expanded={expanded}
+          onClick={() => setExpanded((value) => !value)}
+        >
+          {expanded ? "Zwiń notatkę" : "Rozwiń notatkę"}
+        </button>
+      )}
       <p className="text-sm text-muted-foreground">
         {note.date_kind === "historical"
           ? note.occurred_on
             ? `Data zdarzenia: ${note.occurred_on}`
             : "Data zdarzenia nieznana"
-          : `Data utworzenia: ${new Date(note.created_at).toLocaleDateString("pl-PL")}`}
+          : `Data utworzenia: ${new Intl.DateTimeFormat("pl-PL", { dateStyle: "medium", timeZone: "Europe/Warsaw" }).format(new Date(note.created_at))}`}
       </p>
+      {note.date_kind === "historical" &&
+        note.occurred_on &&
+        note.occurred_on < warsawToday(new Date(note.created_at)) && (
+          <p className="text-sm text-muted-foreground">
+            Dodano do CRM później.
+          </p>
+        )}
+      <details>
+        <summary className="ui-link cursor-pointer py-2 text-sm">
+          Szczegóły notatki
+        </summary>
+        <p className="text-sm">
+          Dodano do CRM:{" "}
+          <time dateTime={note.created_at}>
+            {new Intl.DateTimeFormat("pl-PL", {
+              dateStyle: "medium",
+              timeStyle: "short",
+              timeZone: "Europe/Warsaw",
+            }).format(new Date(note.created_at))}
+          </time>
+        </p>
+      </details>
       {!note.voided && !editing && (
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
             className={buttonStyles.ghost}
+            id={`edit-note-${note.id}`}
             onClick={() => setEditing(true)}
           >
             Popraw notatkę
@@ -577,10 +398,15 @@ export function NoteEntry({ owner, note }: { owner: string; note: Note }) {
           owner={owner}
           caseId={note.case_id}
           note={note}
-          onCancel={() => setEditing(false)}
+          onCancel={() => {
+            setEditing(false);
+            requestAnimationFrame(() =>
+              document.getElementById(`edit-note-${note.id}`)?.focus(),
+            );
+          }}
         />
       )}
-      <Feedback command={command} />
+      <Feedback />
       <AuditHistory owner={owner} caseId={note.case_id} targetId={note.id} />
     </li>
   );
@@ -592,12 +418,14 @@ function LinkEditor({
   existing,
   onClose,
   onChanged,
+  onDirtyChange,
 }: {
   owner: string;
   caseId: string;
   existing?: CaseLink;
   onClose: () => void;
   onChanged: () => void;
+  onDirtyChange: (dirty: boolean) => void;
 }) {
   const done = useCallback(() => {
     onChanged();
@@ -655,7 +483,14 @@ function LinkEditor({
         className={`${inputStyles} w-full`}
         value={url}
         disabled={command.busy || command.unknown}
-        onChange={(e) => setUrl(e.target.value)}
+        onChange={(e) => {
+          const value = e.target.value;
+          setUrl(value);
+          onDirtyChange(
+            value !== (existing?.url ?? "") ||
+              role !== (existing?.role ?? "unspecified"),
+          );
+        }}
       />
       <label htmlFor={`${formId}-role`} className="block font-medium">
         Rola linku
@@ -665,7 +500,14 @@ function LinkEditor({
         className={inputStyles}
         value={role}
         disabled={command.busy || command.unknown}
-        onChange={(e) => setRole(e.target.value)}
+        onChange={(e) => {
+          const value = e.target.value;
+          setRole(value);
+          onDirtyChange(
+            url !== (existing?.url ?? "") ||
+              value !== (existing?.role ?? "unspecified"),
+          );
+        }}
       >
         {roles.map(([value, label]) => (
           <option key={value} value={value}>
@@ -674,7 +516,7 @@ function LinkEditor({
         ))}
       </select>
       {error && <p role="alert">{error}</p>}
-      <Feedback command={command} />
+      <Feedback />
       <div className="flex gap-2">
         <button
           type="submit"
@@ -715,6 +557,7 @@ export function CaseLinks({
   const [hasMore, setHasMore] = useState(false);
   const [error, setError] = useState(false);
   const [editing, setEditing] = useState<CaseLink | "new" | null>(null);
+  const [linkDirty, setLinkDirty] = useState(false);
   const [moving, setMoving] = useState(false);
   const [version, setVersion] = useState(0);
   const changed = useCallback(() => setVersion((v) => v + 1), []);
@@ -764,10 +607,26 @@ export function CaseLinks({
   const active = combined
     .filter((link) => !link.voided)
     .sort((a, b) => a.position - b.position || a.id.localeCompare(b.id));
+  const voided = combined.filter((link) => link.voided);
   const targetMissing =
     targetId &&
     links &&
     !active.some((x) => x.id === targetId && x.source === targetSource);
+  function leaveEditor() {
+    if (
+      !canDiscardContentDraft(linkDirty, () =>
+        window.confirm("Odrzucić niezapisane zmiany linku?"),
+      )
+    )
+      return false;
+    setLinkDirty(false);
+    return true;
+  }
+  function switchPage(next: number) {
+    if (!leaveEditor()) return;
+    setEditing(null);
+    setPage(next);
+  }
   function mutate(
     link: CaseLink,
     operation: "correct-link" | "void-link",
@@ -846,7 +705,7 @@ export function CaseLinks({
       )}
       {error && <p role="alert">Nie udało się pobrać linków.</p>}
       {!links && !error && <p role="status">Ładowanie linków…</p>}
-      <Feedback command={command} />
+      <Feedback />
       {active.length === 0 && links && (
         <p className="mt-2 text-sm">Brak linków.</p>
       )}
@@ -875,10 +734,19 @@ export function CaseLinks({
             </a>
             <div className="flex flex-wrap gap-2">
               <button
+                id={`edit-link-${link.source}-${link.id}`}
                 type="button"
                 className={buttonStyles.ghost}
                 aria-label={`Popraw link ${link.url}`}
-                onClick={() => setEditing(link)}
+                disabled={
+                  editing !== null &&
+                  editing !== "new" &&
+                  editing.id === link.id &&
+                  editing.source === link.source
+                }
+                onClick={() => {
+                  if (leaveEditor()) setEditing(link);
+                }}
               >
                 Popraw link
               </button>
@@ -888,6 +756,7 @@ export function CaseLinks({
                 disabled={
                   link.position === 0 ||
                   moving ||
+                  Boolean(editing) ||
                   command.busy ||
                   command.unknown ||
                   command.recovery
@@ -903,6 +772,7 @@ export function CaseLinks({
                 disabled={
                   (index === active.length - 1 && !hasMore && !targetLink) ||
                   moving ||
+                  Boolean(editing) ||
                   command.busy ||
                   command.unknown ||
                   command.recovery
@@ -916,7 +786,12 @@ export function CaseLinks({
                 type="button"
                 className={buttonStyles.ghost}
                 aria-label={`Unieważnij link ${link.url}`}
-                disabled={command.busy || command.unknown || command.recovery}
+                disabled={
+                  Boolean(editing) ||
+                  command.busy ||
+                  command.unknown ||
+                  command.recovery
+                }
                 onClick={() => mutate(link, "void-link")}
               >
                 Unieważnij link
@@ -931,13 +806,48 @@ export function CaseLinks({
                   owner={owner}
                   caseId={caseId}
                   existing={link}
-                  onClose={() => setEditing(null)}
+                  onClose={() => {
+                    setLinkDirty(false);
+                    setEditing(null);
+                    requestAnimationFrame(() =>
+                      document
+                        .getElementById(`edit-link-${link.source}-${link.id}`)
+                        ?.focus(),
+                    );
+                  }}
                   onChanged={changed}
+                  onDirtyChange={setLinkDirty}
                 />
               )}
           </li>
         ))}
       </ol>
+      {voided.length > 0 && (
+        <details className="mt-4">
+          <summary className="ui-link cursor-pointer py-2 text-sm">
+            Unieważnione linki
+          </summary>
+          <ul>
+            {voided.map((link) => (
+              <li
+                key={`${link.source}:${link.id}`}
+                className="break-words border-t border-border py-3 text-sm [overflow-wrap:anywhere]"
+              >
+                <p>Unieważniony link: {link.url}</p>
+                <p>
+                  {roles.find(([value]) => value === link.role)?.[1] ??
+                    "Nieokreślona"}
+                </p>
+                <AuditHistory
+                  owner={owner}
+                  caseId={caseId}
+                  targetId={link.id}
+                />
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
       {links && (
         <nav
           aria-label="Strony linków"
@@ -947,7 +857,7 @@ export function CaseLinks({
             type="button"
             className={buttonStyles.secondary}
             disabled={page <= 1}
-            onClick={() => setPage((n) => n - 1)}
+            onClick={() => switchPage(page - 1)}
           >
             Poprzednia strona linków
           </button>
@@ -956,7 +866,7 @@ export function CaseLinks({
             type="button"
             className={buttonStyles.secondary}
             disabled={!hasMore}
-            onClick={() => setPage((n) => n + 1)}
+            onClick={() => switchPage(page + 1)}
           >
             Następna strona linków
           </button>
@@ -966,11 +876,19 @@ export function CaseLinks({
         <LinkEditor
           owner={owner}
           caseId={caseId}
-          onClose={() => setEditing(null)}
+          onClose={() => {
+            setLinkDirty(false);
+            setEditing(null);
+            requestAnimationFrame(() =>
+              document.getElementById("add-case-link")?.focus(),
+            );
+          }}
           onChanged={changed}
+          onDirtyChange={setLinkDirty}
         />
       ) : (
         <button
+          id="add-case-link"
           type="button"
           className={`${buttonStyles.secondary} mt-3`}
           disabled={Boolean(editing)}

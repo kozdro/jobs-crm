@@ -679,6 +679,9 @@ test(
           assert.deepEqual(
             relations.map((row) => row.relname),
             [
+              "case_content_command",
+              "case_link",
+              "case_note",
               "catalog_command",
               "catalog_profile",
               "catalog_relation",
@@ -699,6 +702,10 @@ test(
           assert.ok(relations.every((row) => row.relrowsecurity === true));
           for (const role of ["anon", "authenticated"]) {
             for (const [table, privileges] of [
+              ["case_note", ["SELECT", "INSERT", "UPDATE"]],
+              ["case_link", ["SELECT", "INSERT", "UPDATE"]],
+              ["case_content_command", ["SELECT"]],
+              ["case_link_current", ["SELECT"]],
               ["recruitment_calendar_event", ["SELECT", "INSERT", "UPDATE"]],
               [
                 "recruitment_calendar_participant",
@@ -726,6 +733,22 @@ test(
               }
             }
             for (const [table, permitted, columns] of [
+              [
+                "case_content_command",
+                ["request_id", "payload"],
+                [
+                  "id",
+                  "owner_id",
+                  "request_id",
+                  "payload",
+                  "result",
+                  "target_id",
+                  "case_id",
+                  "before_values",
+                  "after_values",
+                  "recorded_at",
+                ],
+              ],
               [
                 "recruitment_reminder_command",
                 ["request_id", "payload"],
@@ -831,6 +854,51 @@ test(
           const fnAcl =
             await sql`select a.grantee,a.privilege_type from pg_proc p join pg_namespace n on n.oid=p.pronamespace cross join lateral aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) a where n.nspname='public' and p.proname='create_recruitment_case' and a.grantee=0`;
           assert.equal(fnAcl.length, 0, "PUBLIC inherits no EXECUTE");
+          const [linkView] =
+            await sql`select reloptions from pg_class where oid='public.case_link_current'::regclass`;
+          assert.ok(linkView.reloptions?.includes("security_invoker=true"));
+          for (const [signature, userExecutable] of [
+            ["public.execute_case_content_command(uuid,jsonb)", true],
+            ["public.case_content_reconcile(uuid,uuid)", true],
+            ["public.global_search(text,jsonb,integer)", true],
+            ["public.search_normalize(text)", true],
+            ["public.case_has_matching_url(uuid,text)", true],
+            ["public.case_matching_url_revision(uuid,text)", true],
+            ["public.case_note_timeline_page(uuid,uuid)", true],
+            ["public.find_case_link_duplicate(uuid,text,text,uuid)", true],
+            ["public.case_content_projection_guard()", false],
+            ["public.case_content_command_guard()", false],
+          ] as const) {
+            const [definition] =
+              await sql`select p.prosecdef,p.proconfig from pg_proc p where p.oid=${signature}::regprocedure`;
+            assert.equal(
+              definition?.prosecdef,
+              false,
+              `${signature} must be invoker`,
+            );
+            assert.ok(
+              definition?.proconfig?.some((value: string) =>
+                /^search_path=(""|)$/.test(value),
+              ),
+              `${signature} must use empty search_path`,
+            );
+            for (const role of ["anon", "authenticated"]) {
+              const [privilege] =
+                await sql`select has_function_privilege(${role},${signature},'EXECUTE') allowed`;
+              assert.equal(
+                privilege.allowed,
+                role === "authenticated" && userExecutable,
+                `${role} ${signature}`,
+              );
+            }
+            const publicAcl =
+              await sql`select a.grantee from pg_proc p cross join lateral aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) a where p.oid=${signature}::regprocedure and a.grantee=0`;
+            assert.equal(
+              publicAcl.length,
+              0,
+              `${signature} has no PUBLIC EXECUTE`,
+            );
+          }
           for (const role of ["anon", "authenticated"]) {
             const [ledger] =
               await sql`select has_schema_privilege(${role},'recruitment_migrations','USAGE') allowed`;

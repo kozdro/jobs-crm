@@ -679,7 +679,7 @@
           "name": "catalog_profile_search_gin",
           "columns": [
             {
-              "expression": "to_tsvector('pg_catalog.simple'::regconfig,public.search_normalize(coalesce(\"name\",'')||' '||coalesce(\"email\",'')))",
+              "expression": "to_tsvector('pg_catalog.simple'::regconfig,public.search_normalize(coalesce(\"name\",'')))",
               "asc": true,
               "isExpression": true,
               "nulls": "last"

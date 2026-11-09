@@ -314,6 +314,225 @@ test(
     );
 
     await t.test(
+      "direct command conflict preferences cannot produce unaudited side effects",
+      async () => {
+        const text = `conflict${randomUUID().replaceAll("-", "")}`;
+        const requestId = randomUUID();
+        const createPayload = {
+          operation: "create-note",
+          caseId: created.id,
+          body: text,
+          dateKind: "ordinary",
+          occurredOn: null,
+        };
+        const first = ok<{ note: Row & { revision: number } }>(
+          await call("execute_case_content_command", {
+            p_request_id: requestId,
+            p_payload: createPayload,
+          }),
+        );
+        const addedLink = ok<{ link: Row & { revision: number } }>(
+          await call("execute_case_content_command", {
+            p_request_id: randomUUID(),
+            p_payload: {
+              operation: "add-link",
+              caseId: created.id,
+              url: `https://example.invalid/${randomUUID()}`,
+              role: "other",
+            },
+          }),
+        ).link;
+        const notePath = `/rest/v1/case_note?select=*&case_id=eq.${created.id}&order=id.asc`;
+        const auditPath = `/rest/v1/case_content_command?select=*&case_id=eq.${created.id}&order=id.asc`;
+        const linkPath = `/rest/v1/case_link_current?select=*&case_id=eq.${created.id}&order=id.asc`;
+        const beforeNotes = ok<Row[]>(await api(notePath));
+        const beforeAudit = ok<Row[]>(await api(auditPath));
+        const beforeLinks = ok<Row[]>(await api(linkPath));
+        const attempts = [
+          createPayload,
+          {
+            operation: "create-note",
+            caseId: created.id,
+            body: `${text} changed`,
+            dateKind: "ordinary",
+            occurredOn: null,
+          },
+          {
+            operation: "correct-note",
+            caseId: created.id,
+            id: first.note.id,
+            expectedRevision: first.note.revision,
+            body: `${text} changed`,
+            dateKind: "ordinary",
+            occurredOn: null,
+          },
+          {
+            operation: "void-note",
+            caseId: created.id,
+            id: first.note.id,
+            expectedRevision: first.note.revision,
+          },
+          {
+            operation: "add-link",
+            caseId: created.id,
+            url: `https://example.invalid/${randomUUID()}`,
+            role: "other",
+          },
+          {
+            operation: "correct-link",
+            caseId: created.id,
+            id: addedLink.id,
+            source: "additional",
+            expectedRevision: addedLink.revision,
+            url: `https://example.invalid/${randomUUID()}`,
+            role: "other",
+            position: 0,
+          },
+          {
+            operation: "void-link",
+            caseId: created.id,
+            id: addedLink.id,
+            source: "additional",
+            expectedRevision: addedLink.revision,
+          },
+        ];
+        for (const preference of ["ignore-duplicates", "merge-duplicates"]) {
+          for (const payload of attempts) {
+            await request(
+              target,
+              a.token,
+              "/rest/v1/case_content_command?on_conflict=owner_id,request_id",
+              "POST",
+              { request_id: requestId, payload },
+              { Prefer: `resolution=${preference},return=representation` },
+              "public",
+            );
+            assert.deepEqual(
+              ok<Row[]>(await api(notePath)),
+              beforeNotes,
+              `${preference} mutated note projection`,
+            );
+            assert.deepEqual(
+              ok<Row[]>(await api(linkPath)),
+              beforeLinks,
+              `${preference} mutated link projection`,
+            );
+            assert.deepEqual(
+              ok<Row[]>(await api(auditPath)),
+              beforeAudit,
+              `${preference} mutated audit`,
+            );
+          }
+        }
+      },
+    );
+
+    await t.test(
+      "reconciliation fences a late intent and preserves already committed results for the owner",
+      async () => {
+        const key = randomUUID();
+        const text = `fence${randomUUID().replaceAll("-", "")}`;
+        const payload = {
+          operation: "create-note",
+          caseId: created.id,
+          body: text,
+          dateKind: "ordinary",
+          occurredOn: null,
+        };
+        const reconcile = (requestId: string, token: string | null = a.token) =>
+          call(
+            "case_content_reconcile",
+            { p_request_id: requestId, p_case_id: created.id },
+            token,
+          );
+        const fenced = ok<{ kind: string }>(await reconcile(key));
+        assert.equal(fenced.kind, "cancelled");
+        assert.equal(
+          ok<{ kind: string }>(await reconcile(key)).kind,
+          "cancelled",
+        );
+        denied(
+          await call("execute_case_content_command", {
+            p_request_id: key,
+            p_payload: payload,
+          }),
+        );
+        const attemptedDirect = await api(
+          "/rest/v1/case_content_command",
+          "POST",
+          { request_id: key, payload },
+        );
+        denied(attemptedDirect);
+        assert.deepEqual(ok<Groups>(await search(text)).notes.items, []);
+        const ledger = ok<Row[]>(
+          await api(
+            `/rest/v1/case_content_command?select=*&request_id=eq.${key}`,
+          ),
+        );
+        assert.equal(ledger.length, 1);
+        assert.ok(!JSON.stringify(ledger).includes(text));
+        for (const token of [b.token, null]) {
+          const response = await reconcile(key, token);
+          denied(response);
+          assert.ok(!JSON.stringify(response.body).includes(text));
+        }
+        const committedKey = randomUUID();
+        const committed = ok<{ note: Row }>(
+          await call("execute_case_content_command", {
+            p_request_id: committedKey,
+            p_payload: payload,
+          }),
+        );
+        const reconciled = ok<{ kind: string; result: { note: Row } }>(
+          await reconcile(committedKey),
+        );
+        assert.equal(reconciled.kind, "found");
+        assert.equal(reconciled.result.note.id, committed.note.id);
+        const replay = ok<{ kind: string; note: Row }>(
+          await call("execute_case_content_command", {
+            p_request_id: committedKey,
+            p_payload: payload,
+          }),
+        );
+        assert.equal(replay.kind, "replayed");
+        assert.equal(replay.note.id, committed.note.id);
+        const concurrentKey = randomUUID();
+        const concurrentText = `race${randomUUID().replaceAll("-", "")}`;
+        const concurrentPayload = { ...payload, body: concurrentText };
+        const [fenceResult, writeResult] = await Promise.all([
+          reconcile(concurrentKey),
+          call("execute_case_content_command", {
+            p_request_id: concurrentKey,
+            p_payload: concurrentPayload,
+          }),
+        ]);
+        const raceFence = ok<{ kind: string }>(fenceResult);
+        if (raceFence.kind === "cancelled") {
+          denied(writeResult);
+          assert.deepEqual(
+            ok<Groups>(await search(concurrentText)).notes.items,
+            [],
+          );
+        } else {
+          assert.equal(raceFence.kind, "found");
+          assert.equal(writeResult.status, 200);
+          assert.equal(
+            ok<Groups>(await search(concurrentText)).notes.items.length,
+            1,
+          );
+        }
+        assert.equal(
+          ok<Row[]>(
+            await api(
+              `/rest/v1/case_content_command?select=*&request_id=eq.${concurrentKey}`,
+            ),
+          ).length,
+          1,
+        );
+      },
+    );
+
+    await t.test(
       "legacy direct INSERT stays visible, correction replaces its source and void cannot resurrect it",
       async () => {
         const oldMarker = `legacyold${randomUUID().replaceAll("-", "")}`;
@@ -645,6 +864,69 @@ test(
         assert.equal(
           whole.cases.items.filter((row) => row.id === subject.id).length,
           1,
+        );
+      },
+    );
+
+    await t.test(
+      "literal email, URLs and dotted text do not match changed punctuation",
+      async () => {
+        const suffix = randomUUID().replaceAll("-", "");
+        const email = `qa${suffix}@example.invalid`;
+        const dotted = `node.js${suffix}`;
+        const subject = ok<{ note: Row }>(
+          await call("execute_case_content_command", {
+            p_request_id: randomUUID(),
+            p_payload: {
+              operation: "create-note",
+              caseId: created.id,
+              body: `Kontakt ${email}, technologia ${dotted}`,
+              dateKind: "ordinary",
+              occurredOn: null,
+            },
+          }),
+        ).note;
+        assert.ok(
+          ok<Groups>(await search(email)).notes.items.some(
+            (row) => row.id === subject.id,
+          ),
+        );
+        assert.ok(
+          ok<Groups>(await search(dotted)).notes.items.some(
+            (row) => row.id === subject.id,
+          ),
+        );
+        assert.ok(
+          !ok<Groups>(await search(email.replace("@", "."))).notes.items.some(
+            (row) => row.id === subject.id,
+          ),
+        );
+        assert.ok(
+          !ok<Groups>(await search(dotted.replace(".", "/"))).notes.items.some(
+            (row) => row.id === subject.id,
+          ),
+        );
+        const slashUrl = `https://example.invalid/a-${suffix}/b_${suffix}?encoded=%25`;
+        ok(
+          await call("execute_case_content_command", {
+            p_request_id: randomUUID(),
+            p_payload: {
+              operation: "add-link",
+              caseId: created.id,
+              url: slashUrl,
+              role: "other",
+            },
+          }),
+        );
+        assert.ok(
+          ok<Groups>(
+            await search(`a-${suffix}/b_${suffix}?encoded=%25`),
+          ).links.items.some((row) => row.case_id === created.id),
+        );
+        assert.ok(
+          !ok<Groups>(
+            await search(`a-${suffix}-b_${suffix}?encoded=%25`),
+          ).links.items.some((row) => row.case_id === created.id),
         );
       },
     );

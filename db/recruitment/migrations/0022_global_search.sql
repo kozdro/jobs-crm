@@ -63,13 +63,19 @@ BEGIN
  IF auth.uid() IS NULL OR NEW.owner_id IS DISTINCT FROM auth.uid() OR NEW.request_id IS NULL THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Authentication required'; END IF;
  IF jsonb_typeof(p) IS DISTINCT FROM 'object' THEN RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Invalid command'; END IF;
  op:=p->>'operation'; cid:=(p->>'caseId')::uuid;
- IF op NOT IN ('create-note','correct-note','void-note','add-link','correct-link','void-link') OR cid IS NULL THEN RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Invalid command'; END IF;
- allowed:=CASE WHEN op='create-note' THEN ARRAY['operation','caseId','body','dateKind','occurredOn'] WHEN op='correct-note' THEN ARRAY['operation','caseId','id','expectedRevision','body','dateKind','occurredOn'] WHEN op='void-note' THEN ARRAY['operation','caseId','id','expectedRevision'] WHEN op='add-link' THEN ARRAY['operation','caseId','url','role'] WHEN op='correct-link' THEN ARRAY['operation','caseId','id','source','expectedRevision','url','role','position'] ELSE ARRAY['operation','caseId','id','source','expectedRevision'] END;
+ IF op IS NULL OR op NOT IN ('create-note','correct-note','void-note','add-link','correct-link','void-link','reconcile-fence') OR cid IS NULL THEN RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Invalid command'; END IF;
+ allowed:=CASE WHEN op='reconcile-fence' THEN ARRAY['operation','caseId'] WHEN op='create-note' THEN ARRAY['operation','caseId','body','dateKind','occurredOn'] WHEN op='correct-note' THEN ARRAY['operation','caseId','id','expectedRevision','body','dateKind','occurredOn'] WHEN op='void-note' THEN ARRAY['operation','caseId','id','expectedRevision'] WHEN op='add-link' THEN ARRAY['operation','caseId','url','role'] WHEN op='correct-link' THEN ARRAY['operation','caseId','id','source','expectedRevision','url','role','position'] ELSE ARRAY['operation','caseId','id','source','expectedRevision'] END;
  IF EXISTS(SELECT 1 FROM jsonb_object_keys(p) k WHERE NOT(k=ANY(allowed))) THEN RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Invalid command field'; END IF;
  PERFORM pg_advisory_xact_lock(hashtextextended(auth.uid()::text,76211));
+ -- Direct INSERT ... ON CONFLICT DO NOTHING runs this BEFORE trigger even when
+ -- the outer row is discarded. Reject a consumed key before any side effect.
+ IF EXISTS(SELECT 1 FROM public.case_content_command WHERE owner_id=auth.uid() AND request_id=NEW.request_id) THEN RAISE EXCEPTION USING ERRCODE='PT409',MESSAGE='Intent already recorded'; END IF;
  PERFORM 1 FROM public.recruitment_case c WHERE c.owner_id=auth.uid() AND c.id=cid FOR UPDATE;
  IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Record unavailable'; END IF;
  NEW.case_id:=cid; NEW.id:=gen_random_uuid(); NEW.recorded_at:=clock_timestamp();
+ IF op='reconcile-fence' THEN
+  NEW.target_id:=cid; NEW.before_values:=NULL; NEW.after_values:='{}'::jsonb; NEW.result:=jsonb_build_object('kind','cancelled'); RETURN NEW;
+ END IF;
  IF op IN ('create-note','correct-note','void-note') THEN
   IF op<>'create-note' THEN
    target:=(p->>'id')::uuid; rev:=(p->>'expectedRevision')::integer;
@@ -147,8 +153,24 @@ BEGIN
  RETURN result;
 END;$fn$;
 --> statement-breakpoint
-REVOKE ALL ON FUNCTION public.case_content_projection_guard(),public.case_content_command_guard(),public.execute_case_content_command(uuid,jsonb) FROM PUBLIC,anon,authenticated,service_role;
-GRANT EXECUTE ON FUNCTION public.execute_case_content_command(uuid,jsonb) TO authenticated;
+CREATE FUNCTION public.case_content_reconcile(p_request_id uuid,p_case_id uuid) RETURNS jsonb LANGUAGE plpgsql VOLATILE SECURITY INVOKER SET search_path='' AS $fn$
+DECLARE prior public.case_content_command%ROWTYPE;
+BEGIN
+ IF auth.uid() IS NULL OR p_request_id IS NULL OR p_case_id IS NULL THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Record unavailable'; END IF;
+ PERFORM pg_advisory_xact_lock(hashtextextended(auth.uid()::text,76211));
+ SELECT * INTO prior FROM public.case_content_command WHERE owner_id=auth.uid() AND request_id=p_request_id;
+ IF FOUND THEN
+  IF prior.case_id IS DISTINCT FROM p_case_id THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Record unavailable'; END IF;
+  IF prior.payload->>'operation'='reconcile-fence' THEN RETURN jsonb_build_object('kind','cancelled'); END IF;
+  RETURN jsonb_build_object('kind','found','result',prior.result);
+ END IF;
+ IF NOT EXISTS(SELECT 1 FROM public.recruitment_case WHERE owner_id=auth.uid() AND id=p_case_id) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Record unavailable'; END IF;
+ INSERT INTO public.case_content_command(request_id,payload) VALUES(p_request_id,jsonb_build_object('operation','reconcile-fence','caseId',p_case_id));
+ RETURN jsonb_build_object('kind','cancelled');
+END;$fn$;
+--> statement-breakpoint
+REVOKE ALL ON FUNCTION public.case_content_projection_guard(),public.case_content_command_guard(),public.execute_case_content_command(uuid,jsonb),public.case_content_reconcile(uuid,uuid) FROM PUBLIC,anon,authenticated,service_role;
+GRANT EXECUTE ON FUNCTION public.execute_case_content_command(uuid,jsonb),public.case_content_reconcile(uuid,uuid) TO authenticated;
 --> statement-breakpoint
 CREATE INDEX case_note_owner_case_idx ON public.case_note(owner_id,case_id,created_at,id);
 CREATE INDEX case_link_owner_case_idx ON public.case_link(owner_id,case_id,position,id);
@@ -162,17 +184,17 @@ REVOKE ALL ON FUNCTION public.search_normalize(text) FROM PUBLIC,anon,authentica
 GRANT EXECUTE ON FUNCTION public.search_normalize(text) TO authenticated;
 --> statement-breakpoint
 CREATE INDEX recruitment_case_search_gin ON public.recruitment_case USING gin(to_tsvector('pg_catalog.simple'::regconfig,public.search_normalize(coalesce(title,'')||' '||coalesce(description,''))));
-CREATE INDEX catalog_profile_search_gin ON public.catalog_profile USING gin(to_tsvector('pg_catalog.simple'::regconfig,public.search_normalize(coalesce(name,'')||' '||coalesce(email,''))));
+CREATE INDEX catalog_profile_search_gin ON public.catalog_profile USING gin(to_tsvector('pg_catalog.simple'::regconfig,public.search_normalize(coalesce(name,''))));
 CREATE INDEX case_note_search_gin ON public.case_note USING gin(to_tsvector('pg_catalog.simple'::regconfig,public.search_normalize(body)));
 CREATE INDEX case_link_search_gin ON public.case_link USING gin(to_tsvector('pg_catalog.simple'::regconfig,public.search_normalize(url)));
 CREATE INDEX calendar_event_search_gin ON public.recruitment_calendar_event USING gin(to_tsvector('pg_catalog.simple'::regconfig,public.search_normalize(coalesce(title,'')||' '||coalesce(description,''))));
 --> statement-breakpoint
 CREATE FUNCTION public.global_search(p_query text,p_pages jsonb DEFAULT '{}'::jsonb,p_limit integer DEFAULT 20) RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY INVOKER SET search_path='' AS $fn$
-DECLARE q text; terms text; ts tsquery; grp text; result jsonb:='{}'::jsonb; page_no numeric; items jsonb; more boolean; offset_no bigint;
+DECLARE q text; raw_q text; terms text; ts tsquery; grp text; result jsonb:='{}'::jsonb; page_no numeric; items jsonb; more boolean; offset_no bigint;
 BEGIN
  IF auth.uid() IS NULL THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Authentication required'; END IF;
  IF p_query IS NULL OR char_length(public.recruitment_trim(p_query)) NOT BETWEEN 1 AND 200 OR p_limit IS NULL OR p_limit NOT IN (3,20) OR jsonb_typeof(p_pages) IS DISTINCT FROM 'object' OR EXISTS(SELECT 1 FROM jsonb_object_keys(p_pages) k WHERE k NOT IN ('cases','companies','contacts','links','notes','events')) THEN RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Invalid query'; END IF;
- q:=public.search_normalize(public.recruitment_trim(p_query));
+ raw_q:=lower(public.recruitment_trim(p_query)); q:=public.search_normalize(public.recruitment_trim(p_query));
  SELECT string_agg(quote_literal(t)||':*',' & ') INTO terms FROM regexp_split_to_table(q,'[^[:alnum:]]+') t WHERE t<>'';
  IF terms IS NOT NULL THEN ts:=to_tsquery('pg_catalog.simple'::regconfig,terms); END IF;
  FOREACH grp IN ARRAY ARRAY['cases','companies','contacts','links','notes','events'] LOOP
@@ -180,18 +202,19 @@ BEGIN
   page_no:=COALESCE((p_pages->>grp)::numeric,1); IF (page_no-1)*p_limit > 9223372036854775807 THEN result:=result||jsonb_build_object(grp,jsonb_build_object('items','[]'::jsonb,'hasMore',false)); CONTINUE; END IF; offset_no:=((page_no-1)*p_limit)::bigint;
   WITH source AS NOT MATERIALIZED (
    SELECT 'cases'::text AS group_name,c.id,c.id AS case_id,c.title,coalesce(c.description,'') AS snippet,c.created_at,'case'::text AS source, public.search_normalize(coalesce(c.title,'')||' '||coalesce(c.description,'')) AS body FROM public.recruitment_case c WHERE grp='cases' AND c.owner_id=auth.uid()
-   UNION ALL SELECT CASE WHEN p.type='organization' THEN 'companies' ELSE 'contacts' END,p.id,NULL::uuid,p.name,coalesce(p.email,''),p.created_at,p.type,public.search_normalize(coalesce(p.name,'')||' '||coalesce(p.email,'')) FROM public.catalog_profile p WHERE grp IN ('companies','contacts') AND p.owner_id=auth.uid() AND p.type=CASE WHEN grp='companies' THEN 'organization' ELSE 'contact' END
+   UNION ALL SELECT CASE WHEN p.type='organization' THEN 'companies' ELSE 'contacts' END,p.id,NULL::uuid,p.name,coalesce(p.email,''),p.created_at,p.type,public.search_normalize(coalesce(p.name,'')) FROM public.catalog_profile p WHERE grp IN ('companies','contacts') AND p.owner_id=auth.uid() AND p.type=CASE WHEN grp='companies' THEN 'organization' ELSE 'contact' END
    UNION ALL SELECT 'links',l.id,l.case_id,l.url,l.url,l.created_at,l.source,public.search_normalize(l.url) FROM public.case_link_current l WHERE grp='links' AND l.owner_id=auth.uid() AND NOT l.voided
    UNION ALL SELECT 'notes',n.id,n.case_id,'Notatka',n.body,n.created_at,'note',public.search_normalize(n.body) FROM public.case_note n WHERE grp='notes' AND n.owner_id=auth.uid() AND NOT n.voided
    UNION ALL SELECT 'events',e.id,e.case_id,e.title,coalesce(e.description,''),e.created_at,'calendar',public.search_normalize(coalesce(e.title,'')||' '||coalesce(e.description,'')) FROM public.recruitment_calendar_event e WHERE grp='events' AND e.owner_id=auth.uid()
   ), candidates AS (
-   SELECT * FROM source WHERE ts IS NOT NULL AND to_tsvector('pg_catalog.simple'::regconfig,body) @@ ts
+   SELECT * FROM source WHERE grp<>'links' AND (grp<>'contacts' OR raw_q !~ '[@.%_/]') AND ts IS NOT NULL AND to_tsvector('pg_catalog.simple'::regconfig,body) @@ ts
    UNION
    SELECT * FROM source WHERE (grp IN ('cases','companies','contacts','events') AND strpos(public.search_normalize(title),q)>0)
-    OR (grp='contacts' AND strpos(public.search_normalize(snippet),q)>0)
-    OR (grp='links' AND strpos(body,q)>0)
+    OR (grp='contacts' AND strpos(lower(snippet),raw_q)>0)
+    OR (grp='links' AND strpos(lower(title),raw_q)>0)
+    OR (grp IN ('cases','notes','events') AND q ~ '[^[:alnum:][:space:]]' AND strpos(body,q)>0)
   ), matched AS (
-   SELECT *,CASE WHEN public.search_normalize(title)=q OR public.search_normalize(snippet)=q THEN 0 WHEN strpos(body,q)>0 THEN 1 ELSE 2 END AS grade,
+   SELECT *,CASE WHEN (grp='links' AND lower(title)=raw_q) OR (grp='contacts' AND lower(snippet)=raw_q) OR (grp<>'links' AND (public.search_normalize(title)=q OR (grp<>'contacts' AND public.search_normalize(snippet)=q))) THEN 0 WHEN (grp='links' AND strpos(lower(title),raw_q)>0) OR (grp='contacts' AND strpos(lower(snippet),raw_q)>0) OR (grp<>'links' AND strpos(body,q)>0) THEN 1 ELSE 2 END AS grade,
     CASE WHEN ts IS NULL THEN 0 ELSE ts_rank(to_tsvector('pg_catalog.simple'::regconfig,body),ts) END AS rank
    FROM candidates
   ), limited AS (

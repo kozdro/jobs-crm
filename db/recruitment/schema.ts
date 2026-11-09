@@ -395,7 +395,7 @@ export const catalogProfile = pgTable(
     index("catalog_profile_owner_order_idx").on(t.ownerId, t.createdAt, t.id),
     index("catalog_profile_search_gin").using(
       "gin",
-      sql`to_tsvector('pg_catalog.simple'::regconfig,public.search_normalize(coalesce(${t.name},'')||' '||coalesce(${t.email},'')))`,
+      sql`to_tsvector('pg_catalog.simple'::regconfig,public.search_normalize(coalesce(${t.name},'')))`,
     ),
   ],
 ).enableRLS();

@@ -54,7 +54,7 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
     };
     assert.equal(
       journal.entries.length,
-      22,
+      23,
       "Upgrade test must cover the exact current migration history",
     );
     assert.equal(
@@ -69,6 +69,7 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
     );
     assert.equal(journal.entries[19]?.tag, "0019_email_reminders");
     assert.equal(journal.entries[20]?.tag, "0020_email_queue");
+    assert.equal(journal.entries[22]?.tag, "0022_global_search");
     for (const entry of journal.entries.slice(0, 7)) await apply(entry.tag);
     const owner = randomUUID();
     const caseId = randomUUID();

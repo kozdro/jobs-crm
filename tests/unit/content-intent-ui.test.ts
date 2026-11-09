@@ -1,7 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   claimContentIntent,
   clearContentIntent,
+  canDiscardContentDraft,
 } from "@/components/recruitment/content-intent";
 function memory() {
   const values = new Map<string, string>();
@@ -16,6 +17,17 @@ function memory() {
   };
 }
 describe("content intent guard", () => {
+  it("keeps an edited draft when discard is declined and permits an explicit discard", () => {
+    const confirmDiscard = vi
+      .fn()
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(true);
+    expect(canDiscardContentDraft(false, confirmDiscard)).toBe(true);
+    expect(confirmDiscard).not.toHaveBeenCalled();
+    expect(canDiscardContentDraft(true, confirmDiscard)).toBe(false);
+    expect(canDiscardContentDraft(true, confirmDiscard)).toBe(true);
+    expect(confirmDiscard).toHaveBeenCalledTimes(2);
+  });
   it("keeps a pending request and only permits retry of the same id", () => {
     const storage = memory();
     expect(claimContentIntent(storage, "case", "first")).toBe(true);

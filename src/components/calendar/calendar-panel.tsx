@@ -1781,7 +1781,7 @@ export function CalendarPanel({
   const [hasMore, setHasMore] = useState(false);
   const [version, setVersion] = useState(0);
   const [targetEvent, setTargetEvent] = useState<CalendarEvent | null>(null);
-  const [targetError, setTargetError] = useState(false);
+  const [targetError, setTargetError] = useState<string | null>(null);
   const targetRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!targetEventId) return;
@@ -1791,15 +1791,15 @@ export function CalendarPanel({
         const item = body.event as CalendarEvent | undefined;
         if (!active) return;
         if (!item || item.id !== targetEventId) {
-          setTargetError(true);
+          setTargetError(targetEventId);
           return;
         }
         setTargetEvent(item);
-        setTargetError(false);
+        setTargetError(null);
         requestAnimationFrame(() => targetRef.current?.focus());
       })
       .catch(() => {
-        if (active) setTargetError(true);
+        if (active) setTargetError(targetEventId);
       });
     return () => {
       active = false;
@@ -2300,31 +2300,33 @@ export function CalendarPanel({
         </Dialog.Root>
       )}
       {loading && <p role="status">Ładowanie wydarzeń…</p>}
-      {targetEventId && targetError && (
+      {targetEventId && targetError === targetEventId && (
         <p role="alert">Nie można otworzyć wskazanego wydarzenia.</p>
       )}
-      {targetEvent && !targetError && (
-        <div
-          ref={targetRef}
-          tabIndex={-1}
-          className="scroll-mt-6 rounded-md border border-border p-3 outline-none"
-          aria-label="Wskazane wydarzenie"
-        >
-          <EventRow
-            event={targetEvent}
-            userId={userId}
-            cases={cases}
-            contacts={contacts}
-            onSaved={savedRow}
-            onActivity={onActivity}
-            onDismiss={syncPending}
-            onFocusMissing={focusPanel}
-            onFocusRecovery={focusRecovery}
-            mutationBlocked={Boolean(pendingState)}
-            now={now}
-          />
-        </div>
-      )}
+      {targetEventId &&
+        targetEvent?.id === targetEventId &&
+        targetError !== targetEventId && (
+          <div
+            ref={targetRef}
+            tabIndex={-1}
+            className="scroll-mt-6 rounded-md border border-border p-3 outline-none"
+            aria-label="Wskazane wydarzenie"
+          >
+            <EventRow
+              event={targetEvent}
+              userId={userId}
+              cases={cases}
+              contacts={contacts}
+              onSaved={savedRow}
+              onActivity={onActivity}
+              onDismiss={syncPending}
+              onFocusMissing={focusPanel}
+              onFocusRecovery={focusRecovery}
+              mutationBlocked={Boolean(pendingState)}
+              now={now}
+            />
+          </div>
+        )}
       {error && (
         <div role="alert">
           <p>{error}</p>

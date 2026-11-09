@@ -104,7 +104,11 @@ export async function GET(request: NextRequest) {
         .maybeSingle();
       if (error) return response({ kind: "unavailable" }, 503, auth.headers);
       return response(
-        data ? { kind: "found", result: data.result } : { kind: "not-found" },
+        data?.result?.kind === "cancelled"
+          ? { kind: "cancelled" }
+          : data
+            ? { kind: "found", result: data.result }
+            : { kind: "not-found" },
         200,
         auth.headers,
       );
@@ -148,7 +152,8 @@ export async function GET(request: NextRequest) {
     const auditQuery = auth.client
       .from("case_content_command")
       .select("id,case_id,target_id,before_values,after_values,recorded_at")
-      .eq("case_id", caseId);
+      .eq("case_id", caseId)
+      .neq("payload->>operation", "reconcile-fence");
     if (auditTarget)
       auditQuery.or(
         `target_id.eq.${auditTarget},before_values->reordered->>id.eq.${auditTarget}`,

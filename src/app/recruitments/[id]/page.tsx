@@ -6,6 +6,7 @@ import { notFound, redirect } from "next/navigation";
 import { Workspace } from "@/components/recruitment/workspace";
 import { CaseEventForm } from "@/components/recruitment/case-event-form";
 import { CaseHistory } from "@/components/recruitment/case-history";
+import { ContentRecoveryProvider } from "@/components/recruitment/content-recovery";
 import {
   CaseLinks,
   NoteTarget,
@@ -99,83 +100,85 @@ export default async function RecruitmentDetailPage({
           </a>
         ))}
       </nav>
-      <section className="min-w-0" aria-label="Zapisane dane sprawy">
-        <div id="case-details" tabIndex={-1} className="scroll-mt-6">
-          <CaseContent item={item} />
-        </div>
-        <CaseLinks
-          owner={user.id}
-          caseId={item.id}
-          targetId={
-            typeof query.linkId === "string" && uuidPattern.test(query.linkId)
-              ? query.linkId
-              : undefined
-          }
-          targetSource={
-            typeof query.linkSource === "string" &&
-            ["legacy", "additional"].includes(query.linkSource)
-              ? query.linkSource
-              : undefined
-          }
-        />
-        <div id="case-relations" tabIndex={-1} className="mt-5 scroll-mt-6">
-          <RelationsPanel
-            key={`${user.id}:${item.id}`}
-            userId={user.id}
-            contextType="case"
-            contextId={item.id}
-          />
-        </div>
-        <div id="case-tasks" tabIndex={-1} className="mt-5 scroll-mt-6">
-          <TasksPanel
-            key={`${user.id}:${item.id}`}
-            userId={user.id}
+      <ContentRecoveryProvider owner={user.id} caseId={item.id}>
+        <section className="min-w-0" aria-label="Zapisane dane sprawy">
+          <div id="case-details" tabIndex={-1} className="scroll-mt-6">
+            <CaseContent item={item} />
+          </div>
+          <CaseLinks
+            owner={user.id}
             caseId={item.id}
-            caseTitle={item.title}
+            targetId={
+              typeof query.linkId === "string" && uuidPattern.test(query.linkId)
+                ? query.linkId
+                : undefined
+            }
+            targetSource={
+              typeof query.linkSource === "string" &&
+              ["legacy", "additional"].includes(query.linkSource)
+                ? query.linkSource
+                : undefined
+            }
           />
-        </div>
-        <div id="case-calendar" tabIndex={-1} className="mt-5 scroll-mt-6">
-          <CalendarPanel
-            userId={user.id}
-            caseId={item.id}
-            caseTitle={item.title}
-          />
-        </div>
-        <div id="case-lifecycle" tabIndex={-1} className="scroll-mt-6">
-          <LifecycleActions
-            key={`${user.id}:${item.id}`}
-            userId={user.id}
-            caseId={item.id}
-            status={item.status}
-          />
-        </div>
-        <div id="case-actions" tabIndex={-1} className="scroll-mt-6">
-          <CaseEventForm
-            userId={user.id}
-            caseId={item.id}
-            status={item.status}
-            stageVersion={item.stage_version}
-          />
-        </div>
-        <div id="case-history" tabIndex={-1} className="scroll-mt-6">
-          {typeof query.noteId === "string" &&
-            uuidPattern.test(query.noteId) && (
-              <NoteTarget
-                owner={user.id}
-                caseId={item.id}
-                noteId={query.noteId}
-                currentPage={historyPage}
-              />
-            )}
-          <CaseHistory
-            key={`${user.id}:${item.id}:${historyPage}`}
-            userId={user.id}
-            caseId={item.id}
-            result={history}
-            workspaceReturnToken={workspaceReturnToken}
-          />
-        </div>
-      </section>
+          <div id="case-relations" tabIndex={-1} className="mt-5 scroll-mt-6">
+            <RelationsPanel
+              key={`${user.id}:${item.id}`}
+              userId={user.id}
+              contextType="case"
+              contextId={item.id}
+            />
+          </div>
+          <div id="case-tasks" tabIndex={-1} className="mt-5 scroll-mt-6">
+            <TasksPanel
+              key={`${user.id}:${item.id}`}
+              userId={user.id}
+              caseId={item.id}
+              caseTitle={item.title}
+            />
+          </div>
+          <div id="case-calendar" tabIndex={-1} className="mt-5 scroll-mt-6">
+            <CalendarPanel
+              userId={user.id}
+              caseId={item.id}
+              caseTitle={item.title}
+            />
+          </div>
+          <div id="case-lifecycle" tabIndex={-1} className="scroll-mt-6">
+            <LifecycleActions
+              key={`${user.id}:${item.id}`}
+              userId={user.id}
+              caseId={item.id}
+              status={item.status}
+            />
+          </div>
+          <div id="case-actions" tabIndex={-1} className="scroll-mt-6">
+            <CaseEventForm
+              userId={user.id}
+              caseId={item.id}
+              status={item.status}
+              stageVersion={item.stage_version}
+            />
+          </div>
+          <div id="case-history" tabIndex={-1} className="scroll-mt-6">
+            {typeof query.noteId === "string" &&
+              uuidPattern.test(query.noteId) && (
+                <NoteTarget
+                  owner={user.id}
+                  caseId={item.id}
+                  noteId={query.noteId}
+                  currentPage={historyPage}
+                />
+              )}
+            <CaseHistory
+              key={`${user.id}:${item.id}:${historyPage}`}
+              userId={user.id}
+              caseId={item.id}
+              result={history}
+              workspaceReturnToken={workspaceReturnToken}
+            />
+          </div>
+        </section>
+      </ContentRecoveryProvider>
     </Workspace>
   );
 }

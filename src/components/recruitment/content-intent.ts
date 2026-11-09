@@ -22,3 +22,11 @@ export function clearContentIntent(
   storage.removeItem(key);
   return storage.getItem(key) === null;
 }
+
+/** A different editor/page may replace an editor only after explicit discard. */
+export function canDiscardContentDraft(
+  dirty: boolean,
+  confirmDiscard: () => boolean,
+) {
+  return !dirty || confirmDiscard();
+}

@@ -59,6 +59,9 @@ test("a real inline note is searchable, opens its case context, and a private qu
     .getByRole("button", { name: "Zapisz notatkę", exact: true })
     .click();
   await expect(
+    page.getByRole("button", { name: "+ Notatka", exact: true }),
+  ).toBeFocused();
+  await expect(
     page.getByText(`Historyczna treść ${query}`, { exact: true }),
   ).toBeVisible();
 
@@ -403,6 +406,113 @@ test("signing out and changing owner clears the private query and results", asyn
   await expect(dialog.getByText(marker, { exact: false })).toHaveCount(0);
 });
 
+test("a delayed stale search response never replaces the newest query results", async ({
+  page,
+}) => {
+  const oldQuery = `old${randomUUID().replaceAll("-", "")}`;
+  const newQuery = `new${randomUUID().replaceAll("-", "")}`;
+  await caseFixture(oldQuery);
+  await caseFixture(newQuery);
+  await login(page);
+  await page.route("**/search/data", async (route) => {
+    const body = route.request().postDataJSON() as { query?: string };
+    if (body.query === oldQuery)
+      await new Promise((resolve) => setTimeout(resolve, 800));
+    try {
+      await route.continue();
+    } catch {
+      /* Abort of obsolete request is expected. */
+    }
+  });
+  await page.getByRole("button", { name: "Szukaj", exact: true }).click();
+  const dialog = page.getByRole("dialog", {
+    name: "Wyszukiwanie",
+    exact: true,
+  });
+  const input = dialog.getByLabel("Szukaj w Jobs CRM", { exact: true });
+  const firstRequest = page.waitForRequest(
+    (request) =>
+      request.url().endsWith("/search/data") &&
+      request.postDataJSON()?.query === oldQuery,
+  );
+  await input.fill(oldQuery);
+  await firstRequest;
+  await input.fill(newQuery);
+  await expect(dialog.getByText(newQuery, { exact: false })).toBeVisible();
+  await page.waitForTimeout(1000);
+  await expect(dialog.getByText(oldQuery, { exact: false })).toHaveCount(0);
+  await expect(dialog.getByText(newQuery, { exact: false })).toBeVisible();
+});
+
+test("BFF content/audit and duplicate lookup do not reveal another owner's case or link", async ({
+  page,
+}) => {
+  const caseId = await caseFixture(`Private BFF ${randomUUID()}`);
+  const secretUrl = `https://example.invalid/${randomUUID()}`;
+  const { client } = await sdkLogin(target, owner);
+  const created = await client.rpc("execute_case_content_command", {
+    p_request_id: randomUUID(),
+    p_payload: { operation: "add-link", caseId, url: secretUrl, role: "other" },
+  });
+  expect(created.error).toBeNull();
+  const other = await account(target);
+  const positive = await client.rpc("find_case_link_duplicate", {
+    p_case_id: caseId,
+    p_url: secretUrl,
+  });
+  expect(positive.error).toBeNull();
+  expect(positive.data.id).toBe(created.data.link.id);
+  const foreign = await sdkLogin(target, other);
+  const deniedLookup = await foreign.client.rpc("find_case_link_duplicate", {
+    p_case_id: caseId,
+    p_url: secretUrl,
+  });
+  expect(JSON.stringify(deniedLookup.data)).not.toContain(created.data.link.id);
+  await login(page, other);
+  const response = await page.evaluate(
+    async ({ caseId, targetId, userId, secretUrl }) => {
+      const query = new URLSearchParams({
+        caseId,
+        auditTarget: targetId,
+        expectedUserId: userId,
+      });
+      const read = await fetch(`/recruitments/content?${query}`, {
+        cache: "no-store",
+      });
+      const command = await fetch("/recruitments/content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          expectedUserId: userId,
+          requestId: crypto.randomUUID(),
+          payload: {
+            operation: "add-link",
+            caseId,
+            url: secretUrl,
+            role: "other",
+          },
+        }),
+      });
+      return {
+        readStatus: read.status,
+        read: await read.text(),
+        commandStatus: command.status,
+        command: await command.text(),
+      };
+    },
+    {
+      caseId,
+      targetId: created.data.link.id as string,
+      userId: other.id,
+      secretUrl,
+    },
+  );
+  expect(response.readStatus).toBe(404);
+  expect(response.commandStatus).toBeGreaterThanOrEqual(400);
+  expect(JSON.stringify(response)).not.toContain(secretUrl);
+  expect(JSON.stringify(response)).not.toContain(created.data.link.id);
+});
+
 test("the BFF returns reorder audit for both the moved and displaced links", async ({
   page,
 }) => {
@@ -462,4 +572,289 @@ test("the BFF returns reorder audit for both the moved and displaced links", asy
       ),
     ).toBe(true);
   }
+});
+
+test("lost committed response keeps the frozen intent until receipt is recovered", async ({
+  page,
+}) => {
+  const caseId = await caseFixture(`Recovery QA ${randomUUID()}`);
+  const oldA = `https://example.invalid/a-${randomUUID()}`;
+  const oldB = `https://example.invalid/b-${randomUUID()}`;
+  const newA = `https://example.invalid/new-${randomUUID()}`;
+  const { client } = await sdkLogin(target, owner);
+  const add = async (url: string) => {
+    const { data, error } = await client.rpc("execute_case_content_command", {
+      p_request_id: randomUUID(),
+      p_payload: { operation: "add-link", caseId, url, role: "other" },
+    });
+    expect(error).toBeNull();
+    return data.link.id as string;
+  };
+  const linkA = await add(oldA);
+  const linkB = await add(oldB);
+  let frozen: { requestId: string; payload: unknown } | null = null;
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
+  await page
+    .getByRole("button", { name: `Popraw link ${oldA}`, exact: true })
+    .click();
+  const editor = page
+    .locator("form")
+    .filter({ has: page.getByLabel("Adres URL", { exact: true }) });
+  await editor.getByLabel("Adres URL", { exact: true }).fill(newA);
+  await page.route("**/recruitments/content", async (route) => {
+    if (route.request().method() !== "POST") return route.continue();
+    frozen = route.request().postDataJSON() as {
+      requestId: string;
+      payload: unknown;
+    };
+    const response = await route.fetch();
+    expect(response.status()).toBe(200);
+    await route.fulfill({
+      status: 503,
+      contentType: "application/json",
+      body: JSON.stringify({ kind: "unavailable" }),
+    });
+  });
+  await editor
+    .getByRole("button", { name: "Zapisz link", exact: true })
+    .click();
+  await expect(
+    page.getByText(/Wynik zapisu jest niepewny/).first(),
+  ).toBeVisible();
+  const other = page.getByRole("button", {
+    name: `Popraw link ${oldB}`,
+    exact: true,
+  });
+  if (await other.isEnabled()) await other.click({ force: true });
+  await expect(
+    page
+      .locator(`#case-link-additional-${linkB}`)
+      .getByLabel("Adres URL", { exact: true }),
+  ).toHaveCount(0);
+  await page.unrouteAll({ behavior: "wait" });
+  await page
+    .getByRole("button", { name: "Ponów identyczny zapis", exact: true })
+    .first()
+    .click();
+  await expect(page.locator(`#case-link-additional-${linkA}`)).toContainText(
+    newA,
+  );
+  expect(frozen).not.toBeNull();
+  const receipt = await client
+    .from("case_content_command")
+    .select("request_id,payload")
+    .eq("request_id", frozen!.requestId);
+  expect(receipt.error).toBeNull();
+  expect(receipt.data).toHaveLength(1);
+  expect(receipt.data![0].payload).toEqual(frozen!.payload);
+});
+
+test("reload after an uncommitted request fences its ID before a new write", async ({
+  page,
+}) => {
+  const caseId = await caseFixture(`Fence QA ${randomUUID()}`);
+  const oldUrl = `https://example.invalid/old-${randomUUID()}`;
+  const newUrl = `https://example.invalid/new-${randomUUID()}`;
+  const { client } = await sdkLogin(target, owner);
+  const initial = await client.rpc("execute_case_content_command", {
+    p_request_id: randomUUID(),
+    p_payload: { operation: "add-link", caseId, url: oldUrl, role: "other" },
+  });
+  expect(initial.error).toBeNull();
+  let frozen: { requestId: string; payload: unknown } | null = null;
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
+  await page
+    .getByRole("button", { name: `Popraw link ${oldUrl}`, exact: true })
+    .click();
+  const editor = page
+    .locator("form")
+    .filter({ has: page.getByLabel("Adres URL", { exact: true }) });
+  await editor.getByLabel("Adres URL", { exact: true }).fill(newUrl);
+  await page.route("**/recruitments/content", async (route) => {
+    if (route.request().method() !== "POST") return route.continue();
+    frozen = route.request().postDataJSON() as {
+      requestId: string;
+      payload: unknown;
+    };
+    await route.abort();
+  });
+  await editor
+    .getByRole("button", { name: "Zapisz link", exact: true })
+    .click();
+  await expect(
+    page.getByText(/Wynik zapisu jest niepewny/).first(),
+  ).toBeVisible();
+  await page.unrouteAll({ behavior: "wait" });
+  await page.reload();
+  await page
+    .getByRole("button", { name: "Sprawdź i zakończ oczekiwanie", exact: true })
+    .first()
+    .click();
+  await expect(
+    page.getByText("Poprzedni zamiar bezpiecznie zakończony.").first(),
+  ).toBeVisible();
+  expect(frozen).not.toBeNull();
+  const late = await client.rpc("execute_case_content_command", {
+    p_request_id: frozen!.requestId,
+    p_payload: frozen!.payload,
+  });
+  expect(late.error).not.toBeNull();
+  const current = await client
+    .from("case_link_current")
+    .select("url")
+    .eq("case_id", caseId)
+    .eq("id", initial.data.link.id)
+    .single();
+  expect(current.error).toBeNull();
+  expect(current.data?.url).toBe(oldUrl);
+});
+
+test("long historical note shows its actual creation date, and voided links retain their audit", async ({
+  page,
+}) => {
+  const caseId = await caseFixture(`Details QA ${randomUUID()}`);
+  const { client } = await sdkLogin(target, owner);
+  const longBody = `Początek ${"długa treść ".repeat(60)} zakończenie`;
+  const createdNote = await client.rpc("execute_case_content_command", {
+    p_request_id: randomUUID(),
+    p_payload: {
+      operation: "create-note",
+      caseId,
+      body: longBody,
+      dateKind: "historical",
+      occurredOn: "2020-01-02",
+    },
+  });
+  expect(createdNote.error).toBeNull();
+  const linkUrl = `https://example.invalid/void-${randomUUID()}`;
+  const createdLink = await client.rpc("execute_case_content_command", {
+    p_request_id: randomUUID(),
+    p_payload: { operation: "add-link", caseId, url: linkUrl, role: "other" },
+  });
+  expect(createdLink.error).toBeNull();
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
+  const note = page.locator(`#case-note-${createdNote.data.note.id}`);
+  await expect(
+    note.getByRole("button", { name: "Rozwiń notatkę", exact: true }),
+  ).toHaveAttribute("aria-expanded", "false");
+  await note
+    .getByRole("button", { name: "Rozwiń notatkę", exact: true })
+    .click();
+  await expect(note.getByText(longBody, { exact: true })).toBeVisible();
+  await expect(note.getByText("Dodano do CRM później.")).toBeVisible();
+  await note.getByText("Szczegóły notatki", { exact: true }).click();
+  await expect(note.locator("time")).toHaveAttribute(
+    "datetime",
+    createdNote.data.note.created_at,
+  );
+  page.once("dialog", (confirmation) => void confirmation.accept());
+  await page
+    .getByRole("button", { name: `Unieważnij link ${linkUrl}`, exact: true })
+    .click();
+  await page.getByText("Unieważnione linki", { exact: true }).click();
+  const voided = page
+    .getByText(`Unieważniony link: ${linkUrl}`, { exact: true })
+    .locator("..");
+  await expect(voided).toBeVisible();
+  await voided.getByText("Historia zmian", { exact: true }).click();
+  await expect(voided.getByText("Po zmianie").first()).toBeVisible();
+});
+
+test("calendar target switches A to B to no target on client navigation", async ({
+  page,
+}) => {
+  const { client } = await sdkLogin(target, owner);
+  const schedule = {
+    startDate: "2099-05-15",
+    startTime: null,
+    endDate: null,
+    endTime: null,
+    allDay: false,
+    timeZone: "Europe/Warsaw",
+    startOffset: null,
+    endOffset: null,
+  };
+  const makeEvent = async (name: string) => {
+    const result = await client.rpc("execute_recruitment_calendar_command", {
+      p_request_id: randomUUID(),
+      p_payload: {
+        operation: "create",
+        values: {
+          title: name,
+          description: null,
+          caseId: null,
+          status: "planned",
+          schedule,
+          timeZone: "Europe/Warsaw",
+          actual: null,
+          participants: [],
+        },
+      },
+    });
+    expect(result.error).toBeNull();
+    return result.data.event.id as string;
+  };
+  const nameA = `Target A ${randomUUID()}`;
+  const nameB = `Target B ${randomUUID()}`;
+  const aId = await makeEvent(nameA),
+    bId = await makeEvent(nameB);
+  await login(page);
+  await page.goto(`${target.appOrigin}/calendar?eventId=${aId}`);
+  await expect(page.getByLabel("Wskazane wydarzenie")).toContainText(nameA);
+  await page.evaluate(
+    (id) => history.pushState(null, "", `/calendar?eventId=${id}`),
+    bId,
+  );
+  await expect(page.getByLabel("Wskazane wydarzenie")).toContainText(nameB);
+  await expect(page.getByLabel("Wskazane wydarzenie")).not.toContainText(nameA);
+  await page.evaluate(() => history.pushState(null, "", "/calendar"));
+  await expect(page.getByLabel("Wskazane wydarzenie")).toHaveCount(0);
+});
+
+test("switching edited links or paging protects an unsaved link draft", async ({
+  page,
+}) => {
+  const caseId = await caseFixture(`Dirty QA ${randomUUID()}`);
+  const { client } = await sdkLogin(target, owner);
+  const urls: string[] = [];
+  for (let i = 0; i < 26; i++) {
+    const url = `https://example.invalid/dirty-${i}-${randomUUID()}`;
+    const result = await client.rpc("execute_case_content_command", {
+      p_request_id: randomUUID(),
+      p_payload: { operation: "add-link", caseId, url, role: "other" },
+    });
+    expect(result.error).toBeNull();
+    urls.push(url);
+  }
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
+  await page
+    .getByRole("button", { name: `Popraw link ${urls[0]}`, exact: true })
+    .click();
+  const draft = `https://example.invalid/unsaved-${randomUUID()}`;
+  await page.getByLabel("Adres URL", { exact: true }).fill(draft);
+  page.once("dialog", (confirmation) => void confirmation.dismiss());
+  await page
+    .getByRole("button", { name: `Popraw link ${urls[1]}`, exact: true })
+    .click();
+  await expect(page.getByLabel("Adres URL", { exact: true })).toHaveValue(
+    draft,
+  );
+  page.once("dialog", (confirmation) => void confirmation.dismiss());
+  await page
+    .getByRole("button", { name: "Następna strona linków", exact: true })
+    .click();
+  await expect(page.getByLabel("Adres URL", { exact: true })).toHaveValue(
+    draft,
+  );
+  page.once("dialog", (confirmation) => void confirmation.accept());
+  await page
+    .getByRole("button", { name: `Popraw link ${urls[1]}`, exact: true })
+    .click();
+  await expect(page.getByLabel("Adres URL", { exact: true })).toHaveValue(
+    urls[1],
+  );
 });
