@@ -270,9 +270,10 @@ export function EmailReminderControls({
     >
       <h5 className="text-sm font-semibold">Przypomnienie e-mail</h5>
       <p className="mt-1 text-sm text-muted-foreground">
-        Opcjonalna wiadomość nie zawiera danych rekrutacyjnych. Zmiana lub
-        utrata weryfikacji adresu wstrzymuje wysyłkę i wymaga ponownego
-        włączenia.
+        Opcjonalna wiadomość nie zawiera danych rekrutacyjnych. Zmiana adresu,
+        utrata jego weryfikacji lub zmiana kontekstu bezpieczeństwa konta może
+        wstrzymać wysyłkę, także gdy adres pozostaje taki sam. Ponowne włączenie
+        wymaga Twojej zgody.
       </p>
       {loading && (
         <p role="status" className="mt-2 text-sm">
@@ -292,6 +293,12 @@ export function EmailReminderControls({
           <p className="mt-2 text-sm">
             Kanał e-mail: {stateLabels[view.state]}.
           </p>
+          {view.state === "cancelled" && (
+            <p className="mt-2 text-sm">
+              Poprzednia zgoda nie uruchomi kolejnej wysyłki. Gdy adres jest
+              zweryfikowany, możesz świadomie włączyć kanał ponownie.
+            </p>
+          )}
           {emailReminderAction(view) === "disable" ? (
             <button
               type="button"

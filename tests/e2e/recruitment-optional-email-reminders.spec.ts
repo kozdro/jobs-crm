@@ -28,7 +28,7 @@ async function login(page: Page, user: Account) {
   await expect(page).toHaveURL(`${target.appOrigin}/dashboard`);
 }
 
-test("email stays off until explicit consent, survives reload, and can be disabled", async ({
+test("email requires explicit consent and renewal after account security context changes", async ({
   page,
 }) => {
   const user = await account(target);
@@ -80,6 +80,32 @@ test("email stays off until explicit consent, survives reload, and can be disabl
   await expect(email).toContainText("oczekuje na wysyłkę");
   await page.reload();
   await expect(email).toContainText("oczekuje na wysyłkę");
+  // Only this test's synthetic owner is updated on the owned disposable target.
+  // Email and its verification stay identical; independent tuple evidence changes.
+  const db = postgres({ ...target.db, max: 1 });
+  try {
+    await db`update auth.users set raw_user_meta_data=coalesce(raw_user_meta_data,'{}'::jsonb)||'{"qaContextChanged":true}'::jsonb where id=${user.id}::uuid`;
+  } finally {
+    await db.end();
+  }
+  await page.reload();
+  await expect(email).toContainText(user.email);
+  await expect(email).toContainText("Kanał e-mail: wyłączony.");
+  await expect(email).toContainText(
+    "Poprzednia zgoda nie uruchomi kolejnej wysyłki.",
+  );
+  expect(
+    emailWrites,
+    "context invalidation must not renew consent automatically",
+  ).toBe(1);
+  await email
+    .getByRole("button", {
+      name: "Włącz e-mail dla przypomnienia",
+      exact: true,
+    })
+    .click();
+  await expect(email).toContainText("oczekuje na wysyłkę");
+  expect(emailWrites).toBe(2);
   await email
     .getByRole("button", {
       name: "Wyłącz e-mail dla przypomnienia",

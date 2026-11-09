@@ -54,7 +54,7 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
     };
     assert.equal(
       journal.entries.length,
-      21,
+      22,
       "Upgrade test must cover the exact current migration history",
     );
     assert.equal(
