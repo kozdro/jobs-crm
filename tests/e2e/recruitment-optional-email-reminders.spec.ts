@@ -1,6 +1,7 @@
 /** AC-TN-005 / DEC-063: owner chooses the channel for one reminder. */
 import { randomUUID } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
+import postgres from "postgres";
 import {
   readRecruitmentTarget,
   type RecruitmentTarget,
@@ -76,9 +77,9 @@ test("email stays off until explicit consent, survives reload, and can be disabl
       exact: true,
     })
     .click();
-  await expect(email).toContainText("Kanał e-mail: włączony.");
+  await expect(email).toContainText("oczekuje na wysyłkę");
   await page.reload();
-  await expect(email).toContainText("Kanał e-mail: włączony.");
+  await expect(email).toContainText("oczekuje na wysyłkę");
   await email
     .getByRole("button", {
       name: "Wyłącz e-mail dla przypomnienia",
@@ -130,7 +131,7 @@ test("switching accounts removes the previous owner's reminder and email address
       exact: true,
     })
     .click();
-  await expect(email).toContainText("Kanał e-mail: włączony.");
+  await expect(email).toContainText("oczekuje na wysyłkę");
   await page.goto(`${target.appOrigin}/account`);
   await page
     .getByRole("button", { name: "Wyloguj tutaj", exact: true })
@@ -140,4 +141,143 @@ test("switching accounts removes the previous owner's reminder and email address
   await page.goto(`${target.appOrigin}/tasks`);
   await expect(page.getByText(title, { exact: false })).toHaveCount(0);
   await expect(page.getByText(owner.email, { exact: false })).toHaveCount(0);
+});
+
+test("terminal transport states are described without claiming delivery", async ({
+  page,
+}) => {
+  const user = await account(target);
+  const { client } = await sdkLogin(target, user);
+  const title = `Syntetyczny status ${randomUUID()}`;
+  const created = await client.rpc("execute_recruitment_task_command", {
+    p_request_id: randomUUID(),
+    p_payload: {
+      operation: "create",
+      title,
+      description: null,
+      dueOn: null,
+      caseId: null,
+    },
+  });
+  expect(created.error).toBeNull();
+  await login(page, user);
+  await page.goto(`${target.appOrigin}/tasks`);
+  const reminder = page.getByRole("region", {
+    name: `Przypomnienie: ${title}`,
+  });
+  await reminder
+    .getByRole("button", { name: "Ustaw przypomnienie", exact: true })
+    .click();
+  await reminder.getByLabel("Data przypomnienia").fill("2099-01-01");
+  await reminder.getByLabel("Godzina przypomnienia").fill("12:00");
+  await reminder.getByLabel("Strefa IANA").fill("Europe/Warsaw");
+  await reminder
+    .getByRole("button", { name: "Potwierdź przypomnienie", exact: true })
+    .click();
+  const email = reminder.getByRole("region", { name: "Przypomnienie e-mail" });
+  await email
+    .getByRole("button", {
+      name: "Włącz e-mail dla przypomnienia",
+      exact: true,
+    })
+    .click();
+  await expect(email).toContainText("oczekuje na wysyłkę");
+  const db = postgres({ ...target.db, max: 1 });
+  try {
+    for (const [state, label] of [
+      ["accepted", "przyjęty przez dostawcę"],
+      ["unknown", "wynik wysyłki nieustalony"],
+      ["expired", "pominięty z powodu opóźnienia"],
+      ["failed", "wysyłka nie powiodła się"],
+    ] as const) {
+      const changed =
+        await db`update email_reminder.intent set state=${state}, enabled=false, terminal_at=clock_timestamp() where owner_id=${user.id}::uuid returning id`;
+      expect(changed).toHaveLength(1);
+      await page.reload();
+      await expect(email).toContainText(label);
+      await expect(
+        email.getByRole("button", {
+          name: "Włącz e-mail dla przypomnienia",
+          exact: true,
+        }),
+      ).toHaveCount(0);
+    }
+  } finally {
+    await db.end();
+  }
+});
+
+test("address changed after display rejects stale consent and retains the 409 alert", async ({
+  page,
+}) => {
+  const user = await account(target);
+  const { client } = await sdkLogin(target, user);
+  const title = `Syntetyczna zgoda ${randomUUID()}`;
+  const created = await client.rpc("execute_recruitment_task_command", {
+    p_request_id: randomUUID(),
+    p_payload: {
+      operation: "create",
+      title,
+      description: null,
+      dueOn: null,
+      caseId: null,
+    },
+  });
+  expect(created.error).toBeNull();
+  await login(page, user);
+  await page.goto(`${target.appOrigin}/tasks`);
+  const reminder = page.getByRole("region", {
+    name: `Przypomnienie: ${title}`,
+  });
+  await reminder
+    .getByRole("button", { name: "Ustaw przypomnienie", exact: true })
+    .click();
+  await reminder.getByLabel("Data przypomnienia").fill("2099-01-01");
+  await reminder.getByLabel("Godzina przypomnienia").fill("12:00");
+  await reminder.getByLabel("Strefa IANA").fill("Europe/Warsaw");
+  await reminder
+    .getByRole("button", { name: "Potwierdź przypomnienie", exact: true })
+    .click();
+  const email = reminder.getByRole("region", { name: "Przypomnienie e-mail" });
+  await expect(email).toContainText(user.email);
+  const changedEmail = `changed-${randomUUID()}@example.invalid`;
+  const update = await fetch(
+    `${target.apiUrl}/auth/v1/admin/users/${user.id}`,
+    {
+      method: "PUT",
+      headers: {
+        apikey: target.serviceRoleKey,
+        Authorization: `Bearer ${target.serviceRoleKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: changedEmail, email_confirm: true }),
+      signal: AbortSignal.timeout(15_000),
+      redirect: "error",
+    },
+  );
+  expect(update.status).toBe(200);
+  const response = page.waitForResponse(
+    (r) =>
+      new URL(r.url()).pathname === "/reminders/email" &&
+      r.request().method() === "POST",
+  );
+  await email
+    .getByRole("button", {
+      name: "Włącz e-mail dla przypomnienia",
+      exact: true,
+    })
+    .click();
+  expect((await response).status()).toBe(409);
+  await expect(email).toContainText(changedEmail);
+  await expect(email).toContainText("Kanał e-mail: wyłączony.");
+  await expect(email.getByRole("alert")).toContainText(
+    "Dane mogły się zmienić",
+  );
+  await email
+    .getByRole("button", {
+      name: "Włącz e-mail dla przypomnienia",
+      exact: true,
+    })
+    .click();
+  await expect(email).toContainText("oczekuje na wysyłkę");
 });

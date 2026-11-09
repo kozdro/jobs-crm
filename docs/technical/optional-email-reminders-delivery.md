@@ -17,3 +17,5 @@ OPEN-009/040 rozstrzygnięte tylko dla wskazanego cyklu; OPEN-013/014 oraz ogól
 ## Weryfikacja i review
 
 Wyniki, kandydat i ograniczenia należy zapisać osobno po uruchomieniu. Fake transport nie dowodzi doręczenia, a przyjęcie dostawcy nie dowodzi dostarczenia do skrzynki. Wymagane niezależne backend/frontend/security review przez read-only harness, QA RLS i race oraz hosted CI na dokładnym SHA. Test PR #25 z timeoutem lifecycle zachowuje pierwotny FAIL i nieustaloną przyczynę; późniejszy PASS nie ustala przyczyny.
+
+**Review kandydata `cd47594`:** frontend FAIL P1 — zgoda nie była związana z wersją wyświetlonego adresu; frontend FAIL P2 — odświeżenie ukrywało błąd zapisu. Backend FAIL P2 — stany terminalne były prezentowane jako zwykłe wyłączenie. Security review statyczny PASS bez findings, nie zastępuje runtime. Autorzy przygotowali poprawki, które wymagają nowego kandydata, testów i ponownego niezależnego review. Nie przypisywać wcześniejszego PASS poprawkom.

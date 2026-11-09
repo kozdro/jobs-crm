@@ -138,35 +138,70 @@ describe("mutation feedback", () => {
 });
 
 describe("optional email reminder view", () => {
-  it("rejects malformed or unverified addresses from the server", async () => {
+  it("validates the verified address, version and known delivery state", async () => {
     const { isEmailReminderView } =
       await import("@/components/reminders/email-reminder-controls");
+    const valid = {
+      enabled: false,
+      verified: true,
+      email: "owner@example.test",
+      consentVersion: "version-a",
+      state: "off",
+    };
+    expect(isEmailReminderView(valid)).toBe(true);
     expect(
-      isEmailReminderView({ enabled: false, verified: false, email: null }),
+      isEmailReminderView({ ...valid, verified: false, email: null }),
     ).toBe(true);
+    expect(isEmailReminderView({ ...valid, verified: false })).toBe(false);
+    expect(isEmailReminderView({ ...valid, email: null })).toBe(false);
+    expect(isEmailReminderView({ ...valid, consentVersion: "" })).toBe(false);
+    expect(isEmailReminderView({ ...valid, state: "unexpected" })).toBe(false);
+  });
+  it("freezes displayed address version with intent and limits actions by outcome", async () => {
+    const { createEmailReminderIntent, emailReminderAction } =
+      await import("@/components/reminders/email-reminder-controls");
+    const displayed = {
+      enabled: false,
+      verified: true,
+      email: "a@example.test",
+      consentVersion: "version-a",
+      state: "off" as const,
+    };
+    const base = {
+      expectedUserId: "owner",
+      taskId: "task",
+      configurationId: "config",
+      requestId: "request",
+    };
+    const intent = createEmailReminderIntent(displayed, base, "enable");
+    expect(intent).toMatchObject({
+      consentVersion: "version-a",
+      requestId: "request",
+    });
+    expect(Object.isFrozen(intent)).toBe(true);
     expect(
-      isEmailReminderView({
-        enabled: true,
-        verified: true,
-        email: "owner@example.test",
-      }),
-    ).toBe(true);
-    expect(
-      isEmailReminderView({
-        enabled: false,
-        verified: false,
-        email: "owner@example.test",
-      }),
-    ).toBe(false);
-    expect(
-      isEmailReminderView({ enabled: false, verified: true, email: null }),
-    ).toBe(false);
-    expect(
-      isEmailReminderView({
-        enabled: "true",
-        verified: true,
-        email: "owner@example.test",
-      }),
-    ).toBe(false);
+      createEmailReminderIntent(
+        { ...displayed, verified: false, email: null },
+        base,
+        "enable",
+      ),
+    ).toBeNull();
+    expect(emailReminderAction({ ...displayed, state: "pending" })).toBe(
+      "disable",
+    );
+    expect(emailReminderAction({ ...displayed, state: "queued" })).toBe(
+      "disable",
+    );
+    for (const state of [
+      "dispatching",
+      "accepted",
+      "unknown",
+      "expired",
+      "failed",
+    ] as const)
+      expect(emailReminderAction({ ...displayed, state })).toBeNull();
+    expect(emailReminderAction({ ...displayed, state: "cancelled" })).toBe(
+      "enable",
+    );
   });
 });

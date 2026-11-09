@@ -2,14 +2,65 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { buttonStyles } from "@/components/tasks/styles";
 
-type View = { enabled: boolean; email: string | null; verified: boolean };
+const emailStates = [
+  "off",
+  "pending",
+  "queued",
+  "dispatching",
+  "accepted",
+  "unknown",
+  "cancelled",
+  "expired",
+  "failed",
+] as const;
+type EmailState = (typeof emailStates)[number];
+type View = {
+  enabled: boolean;
+  email: string | null;
+  verified: boolean;
+  consentVersion: string;
+  state: EmailState;
+};
 type Intent = {
   expectedUserId: string;
   requestId: string;
   taskId: string;
   configurationId: string;
   operation: "enable" | "disable";
+  consentVersion?: string;
 };
+
+const stateLabels: Record<EmailState, string> = {
+  off: "wyłączony",
+  pending: "oczekuje na wysyłkę",
+  queued: "oczekuje na wysyłkę",
+  dispatching: "przekazywanie do dostawcy",
+  accepted: "przyjęty przez dostawcę",
+  unknown: "wynik wysyłki nieustalony",
+  cancelled: "wyłączony",
+  expired: "pominięty z powodu opóźnienia",
+  failed: "wysyłka nie powiodła się",
+};
+
+export function emailReminderAction(view: View): "enable" | "disable" | null {
+  if ((view.state === "off" || view.state === "cancelled") && view.verified)
+    return "enable";
+  if (view.state === "pending" || view.state === "queued") return "disable";
+  return null;
+}
+
+export function createEmailReminderIntent(
+  view: View,
+  base: Omit<Intent, "consentVersion" | "operation">,
+  operation: Intent["operation"],
+): Intent | null {
+  if (emailReminderAction(view) !== operation) return null;
+  return Object.freeze({
+    ...base,
+    operation,
+    ...(operation === "enable" ? { consentVersion: view.consentVersion } : {}),
+  });
+}
 
 export function isEmailReminderView(value: unknown): value is View {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
@@ -17,6 +68,10 @@ export function isEmailReminderView(value: unknown): value is View {
   return (
     typeof v.enabled === "boolean" &&
     typeof v.verified === "boolean" &&
+    typeof v.consentVersion === "string" &&
+    v.consentVersion.length > 0 &&
+    typeof v.state === "string" &&
+    emailStates.includes(v.state as EmailState) &&
     (v.email === null || typeof v.email === "string") &&
     (v.verified
       ? typeof v.email === "string" && v.email.length > 0
@@ -61,25 +116,28 @@ export function EmailReminderControls({
       throw new Error("unavailable");
     return value;
   }, [userId, taskId, configurationId]);
-  const reload = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await read();
-      if (mounted.current) {
-        setView(data);
-        setError(null);
+  const reload = useCallback(
+    async (preserveError = false) => {
+      setLoading(true);
+      try {
+        const data = await read();
+        if (mounted.current) {
+          setView(data);
+          if (!preserveError) setError(null);
+        }
+      } catch (reason) {
+        if (mounted.current) {
+          if (reason instanceof Error && reason.message === "auth")
+            window.location.replace("/login");
+          setView(null);
+          setError("Nie udało się pobrać ustawienia e-maila.");
+        }
+      } finally {
+        if (mounted.current) setLoading(false);
       }
-    } catch (reason) {
-      if (mounted.current) {
-        if (reason instanceof Error && reason.message === "auth")
-          window.location.replace("/login");
-        setView(null);
-        setError("Nie udało się pobrać ustawienia e-maila.");
-      }
-    } finally {
-      if (mounted.current) setLoading(false);
-    }
-  }, [read]);
+    },
+    [read],
+  );
   useEffect(() => {
     mounted.current = true;
     void read()
@@ -115,11 +173,6 @@ export function EmailReminderControls({
         const current = await read();
         if (!mounted.current) return;
         setView(current);
-        if (current.enabled === (intent.operation === "enable")) {
-          frozen.current = null;
-          setUncertain(false);
-          return;
-        }
       }
       const response = await fetch("/reminders/email", {
         method: "POST",
@@ -129,6 +182,7 @@ export function EmailReminderControls({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(intent),
       });
+      if (!mounted.current) return;
       if (response.status === 401 || response.status === 403) {
         window.location.replace("/login");
         return;
@@ -140,7 +194,7 @@ export function EmailReminderControls({
         setError(
           "Nie udało się zapisać. Dane mogły się zmienić; odśwież widok i spróbuj ponownie.",
         );
-        await reload();
+        await reload(true);
         return;
       }
       if (
@@ -167,14 +221,18 @@ export function EmailReminderControls({
     }
   };
   const start = (operation: Intent["operation"]) => {
-    if (busy || uncertain || frozen.current) return;
-    const intent: Intent = Object.freeze({
-      expectedUserId: userId,
-      requestId: crypto.randomUUID(),
-      taskId,
-      configurationId,
+    if (busy || uncertain || frozen.current || !view) return;
+    const intent = createEmailReminderIntent(
+      view,
+      {
+        expectedUserId: userId,
+        requestId: crypto.randomUUID(),
+        taskId,
+        configurationId,
+      },
       operation,
-    });
+    );
+    if (!intent) return;
     frozen.current = intent;
     void execute(intent, false);
   };
@@ -205,9 +263,9 @@ export function EmailReminderControls({
             </p>
           )}
           <p className="mt-2 text-sm">
-            Kanał e-mail: {view.enabled ? "włączony" : "wyłączony"}.
+            Kanał e-mail: {stateLabels[view.state]}.
           </p>
-          {view.enabled ? (
+          {emailReminderAction(view) === "disable" ? (
             <button
               type="button"
               className={`${buttonStyles.secondary} mt-3`}
@@ -216,7 +274,7 @@ export function EmailReminderControls({
             >
               Wyłącz e-mail dla przypomnienia
             </button>
-          ) : (
+          ) : emailReminderAction(view) === "enable" ? (
             <button
               type="button"
               className={`${buttonStyles.secondary} mt-3`}
@@ -225,7 +283,7 @@ export function EmailReminderControls({
             >
               Włącz e-mail dla przypomnienia
             </button>
-          )}
+          ) : null}
         </>
       )}
       {busy && (

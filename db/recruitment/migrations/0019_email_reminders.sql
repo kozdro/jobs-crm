@@ -29,6 +29,11 @@ CREATE TABLE email_reminder.command (
  PRIMARY KEY(owner_id,request_id)
 );
 --> statement-breakpoint
+CREATE TABLE email_reminder.auth_version (
+ owner_id uuid PRIMARY KEY REFERENCES auth.users(id),
+ version uuid NOT NULL DEFAULT gen_random_uuid()
+);
+--> statement-breakpoint
 REVOKE ALL ON ALL TABLES IN SCHEMA email_reminder FROM PUBLIC, anon, authenticated, service_role;
 --> statement-breakpoint
 CREATE FUNCTION email_reminder.auth_changed() RETURNS trigger
@@ -36,6 +41,8 @@ LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $fn$
 BEGIN
  IF NEW.email IS DISTINCT FROM OLD.email OR NEW.email_confirmed_at IS DISTINCT FROM OLD.email_confirmed_at THEN
    PERFORM pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(NEW.id::text,76211));
+   INSERT INTO email_reminder.auth_version(owner_id,version) VALUES(NEW.id,gen_random_uuid())
+     ON CONFLICT(owner_id) DO UPDATE SET version=EXCLUDED.version;
    UPDATE email_reminder.intent SET enabled=false,
      state=CASE WHEN state IN ('pending','queued') THEN 'cancelled' ELSE state END,
      terminal_at=CASE WHEN state IN ('pending','queued') THEN clock_timestamp() ELSE terminal_at END
@@ -52,35 +59,40 @@ FOR EACH ROW EXECUTE FUNCTION email_reminder.auth_changed();
 --> statement-breakpoint
 CREATE FUNCTION public.read_email_reminder(p_task_id uuid,p_configuration_id uuid) RETURNS jsonb
 LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $fn$
-DECLARE u auth.users%ROWTYPE; active jsonb; selected email_reminder.intent%ROWTYPE;
+DECLARE u auth.users%ROWTYPE; active jsonb; selected email_reminder.intent%ROWTYPE; current_version uuid;
 BEGIN
  IF auth.uid() IS NULL THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Authentication required'; END IF;
- SELECT * INTO u FROM auth.users WHERE id=auth.uid();
+ SELECT * INTO u FROM auth.users WHERE id=auth.uid() FOR SHARE;
+ PERFORM pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(auth.uid()::text,76211));
+ INSERT INTO email_reminder.auth_version(owner_id) VALUES(auth.uid()) ON CONFLICT(owner_id) DO NOTHING;
+ SELECT version INTO current_version FROM email_reminder.auth_version WHERE owner_id=auth.uid();
  SELECT public.recruitment_current_reminder(p_task_id) INTO active;
  IF active IS NULL OR active->>'id' IS DISTINCT FROM p_configuration_id::text THEN
    RAISE EXCEPTION USING ERRCODE='PT412',MESSAGE='Reminder changed';
  END IF;
  SELECT * INTO selected FROM email_reminder.intent WHERE owner_id=auth.uid() AND task_id=p_task_id AND configuration_id=p_configuration_id;
- RETURN jsonb_build_object('enabled',COALESCE(selected.enabled,false),
+ RETURN jsonb_build_object('enabled',COALESCE(selected.enabled,false),'state',COALESCE(selected.state,'off'),'consentVersion',current_version,
    'email',CASE WHEN u.email IS NOT NULL AND pg_catalog.length(pg_catalog.btrim(u.email))>0 AND u.email_confirmed_at IS NOT NULL THEN u.email ELSE NULL END,
    'verified',u.email IS NOT NULL AND pg_catalog.length(pg_catalog.btrim(u.email))>0 AND u.email_confirmed_at IS NOT NULL);
 END;
 $fn$;
 --> statement-breakpoint
-CREATE FUNCTION public.execute_email_reminder(p_request_id uuid,p_task_id uuid,p_configuration_id uuid,p_enabled boolean) RETURNS jsonb
+CREATE FUNCTION public.execute_email_reminder(p_request_id uuid,p_task_id uuid,p_configuration_id uuid,p_enabled boolean,p_consent_version uuid) RETURNS jsonb
 LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $fn$
-DECLARE u auth.users%ROWTYPE; active jsonb; old email_reminder.command%ROWTYPE; prior email_reminder.intent%ROWTYPE;
- intent jsonb:=jsonb_build_object('taskId',p_task_id,'configurationId',p_configuration_id,'enabled',p_enabled);
+DECLARE u auth.users%ROWTYPE; active jsonb; old email_reminder.command%ROWTYPE; prior email_reminder.intent%ROWTYPE; current_version uuid;
+ intent jsonb:=jsonb_build_object('taskId',p_task_id,'configurationId',p_configuration_id,'enabled',p_enabled,'consentVersion',p_consent_version);
 BEGIN
- IF auth.uid() IS NULL OR p_request_id IS NULL OR p_task_id IS NULL OR p_configuration_id IS NULL OR p_enabled IS NULL THEN
+ IF auth.uid() IS NULL OR p_request_id IS NULL OR p_task_id IS NULL OR p_configuration_id IS NULL OR p_enabled IS NULL OR (p_enabled AND p_consent_version IS NULL) OR (NOT p_enabled AND p_consent_version IS NOT NULL) THEN
    RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Authentication required';
  END IF;
  -- Same order as auth trigger: Auth row first, then owner advisory lock.
  SELECT * INTO u FROM auth.users WHERE id=auth.uid() FOR SHARE;
  PERFORM pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(auth.uid()::text,76211));
+ SELECT version INTO current_version FROM email_reminder.auth_version WHERE owner_id=auth.uid();
  SELECT * INTO old FROM email_reminder.command WHERE owner_id=auth.uid() AND request_id=p_request_id;
  IF FOUND THEN
    IF old.payload IS DISTINCT FROM intent THEN RAISE EXCEPTION USING ERRCODE='PT409',MESSAGE='Intent conflict'; END IF;
+   IF p_enabled AND p_consent_version IS DISTINCT FROM current_version THEN RAISE EXCEPTION USING ERRCODE='PT412',MESSAGE='Consent context changed'; END IF;
    RETURN jsonb_build_object('kind','replayed');
  END IF;
  SELECT public.recruitment_current_reminder(p_task_id) INTO active;
@@ -89,6 +101,7 @@ BEGIN
  END IF;
  SELECT * INTO prior FROM email_reminder.intent WHERE owner_id=auth.uid() AND configuration_id=p_configuration_id FOR UPDATE;
  IF p_enabled THEN
+   IF p_consent_version IS DISTINCT FROM current_version THEN RAISE EXCEPTION USING ERRCODE='PT412',MESSAGE='Consent context changed'; END IF;
    IF u.email IS NULL OR pg_catalog.length(pg_catalog.btrim(u.email))=0 OR u.email_confirmed_at IS NULL THEN RAISE EXCEPTION USING ERRCODE='PT412',MESSAGE='Verified email required'; END IF;
    IF FOUND AND prior.state IN ('dispatching','accepted','unknown','expired','failed') THEN
      RAISE EXCEPTION USING ERRCODE='PT409',MESSAGE='Delivery already attempted';
@@ -108,8 +121,8 @@ BEGIN
 END;
 $fn$;
 --> statement-breakpoint
-REVOKE ALL ON FUNCTION public.read_email_reminder(uuid,uuid),public.execute_email_reminder(uuid,uuid,uuid,boolean) FROM PUBLIC,anon,authenticated,service_role;
+REVOKE ALL ON FUNCTION public.read_email_reminder(uuid,uuid),public.execute_email_reminder(uuid,uuid,uuid,boolean,uuid) FROM PUBLIC,anon,authenticated,service_role;
 --> statement-breakpoint
-GRANT EXECUTE ON FUNCTION public.read_email_reminder(uuid,uuid),public.execute_email_reminder(uuid,uuid,uuid,boolean) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.read_email_reminder(uuid,uuid),public.execute_email_reminder(uuid,uuid,uuid,boolean,uuid) TO authenticated;
 --> statement-breakpoint
 NOTIFY pgrst, 'reload schema';

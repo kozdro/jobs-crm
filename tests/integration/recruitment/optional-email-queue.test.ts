@@ -98,12 +98,19 @@ test(
             },
           }),
         );
+        const consent = ok<{ consentVersion: string }>(
+          await rpc("read_email_reminder", {
+            p_task_id: task.id,
+            p_configuration_id: configurationId,
+          }),
+        );
         ok(
           await rpc("execute_email_reminder", {
             p_request_id: randomUUID(),
             p_task_id: task.id,
             p_configuration_id: configurationId,
             p_enabled: true,
+            p_consent_version: consent.consentVersion,
           }),
         );
         return { task, configurationId };
@@ -182,6 +189,7 @@ test(
                 p_task_id: task.id,
                 p_configuration_id: configurationId,
                 p_enabled: false,
+                p_consent_version: null,
               })
             : action === "complete"
               ? rpc("execute_recruitment_task_command", {
@@ -230,6 +238,7 @@ test(
           p_task_id: revoked.task.id,
           p_configuration_id: revoked.configurationId,
           p_enabled: false,
+          p_consent_version: null,
         }),
       );
       const [prepared] = await worker<

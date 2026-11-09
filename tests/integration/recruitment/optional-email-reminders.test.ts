@@ -68,23 +68,42 @@ test(
     const args = { p_task_id: task.id, p_configuration_id: configurationId };
     const read = (token: string | undefined = a.token) =>
       rpc("read_email_reminder", args, token);
+    type EmailState = {
+      enabled: boolean;
+      email: string;
+      verified: boolean;
+      consentVersion: string;
+      state: string;
+    };
+    const initial = ok<EmailState>(await read());
+    let consentVersion = initial.consentVersion;
     const command = (
       enabled: boolean,
       requestId = randomUUID(),
       token: string | undefined = a.token,
+      version = consentVersion,
     ) =>
       rpc(
         "execute_email_reminder",
-        { ...args, p_request_id: requestId, p_enabled: enabled },
+        {
+          ...args,
+          p_request_id: requestId,
+          p_enabled: enabled,
+          p_consent_version: enabled ? version : null,
+        },
         token,
       );
-    assert.deepEqual(
-      ok<{ enabled: boolean; email: string; verified: boolean }>(await read()),
-      {
-        enabled: false,
-        email: a.email,
-        verified: true,
-      },
+    assert.equal(initial.enabled, false);
+    assert.equal(initial.email, a.email);
+    assert.equal(initial.verified, true);
+    assert.equal(initial.state, "off");
+    assert.match(initial.consentVersion, /^[0-9a-f-]{36}$/i);
+    denied(
+      await rpc("execute_email_reminder", {
+        ...args,
+        p_request_id: randomUUID(),
+        p_enabled: true,
+      }),
     );
     denied(await read(b.token));
     denied(await command(true, randomUUID(), b.token));
@@ -132,13 +151,20 @@ test(
       );
     };
     await changeEmail(`changed-${randomUUID()}@example.invalid`);
-    assert.equal(ok<{ enabled: boolean }>(await read()).enabled, false);
+    const changed = ok<EmailState>(await read());
+    assert.equal(changed.enabled, false);
+    assert.notEqual(changed.consentVersion, initial.consentVersion);
+    denied(await command(true));
+    denied(await command(true, requestId));
+    denied(await command(true, requestId, a.token, changed.consentVersion));
     await changeEmail(a.email);
-    assert.equal(
-      ok<{ enabled: boolean }>(await read()).enabled,
-      false,
-      "A→B→A must not reactivate consent",
-    );
+    const restored = ok<EmailState>(await read());
+    assert.notEqual(restored.consentVersion, initial.consentVersion);
+    assert.notEqual(restored.consentVersion, changed.consentVersion);
+    denied(await command(true));
+    denied(await command(true, requestId));
+    assert.equal(restored.enabled, false, "A→B→A must not reactivate consent");
+    consentVersion = restored.consentVersion;
     ok(await command(true));
     assert.equal(ok<{ enabled: boolean }>(await read()).enabled, true);
     ok(await command(false));

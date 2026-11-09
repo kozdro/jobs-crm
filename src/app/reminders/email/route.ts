@@ -31,7 +31,7 @@ async function handle(request: NextRequest, write: boolean) {
     const { data: auth, error: authError } = await client.auth.getUser();
     if (authError || !auth.user) return fail(401, "unauthenticated");
     let expectedUserId: unknown, taskId: unknown, configurationId: unknown;
-    let requestId: unknown, operation: unknown;
+    let requestId: unknown, operation: unknown, consentVersion: unknown;
     if (write) {
       if (
         request.headers
@@ -57,16 +57,24 @@ async function handle(request: NextRequest, write: boolean) {
         "configurationId",
         "operation",
       ];
+      if (body.operation === "enable") keys.push("consentVersion");
       if (
         Object.keys(body).length !== keys.length ||
         !keys.every((key) => Object.hasOwn(body, key))
       )
         return fail(400, "invalid");
-      ({ expectedUserId, requestId, taskId, configurationId, operation } =
-        body);
+      ({
+        expectedUserId,
+        requestId,
+        taskId,
+        configurationId,
+        operation,
+        consentVersion,
+      } = body);
       if (
         !isUuid(requestId) ||
-        (operation !== "enable" && operation !== "disable")
+        (operation !== "enable" && operation !== "disable") ||
+        (operation === "enable" && !isUuid(consentVersion))
       )
         return fail(400, "invalid");
     } else {
@@ -90,6 +98,7 @@ async function handle(request: NextRequest, write: boolean) {
           p_task_id: taskId,
           p_configuration_id: configurationId,
           p_enabled: operation === "enable",
+          p_consent_version: operation === "enable" ? consentVersion : null,
         })
       : await client.rpc("read_email_reminder", {
           p_task_id: taskId,
@@ -118,6 +127,18 @@ async function handle(request: NextRequest, write: boolean) {
       !write &&
       (typeof result.data.enabled !== "boolean" ||
         typeof result.data.verified !== "boolean" ||
+        !isUuid(result.data.consentVersion) ||
+        ![
+          "off",
+          "pending",
+          "queued",
+          "dispatching",
+          "accepted",
+          "unknown",
+          "cancelled",
+          "expired",
+          "failed",
+        ].includes(result.data.state) ||
         !(result.data.email === null || typeof result.data.email === "string"))
     )
       return fail(503, "unavailable");

@@ -15,6 +15,7 @@ const owner = "00000000-0000-4000-8000-000000000001";
 const task = "00000000-0000-4000-8000-000000000002";
 const configId = "00000000-0000-4000-8000-000000000003";
 const requestId = "00000000-0000-4000-8000-000000000004";
+const consentVersion = "00000000-0000-4000-8000-000000000005";
 const url = "https://app.example.test/reminders/email";
 const payload = {
   expectedUserId: owner,
@@ -22,6 +23,7 @@ const payload = {
   configurationId: configId,
   requestId,
   operation: "enable",
+  consentVersion,
 };
 function post(
   body: Record<string, unknown>,
@@ -61,6 +63,7 @@ describe("email reminder route boundary", () => {
       p_task_id: task,
       p_configuration_id: configId,
       p_enabled: true,
+      p_consent_version: consentVersion,
     });
     expect(mocks.user.mock.invocationCallOrder[0]).toBeLessThan(
       mocks.rpc.mock.invocationCallOrder[0],
@@ -78,9 +81,30 @@ describe("email reminder route boundary", () => {
     expect((await POST(post(payload))).status).toBe(403);
     expect(mocks.rpc).not.toHaveBeenCalled();
   });
+  it("requires the observed version for enable, but permits disable without it", async () => {
+    const withoutVersion: Record<string, unknown> = { ...payload };
+    delete withoutVersion.consentVersion;
+    expect((await POST(post(withoutVersion))).status).toBe(400);
+    expect(
+      (await POST(post({ ...withoutVersion, operation: "disable" }))).status,
+    ).toBe(200);
+    expect(mocks.rpc).toHaveBeenCalledWith("execute_email_reminder", {
+      p_request_id: requestId,
+      p_task_id: task,
+      p_configuration_id: configId,
+      p_enabled: false,
+      p_consent_version: null,
+    });
+  });
   it("reads only an exact owner-scoped request and handles stale configuration", async () => {
     mocks.rpc.mockResolvedValueOnce({
-      data: { enabled: false, email: null, verified: false },
+      data: {
+        enabled: false,
+        email: null,
+        verified: false,
+        consentVersion,
+        state: "off",
+      },
       error: null,
     });
     const query = new URLSearchParams({
@@ -97,6 +121,8 @@ describe("email reminder route boundary", () => {
       enabled: false,
       email: null,
       verified: false,
+      consentVersion,
+      state: "off",
     });
     mocks.rpc.mockResolvedValueOnce({ data: null, error: { code: "PT412" } });
     expect((await POST(post(payload))).status).toBe(409);
