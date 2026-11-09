@@ -9,11 +9,12 @@
   },
   "scripts": {
     "dev": "next dev",
+    "worker:email": "node scripts/email-worker/entrypoint.ts",
     "typecheck": "next typegen && tsc --noEmit && tsc -p tsconfig.f2.json",
     "lint": "eslint . --max-warnings=0",
     "format:check": "prettier --check src tests scripts experiments db *.ts *.mjs package.json components.json pnpm-workspace.yaml .prettierrc.json .github/workflows/app-ci.yml",
     "format:write": "prettier --write src tests scripts experiments db *.ts *.mjs package.json components.json pnpm-workspace.yaml .prettierrc.json .github/workflows/app-ci.yml",
-    "test:unit": "vitest run && node --test scripts/db/*.test.ts scripts/auth/*.test.ts scripts/recruitment/*.test.ts scripts/local-dev/*.test.ts",
+    "test:unit": "vitest run && node --test scripts/db/*.test.ts scripts/auth/*.test.ts scripts/recruitment/*.test.ts scripts/local-dev/*.test.ts scripts/email-worker/*.test.ts",
     "test:boundaries": "node scripts/test-boundaries.mjs",
     "test:canary": "node scripts/test-canary.mjs",
     "build": "next build",

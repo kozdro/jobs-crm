@@ -1,5 +1,15 @@
 # Rejestr decyzji produktowych (DEC)
 
+## Optional Email Reminders — doprecyzowanie DEC-027, 2026-11-09
+
+**Dostawca transportu — PO, 2026-11-09:** PO jawnie zatwierdził adapter Resend REST dla tego slice'a po porównaniu wariantów. Serwerowy adapter nie zmienia ADR-0007 ani polityki retry/unknown. Wybór nie autoryzuje utworzenia konta, provisioningu, kosztów ani deploymentu; adres nadawcy, sekrety, umowa i rzeczywista dostawa pozostają bramkami operacyjnymi OPEN-013/014.
+
+**APPROVED — źródło: jawna decyzja PO w bieżącej rozmowie, warianty 1A–4A:** PO autoryzuje implementację, QA, niezależny review i osobny PR bez merge/deploymentu. E-mail jest domyślnie wyłączony i świadomie włączany dla konkretnego przypomnienia zadania; odbiorcą jest wyłącznie zweryfikowany adres właściciela. Zmiana adresu lub utrata weryfikacji wstrzymuje wysyłkę; ponowne włączenie wymaga świadomej zgody. Samo utworzenie zadania ani przypomnienia in-app nie uruchamia e-maila.
+
+Temat i treść są neutralne, bez tytułu zadania, firmy, kontaktów ani szczegółów sprawy; link prowadzi wyłącznie do aplikacji wymagającej autoryzacji, bez sekretów i tokenów w URL. Minimalizujemy dane przekazywane dostawcy i przechowywane operacyjnie. Przed przekazaniem dostawcy sprawdzane są zgoda, zweryfikowany adres, właściciel, wersja przypomnienia i aktualny stan zadania. Wyłączenie, potwierdzenie in-app, wykonanie/anulowanie oraz zmiany wymagające ponownego potwierdzenia unieważniają oczekującą wysyłkę; przywrócenie nie reaktywuje e-maila. Wysyłka dopuszczalna do 6 godzin od zaplanowanego momentu, później pomijana z odpowiednim stanem operacyjnym. Nie obiecujemy cofnięcia wiadomości przyjętej przez dostawcę.
+
+Wymagane są trwały zamiar, deduplikacja, idempotencja i kontrola współbieżności. Ponawiane są tylko bezpieczne błędy; niepewne przyjęcie jest wynikiem nieustalonym, bez ślepego retry i bez obietnicy exactly-once. Minimalne techniczne metadane prób są przechowywane 30 dni po stanie końcowym. Nie ustanawia to ogólnej polityki retencji, usuwania ani audytu zgody. ADR-0007 pozostaje wiążący. Wcześniejsze wzmianki o e-mailu jako przyszłym przyroście opisują stan historyczny; wykonanie i jego dowody są osobne od decyzji.
+
 ## Reminders & Follow-up Suggestions — DEC-063, 2026-11-07
 
 **Doprecyzowanie DEC-063 — PO, 2026-11-07:** PO w bieżącej rozmowie jawnie zatwierdził „ograniczone przechowywanie szkicu i zamrożonego żądania wyłącznie w RAM działającej aplikacji między ekranami” ściśle dla tego slice'a. Dane są owner-scoped i niedostępne po logout lub zmianie konta; znikają po pełnym reloadzie lub zamknięciu karty. Bez browser storage, cookies, logów lub dodatkowych magazynów. Retry identycznego zamrożonego żądania używa tego samego requestId; zmiana treści oznacza nowy zamiar. Idempotencja, recovery, audyt i izolacja pozostają wymagane, bez gwarancji odzyskania po reloadzie. To wąski wyjątek DEC-063, nie zmiana ogólnej polityki DEC-061/062.

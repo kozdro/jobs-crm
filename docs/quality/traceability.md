@@ -1,5 +1,9 @@
 # Requirements Traceability — FR → AC → UC/TC
 
+## Optional Email Reminders — DEC-027, 2026-11-09
+
+FR/AC-TN-005 i rozszerzenie UC/TC-023: wybór kanału, owner A/B/anon, wycofanie, lifecycle, 6h, prywatność, retry/unknown i operacyjna retencja. **PLANNED / NOT RUN** do wykonania testów na wskazanym kandydacie. Regression AC-TN-004 i DEC-063 pozostaje wymagana; fake transport nie dowodzi rzeczywistego doręczenia.
+
 ## Reminders & Follow-up — DEC-063
 
 | FR / AC | UC/TC i plan | Stan |

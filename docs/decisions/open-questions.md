@@ -1,5 +1,9 @@
 # Kwestie otwarte i bramki decyzyjne (OPEN)
 
+## Optional Email Reminders — częściowe rozstrzygnięcie DEC-027, 2026-11-09
+
+PO zatwierdził zakres e-maila opisany w [DEC-027](product-decisions.md#optional-email-reminders--doprecyzowanie-dec-027-2026-11-09): w tym zakresie OPEN-009/040 częściowo rozstrzygnięte, a 30 dni dotyczy wyłącznie minimalnych metadanych prób po stanie końcowym. Pozostałe preferencje, zasady audytu zgody, retencja/usuwanie, ochrona i dopuszczenie publiczne pozostają OPEN. OPEN-013/014 zachowują zależne bramki bezpieczeństwa, dostawcy, sekretów, kosztów, monitoringu i operacji; decyzja nie autoryzuje provisioningu, płatnych zasobów ani deploymentu. Wcześniejsze opisy braku decyzji dla tego zakresu są historyczne.
+
 ## Reminders & Follow-up — częściowe rozstrzygnięcie DEC-063, 2026-11-07
 
 **Doprecyzowanie RAM DEC-063:** PO dopuścił wyłącznie szkic i zamrożone żądanie tego slice'a w owner-scoped RAM między ekranami; usunięcie po reloadzie/zamknięciu, brak ujawnienia po zmianie konta/logout, bez browser storage/cookies/logów i innych magazynów. To nie zmienia ogólnej polityki DEC-061/062 ani pozostałych otwartych polityk danych.

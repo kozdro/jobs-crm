@@ -136,3 +136,37 @@ describe("mutation feedback", () => {
     expect(success).toContain("Zapisano.");
   });
 });
+
+describe("optional email reminder view", () => {
+  it("rejects malformed or unverified addresses from the server", async () => {
+    const { isEmailReminderView } =
+      await import("@/components/reminders/email-reminder-controls");
+    expect(
+      isEmailReminderView({ enabled: false, verified: false, email: null }),
+    ).toBe(true);
+    expect(
+      isEmailReminderView({
+        enabled: true,
+        verified: true,
+        email: "owner@example.test",
+      }),
+    ).toBe(true);
+    expect(
+      isEmailReminderView({
+        enabled: false,
+        verified: false,
+        email: "owner@example.test",
+      }),
+    ).toBe(false);
+    expect(
+      isEmailReminderView({ enabled: false, verified: true, email: null }),
+    ).toBe(false);
+    expect(
+      isEmailReminderView({
+        enabled: "true",
+        verified: true,
+        email: "owner@example.test",
+      }),
+    ).toBe(false);
+  });
+});

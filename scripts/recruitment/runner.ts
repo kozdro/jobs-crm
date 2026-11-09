@@ -274,6 +274,8 @@ try {
       "tests/integration/recruitment/tasks.test.ts",
       "tests/integration/recruitment/calendar.test.ts",
       "tests/integration/recruitment/reminders-follow-up.test.ts",
+      "tests/integration/recruitment/optional-email-reminders.test.ts",
+      "tests/integration/recruitment/optional-email-queue.test.ts",
       "tests/integration/recruitment/quick-capture-atomic-action.test.ts",
     ],
     env,

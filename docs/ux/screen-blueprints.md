@@ -1,5 +1,7 @@
 # Jobs CRM — UX Blueprint: ekrany i komponenty
 
+**DEC-027 — UX-010, 2026-11-09:** przy konfiguracji przypomnienia pokaż osobny wybór e-maila, zweryfikowany adres właściciela oraz stany ładowania, niepewnego wyniku i wyłączenia; po zmianie adresu lub utracie weryfikacji wyjaśnij konieczność ponownej zgody. Nie ujawniaj w treści e-maila danych rekrutacyjnych. [Decyzja PO](../decisions/product-decisions.md#optional-email-reminders--doprecyzowanie-dec-027-2026-11-09).
+
 **DEC-063 — UX-001/010:** świadomie skonfigurowane przypomnienie in-app ma własną datę, godzinę i strefę; UI udostępnia jego trwałe potwierdzenie/wyłączenie i wyjaśnia potrzebę ponownego potwierdzenia po zmianie terminu/relacji lub przywróceniu. Sugestie na Dashboardzie pozostają odrębnymi podpowiedziami, z jawnym odrzuceniem i przejściem do kontekstu albo formularza bez automatycznego zapisu. [Kontrakt](../technical/reminders-follow-up-contract.md).
 
 **Status:** DRAFT, 2026-10-28. Opis rozmieszczenia i kontraktów widoków do prototypu, nie finalny UI kit ani lista pól bazy.  
