@@ -1022,6 +1022,40 @@ test(
     );
 
     await t.test(
+      "note exactness uses user text, not the shared presentation title",
+      async () => {
+        const createNote = async (body: string) =>
+          ok<{ note: Row & { created_at: string } }>(
+            await call("execute_case_content_command", {
+              p_request_id: randomUUID(),
+              p_payload: {
+                operation: "create-note",
+                caseId: created.id,
+                body,
+                dateKind: "ordinary",
+                occurredOn: null,
+              },
+            }),
+          ).note;
+        const exact = await createNote("notatka");
+        await new Promise((resolve) => setTimeout(resolve, 20));
+        const literal = await createNote("notatka ze spotkania");
+        const unrelated = await createNote(
+          `unrelated${randomUUID().replaceAll("-", "")}`,
+        );
+        assert.ok(new Date(exact.created_at) < new Date(literal.created_at));
+        const results = ok<Groups>(await search("notatka")).notes.items.map(
+          (row) => row.id,
+        );
+        assert.ok(
+          results.indexOf(exact.id) >= 0 && results.indexOf(literal.id) >= 0,
+        );
+        assert.ok(results.indexOf(exact.id) < results.indexOf(literal.id));
+        assert.ok(!results.includes(unrelated.id));
+      },
+    );
+
+    await t.test(
       "direct RPC validates nulls, malformed page types and large page offsets",
       async () => {
         const invoke = (pages: unknown, limit: unknown) =>

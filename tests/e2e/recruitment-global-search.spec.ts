@@ -914,6 +914,60 @@ test("calendar target distinguishes 503 with retry from an unavailable record", 
   ).toBeVisible();
 });
 
+test("note target distinguishes 503 with retry from a missing or foreign note", async ({
+  page,
+}) => {
+  const caseId = await caseFixture(`Note target QA ${randomUUID()}`);
+  const foreignCaseId = await caseFixture(`Other context QA ${randomUUID()}`);
+  const { client } = await sdkLogin(target, owner);
+  const add = async (caseId: string, body: string) => {
+    const result = await client.rpc("execute_case_content_command", {
+      p_request_id: randomUUID(),
+      p_payload: {
+        operation: "create-note",
+        caseId,
+        body,
+        dateKind: "ordinary",
+        occurredOn: null,
+      },
+    });
+    expect(result.error).toBeNull();
+    return result.data.note.id as string;
+  };
+  const ownId = await add(caseId, "Synthetic target note");
+  const foreignId = await add(foreignCaseId, "Synthetic unrelated note");
+  await login(page);
+  await page.route("**/recruitments/content?*", async (route) => {
+    if (new URL(route.request().url()).searchParams.get("noteId") === ownId)
+      return route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: JSON.stringify({ kind: "unavailable" }),
+      });
+    return route.continue();
+  });
+  await page.goto(`${target.appOrigin}/recruitments/${caseId}?noteId=${ownId}`);
+  const error = page
+    .getByRole("alert")
+    .filter({ hasText: "Nie udało się pobrać wskazanej notatki." });
+  await expect(error).toBeVisible();
+  await expect(
+    page.getByText("Nie można otworzyć wskazanej notatki."),
+  ).toHaveCount(0);
+  await page.unrouteAll({ behavior: "wait" });
+  await error
+    .getByRole("button", { name: "Spróbuj ponownie", exact: true })
+    .click();
+  await expect(page.locator(`#note-${ownId}`)).toBeFocused();
+  await page.goto(
+    `${target.appOrigin}/recruitments/${caseId}?noteId=${foreignId}`,
+  );
+  await expect(
+    page.getByText("Nie można otworzyć wskazanej notatki."),
+  ).toBeVisible();
+  await expect(page.getByText("Synthetic unrelated note")).toHaveCount(0);
+});
+
 test("switching edited links or paging protects an unsaved link draft", async ({
   page,
 }) => {

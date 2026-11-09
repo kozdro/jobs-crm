@@ -214,7 +214,7 @@ BEGIN
     OR (grp='links' AND strpos(lower(title),raw_q)>0)
     OR (grp IN ('cases','notes','events') AND q ~ '[^[:alnum:][:space:]]' AND strpos(body,q)>0)
   ), matched AS (
-   SELECT *,CASE WHEN (grp='links' AND lower(title)=raw_q) OR (grp='contacts' AND lower(snippet)=raw_q) OR (grp<>'links' AND (public.search_normalize(title)=q OR (grp<>'contacts' AND public.search_normalize(snippet)=q))) THEN 0 WHEN (grp='links' AND strpos(lower(title),raw_q)>0) OR (grp='contacts' AND strpos(lower(snippet),raw_q)>0) OR (grp<>'links' AND strpos(body,q)>0) THEN 1 ELSE 2 END AS grade,
+   SELECT *,CASE WHEN (grp='links' AND lower(title)=raw_q) OR (grp='contacts' AND lower(snippet)=raw_q) OR (grp NOT IN ('links','notes') AND public.search_normalize(title)=q) OR (grp NOT IN ('links','contacts') AND public.search_normalize(snippet)=q) THEN 0 WHEN (grp='links' AND strpos(lower(title),raw_q)>0) OR (grp='contacts' AND strpos(lower(snippet),raw_q)>0) OR (grp<>'links' AND strpos(body,q)>0) THEN 1 ELSE 2 END AS grade,
     CASE WHEN ts IS NULL THEN 0 ELSE ts_rank(to_tsvector('pg_catalog.simple'::regconfig,body),ts) END AS rank
    FROM candidates
   ), limited AS (

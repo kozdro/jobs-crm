@@ -17,6 +17,7 @@ import { canDiscardContentDraft } from "./content-intent";
 import { contentChangedEvent, matchesContentChanged } from "./content-events";
 import { linkFormError, noteFormErrors } from "./content-form-validation";
 import { findActiveLinkPage } from "./content-link-navigation";
+import { noteTargetFailure, noteTargetResult } from "./content-target";
 
 export type Note = {
   id: string;
@@ -62,8 +63,10 @@ async function readContent(owner: string, query: Record<string, string>) {
   const response = await fetch(`/recruitments/content?${params}`, {
     cache: "no-store",
     credentials: "same-origin",
+    signal: AbortSignal.timeout(20000),
   });
-  if (!response.ok) throw new Error("read failed");
+  if (!response.ok)
+    throw Object.assign(new Error("read failed"), { status: response.status });
   return (await response.json()) as Record<string, unknown>;
 }
 function useContentCommand(owner: string, caseId: string, changed: () => void) {
@@ -1034,24 +1037,24 @@ export function NoteTarget({
   currentPage: number;
 }) {
   const router = useRouter();
-  const [error, setError] = useState(false);
+  const [retry, setRetry] = useState(0);
+  const [outcome, setOutcome] = useState<{
+    scope: string;
+    status: "found" | "missing" | "error";
+  } | null>(null);
+  const scope = `${owner}:${caseId}:${noteId}:${currentPage}:${retry}`;
   useEffect(() => {
     let active = true;
     void readContent(owner, { caseId, noteId })
       .then((data) => {
         if (!active) return;
-        const target = data.targetNote as Note | null;
-        const page = data.timelinePage;
-        if (
-          !target ||
-          target.id !== noteId ||
-          typeof page !== "number" ||
-          !Number.isSafeInteger(page) ||
-          page < 1
-        ) {
-          setError(true);
+        const status = noteTargetResult(data, caseId, noteId);
+        if (status !== "found") {
+          setOutcome({ scope, status });
           return;
         }
+        const page = data.timelinePage as number;
+        setOutcome({ scope, status: "found" });
         if (page !== currentPage) {
           const params = new URLSearchParams({
             noteId,
@@ -1061,21 +1064,37 @@ export function NoteTarget({
           return;
         }
         requestAnimationFrame(() => {
+          if (!active) return;
           const node = document.getElementById(`note-${noteId}`);
           if (node) {
             node.focus();
             node.scrollIntoView({ block: "center" });
-          } else setError(true);
+          } else setOutcome({ scope, status: "error" });
         });
       })
-      .catch(() => {
-        if (active) setError(true);
+      .catch((error: unknown) => {
+        if (active) setOutcome({ scope, status: noteTargetFailure(error) });
       });
     return () => {
       active = false;
     };
-  }, [owner, caseId, noteId, currentPage, router]);
-  return error ? (
-    <p role="alert">Nie można otworzyć wskazanej notatki.</p>
-  ) : null;
+  }, [owner, caseId, noteId, currentPage, router, scope]);
+  if (!outcome || outcome.scope !== scope)
+    return <p role="status">Ładowanie wskazanej notatki…</p>;
+  if (outcome.status === "missing")
+    return <p role="alert">Nie można otworzyć wskazanej notatki.</p>;
+  if (outcome.status === "error")
+    return (
+      <div role="alert">
+        <p>Nie udało się pobrać wskazanej notatki.</p>
+        <button
+          type="button"
+          className={buttonStyles.secondary}
+          onClick={() => setRetry((value) => value + 1)}
+        >
+          Spróbuj ponownie
+        </button>
+      </div>
+    );
+  return null;
 }
