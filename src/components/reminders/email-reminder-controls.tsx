@@ -79,6 +79,41 @@ export function isEmailReminderView(value: unknown): value is View {
   );
 }
 
+export function handleEmailRetryFailure(
+  reason: unknown,
+  onUnauthenticated: () => void,
+  onUncertain: () => void,
+) {
+  if (reason instanceof Error && reason.message === "auth") {
+    onUnauthenticated();
+  } else {
+    onUncertain();
+  }
+}
+
+export async function readEmailReminder(
+  userId: string,
+  taskId: string,
+  configurationId: string,
+): Promise<View> {
+  const params = new URLSearchParams({
+    expectedUserId: userId,
+    taskId,
+    configurationId,
+  });
+  const response = await fetch(`/reminders/email?${params}`, {
+    credentials: "same-origin",
+    cache: "no-store",
+    signal: AbortSignal.timeout(20000),
+  });
+  if (response.status === 401 || response.status === 403)
+    throw new Error("auth");
+  const value: unknown = await response.json().catch(() => null);
+  if (!response.ok || !isEmailReminderView(value))
+    throw new Error("unavailable");
+  return value;
+}
+
 export function EmailReminderControls({
   userId,
   taskId,
@@ -98,24 +133,10 @@ export function EmailReminderControls({
   const mounted = useRef(false);
   const frozen = useRef<Intent | null>(null);
   const inFlight = useRef(false);
-  const read = useCallback(async () => {
-    const params = new URLSearchParams({
-      expectedUserId: userId,
-      taskId,
-      configurationId,
-    });
-    const response = await fetch(`/reminders/email?${params}`, {
-      credentials: "same-origin",
-      cache: "no-store",
-      signal: AbortSignal.timeout(20000),
-    });
-    if (response.status === 401 || response.status === 403)
-      throw new Error("auth");
-    const value: unknown = await response.json().catch(() => null);
-    if (!response.ok || !isEmailReminderView(value))
-      throw new Error("unavailable");
-    return value;
-  }, [userId, taskId, configurationId]);
+  const read = useCallback(
+    () => readEmailReminder(userId, taskId, configurationId),
+    [userId, taskId, configurationId],
+  );
   const reload = useCallback(
     async (preserveError = false) => {
       setLoading(true);
@@ -208,11 +229,17 @@ export function EmailReminderControls({
       frozen.current = null;
       setUncertain(false);
       await reload();
-    } catch {
+    } catch (reason) {
       if (mounted.current) {
-        setUncertain(true);
-        setError(
-          "Wynik zapisu jest nieznany. Sprawdź stan i ponów ten sam zapis. Po zamknięciu widoku zamiar nie zostanie zachowany.",
+        handleEmailRetryFailure(
+          reason,
+          () => window.location.replace("/login"),
+          () => {
+            setUncertain(true);
+            setError(
+              "Wynik zapisu jest nieznany. Sprawdź stan i ponów ten sam zapis. Po zamknięciu widoku zamiar nie zostanie zachowany.",
+            );
+          },
         );
       }
     } finally {
