@@ -100,7 +100,7 @@ test("Local DEV migrations reject cloud, CI and alternate endpoints before conne
 });
 
 test("fresh bootstrap and checkpoint-bound approved prefix/full histories are accepted", () => {
-  assert.equal(history.length, 21);
+  assert.equal(history.length, 22);
   assert.equal(history[15]?.folderMillis, 1_793_879_424_259);
   assert.equal(history[18]?.folderMillis, 1_794_055_693_932);
   assert.equal(history[20]?.folderMillis, 1_794_220_100_000);

@@ -2,6 +2,8 @@
 
 ## Optional Email Reminders — doprecyzowanie DEC-027, 2026-11-09
 
+**Security Hardening PR #26 — APPROVED, PO 2026-11-09:** PO autoryzuje naprawę istniejącego PR i samodzielny wybór najmniejszej bezpiecznej implementacji. Kontekst zgody musi niezależnie wiązać konkretny zweryfikowany adres i zatwierdzony kontekst także przy pominiętych zdarzeniach Auth, A→B→A, utracie weryfikacji, cofniętym dryfcie triggera i współbieżności. Niewiarygodny lub brakujący dowód blokuje dispatch. Zachowane idempotencja, retry/unknown, prywatność i okno 6h. Własne jednorazowe QA bez eskalacji; bez merge/deploymentu/provisioningu i naruszania lokalnego main `5f9e7fb`. Szczegóły implementacyjne i ich dowody: [task packet](../technical/optional-email-reminders-delivery.md#pr-26--security-hardening-2026-11-09).
+
 **Dostawca transportu — PO, 2026-11-09:** PO jawnie zatwierdził adapter Resend REST dla tego slice'a po porównaniu wariantów. Serwerowy adapter nie zmienia ADR-0007 ani polityki retry/unknown. Wybór nie autoryzuje utworzenia konta, provisioningu, kosztów ani deploymentu; adres nadawcy, sekrety, umowa i rzeczywista dostawa pozostają bramkami operacyjnymi OPEN-013/014.
 
 **APPROVED — źródło: jawna decyzja PO w bieżącej rozmowie, warianty 1A–4A:** PO autoryzuje implementację, QA, niezależny review i osobny PR bez merge/deploymentu. E-mail jest domyślnie wyłączony i świadomie włączany dla konkretnego przypomnienia zadania; odbiorcą jest wyłącznie zweryfikowany adres właściciela. Zmiana adresu lub utrata weryfikacji wstrzymuje wysyłkę; ponowne włączenie wymaga świadomej zgody. Samo utworzenie zadania ani przypomnienia in-app nie uruchamia e-maila.

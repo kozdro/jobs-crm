@@ -20,7 +20,7 @@ function ok<T>(response: Reply): T {
 }
 
 test(
-  "pgmq dispatch serializes owner revoke and task completion across the transport boundary",
+  "existing-fixture pgmq dispatch serializes owner revoke and task completion across the transport boundary",
   { timeout: 120_000 },
   async () => {
     const [owner] = await createAccounts(target);
@@ -28,18 +28,10 @@ test(
     const admin = postgres({ ...target.db, max: 1 });
     const worker = postgres({ ...target.db, max: 1 });
     const worker2 = postgres({ ...target.db, max: 1 });
-    let granted = false;
-    let wasMember = false;
     try {
       const [membership] = await admin<
         { member: boolean; can_set: boolean }[]
       >`select pg_has_role(current_user, 'jobs_email_worker', 'MEMBER') as member, pg_has_role(current_user, 'jobs_email_worker', 'SET') as can_set`;
-      assert.equal(
-        membership?.can_set,
-        false,
-        "Worker fixture requires no existing SET privilege",
-      );
-      wasMember = Boolean(membership?.member);
       const [publicAccess] = await admin<
         { anon: boolean; authenticated: boolean }[]
       >`
@@ -49,15 +41,21 @@ test(
         { ...publicAccess },
         { anon: false, authenticated: false },
       );
-      await admin`grant jobs_email_worker to postgres with set true`;
-      granted = true;
-      await worker`set role jobs_email_worker`;
-      await worker2`set role jobs_email_worker`;
-      const [privileges] = await worker<
+      // Never grant role membership for QA. Existing local fixture permissions
+      // can exercise dispatch, but are not evidence for the dedicated worker role.
+      if (membership?.can_set) {
+        await worker`set role jobs_email_worker`;
+        await worker2`set role jobs_email_worker`;
+      } else {
+        console.log(
+          "QA LIMITATION: dedicated worker-role runtime BLOCKED; dispatch uses existing fixture role",
+        );
+      }
+      const [privileges] = await admin<
         { own_table: boolean; enqueue: boolean }[]
       >`
-        select has_table_privilege(current_user, 'email_reminder.intent', 'SELECT') as own_table,
-               has_function_privilege(current_user, 'email_reminder.enqueue_due()', 'EXECUTE') as enqueue`;
+        select has_table_privilege('jobs_email_worker', 'email_reminder.intent', 'SELECT') as own_table,
+               has_function_privilege('jobs_email_worker', 'email_reminder.enqueue_due()', 'EXECUTE') as enqueue`;
       assert.deepEqual({ ...privileges }, { own_table: false, enqueue: true });
       const rpc = (name: string, body: unknown) =>
         request(
@@ -115,7 +113,12 @@ test(
         );
         return { task, configurationId };
       };
-      for (const action of ["revoke", "complete", "acknowledge"] as const) {
+      for (const action of [
+        "revoke",
+        "complete",
+        "acknowledge",
+        "auth-email",
+      ] as const) {
         const { task, configurationId } = await create();
         let unblock!: () => void;
         const barrier = new Promise<void>((resolve) => {
@@ -183,32 +186,36 @@ test(
           assert.equal(extraSends, 0);
         }
         const command =
-          action === "revoke"
-            ? rpc("execute_email_reminder", {
-                p_request_id: randomUUID(),
-                p_task_id: task.id,
-                p_configuration_id: configurationId,
-                p_enabled: false,
-                p_consent_version: null,
-              })
-            : action === "complete"
-              ? rpc("execute_recruitment_task_command", {
+          action === "auth-email"
+            ? admin`update auth.users set email=${`synthetic-${randomUUID()}@example.invalid`} where id=${owner.id}`.then(
+                () => ({ status: 200, body: null, range: null }),
+              )
+            : action === "revoke"
+              ? rpc("execute_email_reminder", {
                   p_request_id: randomUUID(),
-                  p_payload: {
-                    operation: "set-status",
-                    taskId: task.id,
-                    expectedRevision: task.revision,
-                    status: "Wykonane",
-                  },
+                  p_task_id: task.id,
+                  p_configuration_id: configurationId,
+                  p_enabled: false,
+                  p_consent_version: null,
                 })
-              : rpc("execute_recruitment_reminder_command", {
-                  p_request_id: randomUUID(),
-                  p_payload: {
-                    operation: "acknowledge",
-                    taskId: task.id,
-                    configurationId,
-                  },
-                });
+              : action === "complete"
+                ? rpc("execute_recruitment_task_command", {
+                    p_request_id: randomUUID(),
+                    p_payload: {
+                      operation: "set-status",
+                      taskId: task.id,
+                      expectedRevision: task.revision,
+                      status: "Wykonane",
+                    },
+                  })
+                : rpc("execute_recruitment_reminder_command", {
+                    p_request_id: randomUUID(),
+                    p_payload: {
+                      operation: "acknowledge",
+                      taskId: task.id,
+                      configurationId,
+                    },
+                  });
         const before = await Promise.race([
           command.then(() => "finished"),
           new Promise<string>((resolve) =>
@@ -224,6 +231,8 @@ test(
         );
         ok(await command);
         assert.equal(sends, 1);
+        if (action === "auth-email")
+          await admin`update auth.users set email=${owner.email} where id=${owner.id}`;
       }
       // A revoke committed before prepare must suppress the provider call.
       const revoked = await create();
@@ -245,6 +254,158 @@ test(
         { recipient: string | null }[]
       >`select email_reminder.prepare(${claimed.attempt}::uuid) as recipient`;
       assert.equal(prepared?.recipient, null);
+
+      // An upgraded/legacy intent has no independently captured consent.
+      const legacy = await create();
+      await admin`update email_reminder.intent set consent_context=null,consent_xid=null where configuration_id=${legacy.configurationId}`;
+      let legacySends = 0;
+      await processQueueOnce(
+        worker,
+        {
+          async send() {
+            legacySends++;
+            return "accepted";
+          },
+        },
+        new URL("https://crm.example.test/"),
+      );
+      assert.equal(
+        legacySends,
+        0,
+        "missing persisted consent evidence blocks dispatch",
+      );
+
+      // Catalog metadata simulations plus a fault injected at the catalog
+      // wrapper boundary exercise denial along the actual dispatch path. These
+      // do not claim to execute protected Auth trigger DDL.
+      const [catalog] = await admin<
+        {
+          trigger: Record<string, postgres.JSONValue>;
+          hook: Record<string, postgres.JSONValue>;
+        }[]
+      >`select
+        (select jsonb_build_object('enabled',t.tgenabled::text,'definition',pg_get_triggerdef(t.oid))
+          from pg_trigger t where t.tgrelid='auth.users'::regclass and t.tgname='email_reminder_auth_changed') as trigger,
+        (select jsonb_build_object('source',p.prosrc,'securityDefiner',p.prosecdef,'config',to_jsonb(p.proconfig),
+          'language',l.lanname,'result',pg_get_function_result(p.oid),'arguments',pg_get_function_identity_arguments(p.oid))
+          from pg_proc p join pg_language l on l.oid=p.prolang where p.oid='email_reminder.auth_changed()'::regprocedure) as hook`;
+      assert.ok(catalog?.trigger);
+      assert.ok(catalog?.hook);
+      const [guardDefinition] = await admin<{ definition: string }[]>`
+        select pg_get_functiondef('email_reminder.auth_guard_valid()'::regprocedure) as definition`;
+      assert.ok(guardDefinition?.definition);
+      const unhealthyCatalogs = [
+        ["missing trigger", null, catalog.hook],
+        [
+          "disabled trigger",
+          { ...catalog.trigger, enabled: "D" },
+          catalog.hook,
+        ],
+        [
+          "changed trigger",
+          { ...catalog.trigger, definition: "changed" },
+          catalog.hook,
+        ],
+        ["missing function", catalog.trigger, null],
+        [
+          "changed function",
+          catalog.trigger,
+          { ...catalog.hook, source: "BEGIN RETURN NEW; END" },
+        ],
+      ] as const;
+      const [healthy] = await admin<{ valid: boolean }[]>`
+        select email_reminder.auth_guard_matches(${admin.json(catalog.trigger)},${admin.json(catalog.hook)}) as valid`;
+      assert.equal(healthy?.valid, true);
+      for (const [scenario, trigger, hook] of unhealthyCatalogs) {
+        const stale = await create();
+        const [matched] = await admin<{ valid: boolean }[]>`
+          select email_reminder.auth_guard_matches(${trigger === null ? null : admin.json(trigger)},${hook === null ? null : admin.json(hook)}) as valid`;
+        assert.equal(matched?.valid, false, scenario);
+        let sends = 0;
+        try {
+          await admin.unsafe(`create or replace function email_reminder.auth_guard_valid() returns boolean
+            language sql stable security definer set search_path='' as $fault$ select false $fault$`);
+          await processQueueOnce(
+            worker,
+            {
+              async send() {
+                sends++;
+                return "accepted";
+              },
+            },
+            new URL("https://crm.example.test/"),
+          );
+        } finally {
+          await admin.unsafe(guardDefinition.definition);
+        }
+        assert.equal(
+          sends,
+          0,
+          `${scenario} catalog result blocks actual dispatch`,
+        );
+        const [state] = await admin<{ enabled: boolean; state: string }[]>`
+          select enabled,state from email_reminder.intent where configuration_id=${stale.configurationId}`;
+        assert.equal(state?.enabled, false, scenario);
+        assert.equal(state?.state, "cancelled", scenario);
+      }
+
+      // Deterministic missed-event simulations, NOT real trigger DDL. Replacing
+      // our application-owned hook with a no-op models the skipped invalidation
+      // caused by missing/disabled/replaced Auth triggers. Restore the function
+      // BEFORE dispatch: catalog health at send time cannot prove past consent.
+      const [hook] = await admin<{ definition: string }[]>`
+        select pg_get_functiondef('email_reminder.auth_changed()'::regprocedure) as definition`;
+      assert.ok(hook?.definition);
+      for (const scenario of [
+        "missing-trigger-A-to-B",
+        "disabled-trigger-A-to-B-to-A",
+        "replaced-trigger-verification-loss",
+        "reverted-drift-A-to-B-to-A-same-transaction",
+      ]) {
+        const stale = await create();
+        const [original] = await admin<
+          { email: string; confirmed_at: Date }[]
+        >`select email,email_confirmed_at as confirmed_at from auth.users where id=${owner.id}`;
+        assert.ok(original?.email);
+        await admin.unsafe(`create or replace function email_reminder.auth_changed() returns trigger
+          language plpgsql security definer set search_path='' as $noop$ begin return new; end; $noop$`);
+        try {
+          if (scenario === "replaced-trigger-verification-loss") {
+            await admin`update auth.users set email_confirmed_at=null where id=${owner.id}`;
+          } else if (
+            scenario === "reverted-drift-A-to-B-to-A-same-transaction"
+          ) {
+            await admin.begin(async (tx) => {
+              const query = tx as unknown as Sql;
+              await query`update auth.users set email=${`synthetic-${randomUUID()}@example.invalid`} where id=${owner.id}`;
+              await query`update auth.users set email=${original.email} where id=${owner.id}`;
+            });
+          } else {
+            await admin`update auth.users set email=${`synthetic-${randomUUID()}@example.invalid`} where id=${owner.id}`;
+            if (scenario === "disabled-trigger-A-to-B-to-A")
+              await admin`update auth.users set email=${original.email} where id=${owner.id}`;
+          }
+        } finally {
+          await admin.unsafe(hook.definition);
+        }
+        let suppressedSends = 0;
+        await processQueueOnce(
+          worker,
+          {
+            async send() {
+              suppressedSends++;
+              return "accepted";
+            },
+          },
+          new URL("https://crm.example.test/"),
+        );
+        assert.equal(suppressedSends, 0, `${scenario} must fail closed`);
+        const [suppressed] = await admin<{ enabled: boolean; state: string }[]>`
+          select enabled,state from email_reminder.intent where configuration_id=${stale.configurationId}`;
+        assert.equal(suppressed?.enabled, false, scenario);
+        assert.equal(suppressed?.state, "cancelled", scenario);
+        await admin`update auth.users set email=${original.email},email_confirmed_at=${original.confirmed_at} where id=${owner.id}`;
+      }
 
       // A task over six hours old is expired, without invoking the transport.
       const expired = await create(7 * 60 * 60 * 1_000);
@@ -378,11 +539,6 @@ test(
     } finally {
       await worker.end();
       await worker2.end();
-      if (granted) {
-        if (wasMember)
-          await admin`revoke set option for jobs_email_worker from postgres`;
-        else await admin`revoke jobs_email_worker from postgres`;
-      }
       await admin.end();
     }
   },

@@ -275,6 +275,7 @@ try {
       "tests/integration/recruitment/calendar.test.ts",
       "tests/integration/recruitment/reminders-follow-up.test.ts",
       "tests/integration/recruitment/optional-email-reminders.test.ts",
+      "tests/integration/recruitment/optional-email-context.test.ts",
       "tests/integration/recruitment/optional-email-queue.test.ts",
       "tests/integration/recruitment/quick-capture-atomic-action.test.ts",
     ],
