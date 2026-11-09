@@ -195,6 +195,9 @@ test("actual Auth trigger replacement denies a valid prepare using existing TRIG
       true,
       "rollback restores original healthy trigger",
     );
+    // The rolled-back dispatch transaction leaves its committed claim unresolved.
+    // Resolve conservatively through the normal unknown path; never retry it.
+    await sql`select email_reminder.finish(${claimed.attempt}::uuid, 'unknown')`;
   } finally {
     await sql.end();
   }
