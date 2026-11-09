@@ -15,6 +15,7 @@ import { getBrowserClient } from "@/modules/identity/infrastructure/browser";
 import { buttonStyles } from "@/components/ui/styles";
 import { uuidPattern } from "@/modules/recruitment/domain/recruitment-case";
 import { claimContentIntent, clearContentIntent } from "./content-intent";
+import { contentChangedEvent } from "./content-events";
 
 export type ContentCommand = {
   requestId: string;
@@ -161,11 +162,14 @@ export function ContentRecoveryProvider({
       const done = callback.current;
       callback.current = null;
       update({ status: "idle", message: "Zapisano.", duplicate: null });
+      window.dispatchEvent(
+        new CustomEvent(contentChangedEvent, { detail: { owner, caseId } }),
+      );
       router.refresh();
       done?.();
       requestAnimationFrame(() => banner.current?.focus());
     },
-    [caseId, current, key, router, update],
+    [caseId, current, key, owner, router, update],
   );
   const inspect = useCallback(async () => {
     let id: string | null;
@@ -449,6 +453,9 @@ export function ContentRecoveryProvider({
         message: "Poprzedni zamiar bezpiecznie zakończony.",
         duplicate: null,
       });
+      window.dispatchEvent(
+        new CustomEvent(contentChangedEvent, { detail: { owner, caseId } }),
+      );
       router.refresh();
       requestAnimationFrame(() => banner.current?.focus());
     } catch {

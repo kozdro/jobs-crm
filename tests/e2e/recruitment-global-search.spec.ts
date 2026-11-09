@@ -736,7 +736,7 @@ test("long historical note shows its actual creation date, and voided links reta
   expect(createdLink.error).toBeNull();
   await login(page);
   await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
-  const note = page.locator(`#case-note-${createdNote.data.note.id}`);
+  const note = page.locator(`#note-${createdNote.data.note.id}`);
   await expect(
     note.getByRole("button", { name: "Rozwiń notatkę", exact: true }),
   ).toHaveAttribute("aria-expanded", "false");
@@ -857,4 +857,132 @@ test("switching edited links or paging protects an unsaved link draft", async ({
   await expect(page.getByLabel("Adres URL", { exact: true })).toHaveValue(
     urls[1],
   );
+});
+
+test("moving link 26 across a page boundary preserves target, focus and status", async ({
+  page,
+}) => {
+  const caseId = await caseFixture(`Move QA ${randomUUID()}`);
+  const { client } = await sdkLogin(target, owner);
+  let last = { id: "", url: "" };
+  for (let i = 0; i < 26; i++) {
+    const url = `https://example.invalid/move-${i}-${randomUUID()}`;
+    const result = await client.rpc("execute_case_content_command", {
+      p_request_id: randomUUID(),
+      p_payload: { operation: "add-link", caseId, url, role: "other" },
+    });
+    expect(result.error).toBeNull();
+    if (i === 25) last = { id: result.data.link.id, url };
+  }
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
+  await page
+    .getByRole("button", { name: "Następna strona linków", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: `Przenieś wyżej ${last.url}`, exact: true })
+    .click();
+  const row = page.locator(`#case-link-additional-${last.id}`);
+  await expect(row).toBeVisible();
+  await expect(row).toBeFocused();
+  await expect(
+    page.getByRole("status").filter({ hasText: /zapis|przenies|zmian/i }),
+  ).toBeVisible();
+});
+
+test("content validation identifies and focuses the invalid note, date and URL controls", async ({
+  page,
+}) => {
+  const caseId = await caseFixture(`Validation QA ${randomUUID()}`);
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
+  await page.getByRole("button", { name: "+ Notatka", exact: true }).click();
+  const text = page.getByLabel("Treść notatki", { exact: true });
+  await page
+    .getByRole("button", { name: "Zapisz notatkę", exact: true })
+    .click();
+  await expect(text).toHaveAttribute("aria-invalid", "true");
+  await expect(text).toBeFocused();
+  await expect(text).toHaveAttribute("aria-describedby", /.+/);
+  await text.fill("Poprawna treść");
+  await page.getByLabel("Data notatki", { exact: true }).selectOption("known");
+  const date = page.getByLabel("Data zdarzenia", { exact: true });
+  await date.fill("2099-01-01");
+  await page
+    .getByRole("button", { name: "Zapisz notatkę", exact: true })
+    .click();
+  await expect(date).toHaveAttribute("aria-invalid", "true");
+  await expect(date).toBeFocused();
+  page.once("dialog", (confirmation) => void confirmation.accept());
+  await page
+    .locator("form")
+    .filter({ has: text })
+    .getByRole("button", { name: "Anuluj", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Dodaj link", exact: true }).click();
+  const url = page.getByLabel("Adres URL", { exact: true });
+  await url.fill("ftp://example.invalid/path");
+  await page.getByRole("button", { name: "Zapisz link", exact: true }).click();
+  await expect(url).toHaveAttribute("aria-invalid", "true");
+  await expect(url).toBeFocused();
+  await expect(url).toHaveAttribute("aria-describedby", /.+/);
+});
+
+test("workspace drawer uses Warsaw day for an ordinary note at UTC midnight boundary", async ({
+  page,
+}) => {
+  const title = `Warsaw QA ${randomUUID()}`;
+  const caseId = await caseFixture(title);
+  const { client } = await sdkLogin(target, owner);
+  const result = await client.rpc("execute_case_content_command", {
+    p_request_id: randomUUID(),
+    p_payload: {
+      operation: "create-note",
+      caseId,
+      body: "Warsaw day fixture",
+      dateKind: "ordinary",
+      occurredOn: null,
+    },
+  });
+  expect(result.error).toBeNull();
+  const database = postgres({
+    ...target.db,
+    max: 1,
+    ssl: false,
+    onnotice: () => {},
+  });
+  try {
+    const triggerState = () =>
+      database`SELECT tgenabled,pg_get_triggerdef(oid) AS definition FROM pg_trigger WHERE tgrelid='public.case_note'::regclass AND tgname='case_note_projection_guard'`;
+    const before = await triggerState();
+    expect(before).toHaveLength(1);
+    expect(before[0].tgenabled).toBe("O");
+    try {
+      await database.begin(async (tx) => {
+        await tx.unsafe(
+          "ALTER TABLE public.case_note DISABLE TRIGGER case_note_projection_guard",
+        );
+        await tx.unsafe(
+          "UPDATE public.case_note SET created_at=$1::timestamptz WHERE owner_id=$2::uuid AND id=$3::uuid",
+          ["2020-01-01T23:30:00Z", owner.id, result.data.note.id],
+        );
+        await tx.unsafe(
+          "ALTER TABLE public.case_note ENABLE TRIGGER case_note_projection_guard",
+        );
+      });
+    } finally {
+      expect(await triggerState()).toEqual(before);
+    }
+  } finally {
+    await database.end();
+  }
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments?view=list`);
+  await page.getByRole("button", { name: new RegExp(title) }).click();
+  const drawer = page.getByRole("dialog", {
+    name: "Podgląd sprawy",
+    exact: true,
+  });
+  await expect(drawer).toContainText("Warsaw day fixture");
+  await expect(drawer).toContainText("Data zdarzenia: 2020-01-02");
 });

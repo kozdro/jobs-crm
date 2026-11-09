@@ -16,6 +16,7 @@ import {
 import { getBrowserClient } from "@/modules/identity/infrastructure/browser";
 import { buttonStyles, inputStyles } from "@/components/ui/styles";
 import { CaseCreatedTime, CaseStatus } from "./case-content";
+import { noteTimelineDay } from "./content-form-validation";
 import {
   clearWorkspaceNavigation,
   findWorkspaceNavigation,
@@ -1117,9 +1118,7 @@ function WorkspaceDrawer({
                       item.type === "calendar"
                         ? (item.event.actual?.date ?? null)
                         : item.type === "note"
-                          ? item.note.date_kind === "ordinary"
-                            ? item.note.created_at.slice(0, 10)
-                            : item.note.occurred_on
+                          ? noteTimelineDay(item.note)
                           : item.type === "fact"
                             ? item.fact.occurred_on
                             : item.entry.occurred_on;

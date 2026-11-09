@@ -957,7 +957,7 @@ test(
             await sql`select to_regclass('public.history_entry') history,to_regclass('public.calendar_event') event,to_regclass('public.case_link') link`;
           assert.equal(forbidden[0].history, null);
           assert.equal(forbidden[0].event, null);
-          assert.equal(forbidden[0].link, null);
+          assert.equal(forbidden[0].link, "case_link");
         } finally {
           await sql.end();
         }

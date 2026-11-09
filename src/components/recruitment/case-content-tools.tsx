@@ -1,15 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useId, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 import { useRouter } from "next/navigation";
 import { buttonStyles, inputStyles } from "@/components/ui/styles";
 import { useUnsavedWarning } from "@/components/reminders/use-unsaved-warning";
-import {
-  isCalendarDate,
-  warsawToday,
-} from "@/modules/recruitment/domain/case-events";
+import { warsawToday } from "@/modules/recruitment/domain/case-events";
 import { useContentRecovery } from "./content-recovery";
 import { canDiscardContentDraft } from "./content-intent";
+import { contentChangedEvent, matchesContentChanged } from "./content-events";
+import { linkFormError, noteFormErrors } from "./content-form-validation";
+import { findActiveLinkPage } from "./content-link-navigation";
 
 export type Note = {
   id: string;
@@ -175,7 +182,9 @@ export function NoteEditor({
       : "ordinary",
   );
   const [occurredOn, setOccurredOn] = useState(note?.occurred_on ?? "");
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState<{ body?: string; date?: string }>({});
+  const bodyRef = useRef<HTMLTextAreaElement>(null);
+  const dateRef = useRef<HTMLInputElement>(null);
   const dirty =
     body !== (note?.body ?? "") ||
     dateChoice !==
@@ -198,19 +207,13 @@ export function NoteEditor({
   function submit(event: FormEvent) {
     event.preventDefault();
     if (command.pending || command.recovery) return;
-    const count = Array.from(body.trim()).length;
-    if (
-      count < 1 ||
-      count > 10000 ||
-      !body.isWellFormed() ||
-      body.includes("\0") ||
-      (dateChoice === "known" &&
-        (!isCalendarDate(occurredOn) || occurredOn > warsawToday(new Date())))
-    ) {
-      setError("Wpisz treść do 10 000 znaków i poprawną datę.");
+    const validation = noteFormErrors(body, dateChoice, occurredOn);
+    if (validation.body || validation.date) {
+      setErrors(validation);
+      (validation.body ? bodyRef : dateRef).current?.focus();
       return;
     }
-    setError("");
+    setErrors({});
     void command.execute({
       requestId: crypto.randomUUID(),
       payload: {
@@ -225,6 +228,7 @@ export function NoteEditor({
   }
   return (
     <form
+      noValidate
       onSubmit={submit}
       className="mt-3 space-y-3 rounded-md border border-border p-4"
     >
@@ -233,16 +237,27 @@ export function NoteEditor({
       </label>
       <textarea
         id={`${formId}-body`}
+        ref={bodyRef}
         autoFocus
         className={`${inputStyles} min-h-32 w-full`}
         value={body}
         onChange={(e) => setBody(e.target.value)}
         disabled={command.busy || command.unknown}
-        aria-describedby={`${formId}-count`}
+        aria-invalid={Boolean(errors.body)}
+        aria-describedby={`${formId}-count${errors.body ? ` ${formId}-body-error` : ""}`}
       />
       <p id={`${formId}-count`} className="text-sm">
         {Array.from(body.trim()).length}/10000 znaków
       </p>
+      {errors.body && (
+        <p
+          id={`${formId}-body-error`}
+          role="alert"
+          className="text-sm text-destructive"
+        >
+          {errors.body}
+        </p>
+      )}
       <label htmlFor={`${formId}-date`} className="block font-medium">
         Data notatki
       </label>
@@ -261,7 +276,11 @@ export function NoteEditor({
         <label className="block">
           Data zdarzenia
           <input
+            id={`${formId}-occurred`}
+            ref={dateRef}
             aria-label="Data zdarzenia"
+            aria-invalid={Boolean(errors.date)}
+            aria-describedby={errors.date ? `${formId}-date-error` : undefined}
             type="date"
             max={warsawToday(new Date())}
             className={inputStyles}
@@ -269,9 +288,17 @@ export function NoteEditor({
             onChange={(e) => setOccurredOn(e.target.value)}
             disabled={command.busy || command.unknown}
           />
+          {errors.date && (
+            <span
+              id={`${formId}-date-error`}
+              role="alert"
+              className="block text-sm text-destructive"
+            >
+              {errors.date}
+            </span>
+          )}
         </label>
       )}
-      {error && <p role="alert">{error}</p>}
       <Feedback />
       <div className="flex gap-2">
         <button
@@ -435,6 +462,7 @@ function LinkEditor({
   const [url, setUrl] = useState(existing?.url ?? "");
   const [role, setRole] = useState(existing?.role ?? "unspecified");
   const [error, setError] = useState("");
+  const urlRef = useRef<HTMLInputElement>(null);
   const dirty =
     url !== (existing?.url ?? "") || role !== (existing?.role ?? "unspecified");
   useUnsavedWarning(dirty || command.unknown || command.busy);
@@ -442,12 +470,10 @@ function LinkEditor({
   function submit(event: FormEvent) {
     event.preventDefault();
     if (command.pending || command.recovery) return;
-    try {
-      const parsed = new URL(url.trim());
-      if (parsed.protocol !== "http:" && parsed.protocol !== "https:")
-        throw new Error();
-    } catch {
-      setError("Podaj poprawny adres HTTP lub HTTPS.");
+    const validation = linkFormError(url);
+    if (validation) {
+      setError(validation);
+      urlRef.current?.focus();
       return;
     }
     setError("");
@@ -471,6 +497,7 @@ function LinkEditor({
   }
   return (
     <form
+      noValidate
       onSubmit={submit}
       className="mt-3 space-y-3 rounded-md border border-border p-4"
     >
@@ -479,7 +506,10 @@ function LinkEditor({
       </label>
       <input
         id={`${formId}-url`}
+        ref={urlRef}
         type="url"
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `${formId}-url-error` : undefined}
         className={`${inputStyles} w-full`}
         value={url}
         disabled={command.busy || command.unknown}
@@ -492,6 +522,15 @@ function LinkEditor({
           );
         }}
       />
+      {error && (
+        <p
+          id={`${formId}-url-error`}
+          role="alert"
+          className="text-sm text-destructive"
+        >
+          {error}
+        </p>
+      )}
       <label htmlFor={`${formId}-role`} className="block font-medium">
         Rola linku
       </label>
@@ -515,7 +554,6 @@ function LinkEditor({
           </option>
         ))}
       </select>
-      {error && <p role="alert">{error}</p>}
       <Feedback />
       <div className="flex gap-2">
         <button
@@ -560,8 +598,56 @@ export function CaseLinks({
   const [linkDirty, setLinkDirty] = useState(false);
   const [moving, setMoving] = useState(false);
   const [version, setVersion] = useState(0);
+  const [moveMessage, setMoveMessage] = useState("");
+  const movedTarget = useRef<{ id: string; source: string } | null>(null);
+  const focusAfterMove = useRef<{
+    id: string;
+    source: string;
+    page: number;
+  } | null>(null);
+  const lastFocusedTarget = useRef<string | null>(null);
   const changed = useCallback(() => setVersion((v) => v + 1), []);
   const command = useContentCommand(owner, caseId, changed);
+  const moveDone = useCallback(() => {
+    const target = movedTarget.current;
+    movedTarget.current = null;
+    if (!target) return;
+    void (async () => {
+      const targetPage = await findActiveLinkPage(async (page) => {
+        const data = await readContent(owner, {
+          caseId,
+          linksPage: String(page),
+        });
+        return {
+          links: data.links as CaseLink[],
+          hasMoreLinks: data.hasMoreLinks === true,
+        };
+      }, target);
+      if (targetPage === null) throw new Error("moved link unavailable");
+      focusAfterMove.current = { ...target, page: targetPage };
+      setPage(targetPage);
+      setVersion((value) => value + 1);
+    })().catch(() =>
+      setMoveMessage(
+        "Zapisano zmianę kolejności, ale nie udało się odnaleźć linku. Odśwież widok.",
+      ),
+    );
+  }, [owner, caseId]);
+  const moveCommand = useContentCommand(owner, caseId, moveDone);
+  useEffect(() => {
+    const invalidate = (event: Event) => {
+      if (
+        matchesContentChanged(
+          (event as CustomEvent<unknown>).detail,
+          owner,
+          caseId,
+        )
+      )
+        changed();
+    };
+    window.addEventListener(contentChangedEvent, invalidate);
+    return () => window.removeEventListener(contentChangedEvent, invalidate);
+  }, [owner, caseId, changed]);
   useEffect(() => {
     let active = true;
     void readContent(owner, {
@@ -577,6 +663,25 @@ export function CaseLinks({
           setTargetLink((data.targetLink as CaseLink | null) ?? null);
           setHasMore(data.hasMoreLinks === true);
           setError(false);
+          const target = focusAfterMove.current;
+          if (
+            target &&
+            target.page === page &&
+            (data.links as CaseLink[]).some(
+              (row) =>
+                row.id === target.id &&
+                row.source === target.source &&
+                !row.voided,
+            )
+          ) {
+            focusAfterMove.current = null;
+            setMoveMessage(`Przeniesiono link. Strona ${page}.`);
+            requestAnimationFrame(() =>
+              document
+                .getElementById(`case-link-${target.source}-${target.id}`)
+                ?.focus(),
+            );
+          }
         }
       })
       .catch(() => {
@@ -588,14 +693,23 @@ export function CaseLinks({
   }, [owner, caseId, version, page, targetId, targetSource]);
   useEffect(() => {
     if (!targetId || !links) return;
+    const focusKey = `${caseId}:${targetSource}:${targetId}`;
+    if (lastFocusedTarget.current === focusKey || focusAfterMove.current)
+      return;
     const item = [...links, ...(targetLink ? [targetLink] : [])].find(
       (x) => x.id === targetId && x.source === targetSource && !x.voided,
     );
     if (item)
-      requestAnimationFrame(() =>
-        document.getElementById(`case-link-${item.source}-${item.id}`)?.focus(),
-      );
-  }, [links, targetId, targetSource, targetLink]);
+      requestAnimationFrame(() => {
+        const element = document.getElementById(
+          `case-link-${item.source}-${item.id}`,
+        );
+        if (element) {
+          element.focus();
+          lastFocusedTarget.current = focusKey;
+        }
+      });
+  }, [caseId, links, targetId, targetSource, targetLink]);
   const combined = [...(links ?? [])];
   if (
     targetLink &&
@@ -639,7 +753,9 @@ export function CaseLinks({
       )
     )
       return;
-    void command.execute({
+    if (operation === "correct-link")
+      movedTarget.current = { id: link.id, source: link.source };
+    void (operation === "correct-link" ? moveCommand : command).execute({
       requestId: crypto.randomUUID(),
       payload: {
         operation,
@@ -700,6 +816,11 @@ export function CaseLinks({
       <h2 id="case-links-title" className="text-lg font-semibold">
         Linki
       </h2>
+      {moveMessage && (
+        <p role="status" className="mt-2 text-sm">
+          {moveMessage}
+        </p>
+      )}
       {targetMissing && (
         <p role="alert">Nie można otworzyć wskazanego linku.</p>
       )}

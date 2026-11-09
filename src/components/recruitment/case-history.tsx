@@ -23,6 +23,7 @@ import {
 } from "@/modules/recruitment/domain/case-events";
 import { CaseCreatedTime } from "./case-content";
 import { NoteEditor, NoteEntry } from "./case-content-tools";
+import { noteTimelineDay } from "./content-form-validation";
 
 export function formatEventDay(day: string) {
   const [year, month, date] = day.split("-");
@@ -48,9 +49,7 @@ function timelineDay(item: TimelineItem) {
   return item.type === "fact"
     ? item.fact.occurred_on
     : item.type === "note"
-      ? item.note.date_kind === "ordinary"
-        ? warsawToday(new Date(item.note.created_at))
-        : item.note.occurred_on
+      ? noteTimelineDay(item.note)
       : item.type === "calendar"
         ? (item.event.actual?.date ?? null)
         : item.entry.occurred_on;
