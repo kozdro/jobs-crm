@@ -118,14 +118,8 @@
           "name": "case_content_command_owner_id_case_id_fkey",
           "tableFrom": "case_content_command",
           "tableTo": "recruitment_case",
-          "columnsFrom": [
-            "owner_id",
-            "case_id"
-          ],
-          "columnsTo": [
-            "owner_id",
-            "id"
-          ],
+          "columnsFrom": ["owner_id", "case_id"],
+          "columnsTo": ["owner_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -135,10 +129,7 @@
         "case_content_command_owner_id_request_id_key": {
           "name": "case_content_command_owner_id_request_id_key",
           "nullsNotDistinct": false,
-          "columns": [
-            "owner_id",
-            "request_id"
-          ]
+          "columns": ["owner_id", "request_id"]
         }
       },
       "policies": {},
@@ -293,14 +284,8 @@
           "name": "case_link_owner_id_case_id_fkey",
           "tableFrom": "case_link",
           "tableTo": "recruitment_case",
-          "columnsFrom": [
-            "owner_id",
-            "case_id"
-          ],
-          "columnsTo": [
-            "owner_id",
-            "id"
-          ],
+          "columnsFrom": ["owner_id", "case_id"],
+          "columnsTo": ["owner_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -310,10 +295,7 @@
         "case_link_owner_id_key": {
           "name": "case_link_owner_id_key",
           "nullsNotDistinct": false,
-          "columns": [
-            "owner_id",
-            "id"
-          ]
+          "columns": ["owner_id", "id"]
         }
       },
       "policies": {},
@@ -452,14 +434,8 @@
           "name": "case_note_owner_id_case_id_fkey",
           "tableFrom": "case_note",
           "tableTo": "recruitment_case",
-          "columnsFrom": [
-            "owner_id",
-            "case_id"
-          ],
-          "columnsTo": [
-            "owner_id",
-            "id"
-          ],
+          "columnsFrom": ["owner_id", "case_id"],
+          "columnsTo": ["owner_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -469,10 +445,7 @@
         "case_note_owner_id_key": {
           "name": "case_note_owner_id_key",
           "nullsNotDistinct": false,
-          "columns": [
-            "owner_id",
-            "id"
-          ]
+          "columns": ["owner_id", "id"]
         }
       },
       "policies": {},
@@ -605,12 +578,8 @@
           "tableFrom": "catalog_command",
           "tableTo": "users",
           "schemaTo": "auth",
-          "columnsFrom": [
-            "owner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["owner_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -620,10 +589,7 @@
         "catalog_command_owner_request_unique": {
           "name": "catalog_command_owner_request_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "owner_id",
-            "request_id"
-          ]
+          "columns": ["owner_id", "request_id"]
         }
       },
       "policies": {},
@@ -731,12 +697,8 @@
           "tableFrom": "catalog_profile",
           "tableTo": "users",
           "schemaTo": "auth",
-          "columnsFrom": [
-            "owner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["owner_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -746,10 +708,7 @@
         "catalog_profile_owner_id_unique": {
           "name": "catalog_profile_owner_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "owner_id",
-            "id"
-          ]
+          "columns": ["owner_id", "id"]
         }
       },
       "policies": {},
@@ -929,14 +888,8 @@
           "name": "catalog_relation_owned_case_fk",
           "tableFrom": "catalog_relation",
           "tableTo": "recruitment_case",
-          "columnsFrom": [
-            "owner_id",
-            "case_id"
-          ],
-          "columnsTo": [
-            "owner_id",
-            "id"
-          ],
+          "columnsFrom": ["owner_id", "case_id"],
+          "columnsTo": ["owner_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -944,14 +897,8 @@
           "name": "catalog_relation_owned_org_fk",
           "tableFrom": "catalog_relation",
           "tableTo": "catalog_profile",
-          "columnsFrom": [
-            "owner_id",
-            "organization_id"
-          ],
-          "columnsTo": [
-            "owner_id",
-            "id"
-          ],
+          "columnsFrom": ["owner_id", "organization_id"],
+          "columnsTo": ["owner_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -959,14 +906,8 @@
           "name": "catalog_relation_owned_contact_fk",
           "tableFrom": "catalog_relation",
           "tableTo": "catalog_profile",
-          "columnsFrom": [
-            "owner_id",
-            "contact_id"
-          ],
-          "columnsTo": [
-            "owner_id",
-            "id"
-          ],
+          "columnsFrom": ["owner_id", "contact_id"],
+          "columnsTo": ["owner_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -976,10 +917,7 @@
         "catalog_relation_owner_id_unique": {
           "name": "catalog_relation_owner_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "owner_id",
-            "id"
-          ]
+          "columns": ["owner_id", "id"]
         }
       },
       "policies": {},
@@ -1109,14 +1047,8 @@
           "name": "recruitment_calendar_command_owned_event_fk",
           "tableFrom": "recruitment_calendar_command",
           "tableTo": "recruitment_calendar_event",
-          "columnsFrom": [
-            "owner_id",
-            "event_id"
-          ],
-          "columnsTo": [
-            "owner_id",
-            "id"
-          ],
+          "columnsFrom": ["owner_id", "event_id"],
+          "columnsTo": ["owner_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1124,12 +1056,8 @@
           "name": "recruitment_calendar_command_closure_fk",
           "tableFrom": "recruitment_calendar_command",
           "tableTo": "recruitment_case_lifecycle",
-          "columnsFrom": [
-            "closure_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["closure_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1139,10 +1067,7 @@
         "recruitment_calendar_command_owner_request_unique": {
           "name": "recruitment_calendar_command_owner_request_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "owner_id",
-            "request_id"
-          ]
+          "columns": ["owner_id", "request_id"]
         }
       },
       "policies": {},
@@ -1287,12 +1212,8 @@
           "tableFrom": "recruitment_calendar_event",
           "tableTo": "users",
           "schemaTo": "auth",
-          "columnsFrom": [
-            "owner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["owner_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1300,14 +1221,8 @@
           "name": "recruitment_calendar_owned_case_fk",
           "tableFrom": "recruitment_calendar_event",
           "tableTo": "recruitment_case",
-          "columnsFrom": [
-            "owner_id",
-            "case_id"
-          ],
-          "columnsTo": [
-            "owner_id",
-            "id"
-          ],
+          "columnsFrom": ["owner_id", "case_id"],
+          "columnsTo": ["owner_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1317,10 +1232,7 @@
         "recruitment_calendar_owner_id_unique": {
           "name": "recruitment_calendar_owner_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "owner_id",
-            "id"
-          ]
+          "columns": ["owner_id", "id"]
         }
       },
       "policies": {},
@@ -1408,14 +1320,8 @@
           "name": "recruitment_calendar_participant_event_fk",
           "tableFrom": "recruitment_calendar_participant",
           "tableTo": "recruitment_calendar_event",
-          "columnsFrom": [
-            "owner_id",
-            "event_id"
-          ],
-          "columnsTo": [
-            "owner_id",
-            "id"
-          ],
+          "columnsFrom": ["owner_id", "event_id"],
+          "columnsTo": ["owner_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1423,14 +1329,8 @@
           "name": "recruitment_calendar_participant_contact_fk",
           "tableFrom": "recruitment_calendar_participant",
           "tableTo": "catalog_profile",
-          "columnsFrom": [
-            "owner_id",
-            "contact_id"
-          ],
-          "columnsTo": [
-            "owner_id",
-            "id"
-          ],
+          "columnsFrom": ["owner_id", "contact_id"],
+          "columnsTo": ["owner_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1440,11 +1340,7 @@
         "recruitment_calendar_participant_unique": {
           "name": "recruitment_calendar_participant_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "owner_id",
-            "event_id",
-            "contact_id"
-          ]
+          "columns": ["owner_id", "event_id", "contact_id"]
         }
       },
       "policies": {},
@@ -1626,12 +1522,8 @@
           "tableFrom": "recruitment_case",
           "tableTo": "users",
           "schemaTo": "auth",
-          "columnsFrom": [
-            "owner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["owner_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1641,18 +1533,12 @@
         "recruitment_case_owner_id_unique": {
           "name": "recruitment_case_owner_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "owner_id",
-            "id"
-          ]
+          "columns": ["owner_id", "id"]
         },
         "recruitment_case_owner_request_unique": {
           "name": "recruitment_case_owner_request_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "owner_id",
-            "request_id"
-          ]
+          "columns": ["owner_id", "request_id"]
         }
       },
       "policies": {},
@@ -1766,12 +1652,8 @@
           "tableFrom": "recruitment_case_capture_receipt",
           "tableTo": "users",
           "schemaTo": "auth",
-          "columnsFrom": [
-            "owner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["owner_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1779,14 +1661,8 @@
           "name": "recruitment_case_capture_receipt_owned_case_fk",
           "tableFrom": "recruitment_case_capture_receipt",
           "tableTo": "recruitment_case",
-          "columnsFrom": [
-            "owner_id",
-            "case_id"
-          ],
-          "columnsTo": [
-            "owner_id",
-            "id"
-          ],
+          "columnsFrom": ["owner_id", "case_id"],
+          "columnsTo": ["owner_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1794,12 +1670,8 @@
           "name": "recruitment_case_capture_receipt_event_fk",
           "tableFrom": "recruitment_case_capture_receipt",
           "tableTo": "recruitment_case_event",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1809,10 +1681,7 @@
         "recruitment_case_capture_receipt_owner_request_unique": {
           "name": "recruitment_case_capture_receipt_owner_request_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "owner_id",
-            "request_id"
-          ]
+          "columns": ["owner_id", "request_id"]
         }
       },
       "policies": {},
@@ -1950,14 +1819,8 @@
           "name": "recruitment_case_event_owned_case_fk",
           "tableFrom": "recruitment_case_event",
           "tableTo": "recruitment_case",
-          "columnsFrom": [
-            "owner_id",
-            "case_id"
-          ],
-          "columnsTo": [
-            "owner_id",
-            "id"
-          ],
+          "columnsFrom": ["owner_id", "case_id"],
+          "columnsTo": ["owner_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1967,10 +1830,7 @@
         "recruitment_case_event_owner_request_unique": {
           "name": "recruitment_case_event_owner_request_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "owner_id",
-            "request_id"
-          ]
+          "columns": ["owner_id", "request_id"]
         }
       },
       "policies": {},
@@ -2102,14 +1962,8 @@
           "name": "recruitment_revision_owned_case_fk",
           "tableFrom": "recruitment_case_event_revision",
           "tableTo": "recruitment_case",
-          "columnsFrom": [
-            "owner_id",
-            "case_id"
-          ],
-          "columnsTo": [
-            "owner_id",
-            "id"
-          ],
+          "columnsFrom": ["owner_id", "case_id"],
+          "columnsTo": ["owner_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -2117,12 +1971,8 @@
           "name": "recruitment_revision_event_fk",
           "tableFrom": "recruitment_case_event_revision",
           "tableTo": "recruitment_case_event",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2132,18 +1982,12 @@
         "recruitment_revision_owner_request_unique": {
           "name": "recruitment_revision_owner_request_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "owner_id",
-            "request_id"
-          ]
+          "columns": ["owner_id", "request_id"]
         },
         "recruitment_revision_event_version_unique": {
           "name": "recruitment_revision_event_version_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "event_id",
-            "revision"
-          ]
+          "columns": ["event_id", "revision"]
         }
       },
       "policies": {},
@@ -2331,14 +2175,8 @@
           "name": "recruitment_lifecycle_owned_case_fk",
           "tableFrom": "recruitment_case_lifecycle",
           "tableTo": "recruitment_case",
-          "columnsFrom": [
-            "owner_id",
-            "case_id"
-          ],
-          "columnsTo": [
-            "owner_id",
-            "id"
-          ],
+          "columnsFrom": ["owner_id", "case_id"],
+          "columnsTo": ["owner_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2348,19 +2186,12 @@
         "recruitment_lifecycle_owner_request_unique": {
           "name": "recruitment_lifecycle_owner_request_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "owner_id",
-            "request_id"
-          ]
+          "columns": ["owner_id", "request_id"]
         },
         "recruitment_lifecycle_case_cycle_kind_unique": {
           "name": "recruitment_lifecycle_case_cycle_kind_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "case_id",
-            "cycle",
-            "kind"
-          ]
+          "columns": ["case_id", "cycle", "kind"]
         }
       },
       "policies": {},
@@ -2474,14 +2305,8 @@
           "name": "recruitment_closure_revision_owned_case_fk",
           "tableFrom": "recruitment_closure_revision",
           "tableTo": "recruitment_case",
-          "columnsFrom": [
-            "owner_id",
-            "case_id"
-          ],
-          "columnsTo": [
-            "owner_id",
-            "id"
-          ],
+          "columnsFrom": ["owner_id", "case_id"],
+          "columnsTo": ["owner_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -2489,12 +2314,8 @@
           "name": "recruitment_closure_revision_closure_fk",
           "tableFrom": "recruitment_closure_revision",
           "tableTo": "recruitment_case_lifecycle",
-          "columnsFrom": [
-            "closure_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["closure_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2504,18 +2325,12 @@
         "recruitment_closure_revision_owner_request_unique": {
           "name": "recruitment_closure_revision_owner_request_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "owner_id",
-            "request_id"
-          ]
+          "columns": ["owner_id", "request_id"]
         },
         "recruitment_closure_revision_version_unique": {
           "name": "recruitment_closure_revision_version_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "closure_id",
-            "revision"
-          ]
+          "columns": ["closure_id", "revision"]
         }
       },
       "policies": {},
@@ -2582,14 +2397,8 @@
           "name": "recruitment_manual_contact_case_fk",
           "tableFrom": "recruitment_manual_contact",
           "tableTo": "recruitment_case",
-          "columnsFrom": [
-            "owner_id",
-            "case_id"
-          ],
-          "columnsTo": [
-            "owner_id",
-            "id"
-          ],
+          "columnsFrom": ["owner_id", "case_id"],
+          "columnsTo": ["owner_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -2597,12 +2406,8 @@
           "name": "recruitment_manual_contact_event_fk",
           "tableFrom": "recruitment_manual_contact",
           "tableTo": "recruitment_case_event",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["event_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2612,18 +2417,12 @@
         "recruitment_manual_contact_owner_request_unique": {
           "name": "recruitment_manual_contact_owner_request_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "owner_id",
-            "request_id"
-          ]
+          "columns": ["owner_id", "request_id"]
         },
         "recruitment_manual_contact_owner_event_unique": {
           "name": "recruitment_manual_contact_owner_event_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "owner_id",
-            "event_id"
-          ]
+          "columns": ["owner_id", "event_id"]
         }
       },
       "policies": {},
@@ -2715,12 +2514,8 @@
           "tableFrom": "recruitment_reminder_command",
           "tableTo": "users",
           "schemaTo": "auth",
-          "columnsFrom": [
-            "owner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["owner_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2730,18 +2525,12 @@
         "recruitment_reminder_command_owner_request_unique": {
           "name": "recruitment_reminder_command_owner_request_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "owner_id",
-            "request_id"
-          ]
+          "columns": ["owner_id", "request_id"]
         },
         "recruitment_reminder_command_owner_order_unique": {
           "name": "recruitment_reminder_command_owner_order_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "owner_id",
-            "order_no"
-          ]
+          "columns": ["owner_id", "order_no"]
         }
       },
       "policies": {},
@@ -2887,12 +2676,8 @@
           "tableFrom": "recruitment_task",
           "tableTo": "users",
           "schemaTo": "auth",
-          "columnsFrom": [
-            "owner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["owner_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -2900,14 +2685,8 @@
           "name": "recruitment_task_owned_case_fk",
           "tableFrom": "recruitment_task",
           "tableTo": "recruitment_case",
-          "columnsFrom": [
-            "owner_id",
-            "case_id"
-          ],
-          "columnsTo": [
-            "owner_id",
-            "id"
-          ],
+          "columnsFrom": ["owner_id", "case_id"],
+          "columnsTo": ["owner_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -2917,10 +2696,7 @@
         "recruitment_task_owner_id_unique": {
           "name": "recruitment_task_owner_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "owner_id",
-            "id"
-          ]
+          "columns": ["owner_id", "id"]
         }
       },
       "policies": {},
@@ -3062,14 +2838,8 @@
           "name": "recruitment_task_command_owned_task_fk",
           "tableFrom": "recruitment_task_command",
           "tableTo": "recruitment_task",
-          "columnsFrom": [
-            "owner_id",
-            "task_id"
-          ],
-          "columnsTo": [
-            "owner_id",
-            "id"
-          ],
+          "columnsFrom": ["owner_id", "task_id"],
+          "columnsTo": ["owner_id", "id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -3077,12 +2847,8 @@
           "name": "recruitment_task_command_closure_fk",
           "tableFrom": "recruitment_task_command",
           "tableTo": "recruitment_case_lifecycle",
-          "columnsFrom": [
-            "closure_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["closure_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -3092,10 +2858,7 @@
         "recruitment_task_command_owner_request_unique": {
           "name": "recruitment_task_command_owner_request_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "owner_id",
-            "request_id"
-          ]
+          "columns": ["owner_id", "request_id"]
         }
       },
       "policies": {},
