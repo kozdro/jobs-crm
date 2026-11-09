@@ -48,6 +48,8 @@ import {
   eventDialogName,
   panelDialogName,
   calendarDialogA11y,
+  calendarTargetResult,
+  calendarTargetFailure,
 } from "./form-logic";
 
 type Person = { id: string; name: string };
@@ -96,6 +98,7 @@ async function request(
     throw Object.assign(new Error("request failed"), {
       definite: response.status < 500,
       kind: (body as { kind?: string } | null)?.kind,
+      status: response.status,
     });
   if (!body || typeof body !== "object") throw new Error("invalid response");
   return body as Record<string, unknown>;
@@ -1781,30 +1784,39 @@ export function CalendarPanel({
   const [hasMore, setHasMore] = useState(false);
   const [version, setVersion] = useState(0);
   const [targetEvent, setTargetEvent] = useState<CalendarEvent | null>(null);
-  const [targetError, setTargetError] = useState<string | null>(null);
+  const [targetError, setTargetError] = useState<{
+    id: string;
+    kind: "missing" | "error";
+  } | null>(null);
+  const [targetRetry, setTargetRetry] = useState(0);
   const targetRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!targetEventId) return;
     let active = true;
     void request(userId, { eventId: targetEventId })
       .then((body) => {
-        const item = body.event as CalendarEvent | undefined;
         if (!active) return;
-        if (!item || item.id !== targetEventId) {
-          setTargetError(targetEventId);
+        const state = calendarTargetResult(body, targetEventId);
+        if (state !== "found") {
+          setTargetError({ id: targetEventId, kind: state });
           return;
         }
+        const item = body.event as CalendarEvent;
         setTargetEvent(item);
         setTargetError(null);
         requestAnimationFrame(() => targetRef.current?.focus());
       })
-      .catch(() => {
-        if (active) setTargetError(targetEventId);
+      .catch((error: unknown) => {
+        if (active)
+          setTargetError({
+            id: targetEventId,
+            kind: calendarTargetFailure(error),
+          });
       });
     return () => {
       active = false;
     };
-  }, [targetEventId, userId, version]);
+  }, [targetEventId, userId, version, targetRetry]);
   const readScope = `${userId}:${caseId ?? ""}:${contactId ?? ""}:${compact}:${page}`;
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
@@ -2300,12 +2312,31 @@ export function CalendarPanel({
         </Dialog.Root>
       )}
       {loading && <p role="status">Ładowanie wydarzeń…</p>}
-      {targetEventId && targetError === targetEventId && (
-        <p role="alert">Nie można otworzyć wskazanego wydarzenia.</p>
+      {targetEventId && targetError?.id === targetEventId && (
+        <div role="alert">
+          {targetError.kind === "missing" ? (
+            <p>Nie można otworzyć wskazanego wydarzenia.</p>
+          ) : (
+            <>
+              <p>Nie udało się pobrać wskazanego wydarzenia.</p>
+              <button
+                type="button"
+                className={buttonStyles.secondary}
+                onClick={() => {
+                  setTargetEvent(null);
+                  setTargetError(null);
+                  setTargetRetry((value) => value + 1);
+                }}
+              >
+                Spróbuj ponownie
+              </button>
+            </>
+          )}
+        </div>
       )}
       {targetEventId &&
         targetEvent?.id === targetEventId &&
-        targetError !== targetEventId && (
+        targetError?.id !== targetEventId && (
           <div
             ref={targetRef}
             tabIndex={-1}

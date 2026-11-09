@@ -3,9 +3,16 @@
 import Link from "next/link";
 import { Dialog } from "@base-ui/react/dialog";
 import { Search, X } from "lucide-react";
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { getBrowserClient } from "@/modules/identity/infrastructure/browser";
 import { buttonStyles } from "@/components/ui/styles";
+import { opensSearchDialog } from "./keyboard";
 
 const groups = [
   ["cases", "Sprawy i stanowiska"],
@@ -362,25 +369,71 @@ export function SearchContent({
 }
 export function GlobalSearch({ userId }: { userId: string }) {
   const [open, setOpen] = useState(false);
+  const state = useSearchStore(userId);
+  const composing = useRef(false);
+  const opener = useRef<HTMLElement | null>(null);
+  const navigating = useRef(false);
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <input
         aria-label="Szukaj w Jobs CRM"
         placeholder="Szukaj w Jobs CRM"
-        readOnly
-        onClick={() => setOpen(true)}
-        className="hidden min-h-11 w-44 cursor-pointer rounded-md border border-input bg-background px-3 text-sm lg:block"
+        type="search"
+        value={state.query}
+        onChange={(event) => {
+          emit({ ...ownerStore(userId), query: event.target.value, pages: {} });
+          if (!composing.current) {
+            opener.current = event.currentTarget;
+            navigating.current = false;
+            setOpen(true);
+          }
+        }}
+        onCompositionStart={() => {
+          composing.current = true;
+        }}
+        onCompositionEnd={(event) => {
+          composing.current = false;
+          emit({
+            ...ownerStore(userId),
+            query: event.currentTarget.value,
+            pages: {},
+          });
+          opener.current = event.currentTarget;
+          navigating.current = false;
+          setOpen(true);
+        }}
+        onKeyDown={(event) => {
+          if (opensSearchDialog(event.key, event.nativeEvent.isComposing)) {
+            event.preventDefault();
+            opener.current = event.currentTarget;
+            navigating.current = false;
+            setOpen(true);
+          }
+        }}
+        onClick={(event) => {
+          opener.current = event.currentTarget;
+          navigating.current = false;
+          setOpen(true);
+        }}
+        className="hidden min-h-11 w-44 rounded-md border border-input bg-background px-3 text-sm lg:block"
       />
       <Dialog.Trigger
         aria-label="Szukaj"
         className={`${buttonStyles.secondary} min-w-11 gap-2`}
+        onClick={(event) => {
+          opener.current = event.currentTarget;
+          navigating.current = false;
+        }}
       >
         <Search aria-hidden="true" size={18} />
         <span className="hidden sm:inline">Szukaj</span>
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 z-50 bg-overlay" />
-        <Dialog.Popup className="fixed inset-x-3 top-4 z-50 mx-auto max-h-[calc(100dvh-2rem)] w-auto max-w-2xl overflow-y-auto rounded-xl border border-border bg-card p-5 shadow-xl outline-none sm:top-[10vh]">
+        <Dialog.Popup
+          finalFocus={() => (navigating.current ? false : opener.current)}
+          className="fixed inset-x-3 top-4 z-50 mx-auto max-h-[calc(100dvh-2rem)] w-auto max-w-2xl overflow-y-auto rounded-xl border border-border bg-card p-5 shadow-xl outline-none sm:top-[10vh]"
+        >
           <div className="mb-4 flex items-center justify-between">
             <Dialog.Title className="text-lg font-semibold">
               Wyszukiwanie
@@ -398,7 +451,10 @@ export function GlobalSearch({ userId }: { userId: string }) {
           <SearchContent
             userId={userId}
             preview
-            onNavigate={() => setOpen(false)}
+            onNavigate={() => {
+              navigating.current = true;
+              setOpen(false);
+            }}
           />
         </Dialog.Popup>
       </Dialog.Portal>

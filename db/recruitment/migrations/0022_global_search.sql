@@ -218,9 +218,9 @@ BEGIN
     CASE WHEN ts IS NULL THEN 0 ELSE ts_rank(to_tsvector('pg_catalog.simple'::regconfig,body),ts) END AS rank
    FROM candidates
   ), limited AS (
-   SELECT * FROM matched ORDER BY grade,rank DESC,created_at DESC,id ASC,source ASC OFFSET offset_no LIMIT p_limit+1
+   SELECT * FROM matched ORDER BY grade,CASE WHEN grade=2 THEN rank ELSE 0 END DESC,created_at DESC,id ASC,source ASC OFFSET offset_no LIMIT p_limit+1
   ), ordered AS (
-   SELECT *,row_number() OVER (ORDER BY grade,rank DESC,created_at DESC,id ASC,source ASC) AS rn FROM limited
+   SELECT *,row_number() OVER (ORDER BY grade,CASE WHEN grade=2 THEN rank ELSE 0 END DESC,created_at DESC,id ASC,source ASC) AS rn FROM limited
   )
   SELECT coalesce(jsonb_agg(jsonb_build_object('id',ordered.id,'case_id',ordered.case_id,'title',ordered.title,'snippet',ordered.snippet,'created_at',ordered.created_at,'source',ordered.source,
    'case_title',(SELECT c.title FROM public.recruitment_case c WHERE c.owner_id=auth.uid() AND c.id=ordered.case_id),

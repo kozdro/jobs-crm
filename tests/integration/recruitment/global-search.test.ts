@@ -932,6 +932,96 @@ test(
     );
 
     await t.test(
+      "exact and literal grades break ties by date, while token-only results use FTS rank",
+      async () => {
+        const database = postgres({
+          ...target.db,
+          max: 1,
+          ssl: false,
+          onnotice: () => {},
+        });
+        const marker = `ranking${randomUUID().replaceAll("-", "")}`;
+        const ids: string[] = [];
+        const seed = async (
+          title: string,
+          description: string,
+          createdAt: string,
+        ) => {
+          const rows = await database<{ id: string }[]>`
+            INSERT INTO public.recruitment_case(owner_id,request_id,title,description,created_at)
+            VALUES(${a.id}::uuid,${randomUUID()}::uuid,${title},${description},${createdAt}::timestamptz)
+            RETURNING id`;
+          ids.push(rows[0].id);
+          return rows[0].id;
+        };
+        try {
+          const exact = `${marker}exact`;
+          const oldExact = await seed(
+            exact,
+            `${exact} ${exact} ${exact}`,
+            "2020-01-01T00:00:00Z",
+          );
+          const newExact = await seed(
+            exact,
+            "description",
+            "2021-01-01T00:00:00Z",
+          );
+          const exactOrder = ok<Groups>(await search(exact)).cases.items.map(
+            (row) => row.id,
+          );
+          assert.ok(
+            exactOrder.indexOf(newExact) < exactOrder.indexOf(oldExact),
+          );
+          const literal = `${marker}literal`;
+          const oldLiteral = await seed(
+            `prefix${literal}suffix`,
+            `${literal} ${literal} ${literal}`,
+            "2020-01-01T00:00:00Z",
+          );
+          const newLiteral = await seed(
+            `prefix${literal}suffix`,
+            "description",
+            "2021-01-01T00:00:00Z",
+          );
+          const literalOrder = ok<Groups>(
+            await search(literal),
+          ).cases.items.map((row) => row.id);
+          assert.ok(
+            literalOrder.indexOf(newLiteral) < literalOrder.indexOf(oldLiteral),
+          );
+          const word = `${marker}token`;
+          const oldHigh = await seed(
+            `prefix ${word} gap companion`,
+            `${word} gap companion ${word} gap companion ${word} gap companion`,
+            "2020-01-01T00:00:00Z",
+          );
+          const newLow = await seed(
+            `prefix ${word} gap companion`,
+            "description",
+            "2021-01-01T00:00:00Z",
+          );
+          const tokenOrder = ok<Groups>(
+            await search(`${word} companion`),
+          ).cases.items.map((row) => row.id);
+          assert.ok(
+            tokenOrder.indexOf(oldHigh) >= 0 && tokenOrder.indexOf(newLow) >= 0,
+          );
+          assert.ok(tokenOrder.indexOf(oldHigh) < tokenOrder.indexOf(newLow));
+        } finally {
+          try {
+            if (ids.length)
+              await database`DELETE FROM public.recruitment_case WHERE owner_id=${a.id}::uuid AND id=ANY(${ids}::uuid[])`;
+            const [remaining] =
+              await database`SELECT count(*)::integer AS count FROM public.recruitment_case WHERE owner_id=${a.id}::uuid AND id=ANY(${ids}::uuid[])`;
+            assert.equal(remaining.count, 0);
+          } finally {
+            await database.end();
+          }
+        }
+      },
+    );
+
+    await t.test(
       "direct RPC validates nulls, malformed page types and large page offsets",
       async () => {
         const invoke = (pages: unknown, limit: unknown) =>
@@ -995,12 +1085,16 @@ test(
           onnotice: () => {},
         });
         const term = `bench${randomUUID().replaceAll("-", "")}`;
+        const fixtureTag = `synthetic performance fixture ${randomUUID()}`;
         try {
+          const [preexisting] =
+            await database`SELECT count(*)::integer AS count FROM public.recruitment_case WHERE owner_id=${a.id}::uuid AND description=${fixtureTag}`;
+          assert.equal(preexisting.count, 0);
           await database`
             INSERT INTO public.recruitment_case (owner_id,request_id,title,description)
             SELECT ${a.id}::uuid,gen_random_uuid(),
               CASE WHEN n % 100 = 0 THEN ${term} || ' specialist' ELSE 'synthetic role ' || n::text END,
-              'synthetic performance fixture'
+              ${fixtureTag}
             FROM generate_series(1,10000) n
           `;
           await database`ANALYZE public.recruitment_case`;
@@ -1050,7 +1144,18 @@ test(
             `FTS_PERF_SYNTHETIC rows=10000 owner=A matchEvery=100 ${JSON.stringify({ beforeVacuum, afterVacuum, indexDefinition: definitions[0].definition })}`,
           );
         } finally {
-          await database.end();
+          try {
+            await database`DELETE FROM public.recruitment_case WHERE owner_id=${a.id}::uuid AND description=${fixtureTag}`;
+            const [remaining] =
+              await database`SELECT count(*)::integer AS count FROM public.recruitment_case WHERE owner_id=${a.id}::uuid AND description=${fixtureTag}`;
+            assert.equal(
+              remaining.count,
+              0,
+              "Synthetic FTS performance rows must be cleaned",
+            );
+          } finally {
+            await database.end();
+          }
         }
       },
     );

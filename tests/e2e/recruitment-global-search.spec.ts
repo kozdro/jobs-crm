@@ -58,9 +58,10 @@ test("a real inline note is searchable, opens its case context, and a private qu
   await page
     .getByRole("button", { name: "Zapisz notatkę", exact: true })
     .click();
-  await expect(
-    page.getByRole("button", { name: "+ Notatka", exact: true }),
-  ).toBeFocused();
+  await expect(page.locator("[data-content-recovery]")).toBeFocused();
+  await expect(page.locator("[data-content-recovery]")).toContainText(
+    "Zapisano.",
+  );
   await expect(
     page.getByText(`Historyczna treść ${query}`, { exact: true }),
   ).toBeVisible();
@@ -804,14 +805,113 @@ test("calendar target switches A to B to no target on client navigation", async 
   await login(page);
   await page.goto(`${target.appOrigin}/calendar?eventId=${aId}`);
   await expect(page.getByLabel("Wskazane wydarzenie")).toContainText(nameA);
-  await page.evaluate(
-    (id) => history.pushState(null, "", `/calendar?eventId=${id}`),
-    bId,
-  );
+  await page.getByRole("button", { name: "Szukaj", exact: true }).click();
+  const dialog = page.getByRole("dialog", {
+    name: "Wyszukiwanie",
+    exact: true,
+  });
+  await dialog.getByLabel("Szukaj w Jobs CRM", { exact: true }).fill(nameB);
+  await dialog.getByRole("link", { name: new RegExp(nameB) }).click();
+  await expect(page).toHaveURL(new RegExp(`/calendar\\?eventId=${bId}`));
   await expect(page.getByLabel("Wskazane wydarzenie")).toContainText(nameB);
   await expect(page.getByLabel("Wskazane wydarzenie")).not.toContainText(nameA);
-  await page.evaluate(() => history.pushState(null, "", "/calendar"));
+  await page
+    .getByRole("link", { name: "Kalendarz", exact: true })
+    .first()
+    .click();
+  await expect(page).toHaveURL(`${target.appOrigin}/calendar`);
   await expect(page.getByLabel("Wskazane wydarzenie")).toHaveCount(0);
+});
+
+test("desktop search field is keyboard operable and preserves the first typed text", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const query = `keyboard${randomUUID().replaceAll("-", "")}`;
+  await caseFixture(query);
+  await login(page);
+  const desktop = page.getByRole("searchbox", {
+    name: "Szukaj w Jobs CRM",
+    exact: true,
+  });
+  await desktop.focus();
+  await expect(desktop).toBeFocused();
+  await page.keyboard.type(query);
+  const dialog = page.getByRole("dialog", {
+    name: "Wyszukiwanie",
+    exact: true,
+  });
+  const input = dialog.getByLabel("Szukaj w Jobs CRM", { exact: true });
+  await expect(input).toHaveValue(query);
+  await expect(dialog.getByText(query, { exact: false })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(desktop).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(
+    page.getByRole("dialog", { name: "Wyszukiwanie", exact: true }),
+  ).toBeVisible();
+});
+
+test("calendar target distinguishes 503 with retry from an unavailable record", async ({
+  page,
+}) => {
+  const { client } = await sdkLogin(target, owner);
+  const title = `Retry event ${randomUUID()}`;
+  const schedule = {
+    startDate: "2099-05-15",
+    startTime: null,
+    endDate: null,
+    endTime: null,
+    allDay: false,
+    timeZone: "Europe/Warsaw",
+    startOffset: null,
+    endOffset: null,
+  };
+  const event = await client.rpc("execute_recruitment_calendar_command", {
+    p_request_id: randomUUID(),
+    p_payload: {
+      operation: "create",
+      values: {
+        title,
+        description: null,
+        caseId: null,
+        status: "planned",
+        schedule,
+        timeZone: "Europe/Warsaw",
+        actual: null,
+        participants: [],
+      },
+    },
+  });
+  expect(event.error).toBeNull();
+  const eventId = event.data.event.id as string;
+  await login(page);
+  await page.route("**/calendar/commands?*", async (route) => {
+    if (new URL(route.request().url()).searchParams.get("eventId") === eventId)
+      return route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: JSON.stringify({ kind: "unavailable" }),
+      });
+    return route.continue();
+  });
+  await page.goto(`${target.appOrigin}/calendar?eventId=${eventId}`);
+  const error = page
+    .getByRole("alert")
+    .filter({ hasText: "Nie udało się pobrać wskazanego wydarzenia." });
+  await expect(error).toBeVisible();
+  await expect(
+    page.getByText("Nie można otworzyć wskazanego wydarzenia."),
+  ).toHaveCount(0);
+  await page.unrouteAll({ behavior: "wait" });
+  await error
+    .getByRole("button", { name: "Spróbuj ponownie", exact: true })
+    .click();
+  await expect(page.getByLabel("Wskazane wydarzenie")).toContainText(title);
+  await page.goto(`${target.appOrigin}/calendar?eventId=${randomUUID()}`);
+  await expect(
+    page.getByText("Nie można otworzyć wskazanego wydarzenia."),
+  ).toBeVisible();
 });
 
 test("switching edited links or paging protects an unsaved link draft", async ({
