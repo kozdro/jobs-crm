@@ -67,7 +67,10 @@ BEGIN
  IF auth.uid() IS NULL THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='Authentication required'; END IF;
  IF NOT email_reminder.auth_guard_valid() THEN RAISE EXCEPTION USING ERRCODE='PT412',MESSAGE='Consent context unavailable'; END IF;
  context:=email_reminder.auth_context(auth.uid());
- current_xid:=pg_catalog.pg_current_xact_id()::text::numeric;
+ -- An already-assigned caller XID can lag later committed transactions.
+ -- This SQL command obtains a fresh VOLATILE snapshot after the Auth lock.
+ SELECT greatest(pg_catalog.pg_current_xact_id()::text::numeric,
+   pg_catalog.pg_snapshot_xmax(pg_catalog.pg_current_snapshot())::text::numeric-1) INTO current_xid;
  SELECT * INTO u FROM auth.users WHERE id=auth.uid();
  PERFORM pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(auth.uid()::text,76211));
  INSERT INTO email_reminder.auth_version(owner_id) VALUES(auth.uid()) ON CONFLICT(owner_id) DO NOTHING;
@@ -101,7 +104,10 @@ BEGIN
  END IF;
  -- Same order as auth trigger: Auth row first, then owner advisory lock.
  context:=email_reminder.auth_context(auth.uid());
- current_xid:=pg_catalog.pg_current_xact_id()::text::numeric;
+ -- An already-assigned caller XID can lag later committed transactions.
+ -- This SQL command obtains a fresh VOLATILE snapshot after the Auth lock.
+ SELECT greatest(pg_catalog.pg_current_xact_id()::text::numeric,
+   pg_catalog.pg_snapshot_xmax(pg_catalog.pg_current_snapshot())::text::numeric-1) INTO current_xid;
  SELECT * INTO u FROM auth.users WHERE id=auth.uid();
  PERFORM pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(auth.uid()::text,76211));
  SELECT * INTO snapshot FROM email_reminder.auth_version WHERE owner_id=auth.uid();
@@ -147,7 +153,10 @@ BEGIN
  SELECT * INTO i FROM email_reminder.intent WHERE attempt_id=p_attempt AND state='dispatching';
  IF NOT FOUND THEN RETURN NULL; END IF;
  context:=email_reminder.auth_context(i.owner_id);
- current_xid:=pg_catalog.pg_current_xact_id()::text::numeric;
+ -- An already-assigned caller XID can lag later committed transactions.
+ -- This SQL command obtains a fresh VOLATILE snapshot after the Auth lock.
+ SELECT greatest(pg_catalog.pg_current_xact_id()::text::numeric,
+   pg_catalog.pg_snapshot_xmax(pg_catalog.pg_current_snapshot())::text::numeric-1) INTO current_xid;
  guard_valid:=email_reminder.auth_guard_valid();
  SELECT * INTO u FROM auth.users WHERE id=i.owner_id;
  PERFORM pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(i.owner_id::text,76211));
