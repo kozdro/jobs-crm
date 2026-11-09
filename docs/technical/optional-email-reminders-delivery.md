@@ -37,3 +37,6 @@ Wyniki, kandydat i ograniczenia należy zapisać osobno po uruchomieniu. Fake tr
 4. DoD: wykonane testy pokrywają fail-closed, brak otwartych findings blokujących, końcowy kandydat i dowody jednoznaczne. READY wymaga wszystkich bramek; wymagany test niewykonalny oznacza BLOCKED, nigdy domyślny PASS.
 
 Wyniki bieżącego hardeningu: [raport](optional-email-security-hardening-report.md). Wcześniejsze wyniki powyżej są historyczne i nie certyfikują tej poprawki.
+
+
+**Końcowe lokalne QA hardeningu:** kod `6603850`: świeże migracje 22/22, focused 4/4, pełne integracje 188/188, rzeczywisty CREATE OR REPLACE triggera 1 PASS; DROP/DISABLE i worker SET pozostają 3 SKIP/BLOCKED. Poprzedni `fb063e7`: pełne Chromium 195/195 i integracje 187/187; po ostatnim wzmocnieniu XID najnowszy pełny browser lokalnie NOT RUN, wymagany hosted CI dokładnego finalnego SHA. [Raport](optional-email-security-hardening-report.md) rozdziela dowody i historyczne FAIL. Końcowe review i CI publikowane w istniejącym draft PR #26; bez READY przy otwartych bramkach.
