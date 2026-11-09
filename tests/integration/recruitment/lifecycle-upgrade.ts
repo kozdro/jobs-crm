@@ -28,7 +28,7 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
       onnotice: () => {},
     });
     await upgrade.unsafe(
-      "create schema recruitment_migrations; create schema auth; create table auth.users(id uuid primary key); create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$; grant usage on schema auth to authenticated; grant execute on function auth.uid() to authenticated;",
+      "create schema recruitment_migrations; create schema auth; create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz); create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$; grant usage on schema auth to authenticated; grant execute on function auth.uid() to authenticated;",
     );
     const journal = JSON.parse(
       await readFile(
@@ -54,7 +54,7 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
     };
     assert.equal(
       journal.entries.length,
-      19,
+      22,
       "Upgrade test must cover the exact current migration history",
     );
     assert.equal(
@@ -67,6 +67,8 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
       "0015_calendar_core",
       "Upgrade test must apply the exact Calendar Core migration",
     );
+    assert.equal(journal.entries[19]?.tag, "0019_email_reminders");
+    assert.equal(journal.entries[20]?.tag, "0020_email_queue");
     for (const entry of journal.entries.slice(0, 7)) await apply(entry.tag);
     const owner = randomUUID();
     const caseId = randomUUID();
@@ -725,7 +727,27 @@ export async function verifyLifecycleUpgrade(target: RecruitmentTarget) {
     });
     const legacyFacts =
       await upgrade`select * from public.recruitment_case_event where case_id=${legacyContactCase}::uuid`;
-    for (const entry of journal.entries.slice(16)) await apply(entry.tag);
+    for (const entry of journal.entries.slice(16, 19)) await apply(entry.tag);
+    const beforeEmailTask =
+      await upgrade`select * from public.recruitment_task order by id`;
+    const beforeEmailCommands =
+      await upgrade`select * from public.recruitment_reminder_command order by order_no`;
+    for (const entry of journal.entries.slice(19)) await apply(entry.tag);
+    assert.deepEqual(
+      await upgrade`select * from public.recruitment_task order by id`,
+      beforeEmailTask,
+    );
+    assert.deepEqual(
+      await upgrade`select * from public.recruitment_reminder_command order by order_no`,
+      beforeEmailCommands,
+    );
+    const [newIntents] =
+      await upgrade`select count(*)::int n from email_reminder.intent`;
+    assert.equal(
+      newIntents.n,
+      0,
+      "Email upgrade must not create consent or messages for legacy data",
+    );
     assert.deepEqual(
       await upgrade`select * from public.recruitment_case_event where case_id=${legacyContactCase}::uuid`,
       legacyFacts,

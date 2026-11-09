@@ -87,7 +87,7 @@ async function readLedger(sql: Sql): Promise<LedgerRow[]> {
 }
 
 /** Definitions/ACLs only: account data, row counts, sequence positions and OIDs are excluded. */
-export async function schemaCheckpoint(sql: Sql) {
+export async function schemaCheckpoint(sql: Sql, extended = false) {
   const schemas =
     await sql`select nspname,pg_get_userbyid(nspowner) owner,nspacl::text acl
     from pg_namespace where nspname in ('public','recruitment_migrations') order by nspname`;
@@ -137,7 +137,7 @@ export async function schemaCheckpoint(sql: Sql) {
     s.seqstart,s.seqincrement,s.seqmax,s.seqmin,s.seqcache,s.seqcycle
     from pg_sequence s join pg_class c on c.oid=s.seqrelid join pg_namespace n on n.oid=c.relnamespace
     where n.nspname in ('public','recruitment_migrations') order by n.nspname,c.relname`;
-  return sha256(
+  const legacy = sha256(
     JSON.stringify({
       schemas,
       relations,
@@ -149,6 +149,64 @@ export async function schemaCheckpoint(sql: Sql) {
       triggers,
       types,
       sequences,
+    }),
+  );
+  if (!extended) return legacy;
+
+  // v2 binds the private delivery boundary as well as the exact v1 fingerprint.
+  // Do not include table rows, queue contents, sequence positions or credentials.
+  const privateSchema =
+    await sql`select nspname,pg_get_userbyid(nspowner) owner,nspacl::text acl from pg_namespace where nspname='email_reminder'`;
+  const privateRelations =
+    await sql`select c.relname,c.relkind,c.relrowsecurity,c.relforcerowsecurity,c.relacl::text acl,pg_get_userbyid(c.relowner) owner from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='email_reminder' order by c.relname`;
+  const privateColumns =
+    await sql`select c.relname,a.attname,a.attnum,format_type(a.atttypid,a.atttypmod) type,a.attnotnull,a.attacl::text acl,pg_get_expr(d.adbin,d.adrelid) default_expression from pg_attribute a join pg_class c on c.oid=a.attrelid join pg_namespace n on n.oid=c.relnamespace left join pg_attrdef d on d.adrelid=c.oid and d.adnum=a.attnum where n.nspname='email_reminder' and a.attnum>0 and not a.attisdropped order by c.relname,a.attnum`;
+  const privateConstraints =
+    await sql`select c.relname,x.conname,pg_get_constraintdef(x.oid) definition from pg_constraint x join pg_class c on c.oid=x.conrelid join pg_namespace n on n.oid=c.relnamespace where n.nspname='email_reminder' order by c.relname,x.conname`;
+  const privateIndexes =
+    await sql`select c.relname,i.indisvalid,i.indisready,pg_get_indexdef(i.indexrelid) definition from pg_index i join pg_class c on c.oid=i.indrelid join pg_namespace n on n.oid=c.relnamespace where n.nspname='email_reminder' order by c.relname,definition`;
+  const privateFunctions =
+    await sql`select p.proname,pg_get_function_identity_arguments(p.oid) arguments,pg_get_functiondef(p.oid) definition,p.proacl::text acl,pg_get_userbyid(p.proowner) owner from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='email_reminder' and p.prokind in ('f','p','w') order by p.proname,arguments`;
+  const privatePolicies =
+    await sql`select tablename,policyname,permissive,roles,cmd,qual,with_check from pg_policies where schemaname='email_reminder' order by tablename,policyname`;
+  const privateTriggers =
+    await sql`select c.relname,t.tgname,t.tgenabled,pg_get_triggerdef(t.oid) definition from pg_trigger t join pg_class c on c.oid=t.tgrelid join pg_namespace n on n.oid=c.relnamespace where n.nspname='email_reminder' and not t.tgisinternal order by c.relname,t.tgname`;
+  const authTrigger =
+    await sql`select t.tgname,t.tgenabled,pg_get_triggerdef(t.oid) definition from pg_trigger t join pg_class c on c.oid=t.tgrelid join pg_namespace n on n.oid=c.relnamespace where n.nspname='auth' and c.relname='users' and t.tgname='email_reminder_auth_changed' and not t.tgisinternal`;
+  const worker =
+    await sql`select rolname,rolcanlogin,rolsuper,rolinherit,rolcreaterole,rolcreatedb,rolreplication,rolbypassrls from pg_roles where rolname='jobs_email_worker'`;
+  const memberships =
+    await sql`select pg_get_userbyid(m.roleid) role,pg_get_userbyid(m.member) member,m.admin_option,m.inherit_option,m.set_option from pg_auth_members m where pg_get_userbyid(m.roleid)='jobs_email_worker' or pg_get_userbyid(m.member)='jobs_email_worker' order by role,member`;
+  const queue =
+    await sql`select c.relname,c.relkind,c.relacl::text acl,pg_get_userbyid(c.relowner) owner from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='pgmq' and (left(c.relname,length('q_email_reminders'))='q_email_reminders' or left(c.relname,length('a_email_reminders'))='a_email_reminders') order by c.relname`;
+  const queueColumns =
+    await sql`select c.relname,a.attname,a.attnum,format_type(a.atttypid,a.atttypmod) type,a.attnotnull,a.attacl::text acl,pg_get_expr(d.adbin,d.adrelid) default_expression from pg_attribute a join pg_class c on c.oid=a.attrelid join pg_namespace n on n.oid=c.relnamespace left join pg_attrdef d on d.adrelid=c.oid and d.adnum=a.attnum where n.nspname='pgmq' and c.relname in ('q_email_reminders','a_email_reminders') and a.attnum>0 and not a.attisdropped order by c.relname,a.attnum`;
+  const queueIndexes =
+    await sql`select c.relname,i.indisvalid,i.indisready,pg_get_indexdef(i.indexrelid) definition from pg_index i join pg_class c on c.oid=i.indrelid join pg_namespace n on n.oid=c.relnamespace where n.nspname='pgmq' and c.relname in ('q_email_reminders','a_email_reminders') order by c.relname,definition`;
+  const queueFunctions =
+    await sql`select p.proname,pg_get_function_identity_arguments(p.oid) arguments,pg_get_functiondef(p.oid) definition,p.proacl::text acl,pg_get_userbyid(p.proowner) owner from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='pgmq' and p.proname in ('send','read','delete') and p.prokind='f' order by p.proname,arguments`;
+  const extension =
+    await sql`select extname,extversion from pg_extension where extname='pgmq'`;
+  return sha256(
+    JSON.stringify({
+      version: 2,
+      legacy,
+      privateSchema,
+      privateRelations,
+      privateColumns,
+      privateConstraints,
+      privateIndexes,
+      privateFunctions,
+      privatePolicies,
+      privateTriggers,
+      authTrigger,
+      worker,
+      memberships,
+      queue,
+      queueColumns,
+      queueIndexes,
+      queueFunctions,
+      extension,
     }),
   );
 }
@@ -181,12 +239,28 @@ export async function migrateLocalDev(
       ledger,
       history,
       target,
-      await schemaCheckpoint(sql),
+      await schemaCheckpoint(sql, ledger.length >= 20),
     );
     const [synthetic] =
       await sql`select to_regnamespace('foundation_poc') present`;
     if (synthetic.present)
       throw new Error("Synthetic F2 schema on Local DEV refused");
+    if (ledger.length < 20 && history.length >= 20) {
+      const [unexpected] =
+        await sql`select to_regnamespace('email_reminder') private_schema,
+        exists(select 1 from pg_roles where rolname='jobs_email_worker') worker_role,
+        exists(select 1 from pg_trigger t join pg_class c on c.oid=t.tgrelid join pg_namespace n on n.oid=c.relnamespace where n.nspname='auth' and c.relname='users' and t.tgname='email_reminder_auth_changed' and not t.tgisinternal) auth_trigger,
+        exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='pgmq' and (c.relname='q_email_reminders' or c.relname='a_email_reminders')) queue_relation`;
+      if (
+        unexpected.private_schema ||
+        unexpected.worker_role ||
+        unexpected.auth_trigger ||
+        unexpected.queue_relation
+      )
+        throw new Error(
+          "Unexpected email worker objects before migration; inspect without adopting",
+        );
+    }
     if (!ledger.length) {
       const [bootstrap] = await sql`select
         (select count(*)::int from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind in ('r','p','v','m','f','S')) relations,
@@ -219,7 +293,7 @@ export async function migrateLocalDev(
     const after = await readLedger(sql);
     const checkpoint = ledgerCheckpoint(after);
     assertMigrationLedger(after, history, checkpoint, true);
-    const schema = await schemaCheckpoint(sql);
+    const schema = await schemaCheckpoint(sql, after.length >= 20);
     // Persist immediately after DB commit. Interrupted checkpoint writes fail closed next start.
     await saveCheckpoint({
       migrationCheckpoint: checkpoint,

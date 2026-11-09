@@ -1,5 +1,9 @@
 # Requirements Traceability — FR → AC → UC/TC
 
+## Optional Email Reminders — DEC-027, 2026-11-09
+
+FR/AC-TN-005 i rozszerzenie UC/TC-023: wybór kanału, owner A/B/anon, wycofanie, lifecycle, 6h, prywatność, retry/unknown i operacyjna retencja. **PLANNED / NOT RUN** do wykonania testów na wskazanym kandydacie. Regression AC-TN-004 i DEC-063 pozostaje wymagana; fake transport nie dowodzi rzeczywistego doręczenia.
+
 ## Reminders & Follow-up — DEC-063
 
 | FR / AC | UC/TC i plan | Stan |
@@ -356,3 +360,8 @@ Bez nowych FR/AC i zmiany ich znaczenia: FR/AC-QC-002/006/007/009/010/011 (czter
 | AC-QC-061-07 | A/B/anon, direct Data API/RPC, spoofing, grants/RLS/invoker | PASS: rzeczywisty local Auth/Data API i bezpośredni RPC/schema GET/POST/PATCH/DELETE A/B/anon; objęte 155/155 integracjami |
 
 Wyniki, dokładne komendy, nieudane próby i ograniczenia: [raport slice'a](../technical/quick-capture-atomic-action-implementation.md) oraz [manifest powiązania źródeł i QA](../technical/evidence/quick-capture-atomic-action-qa-20261102.json). Lokalny runner zakończony PASS na izolowanym targetcie dla kandydata `312ede2d5f9448baa1fe13dbbf325108de7b20c2`; evidence `run-894b7926`. Z powodu zajętego stałego portu izolowanego profil harnessu został remapowany w osobnym worktree; dokładna różnica jest w manifeście i załączonym patchu, a zajęty target pozostał nietknięty. Niezależne backend/frontend/security reviews: **PASS** bez findings. Hosted CI exact-head pozostaje pozostałą bramką. CalendarEvent/pełny TC-012/TC-024 i publiczne bramki pozostają odrębne.
+
+
+## PR #26 — weryfikacja kontekstu zgody
+
+FR/AC-TN-005, DEC-027/063, BR-030 i UC/TC-023/037: niezależny snapshot zgody na dispatch, dryft i cofnięcie dryftu triggera, A→B→A, utrata weryfikacji, stale UI/replay i race. [Plan i macierz](../technical/optional-email-reminders-delivery.md#pr-26--security-hardening-2026-11-09), [wyniki i ograniczenia](../technical/optional-email-security-hardening-report.md). Status końcowy wyłącznie według raportu; historyczne PASS nie dowodzą poprawki.

@@ -8,6 +8,7 @@ import { inputStyles } from "@/components/ui/styles";
 import { useReminderMutation, useReminders } from "./hooks";
 import { useReminderDrafts, type ReminderDraft } from "./memory-drafts";
 import { useUnsavedWarning } from "./use-unsaved-warning";
+import { EmailReminderControls } from "./email-reminder-controls";
 
 export function ReminderFeedback({
   mutation,
@@ -67,6 +68,7 @@ export function ReminderControls({
   const { date, time, zone, offset: chosenOffset } = draft;
   const [open, setOpen] = useState(Boolean(stored));
   const [invalid, setInvalid] = useState(false);
+  const [emailBusy, setEmailBusy] = useState(false);
   const save = (patch: Partial<ReminderDraft>) =>
     drafts?.save(userId, key, { ...draft, ...patch });
   const mutation = useReminderMutation(userId, (command, live) => {
@@ -78,12 +80,14 @@ export function ReminderControls({
     }
   });
   useEffect(() => {
-    onActivityChange(open || mutation.pending || mutation.uncertain);
-  }, [open, mutation.pending, mutation.uncertain, onActivityChange]);
+    onActivityChange(
+      open || mutation.pending || mutation.uncertain || emailBusy,
+    );
+  }, [open, mutation.pending, mutation.uncertain, emailBusy, onActivityChange]);
   const reminder = read.data?.reminders.find((item) => item.taskId === task.id);
   const offsets = validOffsets(date, time, zone);
   const offset = offsets.length === 1 ? offsets[0] : chosenOffset;
-  const disabled = mutation.pending || mutation.uncertain;
+  const disabled = mutation.pending || mutation.uncertain || emailBusy;
   const dirty = open && Boolean(date || time || zone || chosenOffset !== null);
   useUnsavedWarning(dirty && !mutation.pending && !mutation.uncertain);
   function submit(event: React.FormEvent) {
@@ -111,8 +115,8 @@ export function ReminderControls({
     >
       <h4 className="font-semibold">Przypomnienie in-app</h4>
       <p className="mt-1 text-sm text-muted-foreground">
-        Niezależne od terminu zadania. Widoczne w aplikacji; nie wysyła
-        wiadomości.
+        Niezależne od terminu zadania. Widoczne w aplikacji; e-mail można
+        włączyć osobno dla ustawionego przypomnienia.
       </p>
       {read.loading && (
         <p role="status" className="mt-2 text-sm">
@@ -297,6 +301,15 @@ export function ReminderControls({
                 Potwierdź przypomnienie
               </button>
             </form>
+          )}
+          {reminder && !open && (
+            <EmailReminderControls
+              key={`${userId}:${task.id}:${reminder.id}`}
+              userId={userId}
+              taskId={task.id}
+              configurationId={reminder.id}
+              onActivityChange={setEmailBusy}
+            />
           )}
         </>
       )}

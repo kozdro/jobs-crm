@@ -136,3 +136,102 @@ describe("mutation feedback", () => {
     expect(success).toContain("Zapisano.");
   });
 });
+
+describe("optional email reminder view", () => {
+  afterEach(() => vi.unstubAllGlobals());
+  it.each([401, 403])(
+    "redirects on retry read HTTP %i instead of treating it as an uncertain write",
+    async (status) => {
+      const { readEmailReminder, handleEmailRetryFailure } =
+        await import("@/components/reminders/email-reminder-controls");
+      const fetch = vi.fn().mockResolvedValue(new Response("{}", { status }));
+      vi.stubGlobal("fetch", fetch);
+      const redirect = vi.fn();
+      const unknown = vi.fn();
+      try {
+        await readEmailReminder("owner", "task", "config");
+      } catch (error) {
+        handleEmailRetryFailure(error, redirect, unknown);
+      }
+      expect(redirect).toHaveBeenCalledOnce();
+      expect(unknown).not.toHaveBeenCalled();
+      expect(fetch).toHaveBeenCalledOnce();
+      expect(fetch.mock.calls[0][1].method).toBeUndefined();
+    },
+  );
+  it("preserves uncertain handling for non-authentication failures", async () => {
+    const { handleEmailRetryFailure } =
+      await import("@/components/reminders/email-reminder-controls");
+    const redirect = vi.fn();
+    const unknown = vi.fn();
+    handleEmailRetryFailure(new Error("unavailable"), redirect, unknown);
+    expect(redirect).not.toHaveBeenCalled();
+    expect(unknown).toHaveBeenCalledOnce();
+  });
+  it("validates the verified address, version and known delivery state", async () => {
+    const { isEmailReminderView } =
+      await import("@/components/reminders/email-reminder-controls");
+    const valid = {
+      enabled: false,
+      verified: true,
+      email: "owner@example.test",
+      consentVersion: "version-a",
+      state: "off",
+    };
+    expect(isEmailReminderView(valid)).toBe(true);
+    expect(
+      isEmailReminderView({ ...valid, verified: false, email: null }),
+    ).toBe(true);
+    expect(isEmailReminderView({ ...valid, verified: false })).toBe(false);
+    expect(isEmailReminderView({ ...valid, email: null })).toBe(false);
+    expect(isEmailReminderView({ ...valid, consentVersion: "" })).toBe(false);
+    expect(isEmailReminderView({ ...valid, state: "unexpected" })).toBe(false);
+  });
+  it("freezes displayed address version with intent and limits actions by outcome", async () => {
+    const { createEmailReminderIntent, emailReminderAction } =
+      await import("@/components/reminders/email-reminder-controls");
+    const displayed = {
+      enabled: false,
+      verified: true,
+      email: "a@example.test",
+      consentVersion: "version-a",
+      state: "off" as const,
+    };
+    const base = {
+      expectedUserId: "owner",
+      taskId: "task",
+      configurationId: "config",
+      requestId: "request",
+    };
+    const intent = createEmailReminderIntent(displayed, base, "enable");
+    expect(intent).toMatchObject({
+      consentVersion: "version-a",
+      requestId: "request",
+    });
+    expect(Object.isFrozen(intent)).toBe(true);
+    expect(
+      createEmailReminderIntent(
+        { ...displayed, verified: false, email: null },
+        base,
+        "enable",
+      ),
+    ).toBeNull();
+    expect(emailReminderAction({ ...displayed, state: "pending" })).toBe(
+      "disable",
+    );
+    expect(emailReminderAction({ ...displayed, state: "queued" })).toBe(
+      "disable",
+    );
+    for (const state of [
+      "dispatching",
+      "accepted",
+      "unknown",
+      "expired",
+      "failed",
+    ] as const)
+      expect(emailReminderAction({ ...displayed, state })).toBeNull();
+    expect(emailReminderAction({ ...displayed, state: "cancelled" })).toBe(
+      "enable",
+    );
+  });
+});

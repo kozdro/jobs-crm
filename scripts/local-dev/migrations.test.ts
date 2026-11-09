@@ -6,6 +6,7 @@ import {
   assertLocalMigrationTarget,
   assertPersistentMigrationState,
   migrateLocalDev,
+  schemaCheckpoint,
 } from "./migrations.ts";
 import type { LocalMigrationTarget } from "./migrations.ts";
 import { ledgerCheckpoint, sha256 } from "../recruitment/validation.ts";
@@ -22,6 +23,25 @@ const ledger = history.map((entry, index) => ({
   created_at: entry.folderMillis,
 }));
 const schema = sha256("trusted catalog definitions, grants and RLS");
+
+test("v1 fingerprint is unchanged and v2 binds private worker definitions", async () => {
+  const makeSql = (workerAcl: string) =>
+    (async (parts: TemplateStringsArray) => {
+      const text = parts.join("");
+      if (text.includes("where n.nspname='email_reminder' and p.prokind"))
+        return [{ proname: "prepare", acl: workerAcl }];
+      return [];
+    }) as unknown as Parameters<typeof schemaCheckpoint>[0];
+  const a = makeSql("worker=EXECUTE");
+  const b = makeSql("public=EXECUTE");
+  const legacy = await schemaCheckpoint(a);
+  assert.equal(legacy, await schemaCheckpoint(b));
+  assert.notEqual(legacy, await schemaCheckpoint(a, true));
+  assert.notEqual(
+    await schemaCheckpoint(a, true),
+    await schemaCheckpoint(b, true),
+  );
+});
 const target = (): LocalMigrationTarget => ({
   db: {
     host: "127.0.0.1",
@@ -80,9 +100,10 @@ test("Local DEV migrations reject cloud, CI and alternate endpoints before conne
 });
 
 test("fresh bootstrap and checkpoint-bound approved prefix/full histories are accepted", () => {
-  assert.equal(history.length, 19);
-  assert.equal(history.at(-4)?.folderMillis, 1_793_879_424_259);
-  assert.equal(history.at(-1)?.folderMillis, 1_794_055_693_932);
+  assert.equal(history.length, 22);
+  assert.equal(history[15]?.folderMillis, 1_793_879_424_259);
+  assert.equal(history[18]?.folderMillis, 1_794_055_693_932);
+  assert.equal(history[20]?.folderMillis, 1_794_220_100_000);
   assertPersistentMigrationState([], history, target(), schema);
   // Pre-3A, 3A, 3B and history-integrity ledgers remain accepted upgrade prefixes.
   for (const count of [
@@ -99,6 +120,8 @@ test("fresh bootstrap and checkpoint-bound approved prefix/full histories are ac
     16,
     17,
     18,
+    19,
+    20,
     history.length,
   ]) {
     const prefix = ledger.slice(0, count);
