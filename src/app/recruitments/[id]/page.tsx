@@ -167,6 +167,7 @@ export default async function RecruitmentDetailPage({
                   caseId={item.id}
                   noteId={query.noteId}
                   currentPage={historyPage}
+                  historyAvailable={history !== null}
                 />
               )}
             <CaseHistory

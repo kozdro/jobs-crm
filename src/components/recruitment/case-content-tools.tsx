@@ -14,10 +14,18 @@ import { useUnsavedWarning } from "@/components/reminders/use-unsaved-warning";
 import { warsawToday } from "@/modules/recruitment/domain/case-events";
 import { useContentRecovery } from "./content-recovery";
 import { canDiscardContentDraft } from "./content-intent";
-import { contentChangedEvent, matchesContentChanged } from "./content-events";
+import {
+  contentChangedEvent,
+  isCurrentContentProjection,
+  matchesContentChanged,
+} from "./content-events";
 import { linkFormError, noteFormErrors } from "./content-form-validation";
 import { findActiveLinkPage } from "./content-link-navigation";
-import { noteTargetFailure, noteTargetResult } from "./content-target";
+import {
+  noteTargetFailure,
+  noteTargetNextStep,
+  noteTargetResult,
+} from "./content-target";
 
 export type Note = {
   id: string;
@@ -601,6 +609,16 @@ export function CaseLinks({
   const [linkDirty, setLinkDirty] = useState(false);
   const [moving, setMoving] = useState(false);
   const [version, setVersion] = useState(0);
+  const [loadedScope, setLoadedScope] = useState<string | null>(null);
+  const readScope = JSON.stringify([
+    owner,
+    caseId,
+    page,
+    version,
+    targetId ?? null,
+    targetSource ?? null,
+  ]);
+  const fresh = isCurrentContentProjection(loadedScope, readScope, error);
   const [moveMessage, setMoveMessage] = useState("");
   const movedTarget = useRef<{ id: string; source: string } | null>(null);
   const focusAfterMove = useRef<{
@@ -666,6 +684,7 @@ export function CaseLinks({
           setTargetLink((data.targetLink as CaseLink | null) ?? null);
           setHasMore(data.hasMoreLinks === true);
           setError(false);
+          setLoadedScope(readScope);
           const target = focusAfterMove.current;
           if (
             target &&
@@ -693,9 +712,9 @@ export function CaseLinks({
     return () => {
       active = false;
     };
-  }, [owner, caseId, version, page, targetId, targetSource]);
+  }, [owner, caseId, version, page, targetId, targetSource, readScope]);
   useEffect(() => {
-    if (!targetId || !links) return;
+    if (!fresh || !targetId || !links) return;
     const focusKey = `${caseId}:${targetSource}:${targetId}`;
     if (lastFocusedTarget.current === focusKey || focusAfterMove.current)
       return;
@@ -712,7 +731,7 @@ export function CaseLinks({
           lastFocusedTarget.current = focusKey;
         }
       });
-  }, [caseId, links, targetId, targetSource, targetLink]);
+  }, [caseId, fresh, links, targetId, targetSource, targetLink]);
   const combined = [...(links ?? [])];
   if (
     targetLink &&
@@ -824,203 +843,222 @@ export function CaseLinks({
           {moveMessage}
         </p>
       )}
-      {targetMissing && (
-        <p role="alert">Nie można otworzyć wskazanego linku.</p>
-      )}
-      {error && <p role="alert">Nie udało się pobrać linków.</p>}
-      {!links && !error && <p role="status">Ładowanie linków…</p>}
-      <Feedback />
-      {active.length === 0 && links && (
-        <p className="mt-2 text-sm">Brak linków.</p>
-      )}
-      <ol className="divide-y divide-border">
-        {active.map((link, index) => (
-          <li
-            key={`${link.source}:${link.id}`}
-            id={`case-link-${link.source}-${link.id}`}
-            tabIndex={-1}
-            className="scroll-mt-6 py-3 outline-none"
+      {error && (
+        <div role="alert">
+          <p>Nie udało się pobrać linków.</p>
+          {links && (
+            <p>Poprzednie dane są ukryte do czasu ponownego odczytu.</p>
+          )}
+          <button
+            type="button"
+            className={buttonStyles.secondary}
+            onClick={() => {
+              setError(false);
+              setVersion((value) => value + 1);
+            }}
           >
-            <p className="text-sm font-semibold">
-              {roles.find(([value]) => value === link.role)?.[1] ??
-                "Nieokreślona"}
-            </p>
-            <p className="break-words text-sm [overflow-wrap:anywhere]">
-              {link.url}
-            </p>
-            <a
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="ui-link inline-flex min-h-11 items-center"
+            Spróbuj ponownie
+          </button>
+        </div>
+      )}
+      {!fresh && !error && <p role="status">Ładowanie linków…</p>}
+      <div hidden={!fresh}>
+        {targetMissing && (
+          <p role="alert">Nie można otworzyć wskazanego linku.</p>
+        )}
+        <Feedback />
+        {active.length === 0 && links && (
+          <p className="mt-2 text-sm">Brak linków.</p>
+        )}
+        <ol className="divide-y divide-border">
+          {active.map((link, index) => (
+            <li
+              key={`${link.source}:${link.id}`}
+              id={`case-link-${link.source}-${link.id}`}
+              tabIndex={-1}
+              className="scroll-mt-6 py-3 outline-none"
             >
-              Otwórz link
-            </a>
-            <div className="flex flex-wrap gap-2">
-              <button
-                id={`edit-link-${link.source}-${link.id}`}
-                type="button"
-                className={buttonStyles.ghost}
-                aria-label={`Popraw link ${link.url}`}
-                disabled={
-                  editing !== null &&
-                  editing !== "new" &&
-                  editing.id === link.id &&
-                  editing.source === link.source
-                }
-                onClick={() => {
-                  if (leaveEditor()) setEditing(link);
-                }}
+              <p className="text-sm font-semibold">
+                {roles.find(([value]) => value === link.role)?.[1] ??
+                  "Nieokreślona"}
+              </p>
+              <p className="break-words text-sm [overflow-wrap:anywhere]">
+                {link.url}
+              </p>
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ui-link inline-flex min-h-11 items-center"
               >
-                Popraw link
-              </button>
-              <button
-                type="button"
-                className={buttonStyles.ghost}
-                disabled={
-                  link.position === 0 ||
-                  moving ||
-                  Boolean(editing) ||
-                  command.busy ||
-                  command.unknown ||
-                  command.recovery
-                }
-                onClick={() => void move(link, -1)}
-                aria-label={`Przenieś wyżej ${link.url}`}
-              >
-                Przenieś wyżej
-              </button>
-              <button
-                type="button"
-                className={buttonStyles.ghost}
-                disabled={
-                  (index === active.length - 1 && !hasMore && !targetLink) ||
-                  moving ||
-                  Boolean(editing) ||
-                  command.busy ||
-                  command.unknown ||
-                  command.recovery
-                }
-                onClick={() => void move(link, 1)}
-                aria-label={`Przenieś niżej ${link.url}`}
-              >
-                Przenieś niżej
-              </button>
-              <button
-                type="button"
-                className={buttonStyles.ghost}
-                aria-label={`Unieważnij link ${link.url}`}
-                disabled={
-                  Boolean(editing) ||
-                  command.busy ||
-                  command.unknown ||
-                  command.recovery
-                }
-                onClick={() => mutate(link, "void-link")}
-              >
-                Unieważnij link
-              </button>
-            </div>
-            <AuditHistory owner={owner} caseId={caseId} targetId={link.id} />
-            {editing &&
-              editing !== "new" &&
-              editing.id === link.id &&
-              editing.source === link.source && (
-                <LinkEditor
-                  owner={owner}
-                  caseId={caseId}
-                  existing={link}
-                  onClose={() => {
-                    setLinkDirty(false);
-                    setEditing(null);
-                    requestAnimationFrame(() =>
-                      document
-                        .getElementById(`edit-link-${link.source}-${link.id}`)
-                        ?.focus(),
-                    );
+                Otwórz link
+              </a>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  id={`edit-link-${link.source}-${link.id}`}
+                  type="button"
+                  className={buttonStyles.ghost}
+                  aria-label={`Popraw link ${link.url}`}
+                  disabled={
+                    editing !== null &&
+                    editing !== "new" &&
+                    editing.id === link.id &&
+                    editing.source === link.source
+                  }
+                  onClick={() => {
+                    if (leaveEditor()) setEditing(link);
                   }}
-                  onChanged={changed}
-                  onDirtyChange={setLinkDirty}
-                />
-              )}
-          </li>
-        ))}
-      </ol>
-      {voided.length > 0 && (
-        <details className="mt-4">
-          <summary className="ui-link cursor-pointer py-2 text-sm">
-            Unieważnione linki
-          </summary>
-          <ul>
-            {voided.map((link) => (
-              <li
-                key={`${link.source}:${link.id}`}
-                className="break-words border-t border-border py-3 text-sm [overflow-wrap:anywhere]"
-              >
-                <p>Unieważniony link: {link.url}</p>
-                <p>
-                  {roles.find(([value]) => value === link.role)?.[1] ??
-                    "Nieokreślona"}
-                </p>
-                <AuditHistory
-                  owner={owner}
-                  caseId={caseId}
-                  targetId={link.id}
-                />
-              </li>
-            ))}
-          </ul>
-        </details>
-      )}
-      {links && (
-        <nav
-          aria-label="Strony linków"
-          className="mt-3 flex items-center gap-2"
-        >
-          <button
-            type="button"
-            className={buttonStyles.secondary}
-            disabled={page <= 1}
-            onClick={() => switchPage(page - 1)}
+                >
+                  Popraw link
+                </button>
+                <button
+                  type="button"
+                  className={buttonStyles.ghost}
+                  disabled={
+                    link.position === 0 ||
+                    moving ||
+                    Boolean(editing) ||
+                    command.busy ||
+                    command.unknown ||
+                    command.recovery
+                  }
+                  onClick={() => void move(link, -1)}
+                  aria-label={`Przenieś wyżej ${link.url}`}
+                >
+                  Przenieś wyżej
+                </button>
+                <button
+                  type="button"
+                  className={buttonStyles.ghost}
+                  disabled={
+                    (index === active.length - 1 && !hasMore && !targetLink) ||
+                    moving ||
+                    Boolean(editing) ||
+                    command.busy ||
+                    command.unknown ||
+                    command.recovery
+                  }
+                  onClick={() => void move(link, 1)}
+                  aria-label={`Przenieś niżej ${link.url}`}
+                >
+                  Przenieś niżej
+                </button>
+                <button
+                  type="button"
+                  className={buttonStyles.ghost}
+                  aria-label={`Unieważnij link ${link.url}`}
+                  disabled={
+                    Boolean(editing) ||
+                    command.busy ||
+                    command.unknown ||
+                    command.recovery
+                  }
+                  onClick={() => mutate(link, "void-link")}
+                >
+                  Unieważnij link
+                </button>
+              </div>
+              <AuditHistory owner={owner} caseId={caseId} targetId={link.id} />
+              {editing &&
+                editing !== "new" &&
+                editing.id === link.id &&
+                editing.source === link.source && (
+                  <LinkEditor
+                    owner={owner}
+                    caseId={caseId}
+                    existing={link}
+                    onClose={() => {
+                      setLinkDirty(false);
+                      setEditing(null);
+                      requestAnimationFrame(() =>
+                        document
+                          .getElementById(`edit-link-${link.source}-${link.id}`)
+                          ?.focus(),
+                      );
+                    }}
+                    onChanged={changed}
+                    onDirtyChange={setLinkDirty}
+                  />
+                )}
+            </li>
+          ))}
+        </ol>
+        {voided.length > 0 && (
+          <details className="mt-4">
+            <summary className="ui-link cursor-pointer py-2 text-sm">
+              Unieważnione linki
+            </summary>
+            <ul>
+              {voided.map((link) => (
+                <li
+                  key={`${link.source}:${link.id}`}
+                  className="break-words border-t border-border py-3 text-sm [overflow-wrap:anywhere]"
+                >
+                  <p>Unieważniony link: {link.url}</p>
+                  <p>
+                    {roles.find(([value]) => value === link.role)?.[1] ??
+                      "Nieokreślona"}
+                  </p>
+                  <AuditHistory
+                    owner={owner}
+                    caseId={caseId}
+                    targetId={link.id}
+                  />
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
+        {links && (
+          <nav
+            aria-label="Strony linków"
+            className="mt-3 flex items-center gap-2"
           >
-            Poprzednia strona linków
-          </button>
-          <span>Strona {page}</span>
+            <button
+              type="button"
+              className={buttonStyles.secondary}
+              disabled={page <= 1}
+              onClick={() => switchPage(page - 1)}
+            >
+              Poprzednia strona linków
+            </button>
+            <span>Strona {page}</span>
+            <button
+              type="button"
+              className={buttonStyles.secondary}
+              disabled={!hasMore}
+              onClick={() => switchPage(page + 1)}
+            >
+              Następna strona linków
+            </button>
+          </nav>
+        )}
+        {editing === "new" ? (
+          <LinkEditor
+            owner={owner}
+            caseId={caseId}
+            onClose={() => {
+              setLinkDirty(false);
+              setEditing(null);
+              requestAnimationFrame(() =>
+                document.getElementById("add-case-link")?.focus(),
+              );
+            }}
+            onChanged={changed}
+            onDirtyChange={setLinkDirty}
+          />
+        ) : (
           <button
+            id="add-case-link"
             type="button"
-            className={buttonStyles.secondary}
-            disabled={!hasMore}
-            onClick={() => switchPage(page + 1)}
+            className={`${buttonStyles.secondary} mt-3`}
+            disabled={Boolean(editing)}
+            onClick={() => setEditing("new")}
           >
-            Następna strona linków
+            Dodaj link
           </button>
-        </nav>
-      )}
-      {editing === "new" ? (
-        <LinkEditor
-          owner={owner}
-          caseId={caseId}
-          onClose={() => {
-            setLinkDirty(false);
-            setEditing(null);
-            requestAnimationFrame(() =>
-              document.getElementById("add-case-link")?.focus(),
-            );
-          }}
-          onChanged={changed}
-          onDirtyChange={setLinkDirty}
-        />
-      ) : (
-        <button
-          id="add-case-link"
-          type="button"
-          className={`${buttonStyles.secondary} mt-3`}
-          disabled={Boolean(editing)}
-          onClick={() => setEditing("new")}
-        >
-          Dodaj link
-        </button>
-      )}
+        )}
+      </div>
     </section>
   );
 }
@@ -1030,11 +1068,13 @@ export function NoteTarget({
   caseId,
   noteId,
   currentPage,
+  historyAvailable,
 }: {
   owner: string;
   caseId: string;
   noteId: string;
   currentPage: number;
+  historyAvailable: boolean;
 }) {
   const router = useRouter();
   const [retry, setRetry] = useState(0);
@@ -1042,7 +1082,7 @@ export function NoteTarget({
     scope: string;
     status: "found" | "missing" | "error";
   } | null>(null);
-  const scope = `${owner}:${caseId}:${noteId}:${currentPage}:${retry}`;
+  const scope = `${owner}:${caseId}:${noteId}:${currentPage}:${historyAvailable}:${retry}`;
   useEffect(() => {
     let active = true;
     void readContent(owner, { caseId, noteId })
@@ -1054,8 +1094,13 @@ export function NoteTarget({
           return;
         }
         const page = data.timelinePage as number;
+        const next = noteTargetNextStep(page, currentPage, historyAvailable);
+        if (next === "retry") {
+          setOutcome({ scope, status: "error" });
+          return;
+        }
         setOutcome({ scope, status: "found" });
-        if (page !== currentPage) {
+        if (next === "navigate") {
           const params = new URLSearchParams({
             noteId,
             historyPage: String(page),
@@ -1078,7 +1123,7 @@ export function NoteTarget({
     return () => {
       active = false;
     };
-  }, [owner, caseId, noteId, currentPage, router, scope]);
+  }, [owner, caseId, noteId, currentPage, historyAvailable, router, scope]);
   if (!outcome || outcome.scope !== scope)
     return <p role="status">Ładowanie wskazanej notatki…</p>;
   if (outcome.status === "missing")
@@ -1090,7 +1135,10 @@ export function NoteTarget({
         <button
           type="button"
           className={buttonStyles.secondary}
-          onClick={() => setRetry((value) => value + 1)}
+          onClick={() => {
+            router.refresh();
+            setRetry((value) => value + 1);
+          }}
         >
           Spróbuj ponownie
         </button>

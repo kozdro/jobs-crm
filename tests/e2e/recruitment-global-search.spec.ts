@@ -968,6 +968,102 @@ test("note target distinguishes 503 with retry from a missing or foreign note", 
   await expect(page.getByText("Synthetic unrelated note")).toHaveCount(0);
 });
 
+test("initial server timeline outage can be retried to the exact note and focus", async ({
+  page,
+}) => {
+  const caseId = await caseFixture(`History outage QA ${randomUUID()}`);
+  const { client } = await sdkLogin(target, owner);
+  const saved = await client.rpc("execute_case_content_command", {
+    p_request_id: randomUUID(),
+    p_payload: {
+      operation: "create-note",
+      caseId,
+      body: "Synthetic timeline outage target",
+      dateKind: "ordinary",
+      occurredOn: null,
+    },
+  });
+  expect(saved.error).toBeNull();
+  const noteId = saved.data.note.id as string;
+  await login(page);
+  const database = postgres({
+    ...target.db,
+    max: 1,
+    ssl: false,
+    onnotice: () => {},
+  });
+  try {
+    const viewState = () =>
+      database`SELECT md5(pg_get_viewdef(c.oid,true)) AS definition, coalesce((SELECT jsonb_agg(jsonb_build_array(a.grantee,a.privilege_type,a.is_grantable) ORDER BY a.grantee,a.privilege_type) FROM aclexplode(coalesce(c.relacl,acldefault('r',c.relowner))) a),'[]'::jsonb) AS acl FROM pg_class c WHERE c.oid='public.recruitment_case_timeline'::regclass`;
+    const before = await viewState();
+    const [privilege] =
+      await database`SELECT has_table_privilege('authenticated','public.recruitment_case_timeline','SELECT') AS allowed`;
+    expect(privilege.allowed).toBe(true);
+    try {
+      await database`REVOKE SELECT ON public.recruitment_case_timeline FROM authenticated`;
+      await page.goto(
+        `${target.appOrigin}/recruitments/${caseId}?noteId=${noteId}`,
+      );
+      await expect(
+        page.getByText("Nie udało się pobrać wskazanej notatki."),
+      ).toBeVisible();
+    } finally {
+      await database`GRANT SELECT ON public.recruitment_case_timeline TO authenticated`;
+      expect(await viewState()).toEqual(before);
+    }
+  } finally {
+    await database.end();
+  }
+  const alert = page
+    .getByRole("alert")
+    .filter({ hasText: "Nie udało się pobrać wskazanej notatki." });
+  await alert
+    .getByRole("button", { name: "Spróbuj ponownie", exact: true })
+    .click();
+  await expect(page.locator(`#note-${noteId}`)).toBeVisible();
+  await expect(page.locator(`#note-${noteId}`)).toBeFocused();
+});
+
+test("initial CaseLinks read error provides a retry that restores the exact target", async ({
+  page,
+}) => {
+  const caseId = await caseFixture(`Link outage QA ${randomUUID()}`);
+  const { client } = await sdkLogin(target, owner);
+  const url = `https://example.invalid/restore-${randomUUID()}`;
+  const saved = await client.rpc("execute_case_content_command", {
+    p_request_id: randomUUID(),
+    p_payload: { operation: "add-link", caseId, url, role: "other" },
+  });
+  expect(saved.error).toBeNull();
+  const linkId = saved.data.link.id as string;
+  await login(page);
+  await page.route("**/recruitments/content?*", async (route) => {
+    const params = new URL(route.request().url()).searchParams;
+    if (params.has("linksPage"))
+      return route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: JSON.stringify({ kind: "unavailable" }),
+      });
+    return route.continue();
+  });
+  await page.goto(
+    `${target.appOrigin}/recruitments/${caseId}?linkId=${linkId}&linkSource=additional`,
+  );
+  const alert = page
+    .getByRole("alert")
+    .filter({ hasText: "Nie udało się pobrać linków." });
+  await expect(alert).toBeVisible();
+  await page.unrouteAll({ behavior: "wait" });
+  await alert
+    .getByRole("button", { name: "Spróbuj ponownie", exact: true })
+    .click();
+  const link = page.locator(`#case-link-additional-${linkId}`);
+  await expect(link).toBeVisible();
+  await expect(link).toContainText(url);
+  await expect(link).toBeFocused();
+});
+
 test("switching edited links or paging protects an unsaved link draft", async ({
   page,
 }) => {
@@ -1140,3 +1236,75 @@ test("workspace drawer uses Warsaw day for an ordinary note at UTC midnight boun
   await expect(drawer).toContainText("Warsaw day fixture");
   await expect(drawer).toContainText("Data zdarzenia: 2020-01-02");
 });
+
+for (const operation of ["void", "correct"] as const) {
+  test(`committed link ${operation} and failed refresh never leave the old URL actionable`, async ({
+    page,
+  }) => {
+    const caseId = await caseFixture(`Stale link QA ${randomUUID()}`);
+    const { client } = await sdkLogin(target, owner);
+    const oldUrl = `https://example.invalid/stale-${randomUUID()}`;
+    const updatedUrl = `https://example.invalid/current-${randomUUID()}`;
+    const saved = await client.rpc("execute_case_content_command", {
+      p_request_id: randomUUID(),
+      p_payload: { operation: "add-link", caseId, url: oldUrl, role: "other" },
+    });
+    expect(saved.error).toBeNull();
+    const linkId = saved.data.link.id as string;
+    await login(page);
+    await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
+    const row = page.locator(`#case-link-additional-${linkId}`);
+    await expect(row).toContainText(oldUrl);
+    let failRead = false;
+    await page.route("**/recruitments/content?*", async (route) => {
+      const params = new URL(route.request().url()).searchParams;
+      if (failRead && params.has("linksPage"))
+        return route.fulfill({
+          status: 503,
+          contentType: "application/json",
+          body: JSON.stringify({ kind: "unavailable" }),
+        });
+      return route.continue();
+    });
+    if (operation === "void") {
+      page.once("dialog", (confirmation) => void confirmation.accept());
+      failRead = true;
+      await page
+        .getByRole("button", { name: `Unieważnij link ${oldUrl}`, exact: true })
+        .click();
+    } else {
+      await page
+        .getByRole("button", { name: `Popraw link ${oldUrl}`, exact: true })
+        .click();
+      const editor = page
+        .locator("form")
+        .filter({ has: page.getByLabel("Adres URL", { exact: true }) });
+      await editor.getByLabel("Adres URL", { exact: true }).fill(updatedUrl);
+      failRead = true;
+      await editor
+        .getByRole("button", { name: "Zapisz link", exact: true })
+        .click();
+    }
+    const alert = page
+      .getByRole("alert")
+      .filter({ hasText: "Nie udało się pobrać linków." });
+    await expect(alert).toBeVisible();
+    await expect(page.locator(`a[href="${oldUrl}"]`)).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: `Popraw link ${oldUrl}`, exact: true }),
+    ).toHaveCount(0);
+    failRead = false;
+    await alert
+      .getByRole("button", { name: "Spróbuj ponownie", exact: true })
+      .click();
+    if (operation === "correct") {
+      await expect(row).toContainText(updatedUrl);
+      await expect(row).not.toContainText(oldUrl);
+    } else {
+      await page.getByText("Unieważnione linki", { exact: true }).click();
+      await expect(
+        page.getByText(`Unieważniony link: ${oldUrl}`, { exact: true }),
+      ).toBeVisible();
+    }
+  });
+}

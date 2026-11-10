@@ -40,3 +40,13 @@ export function noteTargetFailure(error: unknown): "missing" | "error" {
     ? "missing"
     : "error";
 }
+
+/** Refresh is an explicit user action; never schedule it from this decision. */
+export function noteTargetNextStep(
+  targetPage: number,
+  currentPage: number,
+  historyAvailable: boolean,
+): "navigate" | "focus" | "retry" {
+  if (targetPage !== currentPage) return "navigate";
+  return historyAvailable ? "focus" : "retry";
+}
