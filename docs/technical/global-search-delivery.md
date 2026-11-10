@@ -15,7 +15,7 @@
 | `9a297bf` | Integracje PASS 204/204; browser INTERRUPTED z 198 PASS i 16 FAIL przed przerwaniem | Bezpieczny reporter zachował kategorie i linie; przyczyny wszystkich błędów nie zostały ustalone. Przerwanie nie anuluje wcześniejszych FAIL. |
 | `2ae8205` | Integracje PASS 205/205; browser FAIL 198 PASS / 18 FAIL | Odtworzono m.in. overflow i niejednoznaczny lokator reorder; nie przypisano tym przyczynom wszystkich pozostałych błędów. |
 | `017c099` | Integracje PASS 206/206; browser FAIL 204 PASS / 16 FAIL | Potwierdzono m.in. historyczny test braku Search, overflow paginacji i helper Tab z limitem 30, podczas gdy nowy trigger wymagał 32 kroków. Celowany retry Calendar PASS nie wyjaśnił pierwotnego timeoutu. Pozostałe błędy bez potwierdzonej przyczyny nie są nazwane flaky. |
-| `85458ff` | Build i integracje PASS 206/206; browser w toku w chwili zapisu | Review statyczne wskazało potrzebę ścieżki konfliktu rewizji i kanonikalizacji URL; wynik browser należy raportować oddzielnie. |
+| `85458ff` | Build i integracje PASS 206/206; browser FAIL 219 PASS / 3 FAIL | Trzy niepowodzenia dotyczyły istniejących scenariuszy Natural Tab. Poprawkę helpera z osobnym dowodem 3/3 dla `017c099` zawiera następny kandydat; nie zmienia ona historycznego wyniku `85458ff`. Review wskazało ponadto ścieżkę konfliktu rewizji i kanonikalizację URL. |
 
 Próba preflight na porcie 57021 była BLOCKED przed stworzeniem targetu, ponieważ port należał do innego projektu. Przy syntetycznym upgrade pierwszy odczyt nowego RPC dał FAIL 404/PGRST202: funkcja była w PostgreSQL, lecz PostgREST jeszcze odświeżał schema cache. Po dodatnim, uwierzytelnionym preflightcie RPC ponowny syntetyczny upgrade i replay przeszły; pierwszy FAIL pozostaje zapisany.
 

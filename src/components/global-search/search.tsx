@@ -13,6 +13,7 @@ import {
 import { getBrowserClient } from "@/modules/identity/infrastructure/browser";
 import { buttonStyles } from "@/components/ui/styles";
 import { opensSearchDialog } from "./keyboard";
+import { searchLiveStatus } from "./live-status";
 
 const groups = [
   ["cases", "Sprawy i stanowiska"],
@@ -116,9 +117,10 @@ export function SearchContent({
   const [result, setResult] = useState<{ key: string; data: Result } | null>(
     null,
   );
-  const [status, setStatus] = useState<
-    "empty" | "loading" | "success" | "error"
-  >("empty");
+  const [requestStatus, setRequestStatus] = useState<{
+    key: string;
+    value: "loading" | "success" | "error";
+  } | null>(null);
   const [retry, setRetry] = useState(0);
   const query = state.query.trim();
   const invalid =
@@ -131,7 +133,7 @@ export function SearchContent({
     if (!query || invalid) return;
     const controller = new AbortController();
     const timer = window.setTimeout(() => {
-      setStatus("loading");
+      setRequestStatus({ key: requestKey, value: "loading" });
       setResult(null);
       void fetch("/search/data", {
         method: "POST",
@@ -156,13 +158,13 @@ export function SearchContent({
         .then((body) => {
           if (!controller.signal.aborted && store.owner === userId) {
             setResult({ key: requestKey, data: body });
-            setStatus("success");
+            setRequestStatus({ key: requestKey, value: "success" });
           }
         })
         .catch(() => {
           if (!controller.signal.aborted && store.owner === userId) {
             setResult(null);
-            setStatus("error");
+            setRequestStatus({ key: requestKey, value: "error" });
           }
         });
     }, 200);
@@ -186,6 +188,12 @@ export function SearchContent({
     ([key]) => preview || state.filter === "all" || state.filter === key,
   );
   const currentResult = result?.key === requestKey ? result.data : null;
+  const status =
+    requestStatus?.key === requestKey ? requestStatus.value : "empty";
+  const hasItems = Boolean(
+    currentResult &&
+    shown.some(([key]) => (currentResult[key]?.items.length ?? 0) > 0),
+  );
   const hasResults =
     currentResult &&
     shown.some(
@@ -247,13 +255,21 @@ export function SearchContent({
       {!query && !invalid && (
         <p className="text-sm text-muted-foreground">Wpisz, czego szukasz.</p>
       )}
+      <p role="status" className="sr-only">
+        {searchLiveStatus(
+          Boolean(query) && !invalid,
+          status,
+          Boolean(currentResult),
+          hasItems,
+        )}
+      </p>
       {query &&
         !invalid &&
-        (status === "loading" || (status === "success" && !currentResult)) && (
-          <p role="status">Szukam…</p>
-        )}
+        (status === "empty" ||
+          status === "loading" ||
+          (status === "success" && !currentResult)) && <p>Szukam…</p>}
       {query && !invalid && status === "error" && (
-        <div role="alert">
+        <div>
           <p>Nie udało się pobrać wyników.</p>
           <button
             type="button"

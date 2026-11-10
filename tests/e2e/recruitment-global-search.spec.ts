@@ -458,6 +458,88 @@ test("a delayed stale search response never replaces the newest query results", 
   await expect(dialog.getByText(newQuery, { exact: false })).toBeVisible();
 });
 
+test("persistent search live region announces the latest outcome without moving input focus", async ({
+  page,
+}) => {
+  const oldQuery = `oldlive${randomUUID().replaceAll("-", "")}`;
+  const newQuery = `newlive${randomUUID().replaceAll("-", "")}`;
+  const missing = `missinglive${randomUUID().replaceAll("-", "")}`;
+  const failed = `failedlive${randomUUID().replaceAll("-", "")}`;
+  await caseFixture(oldQuery);
+  await caseFixture(newQuery);
+  await login(page);
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  let arrived!: () => void;
+  const oldArrived = new Promise<void>((resolve) => {
+    arrived = resolve;
+  });
+  let finished!: () => void;
+  const oldFinished = new Promise<void>((resolve) => {
+    finished = resolve;
+  });
+  await page.route("**/search/data", async (route) => {
+    const query = (route.request().postDataJSON() as { query?: string }).query;
+    if (query === oldQuery) {
+      arrived();
+      await gate;
+      try {
+        await route.continue();
+      } catch {
+        /* Obsolete request may be aborted. */
+      } finally {
+        finished();
+      }
+      return;
+    }
+    if (query === failed)
+      return route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: "{}",
+      });
+    return route.continue();
+  });
+  try {
+    await page.getByRole("button", { name: "Szukaj", exact: true }).click();
+    const dialog = page.getByRole("dialog", {
+      name: "Wyszukiwanie",
+      exact: true,
+    });
+    const input = dialog.getByLabel("Szukaj w Jobs CRM", { exact: true });
+    const status = dialog.getByRole("status");
+    await expect(status).toBeAttached();
+    await expect(status).toHaveText("");
+    const initial = await status.elementHandle();
+    expect(initial).not.toBeNull();
+    await input.fill(oldQuery);
+    await oldArrived;
+    await expect(status).toHaveText("Szukam…");
+    await input.fill(newQuery);
+    await expect(status).toHaveText("Wyniki są dostępne.");
+    await expect(dialog.getByText(newQuery, { exact: false })).toBeVisible();
+    release();
+    await oldFinished;
+    await expect(status).toHaveText("Wyniki są dostępne.");
+    await expect(dialog.getByText(oldQuery, { exact: false })).toHaveCount(0);
+    await expect(input).toBeFocused();
+    await input.fill(missing);
+    await expect(status).toHaveText("Brak wyników.");
+    await expect(input).toBeFocused();
+    await input.fill(failed);
+    await expect(status).toHaveText("Nie udało się pobrać wyników.");
+    await expect(input).toBeFocused();
+    expect(
+      await status.evaluate((node, original) => node === original, initial),
+    ).toBe(true);
+  } finally {
+    release();
+    await page.unrouteAll({ behavior: "wait" });
+  }
+});
+
 test("BFF content/audit and duplicate lookup do not reveal another owner's case or link", async ({
   page,
 }) => {
