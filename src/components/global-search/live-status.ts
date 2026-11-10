@@ -5,7 +5,7 @@ export function searchLiveStatus(
   hasItems: boolean,
 ): string {
   if (!active) return "";
-  if (status === "error") return "Nie udało się pobrać wyników.";
+  if (status === "error") return "";
   if (status !== "success" || !currentResult) return "Szukam…";
   return hasItems ? "Wyniki są dostępne." : "Brak wyników.";
 }

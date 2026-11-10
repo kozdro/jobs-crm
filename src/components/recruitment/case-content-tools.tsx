@@ -499,14 +499,27 @@ export function NoteEditor({
     </form>
   );
 }
-export function NoteEntry({ owner, note }: { owner: string; note: Note }) {
+export function NoteEntry({
+  owner,
+  note,
+  editing,
+  blocked,
+  onEdit,
+  onClose,
+}: {
+  owner: string;
+  note: Note;
+  editing: boolean;
+  blocked: boolean;
+  onEdit: () => void;
+  onClose: () => void;
+}) {
   const router = useRouter();
   const [accepted, setAccepted] = useState<Note | null>(null);
   const current =
     accepted && accepted.revision > note.revision ? accepted : note;
   const changed = useCallback(() => router.refresh(), [router]);
   const command = useContentCommand(owner, current.case_id, changed);
-  const [editing, setEditing] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const longBody = Array.from(current.body).length > 400;
   const displayed =
@@ -573,14 +586,17 @@ export function NoteEntry({ owner, note }: { owner: string; note: Note }) {
             type="button"
             className={buttonStyles.ghost}
             id={`edit-note-${current.id}`}
-            onClick={() => setEditing(true)}
+            disabled={blocked}
+            onClick={onEdit}
           >
             Popraw notatkę
           </button>
           <button
             type="button"
             className={buttonStyles.ghost}
-            disabled={command.busy || command.unknown || command.recovery}
+            disabled={
+              blocked || command.busy || command.unknown || command.recovery
+            }
             onClick={() => {
               if (
                 window.confirm(
@@ -608,7 +624,7 @@ export function NoteEntry({ owner, note }: { owner: string; note: Note }) {
           caseId={current.case_id}
           note={current}
           onCancel={() => {
-            setEditing(false);
+            onClose();
             requestAnimationFrame(() =>
               document.getElementById(`edit-note-${current.id}`)?.focus(),
             );

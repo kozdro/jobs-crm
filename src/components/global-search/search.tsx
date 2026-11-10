@@ -269,7 +269,7 @@ export function SearchContent({
           status === "loading" ||
           (status === "success" && !currentResult)) && <p>Szukam…</p>}
       {query && !invalid && status === "error" && (
-        <div>
+        <div role="alert">
           <p>Nie udało się pobrać wyników.</p>
           <button
             type="button"

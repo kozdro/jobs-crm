@@ -8,6 +8,8 @@
 | --- | --- | --- |
 | Stan roboczy, unit | FAIL | Vitest 626/626 PASS; 101/102 testów Node — historyczna asercja ledgeru oczekiwała 22 migracji, dodana migracja jest 23. Oczekiwanie poprawiono z zachowaniem testów prefixów i guardów; osobne ponowienie 102/102 PASS. |
 | Stan roboczy, frontend typecheck | FAIL | Pierwsza próba po dodaniu testów konfliktu wykryła błąd typu fixture. Autor poprawił fixture i osobna próba typecheck przeszła; wyniki dotyczą stanów roboczych. |
+| Stan roboczy, test serializacji edytora | FAIL | Typecheck wykrył brak `children` w testowym `createElement`; po poprawce fixture ponowny typecheck PASS. Ten wynik nie jest dowodem browser QA. |
+| Stan roboczy, serializacja szkicu | FAIL | Pierwsze próby unit i lint wykryły niedopasowany fixture oraz użycie ref w renderze; po poprawkach autor ponowił unit, lint i typecheck z wynikiem PASS. |
 | `3a87211`, production build QA | FAIL | Turbopack nie rozwiązał zależności przez symlink wychodzący poza QA worktree. Zastąpiono go lokalną instalacją; nie stanowi to wyniku produktu. |
 | `4a6275a`, integracje | FAIL: 195/199 PASS | Diagnostyka wskazała wymagające aktualizacji historyczne asercje liczby migracji oraz katalogu obiektów. Dane i pierwotny wynik zachowane niezależnie od poprawek. Browser NOT RUN w tym runnerze. |
 | `b2c025c`, integracje | FAIL: 200/202 PASS | Historyczna asercja wymagała braku tabeli `case_link`, którą DEC-064 wprowadza. Oczekiwanie zaktualizowano, zachowując kontrole RLS/grants/invoker. Pełny browser runnera NOT RUN; osobny diagnostyczny browser przerwany: 17 PASS, jeden INTERRUPTED, pozostałe NOT RUN. |

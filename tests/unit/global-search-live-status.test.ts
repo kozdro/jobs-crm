@@ -15,8 +15,6 @@ describe("search live status", () => {
     expect(searchLiveStatus(true, "success", true, false)).toBe(
       "Brak wyników.",
     );
-    expect(searchLiveStatus(true, "error", false, false)).toBe(
-      "Nie udało się pobrać wyników.",
-    );
+    expect(searchLiveStatus(true, "error", false, false)).toBe("");
   });
 });

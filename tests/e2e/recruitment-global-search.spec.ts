@@ -344,7 +344,9 @@ test("an event detached after search resolves to the current calendar event, not
   });
   expect(changed.error).toBeNull();
   await dialog.getByRole("link", { name: new RegExp(marker) }).click();
-  await expect(page).toHaveURL(new RegExp(`/calendar\\?eventId=${eventId}`));
+  await expect(page).toHaveURL(
+    `${target.appOrigin}/calendar?eventId=${eventId}`,
+  );
   await expect(
     page.getByText(`Event ${marker}`, { exact: true }).first(),
   ).toBeVisible();
@@ -529,7 +531,10 @@ test("persistent search live region announces the latest outcome without moving 
     await expect(status).toHaveText("Brak wyników.");
     await expect(input).toBeFocused();
     await input.fill(failed);
-    await expect(status).toHaveText("Nie udało się pobrać wyników.");
+    await expect(status).toHaveText("");
+    await expect(dialog.getByRole("alert")).toContainText(
+      "Nie udało się pobrać wyników.",
+    );
     await expect(input).toBeFocused();
     expect(
       await status.evaluate((node, original) => node === original, initial),
@@ -1016,7 +1021,7 @@ test("calendar target switches A to B to no target on client navigation", async 
   });
   await dialog.getByLabel("Szukaj w Jobs CRM", { exact: true }).fill(nameB);
   await dialog.getByRole("link", { name: new RegExp(nameB) }).click();
-  await expect(page).toHaveURL(new RegExp(`/calendar\\?eventId=${bId}`));
+  await expect(page).toHaveURL(`${target.appOrigin}/calendar?eventId=${bId}`);
   await expect(page.getByLabel("Wskazane wydarzenie")).toContainText(nameB);
   await expect(page.getByLabel("Wskazane wydarzenie")).not.toContainText(nameA);
   await page
@@ -1816,3 +1821,59 @@ for (const kind of ["note", "link"] as const) {
     await expect(save).toBeDisabled();
   });
 }
+
+test("one note editor preserves a correction draft during an independent lifecycle refresh", async ({
+  page,
+}) => {
+  const caseId = await caseFixture(`Note draft QA ${randomUUID()}`);
+  const { client } = await sdkLogin(target, owner);
+  const created = await client.rpc("execute_case_content_command", {
+    p_request_id: randomUUID(),
+    p_payload: {
+      operation: "create-note",
+      caseId,
+      body: "Pierwotna notatka",
+      dateKind: "ordinary",
+      occurredOn: null,
+    },
+  });
+  expect(created.error).toBeNull();
+  const id = created.data.note.id as string;
+  const draft = `Szkic korekty ${randomUUID()}`;
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
+  const row = page.locator(`#note-${id}`);
+  await row
+    .getByRole("button", { name: "Popraw notatkę", exact: true })
+    .click();
+  const text = row.getByLabel("Treść notatki", { exact: true });
+  await text.fill(draft);
+  await expect(
+    page.getByRole("button", { name: "+ Notatka", exact: true }),
+  ).toBeDisabled();
+  await page
+    .getByRole("button", { name: "Zarejestruj kontakt", exact: true })
+    .click();
+  await page
+    .getByRole("radio", { name: "Kontakt przychodzący (inbound)", exact: true })
+    .check();
+  await page
+    .getByRole("checkbox", {
+      name: "Potwierdzam, że to zdarzenie rzeczywiście miało miejsce.",
+      exact: true,
+    })
+    .check();
+  await page
+    .getByRole("button", { name: "Zapisz zdarzenie", exact: true })
+    .click();
+  await expect(
+    page.getByText("Zdarzenie zostało zapisane.", { exact: true }),
+  ).toBeVisible();
+  await expect(text).toHaveValue(draft);
+  page.once("dialog", (dialog) => dialog.accept());
+  await row.getByRole("button", { name: "Anuluj", exact: true }).click();
+  await page.getByRole("button", { name: "+ Notatka", exact: true }).click();
+  await expect(
+    row.getByRole("button", { name: "Popraw notatkę", exact: true }),
+  ).toBeDisabled();
+});
