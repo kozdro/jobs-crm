@@ -30,3 +30,12 @@ export function canDiscardContentDraft(
 ) {
   return !dirty || confirmDiscard();
 }
+
+/** A live frozen payload must remain mounted; unknown storage alone blocks
+ * Notes/Links writes but must not swallow unrelated existing interactions. */
+export function contentRecoveryGuards(status: string, hasFrozen: boolean) {
+  return {
+    blockUnrelated: hasFrozen,
+    blockContentWrites: status !== "idle" || hasFrozen,
+  };
+}

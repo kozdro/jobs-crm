@@ -2,8 +2,10 @@ const detailPrefix = "/recruitments/";
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const sections = new Set([
   "#case-details",
+  "#case-links",
   "#case-relations",
   "#case-tasks",
+  "#case-calendar",
   "#case-lifecycle",
   "#case-actions",
   "#case-history",

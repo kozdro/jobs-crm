@@ -3,6 +3,7 @@ import {
   claimContentIntent,
   clearContentIntent,
   canDiscardContentDraft,
+  contentRecoveryGuards,
 } from "@/components/recruitment/content-intent";
 function memory() {
   const values = new Map<string, string>();
@@ -17,6 +18,26 @@ function memory() {
   };
 }
 describe("content intent guard", () => {
+  it("does not block unrelated actions for init or unreadable storage, but still blocks content writes", () => {
+    for (const status of ["checking", "error", "found", "missing"]) {
+      expect(contentRecoveryGuards(status, false)).toEqual({
+        blockUnrelated: false,
+        blockContentWrites: true,
+      });
+    }
+    expect(contentRecoveryGuards("idle", false)).toEqual({
+      blockUnrelated: false,
+      blockContentWrites: false,
+    });
+  });
+  it("protects a real frozen payload while sending or unknown", () => {
+    for (const status of ["sending", "unknown", "error"]) {
+      expect(contentRecoveryGuards(status, true)).toEqual({
+        blockUnrelated: true,
+        blockContentWrites: true,
+      });
+    }
+  });
   it("keeps an edited draft when discard is declined and permits an explicit discard", () => {
     const confirmDiscard = vi
       .fn()

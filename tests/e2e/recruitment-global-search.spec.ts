@@ -65,7 +65,6 @@ test("a real inline note is searchable, opens its case context, and a private qu
   await expect(
     page.getByText(`Historyczna treść ${query}`, { exact: true }),
   ).toBeVisible();
-
   await page.getByRole("button", { name: "Szukaj", exact: true }).click();
   const dialog = page.getByRole("dialog", {
     name: "Wyszukiwanie",
@@ -92,6 +91,7 @@ test("a real inline note is searchable, opens its case context, and a private qu
   await expect(
     page.getByText(`Historyczna treść ${query}`, { exact: true }),
   ).toBeVisible();
+  await expect.poll(() => new URL(page.url()).hash).toBe("#case-history");
 
   const retained = await page.evaluate(() => ({
     href: location.href,
@@ -277,6 +277,19 @@ test("a link outside the first page opens and focuses its own row", async ({
   await expect(link).toBeVisible();
   await expect(link).toBeFocused();
   await expect(link).toContainText(marker);
+  await expect.poll(() => new URL(page.url()).hash).toBe("#case-links");
+  await page.reload();
+  await expect(link).toBeVisible();
+  await expect(link).toBeFocused();
+  await expect.poll(() => new URL(page.url()).hash).toBe("#case-links");
+  await page.goto(
+    `${target.appOrigin}/recruitments/${caseId}#access_token=synthetic-secret`,
+  );
+  await expect.poll(() => new URL(page.url()).hash).toBe("");
+  await page.goto(`${target.appOrigin}/recruitments/${caseId}#case-calendar`);
+  await expect.poll(() => new URL(page.url()).hash).toBe("#case-calendar");
+  await page.reload();
+  await expect.poll(() => new URL(page.url()).hash).toBe("#case-calendar");
 });
 
 test("an event detached after search resolves to the current calendar event, not its former case", async ({
@@ -575,6 +588,106 @@ test("the BFF returns reorder audit for both the moved and displaced links", asy
   }
 });
 
+test("unreadable content storage keeps lifecycle available while preventing note and link writes", async ({
+  page,
+}) => {
+  const caseId = await caseFixture(`Storage QA ${randomUUID()}`);
+  await login(page);
+  await page.addInitScript(() => {
+    const original = Storage.prototype.getItem;
+    Storage.prototype.getItem = function (key: string) {
+      if (
+        this === sessionStorage &&
+        key.startsWith("jobs-crm.content.pending.")
+      )
+        throw new Error("Synthetic storage denial");
+      return original.call(this, key);
+    };
+  });
+  let contentPosts = 0;
+  page.on("request", (request) => {
+    if (
+      request.method() === "POST" &&
+      new URL(request.url()).pathname === "/recruitments/content"
+    )
+      contentPosts++;
+  });
+  await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
+  await expect(
+    page.getByText("Nie można sprawdzić zamiaru w tej przeglądarce."),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Zarejestruj kontakt", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Zarejestruj kontakt", exact: true }),
+  ).toBeVisible();
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "+ Notatka", exact: true }).click();
+  await page
+    .getByLabel("Treść notatki", { exact: true })
+    .fill("Syntetyczna notatka");
+  await expect(
+    page.getByRole("button", { name: "Zapisz notatkę", exact: true }),
+  ).toBeDisabled();
+  await page.getByRole("button", { name: "Dodaj link", exact: true }).click();
+  await page
+    .getByLabel("Adres URL", { exact: true })
+    .fill("https://example.invalid/storage");
+  await expect(
+    page.getByRole("button", { name: "Zapisz link", exact: true }),
+  ).toBeDisabled();
+  expect(contentPosts).toBe(0);
+});
+
+test("delayed content receipt bootstrap does not swallow the first independent lifecycle click", async ({
+  page,
+}) => {
+  const caseId = await caseFixture(`Bootstrap QA ${randomUUID()}`);
+  const requestId = randomUUID();
+  await login(page);
+  await page.addInitScript(
+    ({ ownerId, caseId, requestId }) => {
+      sessionStorage.setItem(
+        `jobs-crm.content.pending.${ownerId}.${caseId}`,
+        requestId,
+      );
+    },
+    { ownerId: owner.id, caseId, requestId },
+  );
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  let signal!: () => void;
+  const arrived = new Promise<void>((resolve) => {
+    signal = resolve;
+  });
+  await page.route("**/recruitments/content?*", async (route) => {
+    if (!new URL(route.request().url()).searchParams.has("requestId"))
+      return route.continue();
+    signal();
+    await gate;
+    await route.continue();
+  });
+  try {
+    await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
+    await arrived;
+    await expect(
+      page.getByText("Sprawdzanie poprzedniego zapisu…"),
+    ).toBeVisible();
+    await page
+      .getByRole("button", { name: "Zarejestruj kontakt", exact: true })
+      .click();
+    await expect(
+      page.getByRole("heading", { name: "Zarejestruj kontakt", exact: true }),
+    ).toBeVisible();
+  } finally {
+    release();
+    await page.unrouteAll({ behavior: "wait" });
+  }
+});
+
 test("lost committed response keeps the frozen intent until receipt is recovered", async ({
   page,
 }) => {
@@ -623,6 +736,15 @@ test("lost committed response keeps the frozen intent until receipt is recovered
   await expect(
     page.getByText(/Wynik zapisu jest niepewny/).first(),
   ).toBeVisible();
+  const lifecycle = page.getByRole("button", {
+    name: "Zarejestruj kontakt",
+    exact: true,
+  });
+  if (await lifecycle.isEnabled()) await lifecycle.click({ force: true });
+  await expect(
+    page.getByRole("heading", { name: "Zarejestruj kontakt", exact: true }),
+  ).toHaveCount(0);
+  await expect(page).toHaveURL(new RegExp(`/recruitments/${caseId}`));
   const other = page.getByRole("button", {
     name: `Popraw link ${oldB}`,
     exact: true,

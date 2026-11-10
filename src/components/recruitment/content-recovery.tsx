@@ -14,7 +14,11 @@ import { useRouter } from "next/navigation";
 import { getBrowserClient } from "@/modules/identity/infrastructure/browser";
 import { buttonStyles } from "@/components/ui/styles";
 import { uuidPattern } from "@/modules/recruitment/domain/recruitment-case";
-import { claimContentIntent, clearContentIntent } from "./content-intent";
+import {
+  claimContentIntent,
+  clearContentIntent,
+  contentRecoveryGuards,
+} from "./content-intent";
 import { contentChangedEvent } from "./content-events";
 
 export type ContentCommand = {
@@ -138,7 +142,8 @@ export function ContentRecoveryProvider({
   const lock = useRef(false);
   const markerId = useRef<string | null>(null);
   const banner = useRef<HTMLDivElement>(null);
-  const blocked = state.status !== "idle";
+  const guards = contentRecoveryGuards(state.status, pending !== null);
+  const blocked = guards.blockUnrelated;
   const update = useCallback((value: State) => {
     if (alive.current) setState(value);
   }, []);
@@ -478,7 +483,10 @@ export function ContentRecoveryProvider({
     pending,
     unknown: state.status === "unknown",
     busy: state.status === "sending",
-    recovery: !["idle", "sending", "unknown"].includes(state.status),
+    recovery:
+      guards.blockContentWrites &&
+      state.status !== "sending" &&
+      state.status !== "unknown",
     message: state.message,
     duplicate: state.duplicate,
     owner,

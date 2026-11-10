@@ -143,10 +143,13 @@ function AuditHistory({
               </li>
             ))}
           </ol>
-          <nav aria-label="Strony historii zmian" className="flex gap-2">
+          <nav
+            aria-label="Strony historii zmian"
+            className="flex min-w-0 flex-wrap items-center gap-2"
+          >
             <button
               type="button"
-              className={buttonStyles.secondary}
+              className={`${buttonStyles.secondary} max-w-full whitespace-normal [overflow-wrap:anywhere]`}
               disabled={page <= 1}
               onClick={() => load(page - 1)}
             >
@@ -155,7 +158,7 @@ function AuditHistory({
             <span>Strona {page}</span>
             <button
               type="button"
-              className={buttonStyles.secondary}
+              className={`${buttonStyles.secondary} max-w-full whitespace-normal [overflow-wrap:anywhere]`}
               disabled={!hasMore}
               onClick={() => load(page + 1)}
             >
@@ -1012,11 +1015,11 @@ export function CaseLinks({
         {links && (
           <nav
             aria-label="Strony linków"
-            className="mt-3 flex items-center gap-2"
+            className="mt-3 flex min-w-0 flex-wrap items-center gap-2"
           >
             <button
               type="button"
-              className={buttonStyles.secondary}
+              className={`${buttonStyles.secondary} max-w-full whitespace-normal [overflow-wrap:anywhere]`}
               disabled={page <= 1}
               onClick={() => switchPage(page - 1)}
             >
@@ -1025,7 +1028,7 @@ export function CaseLinks({
             <span>Strona {page}</span>
             <button
               type="button"
-              className={buttonStyles.secondary}
+              className={`${buttonStyles.secondary} max-w-full whitespace-normal [overflow-wrap:anywhere]`}
               disabled={!hasMore}
               onClick={() => switchPage(page + 1)}
             >
