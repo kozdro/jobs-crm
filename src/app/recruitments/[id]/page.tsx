@@ -175,6 +175,7 @@ export default async function RecruitmentDetailPage({
               userId={user.id}
               caseId={item.id}
               result={history}
+              historyPage={historyPage}
               workspaceReturnToken={workspaceReturnToken}
             />
           </div>

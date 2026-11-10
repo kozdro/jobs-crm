@@ -307,10 +307,12 @@ export function CaseHistory({
   result,
   userId,
   workspaceReturnToken,
+  historyPage,
 }: {
   caseId: string;
   userId?: string;
   workspaceReturnToken?: string;
+  historyPage?: number;
   result: HistoryResult | null;
 }) {
   function historyPageHref(page: number) {
@@ -403,7 +405,7 @@ export function CaseHistory({
         ))}
       {userId && (
         <HistoryRecovery
-          key={`${userId}:${caseId}`}
+          key={`${userId}:${caseId}:${historyPage ?? result?.page ?? 1}`}
           userId={userId}
           caseId={caseId}
         />
