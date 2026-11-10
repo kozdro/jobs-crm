@@ -1346,44 +1346,57 @@ test("switching edited links or paging protects an unsaved link draft", async ({
 test("moving link 26 across a page boundary preserves target, focus and status", async ({
   page,
 }) => {
-  const caseId = await caseFixture(`Move QA ${randomUUID()}`);
-  const { client } = await sdkLogin(target, owner);
-  let last = { id: "", url: "" };
-  for (let i = 0; i < 26; i++) {
-    const url = `https://example.invalid/move-${i}-${randomUUID()}`;
-    const result = await client.rpc("execute_case_content_command", {
-      p_request_id: randomUUID(),
-      p_payload: { operation: "add-link", caseId, url, role: "other" },
+  const { caseId, client } =
+    await test.step("F3_MOVE_PHASE:case_setup", async () => {
+      const caseId = await caseFixture(`Move QA ${randomUUID()}`);
+      const { client } = await sdkLogin(target, owner);
+      return { caseId, client };
     });
-    expect(result.error).toBeNull();
-    if (i === 25) last = { id: result.data.link.id, url };
-  }
-  await login(page);
-  await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
-  await page
-    .getByRole("button", { name: "Następna strona linków", exact: true })
-    .click();
-  await page
-    .getByRole("button", { name: `Przenieś wyżej ${last.url}`, exact: true })
-    .click();
+  let last = { id: "", url: "" };
+  await test.step("F3_MOVE_PHASE:links_setup", async () => {
+    for (let i = 0; i < 26; i++) {
+      const url = `https://example.invalid/move-${i}-${randomUUID()}`;
+      const result = await client.rpc("execute_case_content_command", {
+        p_request_id: randomUUID(),
+        p_payload: { operation: "add-link", caseId, url, role: "other" },
+      });
+      expect(result.error).toBeNull();
+      if (i === 25) last = { id: result.data.link.id, url };
+    }
+  });
+  await test.step("F3_MOVE_PHASE:login", () => login(page));
+  await test.step("F3_MOVE_PHASE:open_case", () =>
+    page.goto(`${target.appOrigin}/recruitments/${caseId}`));
+  await test.step("F3_MOVE_PHASE:next_page", () =>
+    page
+      .getByRole("button", { name: "Następna strona linków", exact: true })
+      .click());
+  await test.step("F3_MOVE_PHASE:move_up", () =>
+    page
+      .getByRole("button", { name: `Przenieś wyżej ${last.url}`, exact: true })
+      .click());
   const row = page.locator(`#case-link-additional-${last.id}`);
-  await expect(row).toBeVisible();
-  await expect(row).toBeFocused();
+  await test.step("F3_MOVE_PHASE:row_visible", () => expect(row).toBeVisible());
+  await test.step("F3_MOVE_PHASE:row_focus", () => expect(row).toBeFocused());
   const links = page.getByRole("region", { name: "Linki", exact: true });
-  await expect(links.getByRole("status")).toHaveText(
-    "Przeniesiono link. Strona 1.",
-  );
-  await expect(
-    links.getByRole("navigation", { name: "Strony linków" }),
-  ).toContainText("Strona 1");
-  const persisted = await client
-    .from("case_link_current")
-    .select("position")
-    .eq("case_id", caseId)
-    .eq("id", last.id)
-    .single();
-  expect(persisted.error).toBeNull();
-  expect(persisted.data?.position).toBe(24);
+  await test.step("F3_MOVE_PHASE:move_status", () =>
+    expect(links.getByRole("status")).toHaveText(
+      "Przeniesiono link. Strona 1.",
+    ));
+  await test.step("F3_MOVE_PHASE:page_status", () =>
+    expect(
+      links.getByRole("navigation", { name: "Strony linków" }),
+    ).toContainText("Strona 1"));
+  await test.step("F3_MOVE_PHASE:persisted_position", async () => {
+    const persisted = await client
+      .from("case_link_current")
+      .select("position")
+      .eq("case_id", caseId)
+      .eq("id", last.id)
+      .single();
+    expect(persisted.error).toBeNull();
+    expect(persisted.data?.position).toBe(24);
+  });
 });
 
 test("content validation identifies and focuses the invalid note, date and URL controls", async ({

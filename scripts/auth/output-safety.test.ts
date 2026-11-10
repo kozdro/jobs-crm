@@ -4,6 +4,7 @@ import {
   captureAuthOutput,
   requireAuthObservations,
   assertPrivateValuesAbsent,
+  MOVE_LINK_PHASES,
 } from "./output-safety.ts";
 const publicKey = "eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYW5vbiJ9.publicsignature";
 function capture(maxBytes?: number) {
@@ -210,5 +211,33 @@ test("native no-store exclusion requires its actual CDP reason and cannot claim 
     const invalid = capture();
     invalid.push("F3_BFCACHE_OBSERVATION " + JSON.stringify(changed));
     assert.throws(() => invalid.verify(), /safe field validation/);
+  }
+});
+
+test("browser phase diagnostics accept only the fixed allowlist and reject extra data", () => {
+  const base = {
+    fileHash: "a".repeat(64),
+    line: 1346,
+    status: "timedOut",
+    category: "timeout",
+    retry: 0,
+  };
+  for (const phase of MOVE_LINK_PHASES) {
+    const output = capture();
+    output.push(`F3_BROWSER_FAILURE ${JSON.stringify({ ...base, phase })}`);
+    assert.deepEqual(output.verify().observations[0].values, {
+      ...base,
+      phase,
+    });
+  }
+  for (const bad of [
+    { phase: "private@example.test" },
+    { phase: "move_up", url: "https://private.example" },
+    { phase: "move_up", category: "assertion" },
+    { phase: "move_up", status: "interrupted" },
+  ]) {
+    const output = capture();
+    output.push(`F3_BROWSER_FAILURE ${JSON.stringify({ ...base, ...bad })}`);
+    assert.throws(() => output.verify(), /withheld/);
   }
 });
