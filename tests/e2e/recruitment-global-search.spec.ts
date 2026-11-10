@@ -2158,3 +2158,98 @@ test("audit pagination ignores stale success and error after a newer page is cho
     }
   }
 });
+
+test("closed case retains navigation to a later-page note and link", async ({
+  page,
+}) => {
+  test.setTimeout(120000);
+  const { client } = await sdkLogin(target, owner);
+  const c = await client.rpc("create_recruitment_case", {
+    p_request_id: randomUUID(),
+    p_title: `Closed QA ${randomUUID()}`,
+  });
+  expect(c.error).toBeNull();
+  const caseId = c.data.case.id as string;
+  const noteWord = `closednote${randomUUID().replaceAll("-", "")}`;
+  const linkWord = `closedlink${randomUUID().replaceAll("-", "")}`;
+  const command = async (payload: Record<string, unknown>) => {
+    const r = await client.rpc("execute_case_content_command", {
+      p_request_id: randomUUID(),
+      p_payload: { caseId, ...payload },
+    });
+    expect(r.error).toBeNull();
+    return r.data;
+  };
+  const note = await command({
+    operation: "create-note",
+    body: noteWord,
+    dateKind: "ordinary",
+    occurredOn: null,
+  });
+  for (let i = 0; i < 25; i++)
+    await command({
+      operation: "create-note",
+      body: `Synthetic newer ${i}`,
+      dateKind: "ordinary",
+      occurredOn: null,
+    });
+  for (let i = 0; i < 25; i++)
+    await command({
+      operation: "add-link",
+      url: `https://example.invalid/${randomUUID()}`,
+      role: "other",
+    });
+  const link = await command({
+    operation: "add-link",
+    url: `https://example.invalid/${linkWord}`,
+    role: "other",
+  });
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
+  await page
+    .getByRole("button", { name: "Zakończ sprawę", exact: true })
+    .click();
+  await page
+    .getByLabel("Wynik zakończenia", { exact: true })
+    .selectOption({ label: "Inny" });
+  await page
+    .getByRole("button", { name: "Pokaż podgląd zmian", exact: true })
+    .click();
+  await page
+    .getByRole("checkbox", {
+      name: "Potwierdzam zakończenie sprawy i wskazany wynik.",
+      exact: true,
+    })
+    .check();
+  await page
+    .getByRole("button", { name: "Zatwierdź zakończenie", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Wznów sprawę", exact: true }),
+  ).toBeVisible();
+  const search = async (q: string) => {
+    await page
+      .getByRole("button", { name: "Szukaj w Jobs CRM", exact: true })
+      .click();
+    const dialog = page.getByRole("dialog", {
+      name: "Wyszukiwanie",
+      exact: true,
+    });
+    await dialog.getByLabel("Szukaj w Jobs CRM", { exact: true }).fill(q);
+    await dialog.getByRole("link").filter({ hasText: q }).click();
+  };
+  await search(noteWord);
+  await expect(page.locator(`#note-${note.note.id}`)).toBeFocused();
+  await expect(page).toHaveURL(new RegExp(`/recruitments/${caseId}`));
+  await expect(
+    page.getByRole("button", { name: "Wznów sprawę", exact: true }),
+  ).toBeVisible();
+  await search(linkWord);
+  await expect(
+    page.locator(`#case-link-additional-${link.link.id}`),
+  ).toBeFocused();
+  await expect(page).toHaveURL(new RegExp(`/recruitments/${caseId}`));
+  await expect(
+    page.getByRole("button", { name: "Wznów sprawę", exact: true }),
+  ).toBeVisible();
+});
