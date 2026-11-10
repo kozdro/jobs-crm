@@ -822,6 +822,18 @@ function LinkEditor({
     </form>
   );
 }
+export function retainEditingLink<
+  T extends { id: string; source: string; voided: boolean },
+>(rows: T[], editing: T | "new" | null): { rows: T[]; missing: boolean } {
+  const active = rows.filter((row) => !row.voided);
+  const missing =
+    editing !== null &&
+    editing !== "new" &&
+    !active.some(
+      (row) => row.id === editing.id && row.source === editing.source,
+    );
+  return { rows: missing ? [...active, editing] : active, missing };
+}
 export function CaseLinks({
   owner,
   caseId,
@@ -973,14 +985,20 @@ export function CaseLinks({
     )
   )
     combined.unshift(targetLink);
-  const active = combined
-    .filter((link) => !link.voided)
-    .sort((a, b) => a.position - b.position || a.id.localeCompare(b.id));
+  // Keep the same keyed editor mounted even when a refresh moves or voids its row.
+  const { rows: active, missing: editingMissing } = retainEditingLink(
+    combined.toSorted(
+      (a, b) => a.position - b.position || a.id.localeCompare(b.id),
+    ),
+    editing,
+  );
   const voided = combined.filter((link) => link.voided);
   const targetMissing =
     targetId &&
     links &&
-    !active.some((x) => x.id === targetId && x.source === targetSource);
+    !combined.some(
+      (x) => !x.voided && x.id === targetId && x.source === targetSource,
+    );
   function leaveEditor() {
     // Resolve or explicitly discard the conflict before replacing its editor.
     if (command.conflict) return false;
@@ -1131,108 +1149,133 @@ export function CaseLinks({
               tabIndex={-1}
               className="scroll-mt-6 py-3 outline-none"
             >
-              <p className="text-sm font-semibold">
-                {roles.find(([value]) => value === link.role)?.[1] ??
-                  "Nieokreślona"}
-              </p>
-              <p className="break-words text-sm [overflow-wrap:anywhere]">
-                {link.url}
-              </p>
-              <a
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ui-link inline-flex min-h-11 items-center"
+              <div
+                hidden={
+                  editingMissing &&
+                  editing !== "new" &&
+                  editing?.id === link.id &&
+                  editing.source === link.source
+                }
               >
-                Otwórz link
-              </a>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  id={`edit-link-${link.source}-${link.id}`}
-                  type="button"
-                  className={buttonStyles.ghost}
-                  aria-label={`Popraw link ${link.url}`}
-                  disabled={
-                    Boolean(command.conflict) ||
-                    (editing !== null &&
-                      editing !== "new" &&
-                      editing.id === link.id &&
-                      editing.source === link.source)
-                  }
-                  onClick={() => {
-                    if (leaveEditor()) setEditing(link);
-                  }}
+                <p className="text-sm font-semibold">
+                  {roles.find(([value]) => value === link.role)?.[1] ??
+                    "Nieokreślona"}
+                </p>
+                <p className="break-words text-sm [overflow-wrap:anywhere]">
+                  {link.url}
+                </p>
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ui-link inline-flex min-h-11 items-center"
                 >
-                  Popraw link
-                </button>
-                <button
-                  type="button"
-                  className={buttonStyles.ghost}
-                  disabled={
-                    link.position === 0 ||
-                    moving ||
-                    Boolean(editing) ||
-                    command.busy ||
-                    command.unknown ||
-                    command.recovery
-                  }
-                  onClick={() => void move(link, -1)}
-                  aria-label={`Przenieś wyżej ${link.url}`}
-                >
-                  Przenieś wyżej
-                </button>
-                <button
-                  type="button"
-                  className={buttonStyles.ghost}
-                  disabled={
-                    (index === active.length - 1 && !hasMore && !targetLink) ||
-                    moving ||
-                    Boolean(editing) ||
-                    command.busy ||
-                    command.unknown ||
-                    command.recovery
-                  }
-                  onClick={() => void move(link, 1)}
-                  aria-label={`Przenieś niżej ${link.url}`}
-                >
-                  Przenieś niżej
-                </button>
-                <button
-                  type="button"
-                  className={buttonStyles.ghost}
-                  aria-label={`Unieważnij link ${link.url}`}
-                  disabled={
-                    Boolean(editing) ||
-                    command.busy ||
-                    command.unknown ||
-                    command.recovery
-                  }
-                  onClick={() => mutate(link, "void-link")}
-                >
-                  Unieważnij link
-                </button>
+                  Otwórz link
+                </a>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    id={`edit-link-${link.source}-${link.id}`}
+                    type="button"
+                    className={buttonStyles.ghost}
+                    aria-label={`Popraw link ${link.url}`}
+                    disabled={
+                      Boolean(command.conflict) ||
+                      (editing !== null &&
+                        editing !== "new" &&
+                        editing.id === link.id &&
+                        editing.source === link.source)
+                    }
+                    onClick={() => {
+                      if (leaveEditor()) setEditing(link);
+                    }}
+                  >
+                    Popraw link
+                  </button>
+                  <button
+                    type="button"
+                    className={buttonStyles.ghost}
+                    disabled={
+                      link.position === 0 ||
+                      moving ||
+                      Boolean(editing) ||
+                      command.busy ||
+                      command.unknown ||
+                      command.recovery
+                    }
+                    onClick={() => void move(link, -1)}
+                    aria-label={`Przenieś wyżej ${link.url}`}
+                  >
+                    Przenieś wyżej
+                  </button>
+                  <button
+                    type="button"
+                    className={buttonStyles.ghost}
+                    disabled={
+                      (index === active.length - 1 &&
+                        !hasMore &&
+                        !targetLink) ||
+                      moving ||
+                      Boolean(editing) ||
+                      command.busy ||
+                      command.unknown ||
+                      command.recovery
+                    }
+                    onClick={() => void move(link, 1)}
+                    aria-label={`Przenieś niżej ${link.url}`}
+                  >
+                    Przenieś niżej
+                  </button>
+                  <button
+                    type="button"
+                    className={buttonStyles.ghost}
+                    aria-label={`Unieważnij link ${link.url}`}
+                    disabled={
+                      Boolean(editing) ||
+                      command.busy ||
+                      command.unknown ||
+                      command.recovery
+                    }
+                    onClick={() => mutate(link, "void-link")}
+                  >
+                    Unieważnij link
+                  </button>
+                </div>
+                <AuditHistory
+                  owner={owner}
+                  caseId={caseId}
+                  targetId={link.id}
+                />
               </div>
-              <AuditHistory owner={owner} caseId={caseId} targetId={link.id} />
               {editing &&
                 editing !== "new" &&
                 editing.id === link.id &&
                 editing.source === link.source && (
-                  <LinkEditor
-                    owner={owner}
-                    caseId={caseId}
-                    existing={link}
-                    onClose={() => {
-                      setLinkDirty(false);
-                      setEditing(null);
-                      requestAnimationFrame(() =>
-                        document
-                          .getElementById(`edit-link-${link.source}-${link.id}`)
-                          ?.focus(),
-                      );
-                    }}
-                    onChanged={changed}
-                    onDirtyChange={setLinkDirty}
-                  />
+                  <>
+                    {editingMissing && fresh && (
+                      <p role="alert">
+                        Link zmienił się lub nie jest na tej stronie. Szkic
+                        pozostaje zachowany.
+                      </p>
+                    )}
+                    <LinkEditor
+                      owner={owner}
+                      caseId={caseId}
+                      existing={link}
+                      onClose={() => {
+                        setLinkDirty(false);
+                        setEditing(null);
+                        requestAnimationFrame(() =>
+                          document
+                            .getElementById(
+                              `edit-link-${link.source}-${link.id}`,
+                            )
+                            ?.focus(),
+                        );
+                      }}
+                      onChanged={changed}
+                      onDirtyChange={setLinkDirty}
+                    />
+                  </>
                 )}
             </li>
           ))}

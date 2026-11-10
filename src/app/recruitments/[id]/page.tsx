@@ -171,7 +171,7 @@ export default async function RecruitmentDetailPage({
                 />
               )}
             <CaseHistory
-              key={`${user.id}:${item.id}:${historyPage}`}
+              key={`${user.id}:${item.id}`}
               userId={user.id}
               caseId={item.id}
               result={history}

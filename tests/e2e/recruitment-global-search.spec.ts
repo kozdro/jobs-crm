@@ -1877,3 +1877,151 @@ test("one note editor preserves a correction draft during an independent lifecyc
     row.getByRole("button", { name: "Popraw notatkę", exact: true }),
   ).toBeDisabled();
 });
+
+test("link draft survives a content refresh after another client voids its target", async ({
+  page,
+}) => {
+  const caseId = await caseFixture(`Link draft QA ${randomUUID()}`);
+  const { client } = await sdkLogin(target, owner);
+  const url = `https://example.invalid/previous-${randomUUID()}`;
+  const draft = `https://example.invalid/draft-${randomUUID()}`;
+  const created = await client.rpc("execute_case_content_command", {
+    p_request_id: randomUUID(),
+    p_payload: { operation: "add-link", caseId, url, role: "other" },
+  });
+  expect(created.error).toBeNull();
+  const id = created.data.link.id as string;
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
+  const row = page.locator(`#case-link-additional-${id}`);
+  await row
+    .getByRole("button", { name: `Popraw link ${url}`, exact: true })
+    .click();
+  const editor = page
+    .locator("form")
+    .filter({ has: page.getByLabel("Adres URL", { exact: true }) });
+  const field = editor.getByLabel("Adres URL", { exact: true });
+  await field.fill(draft);
+  const voided = await client.rpc("execute_case_content_command", {
+    p_request_id: randomUUID(),
+    p_payload: {
+      operation: "void-link",
+      caseId,
+      id,
+      source: "additional",
+      expectedRevision: 0,
+    },
+  });
+  expect(voided.error).toBeNull();
+  await page.getByRole("button", { name: "+ Notatka", exact: true }).click();
+  await page
+    .getByLabel("Treść notatki", { exact: true })
+    .fill(`Odświeżenie ${randomUUID()}`);
+  await page
+    .getByRole("button", { name: "Zapisz notatkę", exact: true })
+    .click();
+  await expect(page.locator("[data-content-recovery]")).toContainText(
+    "Zapisano.",
+  );
+  await expect(field).toHaveValue(draft);
+  await editor
+    .getByRole("button", { name: "Zapisz link", exact: true })
+    .click();
+  await expect(editor.getByText(/Dane zmieniły się/)).toBeVisible();
+  await editor
+    .getByRole("button", { name: "Pobierz aktualną wersję", exact: true })
+    .click();
+  await expect(
+    editor.getByText(
+      "Rekord jest niedostępny lub został unieważniony. Zachowaj lub skopiuj szkic.",
+    ),
+  ).toBeVisible();
+  await expect(field).toHaveValue(draft);
+  await expect(
+    editor.getByRole("button", { name: "Zapisz link", exact: true }),
+  ).toBeDisabled();
+});
+
+test("a late NoteTarget resolver cannot navigate away from an active note draft", async ({
+  page,
+}) => {
+  const caseId = await caseFixture(`Note target draft QA ${randomUUID()}`);
+  const { client } = await sdkLogin(target, owner);
+  const add = async (body: string) => {
+    const value = await client.rpc("execute_case_content_command", {
+      p_request_id: randomUUID(),
+      p_payload: {
+        operation: "create-note",
+        caseId,
+        body,
+        dateKind: "ordinary",
+        occurredOn: null,
+      },
+    });
+    expect(value.error).toBeNull();
+    return value.data.note.id as string;
+  };
+  const oldId = await add(`Odległy cel ${randomUUID()}`);
+  let latestId = "";
+  for (let i = 0; i < 25; i++)
+    latestId = await add(`Nowsza notatka ${i} ${randomUUID()}`);
+  const draft = `Szkic resolver ${randomUUID()}`;
+  await login(page);
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  let arrived!: () => void;
+  const pending = new Promise<void>((resolve) => {
+    arrived = resolve;
+  });
+  let finished!: () => void;
+  const settled = new Promise<void>((resolve) => {
+    finished = resolve;
+  });
+  await page.route("**/recruitments/content?*", async (route) => {
+    if (new URL(route.request().url()).searchParams.get("noteId") !== oldId)
+      return route.continue();
+    arrived();
+    await gate;
+    try {
+      await route.continue();
+    } catch {
+      /* Navigation may cancel the obsolete request. */
+    } finally {
+      finished();
+    }
+  });
+  try {
+    await page.goto(
+      `${target.appOrigin}/recruitments/${caseId}?noteId=${oldId}#case-history`,
+    );
+    await pending;
+    const row = page.locator(`#note-${latestId}`);
+    await row
+      .getByRole("button", { name: "Popraw notatkę", exact: true })
+      .click();
+    const field = row.getByLabel("Treść notatki", { exact: true });
+    await field.fill(draft);
+    release();
+    await settled;
+    await expect(field).toHaveValue(draft);
+    await expect
+      .poll(() => new URL(page.url()).searchParams.get("historyPage"))
+      .toBe("2");
+    await expect(field).toHaveValue(draft);
+    page.once("dialog", (dialog) => dialog.accept());
+    await row.getByRole("button", { name: "Anuluj", exact: true }).click();
+    const alert = page
+      .getByRole("alert")
+      .filter({ hasText: "Nie udało się pobrać wskazanej notatki." });
+    if (await alert.isVisible())
+      await alert
+        .getByRole("button", { name: "Spróbuj ponownie", exact: true })
+        .click();
+    await expect(page.locator(`#note-${oldId}`)).toBeFocused();
+  } finally {
+    release();
+    await page.unrouteAll({ behavior: "wait" });
+  }
+});
