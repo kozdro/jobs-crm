@@ -1135,9 +1135,21 @@ test("moving link 26 across a page boundary preserves target, focus and status",
   const row = page.locator(`#case-link-additional-${last.id}`);
   await expect(row).toBeVisible();
   await expect(row).toBeFocused();
+  const links = page.getByRole("region", { name: "Linki", exact: true });
+  await expect(links.getByRole("status")).toHaveText(
+    "Przeniesiono link. Strona 1.",
+  );
   await expect(
-    page.getByRole("status").filter({ hasText: /zapis|przenies|zmian/i }),
-  ).toBeVisible();
+    links.getByRole("navigation", { name: "Strony linków" }),
+  ).toContainText("Strona 1");
+  const persisted = await client
+    .from("case_link_current")
+    .select("position")
+    .eq("case_id", caseId)
+    .eq("id", last.id)
+    .single();
+  expect(persisted.error).toBeNull();
+  expect(persisted.data?.position).toBe(24);
 });
 
 test("content validation identifies and focuses the invalid note, date and URL controls", async ({
@@ -1289,7 +1301,9 @@ for (const operation of ["void", "correct"] as const) {
       .getByRole("alert")
       .filter({ hasText: "Nie udało się pobrać linków." });
     await expect(alert).toBeVisible();
-    await expect(page.locator(`a[href="${oldUrl}"]`)).toHaveCount(0);
+    const staleLink = page.locator(`a[href="${oldUrl}"]`);
+    await expect(staleLink).toBeHidden();
+    await expect(staleLink).not.toBeFocused();
     await expect(
       page.getByRole("button", { name: `Popraw link ${oldUrl}`, exact: true }),
     ).toHaveCount(0);

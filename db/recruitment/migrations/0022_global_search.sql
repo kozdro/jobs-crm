@@ -207,7 +207,7 @@ BEGIN
    UNION ALL SELECT 'notes',n.id,n.case_id,'Notatka',n.body,n.created_at,'note',public.search_normalize(n.body) FROM public.case_note n WHERE grp='notes' AND n.owner_id=auth.uid() AND NOT n.voided
    UNION ALL SELECT 'events',e.id,e.case_id,e.title,coalesce(e.description,''),e.created_at,'calendar',public.search_normalize(coalesce(e.title,'')||' '||coalesce(e.description,'')) FROM public.recruitment_calendar_event e WHERE grp='events' AND e.owner_id=auth.uid()
   ), candidates AS (
-   SELECT * FROM source WHERE grp<>'links' AND (grp<>'contacts' OR raw_q !~ '[@.%_/]') AND ts IS NOT NULL AND to_tsvector('pg_catalog.simple'::regconfig,body) @@ ts
+   SELECT * FROM source WHERE grp<>'links' AND ts IS NOT NULL AND to_tsvector('pg_catalog.simple'::regconfig,body) @@ ts
    UNION
    SELECT * FROM source WHERE (grp IN ('cases','companies','contacts','events') AND strpos(public.search_normalize(title),q)>0)
     OR (grp='contacts' AND strpos(lower(snippet),raw_q)>0)

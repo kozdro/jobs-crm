@@ -1056,6 +1056,57 @@ test(
     );
 
     await t.test(
+      "contact name uses FTS punctuation while email and URL require literal punctuation",
+      async () => {
+        const nameMatch = await createProfile("contact", "Anna Kowalska");
+        const email = "anna.kow@example.invalid";
+        const emailOnly = ok<{ profile: Row }>(
+          await call("execute_catalog_command", {
+            p_request_id: randomUUID(),
+            p_payload: {
+              operation: "create-profile",
+              profileType: "contact",
+              name: `Unrelated ${randomUUID()}`,
+              email,
+            },
+          }),
+        ).profile;
+        const url = "https://example.invalid/anna.kow";
+        ok(
+          await call("execute_case_content_command", {
+            p_request_id: randomUUID(),
+            p_payload: {
+              operation: "add-link",
+              caseId: created.id,
+              url,
+              role: "other",
+            },
+          }),
+        );
+        const punctuation = ok<Groups>(await search("Anna/Kow"));
+        assert.ok(
+          punctuation.contacts.items.some((row) => row.id === nameMatch.id),
+        );
+        assert.ok(
+          !punctuation.contacts.items.some((row) => row.id === emailOnly.id),
+        );
+        assert.ok(
+          !punctuation.links.items.some((row) => row.case_id === created.id),
+        );
+        const literalEmail = ok<Groups>(
+          await search("ANNA.KOW@EXAMPLE.INVALID"),
+        );
+        assert.ok(
+          literalEmail.contacts.items.some((row) => row.id === emailOnly.id),
+        );
+        const literalUrl = ok<Groups>(await search("ANNA.KOW"));
+        assert.ok(
+          literalUrl.links.items.some((row) => row.case_id === created.id),
+        );
+      },
+    );
+
+    await t.test(
       "direct RPC validates nulls, malformed page types and large page offsets",
       async () => {
         const invoke = (pages: unknown, limit: unknown) =>
