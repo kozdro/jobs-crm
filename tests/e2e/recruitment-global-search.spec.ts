@@ -2025,3 +2025,111 @@ test("a late NoteTarget resolver cannot navigate away from an active note draft"
     await page.unrouteAll({ behavior: "wait" });
   }
 });
+
+test("audit pagination ignores stale success and error after a newer page is chosen", async ({
+  page,
+}) => {
+  const caseId = await caseFixture(`Audit race QA ${randomUUID()}`);
+  const { client } = await sdkLogin(target, owner);
+  const marker = randomUUID();
+  const created = await client.rpc("execute_case_content_command", {
+    p_request_id: randomUUID(),
+    p_payload: {
+      operation: "create-note",
+      caseId,
+      body: `Pierwotna ${marker}`,
+      dateKind: "ordinary",
+      occurredOn: null,
+    },
+  });
+  expect(created.error).toBeNull();
+  const id = created.data.note.id as string;
+  for (let i = 0; i < 26; i++) {
+    const correction = await client.rpc("execute_case_content_command", {
+      p_request_id: randomUUID(),
+      p_payload: {
+        operation: "correct-note",
+        caseId,
+        id,
+        expectedRevision: i,
+        body: `Korekta ${i} ${marker}`,
+        dateKind: "ordinary",
+        occurredOn: null,
+      },
+    });
+    expect(correction.error).toBeNull();
+  }
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
+  const row = page.locator(`#note-${id}`);
+  const history = row.getByText("Historia zmian", { exact: true });
+  await history.click();
+  const nav = row.getByRole("navigation", {
+    name: "Strony historii zmian",
+    exact: true,
+  });
+  await expect(nav).toContainText("Strona 1");
+  for (const fail of [false, true]) {
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    let arrived!: () => void;
+    const pending = new Promise<void>((resolve) => {
+      arrived = resolve;
+    });
+    let finished!: () => void;
+    const settled = new Promise<void>((resolve) => {
+      finished = resolve;
+    });
+    await page.route("**/recruitments/content?*", async (route) => {
+      const url = new URL(route.request().url());
+      if (
+        url.searchParams.get("auditTarget") !== id ||
+        url.searchParams.get("auditPage") !== "2"
+      )
+        return route.continue();
+      const response = fail ? null : await route.fetch();
+      arrived();
+      await gate;
+      try {
+        if (response) await route.fulfill({ response });
+        else
+          await route.fulfill({
+            status: 503,
+            contentType: "application/json",
+            body: "{}",
+          });
+      } catch {
+        /* A superseded request may have been aborted. */
+      } finally {
+        finished();
+      }
+    });
+    try {
+      await nav.getByRole("button", { name: "Następna", exact: true }).click();
+      await pending;
+      await history.click();
+      const newest = page.waitForResponse((response) => {
+        const url = new URL(response.url());
+        return (
+          url.pathname === "/recruitments/content" &&
+          url.searchParams.get("auditTarget") === id &&
+          url.searchParams.get("auditPage") === "1" &&
+          response.status() === 200
+        );
+      });
+      await history.click();
+      await newest;
+      await expect(nav).toContainText("Strona 1");
+      release();
+      await settled;
+      await expect(nav).toContainText("Strona 1");
+      await expect(row.getByRole("alert")).toHaveCount(0);
+      await expect(row).toContainText(`Korekta 25 ${marker}`);
+    } finally {
+      release();
+      await page.unrouteAll({ behavior: "wait" });
+    }
+  }
+});

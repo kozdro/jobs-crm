@@ -14,6 +14,7 @@ import { useUnsavedWarning } from "@/components/reminders/use-unsaved-warning";
 import { warsawToday } from "@/modules/recruitment/domain/case-events";
 import { useContentRecovery } from "./content-recovery";
 import { canDiscardContentDraft } from "./content-intent";
+import { loadLatestAuditPage } from "./audit-request";
 import {
   contentChangedEvent,
   isCurrentContentProjection,
@@ -110,25 +111,39 @@ function AuditHistory({
   const [error, setError] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
+  const generation = useRef(0);
+  useEffect(
+    () => () => {
+      generation.current += 1;
+    },
+    [owner, caseId, targetId],
+  );
   function load(next: number) {
-    void readContent(owner, {
-      caseId,
-      auditTarget: targetId,
-      auditPage: String(next),
-    })
-      .then((data) => {
+    void loadLatestAuditPage(
+      generation,
+      () =>
+        readContent(owner, {
+          caseId,
+          auditTarget: targetId,
+          auditPage: String(next),
+        }),
+      (data) => {
         setAudit(data.audit as Audit[]);
         setHasMore(data.hasMoreAudit === true);
         setPage(next);
         setError(false);
-      })
-      .catch(() => setError(true));
+      },
+      () => setError(true),
+    );
   }
   return (
     <details
       className="mt-2"
       onToggle={(event) => {
-        if (!event.currentTarget.open) return;
+        if (!event.currentTarget.open) {
+          generation.current += 1;
+          return;
+        }
         load(1);
       }}
     >
