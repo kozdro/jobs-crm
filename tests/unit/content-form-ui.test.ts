@@ -4,7 +4,10 @@ import {
   linkFormError,
   noteTimelineDay,
 } from "@/components/recruitment/content-form-validation";
-import { matchesContentChanged } from "@/components/recruitment/content-events";
+import {
+  isCurrentContentProjection,
+  matchesContentChanged,
+} from "@/components/recruitment/content-events";
 import { findActiveLinkPage } from "@/components/recruitment/content-link-navigation";
 
 describe("case content forms", () => {
@@ -57,6 +60,46 @@ describe("case content forms", () => {
       false,
     );
     expect(matchesContentChanged(null, "A", "1")).toBe(false);
+  });
+  it("hides stale link actions during a new read, after failure, and until retry succeeds", () => {
+    expect(
+      isCurrentContentProjection(
+        "ownerA:case1:page1:v1",
+        "ownerA:case1:page1:v1",
+        false,
+      ),
+    ).toBe(true);
+    expect(
+      isCurrentContentProjection(
+        "ownerA:case1:page1:v1",
+        "ownerA:case1:page1:v2",
+        false,
+      ),
+    ).toBe(false);
+    expect(
+      isCurrentContentProjection(
+        "ownerA:case1:page1:v2",
+        "ownerA:case1:page1:v2",
+        true,
+      ),
+    ).toBe(false);
+    expect(
+      isCurrentContentProjection(null, "ownerA:case1:page1:v1", false),
+    ).toBe(false);
+    expect(
+      isCurrentContentProjection(
+        "ownerA:case1:page1:v3",
+        "ownerA:case1:page1:v3",
+        false,
+      ),
+    ).toBe(true);
+    expect(
+      isCurrentContentProjection(
+        "ownerA:case1:page1:v1",
+        "ownerB:case1:page1:v1",
+        false,
+      ),
+    ).toBe(false);
   });
   it("locates a reordered link across pages without accepting a void or same ID with a different source", async () => {
     const load = vi.fn(async (page: number) =>
