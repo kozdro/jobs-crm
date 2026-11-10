@@ -2,6 +2,7 @@ import {
   isCalendarDate,
   warsawToday,
 } from "@/modules/recruitment/domain/case-events";
+import { parseCreateCaseInput } from "@/modules/recruitment/domain/recruitment-case";
 export function noteFormErrors(
   body: string,
   dateChoice: string,
@@ -20,14 +21,20 @@ export function noteFormErrors(
   return errors;
 }
 export function linkFormError(url: string): string | null {
-  try {
-    const parsed = new URL(url.trim());
-    if (parsed.protocol !== "http:" && parsed.protocol !== "https:")
-      throw new Error();
-    return null;
-  } catch {
-    return "Podaj poprawny adres HTTP lub HTTPS.";
-  }
+  return canonicalCaseLink(url) === null
+    ? "Podaj poprawny adres HTTP lub HTTPS."
+    : null;
+}
+/** The same validation and URL.href normalization as Quick Capture. */
+export function canonicalCaseLink(url: string): string | null {
+  const parsed = parseCreateCaseInput({
+    requestId: "00000000-0000-4000-8000-000000000001",
+    title: "link",
+    sourceUrl: url,
+    description: null,
+    allowDuplicate: false,
+  });
+  return parsed.success ? parsed.data.sourceUrl : null;
 }
 export function noteTimelineDay(note: {
   date_kind: "ordinary" | "historical";

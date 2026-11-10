@@ -1444,3 +1444,293 @@ for (const operation of ["void", "correct"] as const) {
     }
   });
 }
+
+test("canonical link URL is frozen for a lost-response retry and invalid schemes never write", async ({
+  page,
+}) => {
+  const caseId = await caseFixture(`Canonical QA ${randomUUID()}`);
+  const raw = `https://żółć.example/ścieżka ze spacją/${randomUUID()}`;
+  const canonical = new URL(raw).href;
+  const { client } = await sdkLogin(target, owner);
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
+  await page.getByRole("button", { name: "Dodaj link", exact: true }).click();
+  const form = page
+    .locator("form")
+    .filter({ has: page.getByLabel("Adres URL", { exact: true }) });
+  let posts = 0;
+  let frozen: { requestId: string; payload: { url: string } } | null = null;
+  await page.route("**/recruitments/content", async (route) => {
+    if (route.request().method() !== "POST") return route.continue();
+    posts++;
+    frozen = route.request().postDataJSON();
+    const response = await route.fetch();
+    expect(response.status()).toBe(200);
+    await route.fulfill({
+      status: 503,
+      contentType: "application/json",
+      body: '{"kind":"unavailable"}',
+    });
+  });
+  await form
+    .getByLabel("Adres URL", { exact: true })
+    .fill("javascript:alert(1)");
+  await form.getByRole("button", { name: "Zapisz link", exact: true }).click();
+  expect(posts).toBe(0);
+  await form.getByLabel("Adres URL", { exact: true }).fill(raw);
+  await form.getByRole("button", { name: "Zapisz link", exact: true }).click();
+  await expect(
+    page.getByText(/Wynik zapisu jest niepewny/).first(),
+  ).toBeVisible();
+  expect(frozen!.payload.url).toBe(canonical);
+  await page.unrouteAll({ behavior: "wait" });
+  await page
+    .getByRole("button", { name: "Ponów identyczny zapis", exact: true })
+    .click();
+  const receipt = await client
+    .from("case_content_command")
+    .select("payload")
+    .eq("request_id", frozen!.requestId)
+    .single();
+  expect(receipt.error).toBeNull();
+  expect(receipt.data?.payload).toEqual(frozen!.payload);
+  const link = await client
+    .from("case_link_current")
+    .select("id,url")
+    .eq("case_id", caseId)
+    .single();
+  expect(link.error).toBeNull();
+  expect(link.data?.url).toBe(canonical);
+  await page.getByRole("button", { name: "Dodaj link", exact: true }).click();
+  const duplicate = page
+    .locator("form")
+    .filter({ has: page.getByLabel("Adres URL", { exact: true }) });
+  await duplicate.getByLabel("Adres URL", { exact: true }).fill(raw);
+  await duplicate
+    .getByRole("button", { name: "Zapisz link", exact: true })
+    .click();
+  await expect(
+    page.getByRole("link", { name: "Otwórz istniejący link", exact: true }),
+  ).toBeVisible();
+  page.once("dialog", (dialog) => dialog.accept());
+  await duplicate.getByRole("button", { name: "Anuluj", exact: true }).click();
+  const row = page.locator(`#case-link-additional-${link.data!.id}`);
+  await row
+    .getByRole("button", { name: `Popraw link ${canonical}`, exact: true })
+    .click();
+  const changedRaw = `https://zażółć.example/inna ścieżka/${randomUUID()}`;
+  await row.getByLabel("Adres URL", { exact: true }).fill(changedRaw);
+  await row.getByRole("button", { name: "Zapisz link", exact: true }).click();
+  await expect(row).toContainText(new URL(changedRaw).href);
+});
+
+for (const kind of ["note", "link"] as const) {
+  test(`stale ${kind} preserves its draft through failed refresh and requires explicit new consent`, async ({
+    page,
+  }) => {
+    const caseId = await caseFixture(`Conflict QA ${randomUUID()}`);
+    const { client } = await sdkLogin(target, owner);
+    const oldUrl = `https://example.invalid/old-${randomUUID()}`;
+    const remoteUrl = `https://example.invalid/remote-${randomUUID()}`;
+    const draft =
+      kind === "note"
+        ? `Szkic ${randomUUID()}`
+        : `https://example.invalid/draft-${randomUUID()}`;
+    const create = await client.rpc("execute_case_content_command", {
+      p_request_id: randomUUID(),
+      p_payload:
+        kind === "note"
+          ? {
+              operation: "create-note",
+              caseId,
+              body: "Pierwotna notatka",
+              dateKind: "ordinary",
+              occurredOn: null,
+            }
+          : { operation: "add-link", caseId, url: oldUrl, role: "other" },
+    });
+    expect(create.error).toBeNull();
+    const id = (
+      kind === "note" ? create.data.note.id : create.data.link.id
+    ) as string;
+    await login(page);
+    await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
+    const row =
+      kind === "note"
+        ? page.locator(`#note-${id}`)
+        : page.locator(`#case-link-additional-${id}`);
+    await row
+      .getByRole("button", {
+        name: kind === "note" ? "Popraw notatkę" : `Popraw link ${oldUrl}`,
+        exact: true,
+      })
+      .click();
+    const editor = row.locator("form");
+    const field = editor.getByLabel(
+      kind === "note" ? "Treść notatki" : "Adres URL",
+      { exact: true },
+    );
+    await field.fill(draft);
+    const other = await client.rpc("execute_case_content_command", {
+      p_request_id: randomUUID(),
+      p_payload:
+        kind === "note"
+          ? {
+              operation: "correct-note",
+              caseId,
+              id,
+              expectedRevision: 0,
+              body: "Zmiana drugiego klienta",
+              dateKind: "ordinary",
+              occurredOn: null,
+            }
+          : {
+              operation: "correct-link",
+              caseId,
+              id,
+              source: "additional",
+              expectedRevision: 0,
+              url: remoteUrl,
+              role: "other",
+              position: create.data.link.position,
+            },
+    });
+    expect(other.error).toBeNull();
+    const writes: {
+      requestId: string;
+      payload: { expectedRevision: number };
+    }[] = [];
+    page.on("request", (request) => {
+      if (
+        request.method() === "POST" &&
+        new URL(request.url()).pathname === "/recruitments/content"
+      )
+        writes.push(request.postDataJSON());
+    });
+    const save = editor.getByRole("button", {
+      name: kind === "note" ? "Zapisz notatkę" : "Zapisz link",
+      exact: true,
+    });
+    await save.click();
+    await expect(page.getByText(/Dane zmieniły się/).first()).toBeVisible();
+    await expect(field).toHaveValue(draft);
+    await expect(save).toBeDisabled();
+    let failRead = true;
+    await page.route("**/recruitments/content?*", async (route) => {
+      if (failRead && route.request().method() === "GET") {
+        failRead = false;
+        return route.fulfill({
+          status: 503,
+          contentType: "application/json",
+          body: "{}",
+        });
+      }
+      return route.continue();
+    });
+    const refresh = editor.getByRole("button", {
+      name: "Pobierz aktualną wersję",
+      exact: true,
+    });
+    await refresh.click();
+    await expect(
+      editor.getByText("Nie udało się pobrać aktualnej wersji."),
+    ).toBeVisible();
+    await expect(field).toHaveValue(draft);
+    await expect(save).toBeDisabled();
+    await refresh.click();
+    await expect(
+      editor.getByText(kind === "note" ? "Zmiana drugiego klienta" : remoteUrl),
+    ).toBeVisible();
+    await expect(field).toHaveValue(draft);
+    await expect(save).toBeDisabled();
+    await editor
+      .getByRole("button", {
+        name: "Użyj aktualnej wersji jako podstawy",
+        exact: true,
+      })
+      .click();
+    await expect(field).toHaveValue(draft);
+    await save.click();
+    await expect.poll(() => writes.length).toBe(2);
+    expect(writes[0].payload.expectedRevision).toBe(0);
+    expect(writes[1].payload.expectedRevision).toBe(1);
+    expect(writes[0].requestId).not.toBe(writes[1].requestId);
+    await expect(row).toContainText(draft);
+  });
+}
+
+for (const kind of ["note", "link"] as const) {
+  test(`a remotely voided ${kind} keeps the draft and cannot be resubmitted`, async ({
+    page,
+  }) => {
+    const caseId = await caseFixture(`Voided conflict QA ${randomUUID()}`);
+    const { client } = await sdkLogin(target, owner);
+    const url = `https://example.invalid/void-${randomUUID()}`;
+    const draft =
+      kind === "note"
+        ? `Szkic ${randomUUID()}`
+        : `https://example.invalid/draft-${randomUUID()}`;
+    const created = await client.rpc("execute_case_content_command", {
+      p_request_id: randomUUID(),
+      p_payload:
+        kind === "note"
+          ? {
+              operation: "create-note",
+              caseId,
+              body: "Pierwotna notatka",
+              dateKind: "ordinary",
+              occurredOn: null,
+            }
+          : { operation: "add-link", caseId, url, role: "other" },
+    });
+    expect(created.error).toBeNull();
+    const id = (
+      kind === "note" ? created.data.note.id : created.data.link.id
+    ) as string;
+    await login(page);
+    await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
+    const row =
+      kind === "note"
+        ? page.locator(`#note-${id}`)
+        : page.locator(`#case-link-additional-${id}`);
+    await row
+      .getByRole("button", {
+        name: kind === "note" ? "Popraw notatkę" : `Popraw link ${url}`,
+        exact: true,
+      })
+      .click();
+    const editor = row.locator("form");
+    const field = editor.getByLabel(
+      kind === "note" ? "Treść notatki" : "Adres URL",
+      { exact: true },
+    );
+    await field.fill(draft);
+    const voided = await client.rpc("execute_case_content_command", {
+      p_request_id: randomUUID(),
+      p_payload: {
+        operation: kind === "note" ? "void-note" : "void-link",
+        caseId,
+        id,
+        expectedRevision: 0,
+        ...(kind === "link" ? { source: "additional" } : {}),
+      },
+    });
+    expect(voided.error).toBeNull();
+    const save = editor.getByRole("button", {
+      name: kind === "note" ? "Zapisz notatkę" : "Zapisz link",
+      exact: true,
+    });
+    await save.click();
+    await expect(page.getByText(/Dane zmieniły się/).first()).toBeVisible();
+    await editor
+      .getByRole("button", { name: "Pobierz aktualną wersję", exact: true })
+      .click();
+    await expect(
+      editor.getByText(
+        "Rekord jest niedostępny lub został unieważniony. Zachowaj lub skopiuj szkic.",
+      ),
+    ).toBeVisible();
+    await expect(field).toHaveValue(draft);
+    await expect(save).toBeDisabled();
+  });
+}

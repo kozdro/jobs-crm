@@ -18,6 +18,7 @@ import {
   claimContentIntent,
   clearContentIntent,
   contentRecoveryGuards,
+  canClearContentConflict,
 } from "./content-intent";
 import { contentChangedEvent } from "./content-events";
 
@@ -27,19 +28,33 @@ export type ContentCommand = {
 };
 type Status =
   "idle" | "checking" | "sending" | "unknown" | "found" | "missing" | "error";
+export type ContentConflict = {
+  requestId: string;
+  id: string;
+  source?: "legacy" | "additional";
+  operation: string;
+  expectedRevision: number;
+};
 type State = {
   status: Status;
   message: string | null;
   duplicate: { id: string; source: "legacy" | "additional" } | null;
+  conflict?: ContentConflict;
 };
 type Recovery = {
-  execute: (command: ContentCommand, changed?: () => void) => Promise<void>;
+  execute: (
+    command: ContentCommand,
+    changed?: () => void,
+    discarded?: () => void,
+  ) => Promise<void>;
   pending: ContentCommand | null;
   unknown: boolean;
   busy: boolean;
   recovery: boolean;
   message: string | null;
   duplicate: State["duplicate"];
+  conflict: ContentConflict | null;
+  clearConflict: (requestId: string, discard?: boolean) => boolean;
   owner: string;
   caseId: string;
 };
@@ -135,9 +150,12 @@ export function ContentRecoveryProvider({
     message: null,
     duplicate: null,
   });
+  const stateRef = useRef(state);
   const [pending, setPending] = useState<ContentCommand | null>(null);
   const frozen = useRef<ContentCommand | null>(null);
   const callback = useRef<(() => void) | null>(null);
+  const discardCallback = useRef<(() => void) | null>(null);
+  const conflictDiscard = useRef<(() => void) | null>(null);
   const alive = useRef(true);
   const lock = useRef(false);
   const markerId = useRef<string | null>(null);
@@ -145,7 +163,10 @@ export function ContentRecoveryProvider({
   const guards = contentRecoveryGuards(state.status, pending !== null);
   const blocked = guards.blockUnrelated;
   const update = useCallback((value: State) => {
-    if (alive.current) setState(value);
+    if (alive.current) {
+      stateRef.current = value;
+      setState(value);
+    }
   }, []);
   const current = useCallback(
     (id: string) => sessionStorage.getItem(key) === id,
@@ -166,6 +187,7 @@ export function ContentRecoveryProvider({
       setPending(null);
       const done = callback.current;
       callback.current = null;
+      discardCallback.current = null;
       update({ status: "idle", message: "Zapisano.", duplicate: null });
       window.dispatchEvent(
         new CustomEvent(contentChangedEvent, { detail: { owner, caseId } }),
@@ -250,6 +272,8 @@ export function ContentRecoveryProvider({
         if (event === "SIGNED_OUT" || (session && session.user.id !== owner)) {
           frozen.current = null;
           callback.current = null;
+          discardCallback.current = null;
+          conflictDiscard.current = null;
           setPending(null);
           alive.current = false;
         }
@@ -259,6 +283,8 @@ export function ContentRecoveryProvider({
       alive.current = false;
       frozen.current = null;
       callback.current = null;
+      discardCallback.current = null;
+      conflictDiscard.current = null;
       data.subscription.unsubscribe();
     };
   }, [inspect, owner]);
@@ -294,8 +320,13 @@ export function ContentRecoveryProvider({
     };
   }, [blocked]);
   const execute = useCallback(
-    async (intent: ContentCommand, done?: () => void) => {
+    async (
+      intent: ContentCommand,
+      done?: () => void,
+      discarded?: () => void,
+    ) => {
       if (lock.current) return;
+      if (state.conflict) return;
       lock.current = true;
       try {
         const prior = frozen.current;
@@ -311,6 +342,7 @@ export function ContentRecoveryProvider({
           }
           frozen.current = structuredClone(intent);
           callback.current = done ?? null;
+          discardCallback.current = discarded ?? null;
           markerId.current = intent.requestId;
           setPending(frozen.current);
         }
@@ -389,6 +421,27 @@ export function ContentRecoveryProvider({
               result.match.source === "additional")
               ? { id: result.match.id, source: result.match.source }
               : null;
+          const payload = expected.payload;
+          const conflict: ContentConflict | undefined =
+            result?.kind === "stale" &&
+            typeof payload.id === "string" &&
+            uuidPattern.test(payload.id) &&
+            typeof payload.operation === "string" &&
+            typeof payload.expectedRevision === "number" &&
+            Number.isSafeInteger(payload.expectedRevision) &&
+            (payload.source === undefined ||
+              payload.source === "legacy" ||
+              payload.source === "additional")
+              ? {
+                  requestId: expected.requestId,
+                  id: payload.id,
+                  operation: payload.operation,
+                  expectedRevision: payload.expectedRevision,
+                  ...(payload.source ? { source: payload.source } : {}),
+                }
+              : undefined;
+          conflictDiscard.current = conflict ? discardCallback.current : null;
+          discardCallback.current = null;
           update({
             status: "idle",
             message:
@@ -398,6 +451,7 @@ export function ContentRecoveryProvider({
                   ? "Dane zmieniły się. Odśwież i potwierdź zmianę ponownie."
                   : "Nie udało się zapisać. Sprawdź dane.",
             duplicate: match,
+            conflict,
           });
           return;
         }
@@ -413,7 +467,7 @@ export function ContentRecoveryProvider({
         lock.current = false;
       }
     },
-    [caseId, current, finish, key, owner, state.status, update],
+    [caseId, current, finish, key, owner, state.status, state.conflict, update],
   );
   const reconcile = useCallback(async () => {
     if (lock.current || frozen.current) return;
@@ -478,17 +532,49 @@ export function ContentRecoveryProvider({
     const intent = frozen.current;
     if (intent) void execute(intent, callback.current ?? (() => {}));
   };
+  const clearConflict = (requestId: string, discard = false) => {
+    try {
+      if (
+        !alive.current ||
+        lock.current ||
+        !canClearContentConflict(
+          requestId,
+          stateRef.current.conflict?.requestId,
+          stateRef.current.status,
+          frozen.current !== null,
+          sessionStorage.getItem(key),
+        )
+      )
+        return false;
+    } catch {
+      return false;
+    }
+    const onDiscard = conflictDiscard.current;
+    conflictDiscard.current = null;
+    update({
+      status: "idle",
+      message: discard
+        ? "Zmiana została odrzucona."
+        : "Przyjęto aktualną wersję jako podstawę.",
+      duplicate: null,
+    });
+    if (discard) onDiscard?.();
+    return true;
+  };
   const value: Recovery = {
     execute,
     pending,
     unknown: state.status === "unknown",
     busy: state.status === "sending",
     recovery:
-      guards.blockContentWrites &&
-      state.status !== "sending" &&
-      state.status !== "unknown",
+      Boolean(state.conflict) ||
+      (guards.blockContentWrites &&
+        state.status !== "sending" &&
+        state.status !== "unknown"),
     message: state.message,
     duplicate: state.duplicate,
+    conflict: state.conflict ?? null,
+    clearConflict,
     owner,
     caseId,
   };
@@ -507,6 +593,18 @@ export function ContentRecoveryProvider({
           >
             {state.message}
           </p>
+        )}
+        {state.conflict && (
+          <button
+            type="button"
+            className={buttonStyles.secondary}
+            onClick={() => {
+              if (window.confirm("Odrzucić niezapisaną zmianę?"))
+                clearConflict(state.conflict!.requestId, true);
+            }}
+          >
+            Odrzuć zmianę
+          </button>
         )}
         {state.duplicate && (
           <Link
@@ -580,12 +678,13 @@ export function useContentRecovery(
   owner: string,
   caseId: string,
   changed: () => void,
+  discarded?: () => void,
 ): Recovery {
   const context = useContext(Context);
   if (!context || context.owner !== owner || context.caseId !== caseId)
     throw new Error("Content recovery provider missing or mismatched");
   return {
     ...context,
-    execute: (command) => context.execute(command, changed),
+    execute: (command) => context.execute(command, changed, discarded),
   };
 }

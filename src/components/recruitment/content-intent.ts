@@ -39,3 +39,19 @@ export function contentRecoveryGuards(status: string, hasFrozen: boolean) {
     blockContentWrites: status !== "idle" || hasFrozen,
   };
 }
+
+/** A reviewed conflict cannot clear a newer attempt or another conflict. */
+export function canClearContentConflict(
+  requestId: string,
+  currentConflict: string | undefined,
+  status: string,
+  hasFrozen: boolean,
+  marker: string | null,
+) {
+  return (
+    status === "idle" &&
+    currentConflict === requestId &&
+    !hasFrozen &&
+    marker === null
+  );
+}

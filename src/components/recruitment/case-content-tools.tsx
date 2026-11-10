@@ -19,8 +19,17 @@ import {
   isCurrentContentProjection,
   matchesContentChanged,
 } from "./content-events";
-import { linkFormError, noteFormErrors } from "./content-form-validation";
+import {
+  canonicalCaseLink,
+  linkFormError,
+  noteFormErrors,
+} from "./content-form-validation";
 import { findActiveLinkPage } from "./content-link-navigation";
+import {
+  readConflictSnapshot,
+  sameConflictSnapshot,
+  type ConflictSnapshot,
+} from "./content-conflict";
 import {
   noteTargetFailure,
   noteTargetNextStep,
@@ -77,8 +86,13 @@ async function readContent(owner: string, query: Record<string, string>) {
     throw Object.assign(new Error("read failed"), { status: response.status });
   return (await response.json()) as Record<string, unknown>;
 }
-function useContentCommand(owner: string, caseId: string, changed: () => void) {
-  return useContentRecovery(owner, caseId, changed);
+function useContentCommand(
+  owner: string,
+  caseId: string,
+  changed: () => void,
+  discarded?: () => void,
+) {
+  return useContentRecovery(owner, caseId, changed, discarded);
 }
 function Feedback() {
   return null;
@@ -170,6 +184,143 @@ function AuditHistory({
     </details>
   );
 }
+function ConflictReview({
+  owner,
+  caseId,
+  targetId,
+  source,
+  onAccept,
+}: {
+  owner: string;
+  caseId: string;
+  targetId: string;
+  source?: "legacy" | "additional";
+  onAccept: (snapshot: ConflictSnapshot) => void;
+}) {
+  const command = useContentRecovery(owner, caseId, () => {});
+  const conflict = command.conflict;
+  const [preview, setPreview] = useState<ConflictSnapshot | null>(null);
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "ready" | "changed" | "missing" | "error"
+  >("idle");
+  if (!conflict || conflict.id !== targetId || conflict.source !== source)
+    return null;
+  const currentConflict = conflict;
+  async function readSnapshot(): Promise<
+    ConflictSnapshot | "missing" | "error"
+  > {
+    try {
+      const isNote = currentConflict.operation.endsWith("note");
+      const data = await readContent(
+        owner,
+        isNote
+          ? { caseId, noteId: targetId }
+          : { caseId, linkId: targetId, linkSource: source ?? "" },
+      );
+      const row = isNote ? data.targetNote : data.targetLink;
+      if (row === null) return "missing";
+      const snapshot = readConflictSnapshot(row, currentConflict, caseId);
+      if (!snapshot) return "error";
+      return snapshot.voided ? "missing" : snapshot;
+    } catch (error) {
+      return error &&
+        typeof error === "object" &&
+        "status" in error &&
+        error.status === 404
+        ? "missing"
+        : "error";
+    }
+  }
+  async function load(accept: boolean) {
+    setStatus("loading");
+    const current = await readSnapshot();
+    if (current === "missing" || current === "error") {
+      setStatus(current);
+      return;
+    }
+    if (accept && preview && sameConflictSnapshot(preview, current)) {
+      if (!command.clearConflict(currentConflict.requestId)) {
+        setStatus("error");
+        return;
+      }
+      onAccept(current);
+      return;
+    }
+    setPreview(current);
+    setStatus(accept ? "changed" : "ready");
+  }
+  return (
+    <section
+      className="mt-3 space-y-2 rounded-md border border-border p-3"
+      aria-label="Konflikt wersji"
+    >
+      <p role="alert">
+        Dane zmieniły się od rozpoczęcia edycji. Twój szkic pozostał bez zmian.
+      </p>
+      <button
+        type="button"
+        className={buttonStyles.secondary}
+        disabled={status === "loading"}
+        onClick={() => void load(false)}
+      >
+        Pobierz aktualną wersję
+      </button>
+      {status === "loading" && (
+        <p role="status">Pobieranie aktualnej wersji…</p>
+      )}
+      {status === "error" && (
+        <p role="alert">Nie udało się pobrać aktualnej wersji.</p>
+      )}
+      {status === "missing" && (
+        <p role="alert">
+          Rekord jest niedostępny lub został unieważniony. Zachowaj lub skopiuj
+          szkic.
+        </p>
+      )}
+      {status === "changed" && (
+        <p role="alert">
+          Wersja ponownie się zmieniła. Sprawdź nowe dane przed potwierdzeniem.
+        </p>
+      )}
+      {preview && (status === "ready" || status === "changed") && (
+        <div className="space-y-2 text-sm [overflow-wrap:anywhere]">
+          <p className="font-semibold">
+            Aktualna wersja, rewizja {preview.revision}
+          </p>
+          {preview.body !== undefined ? (
+            <>
+              <p className="whitespace-pre-wrap">{preview.body}</p>
+              <p>
+                {preview.date_kind === "ordinary"
+                  ? "Data utworzenia"
+                  : preview.occurred_on
+                    ? `Data zdarzenia: ${preview.occurred_on}`
+                    : "Data zdarzenia nieznana"}
+              </p>
+            </>
+          ) : (
+            <>
+              <p>{preview.url}</p>
+              <p>
+                {roles.find(([role]) => role === preview.role)?.[1] ??
+                  "Nieokreślona"}{" "}
+                · Pozycja {preview.position}
+              </p>
+            </>
+          )}
+          <button
+            type="button"
+            className={buttonStyles.secondary}
+            onClick={() => void load(true)}
+          >
+            Użyj aktualnej wersji jako podstawy
+          </button>
+        </div>
+      )}
+    </section>
+  );
+}
+
 export function NoteEditor({
   owner,
   caseId,
@@ -186,28 +337,29 @@ export function NoteEditor({
     router.refresh();
     onCancel();
   }, [router, onCancel]);
-  const command = useContentCommand(owner, caseId, changed);
-  const [body, setBody] = useState(note?.body ?? "");
+  const command = useContentCommand(owner, caseId, changed, onCancel);
+  const [base, setBase] = useState(note);
+  const [body, setBody] = useState(base?.body ?? "");
   const [dateChoice, setDateChoice] = useState(
-    note?.date_kind === "historical"
-      ? note.occurred_on
+    base?.date_kind === "historical"
+      ? base.occurred_on
         ? "known"
         : "unknown"
       : "ordinary",
   );
-  const [occurredOn, setOccurredOn] = useState(note?.occurred_on ?? "");
+  const [occurredOn, setOccurredOn] = useState(base?.occurred_on ?? "");
   const [errors, setErrors] = useState<{ body?: string; date?: string }>({});
   const bodyRef = useRef<HTMLTextAreaElement>(null);
   const dateRef = useRef<HTMLInputElement>(null);
   const dirty =
-    body !== (note?.body ?? "") ||
+    body !== (base?.body ?? "") ||
     dateChoice !==
-      (note?.date_kind === "historical"
-        ? note.occurred_on
+      (base?.date_kind === "historical"
+        ? base.occurred_on
           ? "known"
           : "unknown"
         : "ordinary") ||
-    occurredOn !== (note?.occurred_on ?? "");
+    occurredOn !== (base?.occurred_on ?? "");
   useUnsavedWarning(dirty || command.unknown || command.busy);
   const formId = useId();
   function cancel() {
@@ -216,6 +368,10 @@ export function NoteEditor({
       !window.confirm("Odrzucić niezapisane zmiany?")
     )
       return;
+    if (command.conflict && base?.id === command.conflict.id) {
+      command.clearConflict(command.conflict.requestId, true);
+      return;
+    }
     if (!command.unknown && !command.busy) onCancel();
   }
   function submit(event: FormEvent) {
@@ -231,9 +387,9 @@ export function NoteEditor({
     void command.execute({
       requestId: crypto.randomUUID(),
       payload: {
-        operation: note ? "correct-note" : "create-note",
+        operation: base ? "correct-note" : "create-note",
         caseId,
-        ...(note ? { id: note.id, expectedRevision: note.revision } : {}),
+        ...(base ? { id: base.id, expectedRevision: base.revision } : {}),
         body: body.trim(),
         dateKind: dateChoice === "ordinary" ? "ordinary" : "historical",
         occurredOn: dateChoice === "known" ? occurredOn : null,
@@ -313,6 +469,15 @@ export function NoteEditor({
           )}
         </label>
       )}
+      {base && command.conflict?.id === base.id && (
+        <ConflictReview
+          key={command.conflict.requestId}
+          owner={owner}
+          caseId={caseId}
+          targetId={base.id}
+          onAccept={(snapshot) => setBase(snapshot as unknown as Note)}
+        />
+      )}
       <Feedback />
       <div className="flex gap-2">
         <button
@@ -336,25 +501,28 @@ export function NoteEditor({
 }
 export function NoteEntry({ owner, note }: { owner: string; note: Note }) {
   const router = useRouter();
+  const [accepted, setAccepted] = useState<Note | null>(null);
+  const current =
+    accepted && accepted.revision > note.revision ? accepted : note;
   const changed = useCallback(() => router.refresh(), [router]);
-  const command = useContentCommand(owner, note.case_id, changed);
+  const command = useContentCommand(owner, current.case_id, changed);
   const [editing, setEditing] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const longBody = Array.from(note.body).length > 400;
+  const longBody = Array.from(current.body).length > 400;
   const displayed =
     longBody && !expanded
-      ? `${Array.from(note.body).slice(0, 400).join("")}…`
-      : note.body;
+      ? `${Array.from(current.body).slice(0, 400).join("")}…`
+      : current.body;
   return (
     <li
-      id={`note-${note.id}`}
+      id={`note-${current.id}`}
       tabIndex={-1}
       className="scroll-mt-6 py-4 outline-none"
     >
       <p className="font-semibold">
-        {note.voided ? "Unieważniona notatka" : "Notatka"}
+        {current.voided ? "Unieważniona notatka" : "Notatka"}
       </p>
-      {note.revision > 0 && !note.voided && (
+      {current.revision > 0 && !current.voided && (
         <p className="text-sm">Skorygowano</p>
       )}
       <p className="whitespace-pre-wrap break-words text-sm [overflow-wrap:anywhere]">
@@ -371,15 +539,15 @@ export function NoteEntry({ owner, note }: { owner: string; note: Note }) {
         </button>
       )}
       <p className="text-sm text-muted-foreground">
-        {note.date_kind === "historical"
-          ? note.occurred_on
-            ? `Data zdarzenia: ${note.occurred_on}`
+        {current.date_kind === "historical"
+          ? current.occurred_on
+            ? `Data zdarzenia: ${current.occurred_on}`
             : "Data zdarzenia nieznana"
-          : `Data utworzenia: ${new Intl.DateTimeFormat("pl-PL", { dateStyle: "medium", timeZone: "Europe/Warsaw" }).format(new Date(note.created_at))}`}
+          : `Data utworzenia: ${new Intl.DateTimeFormat("pl-PL", { dateStyle: "medium", timeZone: "Europe/Warsaw" }).format(new Date(current.created_at))}`}
       </p>
-      {note.date_kind === "historical" &&
-        note.occurred_on &&
-        note.occurred_on < warsawToday(new Date(note.created_at)) && (
+      {current.date_kind === "historical" &&
+        current.occurred_on &&
+        current.occurred_on < warsawToday(new Date(current.created_at)) && (
           <p className="text-sm text-muted-foreground">
             Dodano do CRM później.
           </p>
@@ -390,21 +558,21 @@ export function NoteEntry({ owner, note }: { owner: string; note: Note }) {
         </summary>
         <p className="text-sm">
           Dodano do CRM:{" "}
-          <time dateTime={note.created_at}>
+          <time dateTime={current.created_at}>
             {new Intl.DateTimeFormat("pl-PL", {
               dateStyle: "medium",
               timeStyle: "short",
               timeZone: "Europe/Warsaw",
-            }).format(new Date(note.created_at))}
+            }).format(new Date(current.created_at))}
           </time>
         </p>
       </details>
-      {!note.voided && !editing && (
+      {!current.voided && !editing && (
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
             className={buttonStyles.ghost}
-            id={`edit-note-${note.id}`}
+            id={`edit-note-${current.id}`}
             onClick={() => setEditing(true)}
           >
             Popraw notatkę
@@ -423,9 +591,9 @@ export function NoteEntry({ owner, note }: { owner: string; note: Note }) {
                   requestId: crypto.randomUUID(),
                   payload: {
                     operation: "void-note",
-                    caseId: note.case_id,
-                    id: note.id,
-                    expectedRevision: note.revision,
+                    caseId: current.case_id,
+                    id: current.id,
+                    expectedRevision: current.revision,
                   },
                 });
             }}
@@ -437,18 +605,36 @@ export function NoteEntry({ owner, note }: { owner: string; note: Note }) {
       {editing && (
         <NoteEditor
           owner={owner}
-          caseId={note.case_id}
-          note={note}
+          caseId={current.case_id}
+          note={current}
           onCancel={() => {
             setEditing(false);
             requestAnimationFrame(() =>
-              document.getElementById(`edit-note-${note.id}`)?.focus(),
+              document.getElementById(`edit-note-${current.id}`)?.focus(),
             );
           }}
         />
       )}
+      {!editing &&
+        command.conflict?.operation.endsWith("note") &&
+        command.conflict.id === current.id && (
+          <ConflictReview
+            key={command.conflict.requestId}
+            owner={owner}
+            caseId={current.case_id}
+            targetId={current.id}
+            onAccept={(snapshot) => {
+              setAccepted(snapshot as unknown as Note);
+              router.refresh();
+            }}
+          />
+        )}
       <Feedback />
-      <AuditHistory owner={owner} caseId={note.case_id} targetId={note.id} />
+      <AuditHistory
+        owner={owner}
+        caseId={current.case_id}
+        targetId={current.id}
+      />
     </li>
   );
 }
@@ -472,13 +658,14 @@ function LinkEditor({
     onChanged();
     onClose();
   }, [onChanged, onClose]);
-  const command = useContentCommand(owner, caseId, done);
-  const [url, setUrl] = useState(existing?.url ?? "");
-  const [role, setRole] = useState(existing?.role ?? "unspecified");
+  const command = useContentCommand(owner, caseId, done, onClose);
+  const [base, setBase] = useState(existing);
+  const [url, setUrl] = useState(base?.url ?? "");
+  const [role, setRole] = useState(base?.role ?? "unspecified");
   const [error, setError] = useState("");
   const urlRef = useRef<HTMLInputElement>(null);
   const dirty =
-    url !== (existing?.url ?? "") || role !== (existing?.role ?? "unspecified");
+    url !== (base?.url ?? "") || role !== (base?.role ?? "unspecified");
   useUnsavedWarning(dirty || command.unknown || command.busy);
   const formId = useId();
   function submit(event: FormEvent) {
@@ -490,22 +677,24 @@ function LinkEditor({
       urlRef.current?.focus();
       return;
     }
+    const canonicalUrl = canonicalCaseLink(url);
+    if (canonicalUrl === null) return;
     setError("");
     void command.execute({
       requestId: crypto.randomUUID(),
       payload: {
-        operation: existing ? "correct-link" : "add-link",
+        operation: base ? "correct-link" : "add-link",
         caseId,
-        ...(existing
+        ...(base
           ? {
-              id: existing.id,
-              source: existing.source,
-              expectedRevision: existing.revision,
+              id: base.id,
+              source: base.source,
+              expectedRevision: base.revision,
             }
           : {}),
-        url: url.trim(),
+        url: canonicalUrl,
         role,
-        ...(existing ? { position: existing.position } : {}),
+        ...(base ? { position: base.position } : {}),
       },
     });
   }
@@ -531,8 +720,8 @@ function LinkEditor({
           const value = e.target.value;
           setUrl(value);
           onDirtyChange(
-            value !== (existing?.url ?? "") ||
-              role !== (existing?.role ?? "unspecified"),
+            value !== (base?.url ?? "") ||
+              role !== (base?.role ?? "unspecified"),
           );
         }}
       />
@@ -557,8 +746,8 @@ function LinkEditor({
           const value = e.target.value;
           setRole(value);
           onDirtyChange(
-            url !== (existing?.url ?? "") ||
-              value !== (existing?.role ?? "unspecified"),
+            url !== (base?.url ?? "") ||
+              value !== (base?.role ?? "unspecified"),
           );
         }}
       >
@@ -568,6 +757,22 @@ function LinkEditor({
           </option>
         ))}
       </select>
+      {base &&
+        command.conflict?.id === base.id &&
+        command.conflict.source === base.source && (
+          <ConflictReview
+            key={command.conflict.requestId}
+            owner={owner}
+            caseId={caseId}
+            targetId={base.id}
+            source={base.source}
+            onAccept={(snapshot) => {
+              const next = snapshot as unknown as CaseLink;
+              setBase(next);
+              onDirtyChange(url !== next.url || role !== next.role);
+            }}
+          />
+        )}
       <Feedback />
       <div className="flex gap-2">
         <button
@@ -582,8 +787,17 @@ function LinkEditor({
           disabled={command.busy || command.unknown}
           className={buttonStyles.secondary}
           onClick={() => {
-            if (!dirty || window.confirm("Odrzucić niezapisane zmiany?"))
+            if (!dirty || window.confirm("Odrzucić niezapisane zmiany?")) {
+              if (
+                command.conflict &&
+                base?.id === command.conflict.id &&
+                base.source === command.conflict.source
+              ) {
+                command.clearConflict(command.conflict.requestId, true);
+                return;
+              }
               onClose();
+            }
           }}
         >
           Anuluj
@@ -752,6 +966,8 @@ export function CaseLinks({
     links &&
     !active.some((x) => x.id === targetId && x.source === targetSource);
   function leaveEditor() {
+    // Resolve or explicitly discard the conflict before replacing its editor.
+    if (command.conflict) return false;
     if (
       !canDiscardContentDraft(linkDirty, () =>
         window.confirm("Odrzucić niezapisane zmiany linku?"),
@@ -841,6 +1057,24 @@ export function CaseLinks({
       <h2 id="case-links-title" className="text-lg font-semibold">
         Linki
       </h2>
+      {command.conflict?.operation.endsWith("link") &&
+        command.conflict.source &&
+        !(
+          editing &&
+          editing !== "new" &&
+          editing.id === command.conflict.id &&
+          editing.source === command.conflict.source
+        ) && (
+          <ConflictReview
+            key={command.conflict.requestId}
+            owner={owner}
+            caseId={caseId}
+            targetId={command.conflict.id}
+            source={command.conflict.source}
+            onAccept={() => changed()}
+          />
+        )}
+
       {moveMessage && (
         <p role="status" className="mt-2 text-sm">
           {moveMessage}
@@ -903,10 +1137,11 @@ export function CaseLinks({
                   className={buttonStyles.ghost}
                   aria-label={`Popraw link ${link.url}`}
                   disabled={
-                    editing !== null &&
-                    editing !== "new" &&
-                    editing.id === link.id &&
-                    editing.source === link.source
+                    Boolean(command.conflict) ||
+                    (editing !== null &&
+                      editing !== "new" &&
+                      editing.id === link.id &&
+                      editing.source === link.source)
                   }
                   onClick={() => {
                     if (leaveEditor()) setEditing(link);
@@ -1020,7 +1255,7 @@ export function CaseLinks({
             <button
               type="button"
               className={`${buttonStyles.secondary} max-w-full whitespace-normal [overflow-wrap:anywhere]`}
-              disabled={page <= 1}
+              disabled={page <= 1 || Boolean(command.conflict)}
               onClick={() => switchPage(page - 1)}
             >
               Poprzednia strona linków
@@ -1029,7 +1264,7 @@ export function CaseLinks({
             <button
               type="button"
               className={`${buttonStyles.secondary} max-w-full whitespace-normal [overflow-wrap:anywhere]`}
-              disabled={!hasMore}
+              disabled={!hasMore || Boolean(command.conflict)}
               onClick={() => switchPage(page + 1)}
             >
               Następna strona linków
@@ -1055,7 +1290,7 @@ export function CaseLinks({
             id="add-case-link"
             type="button"
             className={`${buttonStyles.secondary} mt-3`}
-            disabled={Boolean(editing)}
+            disabled={Boolean(editing) || Boolean(command.conflict)}
             onClick={() => setEditing("new")}
           >
             Dodaj link
