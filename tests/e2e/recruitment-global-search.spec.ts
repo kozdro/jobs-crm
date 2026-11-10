@@ -65,7 +65,9 @@ test("a real inline note is searchable, opens its case context, and a private qu
   await expect(
     page.getByText(`Historyczna treść ${query}`, { exact: true }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Szukaj", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Szukaj w Jobs CRM", exact: true })
+    .click();
   const dialog = page.getByRole("dialog", {
     name: "Wyszukiwanie",
     exact: true,
@@ -111,7 +113,9 @@ test("search is available from an existing module on a narrow viewport and reloa
   const caseId = await caseFixture(query);
   await login(page);
   await page.goto(`${target.appOrigin}/tasks`);
-  await page.getByRole("button", { name: "Szukaj", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Szukaj w Jobs CRM", exact: true })
+    .click();
   const dialog = page.getByRole("dialog", {
     name: "Wyszukiwanie",
     exact: true,
@@ -124,7 +128,9 @@ test("search is available from an existing module on a narrow viewport and reloa
   await dialog.getByText(query, { exact: false }).click();
   await expect(page).toHaveURL(new RegExp(`/recruitments/${caseId}`));
   await page.reload();
-  await page.getByRole("button", { name: "Szukaj", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Szukaj w Jobs CRM", exact: true })
+    .click();
   await expect(
     page
       .getByRole("dialog", { name: "Wyszukiwanie" })
@@ -216,7 +222,9 @@ test("a note outside the first history page resolves to the exact owner-scoped t
   );
   expect(laterPage.status).toBe(200);
   expect(laterPage.body.notes.length).toBeGreaterThan(0);
-  await page.getByRole("button", { name: "Szukaj", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Szukaj w Jobs CRM", exact: true })
+    .click();
   const dialog = page.getByRole("dialog", {
     name: "Wyszukiwanie",
     exact: true,
@@ -265,7 +273,9 @@ test("a link outside the first page opens and focuses its own row", async ({
     .filter({ has: page.getByLabel("Adres URL", { exact: true }) })
     .getByRole("button", { name: "Anuluj", exact: true })
     .click();
-  await page.getByRole("button", { name: "Szukaj", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Szukaj w Jobs CRM", exact: true })
+    .click();
   const dialog = page.getByRole("dialog", {
     name: "Wyszukiwanie",
     exact: true,
@@ -324,7 +334,9 @@ test("an event detached after search resolves to the current calendar event, not
   expect(created.error).toBeNull();
   const eventId = created.data.event.id as string;
   await login(page);
-  await page.getByRole("button", { name: "Szukaj", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Szukaj w Jobs CRM", exact: true })
+    .click();
   const dialog = page.getByRole("dialog", {
     name: "Wyszukiwanie",
     exact: true,
@@ -357,7 +369,10 @@ test("search dialog is keyboard operable and distinguishes network error from em
   page,
 }) => {
   await login(page);
-  const trigger = page.getByRole("button", { name: "Szukaj", exact: true });
+  const trigger = page.getByRole("button", {
+    name: "Szukaj w Jobs CRM",
+    exact: true,
+  });
   await trigger.focus();
   await page.keyboard.press("Enter");
   const dialog = page.getByRole("dialog", {
@@ -400,7 +415,9 @@ test("signing out and changing owner clears the private query and results", asyn
   await caseFixture(marker);
   const other = await account(target);
   await login(page);
-  await page.getByRole("button", { name: "Szukaj", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Szukaj w Jobs CRM", exact: true })
+    .click();
   let dialog = page.getByRole("dialog", { name: "Wyszukiwanie", exact: true });
   await dialog.getByLabel("Szukaj w Jobs CRM", { exact: true }).fill(marker);
   await expect(dialog.getByText(marker, { exact: false })).toBeVisible();
@@ -411,7 +428,9 @@ test("signing out and changing owner clears the private query and results", asyn
     .click();
   await expect(page).toHaveURL(/\/login/);
   await login(page, other);
-  await page.getByRole("button", { name: "Szukaj", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Szukaj w Jobs CRM", exact: true })
+    .click();
   dialog = page.getByRole("dialog", { name: "Wyszukiwanie", exact: true });
   const input = dialog.getByLabel("Szukaj w Jobs CRM", { exact: true });
   await expect(input).toHaveValue("");
@@ -440,7 +459,9 @@ test("a delayed stale search response never replaces the newest query results", 
       /* Abort of obsolete request is expected. */
     }
   });
-  await page.getByRole("button", { name: "Szukaj", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Szukaj w Jobs CRM", exact: true })
+    .click();
   const dialog = page.getByRole("dialog", {
     name: "Wyszukiwanie",
     exact: true,
@@ -505,7 +526,9 @@ test("persistent search live region announces the latest outcome without moving 
     return route.continue();
   });
   try {
-    await page.getByRole("button", { name: "Szukaj", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Szukaj w Jobs CRM", exact: true })
+      .click();
     const dialog = page.getByRole("dialog", {
       name: "Wyszukiwanie",
       exact: true,
@@ -1014,7 +1037,9 @@ test("calendar target switches A to B to no target on client navigation", async 
   await login(page);
   await page.goto(`${target.appOrigin}/calendar?eventId=${aId}`);
   await expect(page.getByLabel("Wskazane wydarzenie")).toContainText(nameA);
-  await page.getByRole("button", { name: "Szukaj", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Szukaj w Jobs CRM", exact: true })
+    .click();
   const dialog = page.getByRole("dialog", {
     name: "Wyszukiwanie",
     exact: true,

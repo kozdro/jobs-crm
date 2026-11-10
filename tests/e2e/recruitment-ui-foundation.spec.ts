@@ -137,7 +137,7 @@ for (const width of widths) {
         page.getByRole("searchbox", { name: "Szukaj w Jobs CRM", exact: true }),
       ).toBeVisible();
     const searchTrigger = page.getByRole("button", {
-      name: "Szukaj",
+      name: "Szukaj w Jobs CRM",
       exact: true,
     });
     await expect(searchTrigger).toBeVisible();

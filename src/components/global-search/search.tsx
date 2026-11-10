@@ -434,7 +434,7 @@ export function GlobalSearch({ userId }: { userId: string }) {
         className="hidden min-h-11 w-44 rounded-md border border-input bg-background px-3 text-sm lg:block"
       />
       <Dialog.Trigger
-        aria-label="Szukaj"
+        aria-label="Szukaj w Jobs CRM"
         className={`${buttonStyles.secondary} min-w-11 gap-2`}
         onClick={(event) => {
           opener.current = event.currentTarget;
