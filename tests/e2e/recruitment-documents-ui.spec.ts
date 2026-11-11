@@ -216,6 +216,34 @@ test("both case upload paths and an atomic application with two actual CV versio
   await expect(sentAudit).toContainText(
     "Skorygowano wskazanie wysłanej wersji — wersja 2",
   );
+  // Hold an actual pre-delete response, then deliver it after the newer delete
+  // response. The bytes come from the isolated backend, not a mocked payload.
+  let releaseStale!: () => void;
+  let staleCaptured!: () => void;
+  let staleDelivered!: () => void;
+  const staleGate = new Promise<void>((resolve) => (releaseStale = resolve));
+  const captured = new Promise<void>((resolve) => (staleCaptured = resolve));
+  const delivered = new Promise<void>((resolve) => (staleDelivered = resolve));
+  let holdNext = true;
+  await page.route("**/documents/data?*", async (route) => {
+    if (!holdNext) return route.continue();
+    holdNext = false;
+    const response = await route.fetch();
+    const body = await response.json();
+    expect(JSON.stringify(body)).toContain("synthetic-new.txt");
+    staleCaptured();
+    await staleGate;
+    await route.fulfill({ response, json: body });
+    staleDelivered();
+  });
+  await page.evaluate((ownerId) => {
+    window.dispatchEvent(
+      new CustomEvent("jobs-crm:documents-changed", {
+        detail: { owner: ownerId, pending: false },
+      }),
+    );
+  }, owner.id);
+  await captured;
   const caseDocument = page
     .getByRole("region", { name: "Dokumenty sprawy" })
     .locator("li")
@@ -248,6 +276,28 @@ test("both case upload paths and an atomic application with two actual CV versio
   await expect(historicalApplication).toContainText(
     /Wysłana wersja 2 — (trwa usuwanie|treść usunięta)/,
   );
+  releaseStale();
+  await delivered;
+  await expect(historicalApplication).not.toContainText(
+    `${names[1]} — wersja 2`,
+  );
+  await expect(panel).not.toContainText("synthetic-new.txt");
+  const addSent = historicalApplication.locator("details").filter({
+    has: page.getByText("Wskaż wysłane wersje CV", { exact: true }),
+  });
+  await addSent.getByText("Wskaż wysłane wersje CV", { exact: true }).click();
+  const selectedCv = addSent.getByLabel(`${names[1]} — wersja 1`, {
+    exact: true,
+  });
+  await selectedCv.check();
+  await selectedCv.focus();
+  const nextPoll = page.waitForResponse(
+    (response) => response.url().includes("/documents/data?") && response.ok(),
+    { timeout: 10000 },
+  );
+  await nextPoll;
+  await expect(selectedCv).toBeChecked();
+  await expect(selectedCv).toBeFocused();
   await expect(sentAudit).not.toContainText("synthetic-new.txt");
   await expect
     .poll(

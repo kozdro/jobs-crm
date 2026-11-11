@@ -8,6 +8,7 @@ import { useReceiptRecovery } from "./use-receipt-recovery";
 import { DocumentAudit } from "./document-audit";
 import { fingerprintFile } from "./upload-fingerprint";
 import { notifyDocumentsChanged } from "./document-events";
+import { createRequestGeneration } from "./refresh-state";
 
 type Version = {
   id: string;
@@ -65,8 +66,12 @@ export function DocumentsPanel({
   const [lastCaseDocument, setLastCaseDocument] = useState<string | null>(null);
   const previewHeading = useRef<HTMLHeadingElement>(null);
   const uploadHeading = useRef<HTMLHeadingElement>(null);
+  const requests = useRef(createRequestGeneration());
+  const mutatingRef = useRef(false);
 
   const load = useCallback(async () => {
+    if (mutatingRef.current) return;
+    const request = requests.current.next();
     setLoading(true);
     try {
       const query = caseId ? `?caseId=${encodeURIComponent(caseId)}` : "";
@@ -76,15 +81,17 @@ export function DocumentsPanel({
       });
       if (!response.ok) throw new Error("unavailable");
       const body = await response.json();
+      if (!requests.current.isCurrent(request)) return;
       if (!Array.isArray(body.documents) || !Array.isArray(body.links))
         throw new Error("invalid");
       setData(body);
       setError(null);
     } catch {
+      if (!requests.current.isCurrent(request)) return;
       setData(null);
       setError("Nie udało się pobrać dokumentów. Spróbuj ponownie.");
     } finally {
-      setLoading(false);
+      if (requests.current.isCurrent(request)) setLoading(false);
     }
   }, [caseId, userId]);
   const recovery = useReceiptRecovery(
@@ -97,10 +104,19 @@ export function DocumentsPanel({
   );
   useEffect(() => {
     void Promise.resolve().then(load);
+    const current = requests.current;
+    return () => current.invalidate();
   }, [load]);
   useEffect(() => {
-    if (!data?.documents.some((doc) => doc.versions.some((version) =>
-      version.status === "pending" || version.status === "deleting"))) return;
+    if (
+      !data?.documents.some((doc) =>
+        doc.versions.some(
+          (version) =>
+            version.status === "pending" || version.status === "deleting",
+        ),
+      )
+    )
+      return;
     const timer = window.setInterval(() => {
       notifyDocumentsChanged(userId);
       void load();
@@ -123,6 +139,7 @@ export function DocumentsPanel({
     setStatus("");
     try {
       if (mutating) {
+        mutatingRef.current = true;
         const issued = await fetch("/documents/permit", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -154,7 +171,12 @@ export function DocumentsPanel({
         );
         return null;
       }
-      if (mutating) notifyDocumentsChanged(userId, true);
+      if (mutating) {
+        mutatingRef.current = false;
+        requests.current.invalidate();
+        if (action === "delete-confirm") setData(null);
+        notifyDocumentsChanged(userId, true);
+      }
       const response = await fetch("/documents/commands", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -186,7 +208,10 @@ export function DocumentsPanel({
       setError("Wynik operacji jest nieznany. Sprawdź stan przed ponowieniem.");
       return null;
     } finally {
-      if (mutating) notifyDocumentsChanged(userId);
+      if (mutating) {
+        notifyDocumentsChanged(userId);
+        void load();
+      }
       setBusy(false);
     }
   }
@@ -245,6 +270,8 @@ export function DocumentsPanel({
         }),
       );
       submitted = true;
+      mutatingRef.current = true;
+      requests.current.invalidate();
       notifyDocumentsChanged(userId, true);
       const response = await fetch("/documents/upload", {
         method: "POST",
@@ -276,7 +303,11 @@ export function DocumentsPanel({
           : "Nie udało się przygotować przesyłania. Plik nie został wysłany.",
       );
     } finally {
-      if (submitted) notifyDocumentsChanged(userId);
+      if (submitted) {
+        mutatingRef.current = false;
+        notifyDocumentsChanged(userId);
+        void load();
+      }
       setBusy(false);
     }
   }

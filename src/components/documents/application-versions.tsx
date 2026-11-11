@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { buttonStyles } from "@/components/ui/styles";
 import { useReceiptRecovery } from "./use-receipt-recovery";
 import { DocumentAudit } from "./document-audit";
+import { unavailableSelections } from "./refresh-state";
 import {
   documentsChangedEvent,
   isDocumentsChangeFor,
@@ -55,6 +56,7 @@ export function ApplicationVersions({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+  const [stale, setStale] = useState(false);
   const generation = useRef(0);
   const load = useCallback(async () => {
     const request = ++generation.current;
@@ -87,9 +89,10 @@ export function ApplicationVersions({
           ),
       );
       setError(null);
+      setStale(false);
     } catch {
       if (request !== generation.current) return;
-      setReferences(null);
+      setStale(true);
       setError("Nie udało się pobrać wskazań wersji CV.");
     }
   }, [caseId, eventId, userId]);
@@ -110,9 +113,7 @@ export function ApplicationVersions({
     const invalidate = (event: Event) => {
       if (!isDocumentsChangeFor(event, userId)) return;
       generation.current += 1;
-      setReferences(null);
-      setOptions([]);
-      setSelected([]);
+      setStale(true);
       if (!isDocumentsChangePending(event)) void load();
     };
     window.addEventListener(documentsChangedEvent, invalidate);
@@ -120,9 +121,20 @@ export function ApplicationVersions({
   }, [load, userId]);
   useEffect(() => {
     if (!references?.some((ref) => ref.status === "deleting")) return;
-    const timer = window.setInterval(() => notifyDocumentsChanged(userId), 2000);
+    const timer = window.setInterval(
+      () => notifyDocumentsChanged(userId),
+      2000,
+    );
     return () => window.clearInterval(timer);
   }, [references, userId]);
+  const missingSelection = unavailableSelections(selected, options);
+  const displayedOptions = stale
+    ? options.map((option) => ({
+        ...option,
+        documentName: "Sprawdzanie wersji",
+        label: null,
+      }))
+    : options;
   async function save(action: string, fields: Record<string, unknown>) {
     if (pending || recovery.requestId) return;
     setPending(true);
@@ -229,7 +241,9 @@ export function ApplicationVersions({
           )}
           <ul>
             {references.map((ref) => {
-              const option = options.find((item) => item.id === ref.versionId);
+              const option = displayedOptions.find(
+                (item) => item.id === ref.versionId,
+              );
               return (
                 <li key={ref.id} className="mt-2 border-t border-border pt-2">
                   <p>
@@ -308,7 +322,12 @@ export function ApplicationVersions({
                           }
                         >
                           <option value="">Wybierz wersję</option>
-                          {options.map((item) => (
+                          {missingSelection.includes(selected[0]) && (
+                            <option value={selected[0]}>
+                              Wybrana wersja jest niedostępna
+                            </option>
+                          )}
+                          {displayedOptions.map((item) => (
                             <option key={item.id} value={item.id}>
                               {item.documentName} — wersja {item.number}
                             </option>
@@ -319,6 +338,8 @@ export function ApplicationVersions({
                         type="button"
                         disabled={
                           pending ||
+                          stale ||
+                          missingSelection.length > 0 ||
                           Boolean(recovery.requestId) ||
                           selected.length !== 1
                         }
@@ -352,7 +373,7 @@ export function ApplicationVersions({
                 Wskaż wysłane wersje CV
               </summary>
               <SentVersionPicker
-                options={options.filter(
+                options={displayedOptions.filter(
                   (option) =>
                     !references.some(
                       (ref) =>
@@ -376,6 +397,8 @@ export function ApplicationVersions({
                 type="button"
                 disabled={
                   pending ||
+                  stale ||
+                  missingSelection.length > 0 ||
                   Boolean(recovery.requestId) ||
                   !confirmed ||
                   selected.length === 0
@@ -388,6 +411,25 @@ export function ApplicationVersions({
             </details>
           )}
         </>
+      )}
+      {missingSelection.length > 0 && !stale && (
+        <div role="alert" className="mt-2">
+          <p>
+            Wybrana wersja nie jest już dostępna. Sprawdź wybór przed
+            zapisaniem.
+          </p>
+          <button
+            type="button"
+            className={buttonStyles.secondary}
+            onClick={() =>
+              setSelected((current) =>
+                current.filter((id) => !missingSelection.includes(id)),
+              )
+            }
+          >
+            Usuń niedostępne wersje z wyboru
+          </button>
+        </div>
       )}
       <p role="status" aria-live="polite" className="mt-2">
         {message}
