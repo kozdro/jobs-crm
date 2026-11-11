@@ -172,7 +172,6 @@ export function DocumentsPanel({
         return null;
       }
       if (mutating) {
-        mutatingRef.current = false;
         requests.current.invalidate();
         if (action === "delete-confirm") setData(null);
         notifyDocumentsChanged(userId, true);
@@ -209,6 +208,8 @@ export function DocumentsPanel({
       return null;
     } finally {
       if (mutating) {
+        mutatingRef.current = false;
+        requests.current.invalidate();
         notifyDocumentsChanged(userId);
         void load();
       }

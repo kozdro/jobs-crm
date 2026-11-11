@@ -401,3 +401,150 @@ test("both case upload paths and an atomic application with two actual CV versio
   );
   expect(JSON.stringify(withdrawalBody)).not.toContain("synthetic-new.txt");
 });
+
+test("document panel fences delayed reads through delete and recovers after setup failures", async ({
+  page,
+}) => {
+  test.setTimeout(120_000);
+  const caseId = await createCase();
+  const name = `Panel QA ${randomUUID()}`;
+  const filename = "synthetic-panel-private.txt";
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
+  const panel = page.getByRole("region", { name: "Dokumenty sprawy" });
+  await panel
+    .getByRole("button", { name: "Dodaj do biblioteki i sprawy" })
+    .click();
+  await panel
+    .getByLabel("Plik", { exact: true })
+    .setInputFiles({
+      name: filename,
+      mimeType: "text/plain",
+      buffer: Buffer.from("Synthetic panel race\n"),
+    });
+  await panel.getByLabel("Nazwa dokumentu").fill(name);
+  await panel.getByRole("button", { name: "Dodaj plik", exact: true }).click();
+  const item = panel
+    .locator("li")
+    .filter({ has: page.getByRole("heading", { name }) })
+    .first();
+  await expect(item).toContainText(filename);
+
+  // A failed permit must unblock the panel and start a fresh read.
+  await page.route(
+    "**/documents/permit",
+    (route) =>
+      route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: "{}",
+      }),
+    { times: 1 },
+  );
+  await item.getByRole("button", { name: "Popraw dane" }).click();
+  const permitRecoveryRead = page.waitForResponse(
+    (response) => response.url().includes("/documents/data?") && response.ok(),
+  );
+  await item.getByRole("button", { name: "Zapisz poprawkę" }).click();
+  await expect(panel.getByRole("alert")).toContainText(
+    "Wynik operacji jest nieznany",
+  );
+  await permitRecoveryRead;
+  await expect(item).toContainText(filename);
+
+  // A denied local receipt write must also unblock reads, without issuing a command.
+  await page.evaluate(() => {
+    const original = Storage.prototype.setItem;
+    (
+      window as unknown as { restoreDocumentStorage: () => void }
+    ).restoreDocumentStorage = () => {
+      Storage.prototype.setItem = original;
+    };
+    Storage.prototype.setItem = function (key, value) {
+      if (key.startsWith("jobs-crm.documents.pending."))
+        throw new Error("synthetic storage failure");
+      return original.call(this, key, value);
+    };
+  });
+  const storageRecoveryRead = page.waitForResponse(
+    (response) => response.url().includes("/documents/data?") && response.ok(),
+  );
+  await item.getByRole("button", { name: "Zapisz poprawkę" }).click();
+  await expect(panel.getByRole("alert")).toContainText(
+    "Nie można bezpiecznie zapisać identyfikatora operacji",
+  );
+  await storageRecoveryRead;
+  await page.evaluate(() =>
+    (
+      window as unknown as { restoreDocumentStorage: () => void }
+    ).restoreDocumentStorage(),
+  );
+  await expect(item).toContainText(filename);
+
+  // Capture a real panel GET after a successful rename and hold its old bytes.
+  let releaseOld!: () => void;
+  let reportOld!: () => void;
+  let reportDelivered!: () => void;
+  const oldGate = new Promise<void>((resolve) => (releaseOld = resolve));
+  const oldCaptured = new Promise<void>((resolve) => (reportOld = resolve));
+  const oldDelivered = new Promise<void>(
+    (resolve) => (reportDelivered = resolve),
+  );
+  let holdOld = true;
+  await page.route("**/documents/data?*", async (route) => {
+    if (!holdOld) return route.continue();
+    holdOld = false;
+    const response = await route.fetch();
+    const body = await response.json();
+    expect(JSON.stringify(body)).toContain(filename);
+    reportOld();
+    await oldGate;
+    await route.fulfill({ response, json: body });
+    reportDelivered();
+  });
+  await item.getByRole("button", { name: "Zapisz poprawkę" }).click();
+  await oldCaptured;
+  await expect(
+    item.getByRole("button", { name: "Usuń treść wersji" }),
+  ).toBeEnabled();
+  await item.getByRole("button", { name: "Usuń treść wersji" }).click();
+  const preview = panel.getByRole("group", {
+    name: "Potwierdź usunięcie treści",
+  });
+  await preview
+    .getByLabel("Potwierdzam usunięcie treści w przedstawionym zakresie.")
+    .check();
+
+  // The command reaches the real server; only delivery of its response is delayed.
+  let releaseDelete!: () => void;
+  let reportDelete!: () => void;
+  const deleteGate = new Promise<void>((resolve) => (releaseDelete = resolve));
+  const deleteCommitted = new Promise<void>(
+    (resolve) => (reportDelete = resolve),
+  );
+  await page.route("**/documents/commands", async (route) => {
+    const body = route.request().postDataJSON();
+    if (body.action !== "delete-confirm") return route.continue();
+    const response = await route.fetch();
+    expect(response.ok()).toBe(true);
+    reportDelete();
+    await deleteGate;
+    await route.fulfill({ response });
+  });
+  await preview
+    .getByRole("button", { name: "Usuń treść", exact: true })
+    .click();
+  await deleteCommitted;
+  releaseOld();
+  await oldDelivered;
+  await expect(panel).not.toContainText(filename);
+  await expect(panel).not.toContainText(name);
+  const refreshed = page.waitForResponse(
+    (response) => response.url().includes("/documents/data?") && response.ok(),
+  );
+  releaseDelete();
+  await refreshed;
+  await expect(panel).not.toContainText(filename);
+  await expect(panel).not.toContainText(name);
+  await expect(panel).toContainText(/usuwanie|usunięta/i);
+});
