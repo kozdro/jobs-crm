@@ -415,13 +415,11 @@ test("document panel fences delayed reads through delete and recovers after setu
   await panel
     .getByRole("button", { name: "Dodaj do biblioteki i sprawy" })
     .click();
-  await panel
-    .getByLabel("Plik", { exact: true })
-    .setInputFiles({
-      name: filename,
-      mimeType: "text/plain",
-      buffer: Buffer.from("Synthetic panel race\n"),
-    });
+  await panel.getByLabel("Plik", { exact: true }).setInputFiles({
+    name: filename,
+    mimeType: "text/plain",
+    buffer: Buffer.from("Synthetic panel race\n"),
+  });
   await panel.getByLabel("Nazwa dokumentu").fill(name);
   await panel.getByRole("button", { name: "Dodaj plik", exact: true }).click();
   const item = panel
@@ -450,6 +448,10 @@ test("document panel fences delayed reads through delete and recovers after setu
     "Wynik operacji jest nieznany",
   );
   await permitRecoveryRead;
+  await expect(panel.getByText("Pobieranie dokumentów…")).toBeHidden();
+  await expect(panel.getByRole("alert")).toContainText(
+    "Wynik operacji jest nieznany",
+  );
   await expect(item).toContainText(filename);
 
   // A denied local receipt write must also unblock reads, without issuing a command.
@@ -474,12 +476,41 @@ test("document panel fences delayed reads through delete and recovers after setu
     "Nie można bezpiecznie zapisać identyfikatora operacji",
   );
   await storageRecoveryRead;
+  await expect(panel.getByText("Pobieranie dokumentów…")).toBeHidden();
+  await expect(panel.getByRole("alert")).toContainText(
+    "Nie można bezpiecznie zapisać identyfikatora operacji",
+  );
   await page.evaluate(() =>
     (
       window as unknown as { restoreDocumentStorage: () => void }
     ).restoreDocumentStorage(),
   );
   await expect(item).toContainText(filename);
+
+  // A command conflict also remains visible after the succeeding refresh.
+  await page.route(
+    "**/documents/commands",
+    (route) =>
+      route.fulfill({
+        status: 409,
+        contentType: "application/json",
+        body: "{}",
+      }),
+    { times: 1 },
+  );
+  const conflictRecoveryRead = page.waitForResponse(
+    (response) => response.url().includes("/documents/data?") && response.ok(),
+  );
+  await item.getByRole("button", { name: "Zapisz poprawkę" }).click();
+  await conflictRecoveryRead;
+  await expect(panel.getByText("Pobieranie dokumentów…")).toBeHidden();
+  await expect(panel.getByRole("alert")).toContainText(
+    "Dane zmieniły się. Odśwież i ponownie sprawdź działanie.",
+  );
+  await panel.getByRole("button", { name: "Sprawdź wynik operacji" }).click();
+  await expect(
+    panel.getByRole("status").filter({ hasText: "bezpiecznie anulowano" }),
+  ).toBeVisible();
 
   // Capture a real panel GET after a successful rename and hold its old bytes.
   let releaseOld!: () => void;

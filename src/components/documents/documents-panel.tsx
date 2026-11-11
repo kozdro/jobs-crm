@@ -51,6 +51,7 @@ export function DocumentsPanel({
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [readError, setReadError] = useState<string | null>(null);
   const [status, setStatus] = useState("");
   const [mode, setMode] = useState<UploadMode | null>(null);
   const [versionDocument, setVersionDocument] = useState<string | null>(null);
@@ -85,11 +86,11 @@ export function DocumentsPanel({
       if (!Array.isArray(body.documents) || !Array.isArray(body.links))
         throw new Error("invalid");
       setData(body);
-      setError(null);
+      setReadError(null);
     } catch {
       if (!requests.current.isCurrent(request)) return;
       setData(null);
-      setError("Nie udało się pobrać dokumentów. Spróbuj ponownie.");
+      setReadError("Nie udało się pobrać dokumentów. Spróbuj ponownie.");
     } finally {
       if (requests.current.isCurrent(request)) setLoading(false);
     }
@@ -376,6 +377,11 @@ export function DocumentsPanel({
       {error && (
         <p role="alert" className="mt-3 text-sm text-destructive">
           {error}
+        </p>
+      )}
+      {readError && (
+        <p role="alert" className="mt-3 text-sm text-destructive">
+          {readError}
         </p>
       )}
       {loading && <p className="mt-3 text-sm">Pobieranie dokumentów…</p>}
