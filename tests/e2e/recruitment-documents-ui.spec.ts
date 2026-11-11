@@ -811,3 +811,182 @@ test("login rejects native submission before hydration and still supports switch
     ),
   ).toBe(false);
 });
+
+test("document edit draft rejects a newer concurrent revision after refresh", async ({
+  page,
+}) => {
+  const original = `Concurrent ${randomUUID()}`;
+  const otherName = `Remote ${randomUUID()}`;
+  const localName = `Draft ${randomUUID()}`;
+  await login(page);
+  await page.goto(`${target.appOrigin}/documents`);
+  const panel = page.getByRole("region", { name: "Biblioteka dokumentów" });
+  await panel
+    .getByRole("button", { name: "Dodaj dokument", exact: true })
+    .click();
+  await panel.getByLabel("Plik", { exact: true }).setInputFiles({
+    name: "synthetic-revision.txt",
+    mimeType: "text/plain",
+    buffer: Buffer.from("Concurrent revision\n"),
+  });
+  await panel.getByLabel("Nazwa dokumentu").fill(original);
+  await panel.getByRole("button", { name: "Dodaj plik", exact: true }).click();
+  const item = panel
+    .locator("li")
+    .filter({ has: page.getByRole("heading", { name: original }) })
+    .first();
+  await item.getByRole("button", { name: "Popraw dane" }).click();
+  await item.getByLabel("Nazwa", { exact: true }).fill(localName);
+  const other = await page.context().newPage();
+  await other.goto(`${target.appOrigin}/documents`);
+  const remoteItem = other
+    .getByRole("region", { name: "Biblioteka dokumentów" })
+    .locator("li")
+    .filter({ has: other.getByRole("heading", { name: original }) })
+    .first();
+  await remoteItem.getByRole("button", { name: "Popraw dane" }).click();
+  await remoteItem.getByLabel("Nazwa", { exact: true }).fill(otherName);
+  await remoteItem.getByRole("button", { name: "Zapisz poprawkę" }).click();
+  await expect(other.getByRole("heading", { name: otherName })).toBeVisible();
+  await panel.getByRole("button", { name: "Odśwież stan" }).click();
+  const updatedItem = panel
+    .locator("li")
+    .filter({ has: page.getByRole("heading", { name: otherName }) })
+    .first();
+  await expect(updatedItem.getByLabel("Nazwa", { exact: true })).toHaveValue(
+    localName,
+  );
+  await updatedItem.getByRole("button", { name: "Zapisz poprawkę" }).click();
+  await expect(panel.getByRole("alert")).toContainText("Dane zmieniły się");
+  await panel.getByRole("button", { name: "Odśwież stan" }).click();
+  await expect(panel.getByRole("heading", { name: otherName })).toBeVisible();
+  await expect(panel.getByRole("heading", { name: localName })).toHaveCount(0);
+  await other.close();
+});
+
+test("an open application cannot silently retain a CV deleted from its case", async ({
+  page,
+}) => {
+  const caseId = await createCase();
+  const name = `Application CV ${randomUUID()}`;
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
+  const panel = page.getByRole("region", { name: "Dokumenty sprawy" });
+  await panel
+    .getByRole("button", { name: "Dodaj do biblioteki i sprawy" })
+    .click();
+  await panel.getByLabel("Plik", { exact: true }).setInputFiles({
+    name: "synthetic-selected.txt",
+    mimeType: "text/plain",
+    buffer: Buffer.from("Selected synthetic CV\n"),
+  });
+  await panel.getByLabel("Nazwa dokumentu").fill(name);
+  await panel.getByLabel("To jest CV").check();
+  await panel.getByRole("button", { name: "Dodaj plik", exact: true }).click();
+  const item = panel
+    .locator("li")
+    .filter({ has: page.getByRole("heading", { name }) })
+    .first();
+  const actions = page.getByRole("region", { name: "Działania w sprawie" });
+  await actions
+    .getByRole("button", { name: "Zarejestruj aplikowanie" })
+    .click();
+  await actions.getByLabel(new RegExp(name)).check();
+  await item.getByRole("button", { name: "Usuń treść wersji" }).click();
+  const preview = panel.getByRole("group", {
+    name: "Potwierdź usunięcie treści",
+  });
+  await preview
+    .getByLabel("Potwierdzam usunięcie treści w przedstawionym zakresie.")
+    .check();
+  await preview
+    .getByRole("button", { name: "Usuń treść", exact: true })
+    .click();
+  await expect(actions).not.toContainText(name);
+  await expect(actions.getByRole("alert")).toContainText(
+    /wybran.*wersj.*niedostępn/i,
+  );
+  await expect(
+    actions.getByRole("button", { name: "Zapisz zdarzenie" }),
+  ).toBeDisabled();
+  await expect(
+    page.getByText("Zarejestrowano aplikowanie", { exact: false }),
+  ).toHaveCount(0);
+});
+
+test("upload mode cannot change while its server result is pending", async ({
+  page,
+}) => {
+  const name = `Upload pending ${randomUUID()}`;
+  await login(page);
+  await page.goto(`${target.appOrigin}/documents`);
+  const panel = page.getByRole("region", { name: "Biblioteka dokumentów" });
+  await panel
+    .getByRole("button", { name: "Dodaj dokument", exact: true })
+    .click();
+  await panel.getByLabel("Plik", { exact: true }).setInputFiles({
+    name: "synthetic-pending.txt",
+    mimeType: "text/plain",
+    buffer: Buffer.from("Pending synthetic file\n"),
+  });
+  await panel.getByLabel("Nazwa dokumentu").fill(name);
+  let release!: () => void;
+  let captured!: () => void;
+  const gate = new Promise<void>((resolve) => (release = resolve));
+  const pending = new Promise<void>((resolve) => (captured = resolve));
+  await page.route(
+    "**/documents/upload",
+    async (route) => {
+      const response = await route.fetch();
+      captured();
+      await gate;
+      await route.fulfill({ response });
+    },
+    { times: 1 },
+  );
+  await panel.getByRole("button", { name: "Dodaj plik", exact: true }).click();
+  await pending;
+  await expect(
+    panel.getByRole("button", { name: "Dodaj dokument", exact: true }),
+  ).toBeDisabled();
+  await expect(
+    panel.getByRole("button", { name: "Anuluj", exact: true }),
+  ).toBeDisabled();
+  await expect(panel.getByLabel("Nazwa dokumentu")).toHaveValue(name);
+  release();
+  await expect(panel.getByRole("heading", { name })).toBeVisible();
+  await expect(panel).toContainText("synthetic-pending.txt");
+  const recoveryName = `Upload recovery ${randomUUID()}`;
+  await panel
+    .getByRole("button", { name: "Dodaj dokument", exact: true })
+    .click();
+  await panel
+    .getByLabel("Plik", { exact: true })
+    .setInputFiles({
+      name: "synthetic-recovery.txt",
+      mimeType: "text/plain",
+      buffer: Buffer.from("Recovery synthetic file\n"),
+    });
+  await panel.getByLabel("Nazwa dokumentu").fill(recoveryName);
+  await page.route(
+    "**/documents/upload",
+    async (route) => {
+      const response = await route.fetch();
+      expect(response.ok()).toBe(true);
+      await route.abort("failed");
+    },
+    { times: 1 },
+  );
+  await panel.getByRole("button", { name: "Dodaj plik", exact: true }).click();
+  await expect(
+    panel.getByRole("button", { name: "Sprawdź wynik operacji" }),
+  ).toBeVisible();
+  await expect(
+    panel.getByRole("button", { name: "Dodaj dokument", exact: true }),
+  ).toBeDisabled();
+  await panel.getByRole("button", { name: "Sprawdź wynik operacji" }).click();
+  await expect(
+    panel.getByRole("heading", { name: recoveryName }),
+  ).toBeVisible();
+  await expect(panel).toContainText("synthetic-recovery.txt");
+});

@@ -60,9 +60,15 @@ export function DocumentsPanel({
   const [editing, setEditing] = useState<Document | null>(null);
   const [editName, setEditName] = useState("");
   const [editCv, setEditCv] = useState(false);
-  const [editingVersion, setEditingVersion] = useState<string | null>(null);
+  const [editingVersion, setEditingVersion] = useState<{
+    id: string;
+    revision: number;
+  } | null>(null);
   const [editLabel, setEditLabel] = useState("");
-  const [switchLink, setSwitchLink] = useState<string | null>(null);
+  const [switchLink, setSwitchLink] = useState<{
+    id: string;
+    revision: number;
+  } | null>(null);
   const [switchVersion, setSwitchVersion] = useState("");
   const [lastCaseDocument, setLastCaseDocument] = useState<string | null>(null);
   const previewHeading = useRef<HTMLHeadingElement>(null);
@@ -444,6 +450,7 @@ export function DocumentsPanel({
               <button
                 type="button"
                 className={buttonStyles.primary}
+                disabled={mode !== null || busy || Boolean(recovery.requestId)}
                 onClick={() => {
                   setMode("library");
                   setVersionDocument(null);
@@ -457,6 +464,9 @@ export function DocumentsPanel({
                 <button
                   type="button"
                   className={buttonStyles.secondary}
+                  disabled={
+                    mode !== null || busy || Boolean(recovery.requestId)
+                  }
                   onClick={() => {
                     setMode("case");
                     setVersionDocument(null);
@@ -467,6 +477,9 @@ export function DocumentsPanel({
                 <button
                   type="button"
                   className={buttonStyles.secondary}
+                  disabled={
+                    mode !== null || busy || Boolean(recovery.requestId)
+                  }
                   onClick={() => {
                     setMode("library-and-case");
                     setVersionDocument(null);
@@ -508,6 +521,9 @@ export function DocumentsPanel({
                     <button
                       type="button"
                       className={buttonStyles.secondary}
+                      disabled={
+                        mode !== null || busy || Boolean(recovery.requestId)
+                      }
                       onClick={() => {
                         setMode("version");
                         setVersionDocument(doc.id);
@@ -532,7 +548,7 @@ export function DocumentsPanel({
                       void (async () => {
                         const result = await command("rename", {
                           documentId: doc.id,
-                          revision: doc.revision,
+                          revision: editing.revision,
                           name: editName.trim(),
                           isCv: editCv,
                         });
@@ -610,7 +626,10 @@ export function DocumentsPanel({
                               type="button"
                               className={buttonStyles.secondary}
                               onClick={() => {
-                                setEditingVersion(version.id);
+                                setEditingVersion({
+                                  id: version.id,
+                                  revision: version.revision,
+                                });
                                 setEditLabel(version.label ?? "");
                               }}
                             >
@@ -691,13 +710,16 @@ export function DocumentsPanel({
                                       type="button"
                                       className={buttonStyles.secondary}
                                       onClick={() => {
-                                        setSwitchLink(link.id);
+                                        setSwitchLink({
+                                          id: link.id,
+                                          revision: link.revision,
+                                        });
                                         setSwitchVersion("");
                                       }}
                                     >
                                       Zmień wersję
                                     </button>
-                                    {switchLink === link.id && (
+                                    {switchLink?.id === link.id && (
                                       <div className="space-y-2">
                                         <label className="block">
                                           Nowa wersja
@@ -748,7 +770,8 @@ export function DocumentsPanel({
                                                   {
                                                     caseId,
                                                     linkId: link.id,
-                                                    revision: link.revision,
+                                                    revision:
+                                                      switchLink.revision,
                                                     versionId: switchVersion,
                                                   },
                                                 )
@@ -788,7 +811,7 @@ export function DocumentsPanel({
                           </>
                         )}
                       </div>
-                      {editingVersion === version.id && (
+                      {editingVersion?.id === version.id && (
                         <form
                           className="mt-3 space-y-2"
                           onSubmit={(event) => {
@@ -797,7 +820,7 @@ export function DocumentsPanel({
                               if (
                                 await command("label", {
                                   versionId: version.id,
-                                  revision: version.revision,
+                                  revision: editingVersion.revision,
                                   label: editLabel.trim() || null,
                                 })
                               ) {

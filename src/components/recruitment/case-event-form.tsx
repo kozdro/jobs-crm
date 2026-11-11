@@ -1,11 +1,23 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 import { useRouter } from "next/navigation";
 import {
   SentVersionPicker,
   type SentVersionOption,
 } from "@/components/documents/sent-version-picker";
+import {
+  documentsChangedEvent,
+  isDocumentsChangeFor,
+  isDocumentsChangePending,
+} from "@/components/documents/document-events";
+import { unavailableSelections } from "@/components/documents/refresh-state";
 import { getBrowserClient } from "@/modules/identity/infrastructure/browser";
 import { getRecruitmentCase } from "@/modules/recruitment/application/cases";
 import type { RecruitmentCase } from "@/modules/recruitment/domain/recruitment-case";
@@ -82,6 +94,8 @@ function EventSession({
   const atomicDocuments = useRef(false);
   const [cvOptions, setCvOptions] = useState<SentVersionOption[] | null>(null);
   const [cvError, setCvError] = useState(false);
+  const [cvStale, setCvStale] = useState(false);
+  const cvGeneration = useRef(0);
   const [sentVersions, setSentVersions] = useState<string[]>([]);
   const busy = useRef(false);
   const live = useRef(true);
@@ -274,8 +288,74 @@ function EventSession({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, caseId, storageKey]);
 
+  const loadCv = useCallback(() => {
+    const generation = ++cvGeneration.current;
+    void fetch(`/documents/data?caseId=${encodeURIComponent(caseId)}`, {
+      cache: "no-store",
+      headers: { "x-expected-user-id": userId },
+    })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("unavailable");
+        const data = await response.json();
+        if (!Array.isArray(data.documents)) throw new Error("invalid");
+        const options: SentVersionOption[] = data.documents.flatMap(
+          (doc: {
+            name: string;
+            isCv: boolean;
+            versions: {
+              id: string;
+              number: number;
+              label: string | null;
+              status: string;
+            }[];
+          }) =>
+            doc.isCv && Array.isArray(doc.versions)
+              ? doc.versions
+                  .filter((version) => version.status === "ready")
+                  .map((version) => ({
+                    id: version.id,
+                    documentName: doc.name,
+                    number: version.number,
+                    label: version.label,
+                  }))
+              : [],
+        );
+        if (live.current && generation === cvGeneration.current) {
+          setCvOptions(options);
+          setCvStale(false);
+          setCvError(false);
+        }
+      })
+      .catch(() => {
+        if (live.current && generation === cvGeneration.current) {
+          setCvError(true);
+          setCvStale(true);
+        }
+      });
+  }, [caseId, userId]);
+  useEffect(() => {
+    if (kind !== "application") return;
+    void Promise.resolve().then(loadCv);
+    const invalidate = (event: Event) => {
+      if (!isDocumentsChangeFor(event, userId)) return;
+      cvGeneration.current += 1;
+      setCvStale(true);
+      if (!isDocumentsChangePending(event)) loadCv();
+    };
+    window.addEventListener(documentsChangedEvent, invalidate);
+    return () => {
+      cvGeneration.current += 1;
+      window.removeEventListener(documentsChangedEvent, invalidate);
+    };
+  }, [kind, loadCv, userId]);
+  const cvMissing = unavailableSelections(sentVersions, cvOptions ?? []);
+
   function open(value: Kind) {
     if (busy.current || uncertainId) return;
+    if (value === "application") {
+      cvGeneration.current += 1;
+      setCvStale(true);
+    }
     triggerKind.current = value;
     // Never regress a locally confirmed revision while the RSC refresh settles.
     // An already open draft retains its own observed revision until explicit refresh.
@@ -283,45 +363,6 @@ function EventSession({
     setStageConflict(false);
     setRefreshedStage(null);
     setKind(value);
-    if (value === "application") {
-      setCvOptions(null);
-      setCvError(false);
-      void fetch(`/documents/data?caseId=${encodeURIComponent(caseId)}`, {
-        cache: "no-store",
-        headers: { "x-expected-user-id": userId },
-      })
-        .then(async (response) => {
-          if (!response.ok) throw new Error("unavailable");
-          const data = await response.json();
-          if (!Array.isArray(data.documents)) throw new Error("invalid");
-          const options: SentVersionOption[] = data.documents.flatMap(
-            (doc: {
-              name: string;
-              isCv: boolean;
-              versions: {
-                id: string;
-                number: number;
-                label: string | null;
-                status: string;
-              }[];
-            }) =>
-              doc.isCv && Array.isArray(doc.versions)
-                ? doc.versions
-                    .filter((version) => version.status === "ready")
-                    .map((version) => ({
-                      id: version.id,
-                      documentName: doc.name,
-                      number: version.number,
-                      label: version.label,
-                    }))
-                : [],
-          );
-          if (live.current) setCvOptions(options);
-        })
-        .catch(() => {
-          if (live.current) setCvError(true);
-        });
-    }
     setSuccess(false);
     setError(null);
     setFieldErrors({});
@@ -345,6 +386,15 @@ function EventSession({
   async function save(event?: FormEvent) {
     event?.preventDefault();
     if (busy.current) return;
+    if (
+      !frozen.current &&
+      kind === "application" &&
+      sentVersions.length > 0 &&
+      (cvStale || cvMissing.length > 0)
+    ) {
+      setError("Sprawdź dostępność wybranych wersji CV przed zapisaniem.");
+      return;
+    }
     let payload = frozen.current;
     if (!payload) {
       const errors: typeof fieldErrors = {};
@@ -786,7 +836,15 @@ function EventSession({
                     </p>
                   ) : cvOptions ? (
                     <SentVersionPicker
-                      options={cvOptions}
+                      options={
+                        cvStale
+                          ? cvOptions.map((option) => ({
+                              ...option,
+                              documentName: "Sprawdzanie wersji",
+                              label: null,
+                            }))
+                          : cvOptions
+                      }
                       selected={sentVersions}
                       onChange={setSentVersions}
                       disabled={locked}
@@ -852,6 +910,25 @@ function EventSession({
               Sprawdź wynik zapisu
             </button>
           )}
+          {kind === "application" && !cvStale && cvMissing.length > 0 && (
+            <div role="alert">
+              <p>
+                Wybrana wersja CV nie jest już dostępna. Sprawdź wybór przed
+                zapisaniem.
+              </p>
+              <button
+                type="button"
+                className={buttonStyles.secondary}
+                onClick={() =>
+                  setSentVersions((current) =>
+                    current.filter((id) => !cvMissing.includes(id)),
+                  )
+                }
+              >
+                Usuń niedostępne wersje z wyboru
+              </button>
+            </div>
+          )}
           {stageConflict && (
             <button
               type="button"
@@ -866,7 +943,13 @@ function EventSession({
             {kind && (!uncertainId || canRetry) && (
               <button
                 type="submit"
-                disabled={pending}
+                disabled={
+                  pending ||
+                  (kind === "application" &&
+                    !uncertainId &&
+                    sentVersions.length > 0 &&
+                    (cvStale || cvMissing.length > 0))
+                }
                 className={buttonStyles.primary}
               >
                 {pending
