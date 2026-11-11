@@ -21,7 +21,7 @@ const modules: { name: string; icon: LucideIcon; href?: string }[] = [
   { name: "Rekrutacje", icon: BriefcaseBusiness, href: "/recruitments" },
   { name: "Zadania", icon: ListTodo, href: "/tasks" },
   { name: "Kalendarz", icon: CalendarDays, href: "/calendar" },
-  { name: "Dokumenty", icon: Files },
+  { name: "Dokumenty", icon: Files, href: "/documents" },
   { name: "Firmy", icon: Building2, href: "/companies" },
   { name: "Kontakty", icon: UsersRound, href: "/contacts" },
 ];

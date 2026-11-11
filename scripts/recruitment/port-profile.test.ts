@@ -19,6 +19,13 @@ const template = readFileSync(
   resolve(import.meta.dirname, "../../supabase/recruitment-config.toml"),
   "utf8",
 );
+const storageTemplate = readFileSync(
+  resolve(
+    import.meta.dirname,
+    "../../supabase/recruitment-storage-config.toml",
+  ),
+  "utf8",
+);
 
 function manifest(
   portProfile?: RecruitmentManifest["portProfile"],
@@ -89,6 +96,43 @@ test("existing manifests without a profile still validate only the legacy config
       template,
     ),
   );
+});
+
+test("Storage manifest binds its own profile and exact template", () => {
+  const config = recruitmentConfigForProfile(
+    storageTemplate,
+    projectId,
+    "storage",
+  );
+  const m: RecruitmentManifest = {
+    ...manifest("storage"),
+    storage: true,
+    configHash: sha256(config),
+  };
+  assertRecruitmentManifest(m, m.id, directory, config, storageTemplate);
+  assert.throws(() =>
+    assertRecruitmentManifest(
+      { ...m, storage: undefined },
+      m.id,
+      directory,
+      config,
+      storageTemplate,
+    ),
+  );
+  assert.throws(() =>
+    assertRecruitmentManifest(
+      { ...m, portProfile: "isolated" },
+      m.id,
+      directory,
+      config,
+      storageTemplate,
+    ),
+  );
+  assert.throws(() =>
+    assertRecruitmentManifest(m, m.id, directory, config, template),
+  );
+  assert.match(config, /\[storage\]\nenabled = true/);
+  assert.match(config, /site_url = "https:\/\/127\.0\.0\.1:3173"/);
 });
 
 test("isolated cleanup accepts only its loopback binding profile and still rejects legacy or wildcard bindings", () => {

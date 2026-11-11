@@ -307,6 +307,7 @@ test("UI foundation empty state and responsive keyboard navigation restore focus
       "/calendar",
       "/companies",
       "/contacts",
+      "/documents",
     ]).toContain(await link.getAttribute("href"));
   }
   await expect(
@@ -318,6 +319,9 @@ test("UI foundation empty state and responsive keyboard navigation restore focus
   await expect(
     navigation.getByRole("link", { name: "Kalendarz", exact: true }),
   ).toHaveAttribute("href", "/calendar");
+  await expect(
+    navigation.getByRole("link", { name: "Dokumenty", exact: true }),
+  ).toHaveAttribute("href", "/documents");
   await page
     .getByRole("button", { name: "Rozwiń nawigację", exact: true })
     .click();

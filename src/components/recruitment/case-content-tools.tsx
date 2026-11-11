@@ -945,25 +945,6 @@ export function CaseLinks({
           setHasMore(data.hasMoreLinks === true);
           setError(false);
           setLoadedScope(readScope);
-          const target = focusAfterMove.current;
-          if (
-            target &&
-            target.page === page &&
-            (data.links as CaseLink[]).some(
-              (row) =>
-                row.id === target.id &&
-                row.source === target.source &&
-                !row.voided,
-            )
-          ) {
-            focusAfterMove.current = null;
-            setMoveMessage(`Przeniesiono link. Strona ${page}.`);
-            requestAnimationFrame(() =>
-              document
-                .getElementById(`case-link-${target.source}-${target.id}`)
-                ?.focus(),
-            );
-          }
         }
       })
       .catch(() => {
@@ -973,6 +954,26 @@ export function CaseLinks({
       active = false;
     };
   }, [owner, caseId, version, page, targetId, targetSource, readScope]);
+  useEffect(() => {
+    const target = focusAfterMove.current;
+    if (
+      !fresh ||
+      !target ||
+      target.page !== page ||
+      !links?.some(
+        (row) =>
+          row.id === target.id && row.source === target.source && !row.voided,
+      )
+    )
+      return;
+    const element = document.getElementById(
+      `case-link-${target.source}-${target.id}`,
+    );
+    if (!element) return;
+    element.focus();
+    focusAfterMove.current = null;
+    setMoveMessage(`Przeniesiono link. Strona ${page}.`);
+  }, [fresh, links, page]);
   useEffect(() => {
     if (!fresh || !targetId || !links) return;
     const focusKey = `${caseId}:${targetSource}:${targetId}`;

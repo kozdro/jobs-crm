@@ -100,7 +100,13 @@ test("Local DEV migrations reject cloud, CI and alternate endpoints before conne
 });
 
 test("fresh bootstrap and checkpoint-bound approved prefix/full histories are accepted", () => {
-  assert.equal(history.length, 23);
+  assert.equal(history.length, 54);
+  // Fixed independently against base b28877e; the approved historical prefix
+  // includes each migration hash, ordinal and timestamp, not only its count.
+  assert.equal(
+    ledgerCheckpoint(ledger.slice(0, 23)),
+    "86508cc5dea3df2570d6fa313a123505152fe770dc78f2ee47ce0b1ba3eed160",
+  );
   assert.equal(history[15]?.folderMillis, 1_793_879_424_259);
   assert.equal(history[18]?.folderMillis, 1_794_055_693_932);
   assert.equal(history[20]?.folderMillis, 1_794_220_100_000);
@@ -125,6 +131,7 @@ test("fresh bootstrap and checkpoint-bound approved prefix/full histories are ac
     20,
     21,
     22,
+    23,
     history.length,
   ]) {
     const prefix = ledger.slice(0, count);

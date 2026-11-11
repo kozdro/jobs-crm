@@ -1,14 +1,13 @@
 import type { OutputSummary } from "../auth/output-safety.ts";
 /** Test the actual product app against its own guarded disposable local stack. */
 import { spawn, execFile } from "node:child_process";
-import type { ChildProcess } from "node:child_process";
 import { promisify } from "node:util";
 import { createServer as createHttpsServer } from "node:https";
 import { request as httpRequest } from "node:http";
 import { createServer as createPortProbe } from "node:net";
 import { mkdir, readFile, writeFile, readdir } from "node:fs/promises";
 import { join, resolve } from "node:path";
-import { randomUUID } from "node:crypto";
+import { createHmac, randomBytes, randomUUID } from "node:crypto";
 import {
   captureAuthOutput,
   assertPrivateValuesAbsent,
@@ -20,6 +19,11 @@ import {
   stopRecruitmentTarget,
   recruitmentTargetEvidence,
 } from "./target.ts";
+import { verifyDocumentsUpgrade } from "./documents-upgrade.ts";
+import { startValidatorQa } from "../documents-validator-qa/runtime.ts";
+import { startCleanupQa } from "../documents-validator-qa/cleanup-runtime.ts";
+import { startBffQa } from "../documents-validator-qa/bff-runtime.ts";
+import { assertBffEnvironment, baseProcessEnvironment } from "./process-env.ts";
 function requireSuccessfulTests(summary: OutputSummary) {
   if (
     !(summary.counts.passed && summary.counts.passed > 0) ||
@@ -35,7 +39,7 @@ const node = process.execPath;
 if (process.version !== "v24.22.2")
   throw new Error("Pinned Node 24.22.2 required");
 // Refuse an existing application before creating the disposable database target.
-for (const port of [3152, 3153])
+for (const port of [3172, 3173])
   await new Promise<void>((ok, no) => {
     const probe = createPortProbe();
     probe.once("error", () =>
@@ -49,6 +53,8 @@ const reuse = Boolean(process.env.RECRUITMENT_TARGET_ID);
 const target = reuse
   ? await readRecruitmentTarget(id)
   : await startRecruitmentTarget(id);
+if (!target.storage || target.appOrigin !== "https://127.0.0.1:3173")
+  throw new Error("Recruitment Storage runner requires its isolated profile");
 const directory = join(root, ".recruitment-local", id);
 const evidence = {
   id,
@@ -66,13 +72,56 @@ const evidence = {
   scannedBrowserFiles: 0,
   scannedGeneratedResponseFiles: 0,
 };
-const children: ChildProcess[] = [];
-const childClosed: Promise<void>[] = [];
 const proxies: ReturnType<typeof createHttpsServer>[] = [];
+let validatorRuntime: Awaited<ReturnType<typeof startValidatorQa>> | undefined;
+let cleanupRuntime: Awaited<ReturnType<typeof startCleanupQa>> | undefined;
+let bffRuntime: Awaited<ReturnType<typeof startBffQa>> | undefined;
 let succeeded = false;
 const serverCanary = `synthetic-recruitment-server-${randomUUID()}`;
-const privateValues = [target.serviceRoleKey, serverCanary];
-const serverOutputs: ReturnType<typeof captureAuthOutput>[] = [];
+// Local fixture credentials use the owned Storage container's signing key;
+// no production key or service-role credential is supplied to the app.
+const inspected = JSON.parse(
+  (await exec("docker", ["inspect", `supabase_storage_${target.projectId}`]))
+    .stdout,
+);
+const signingSecretValue = (inspected[0]?.Config?.Env as string[] | undefined)
+  ?.find((value) => value.startsWith("AUTH_JWT_SECRET="))
+  ?.slice("AUTH_JWT_SECRET=".length);
+if (!signingSecretValue)
+  throw new Error("Local Storage signing secret unavailable");
+const signingSecret: string = signingSecretValue;
+function operatorJwt(role: string) {
+  const header = Buffer.from(
+    JSON.stringify({ alg: "HS256", typ: "JWT" }),
+  ).toString("base64url");
+  const payload = Buffer.from(
+    JSON.stringify({
+      role,
+      iss: "supabase",
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + 7200,
+    }),
+  ).toString("base64url");
+  const value = `${header}.${payload}`;
+  return `${value}.${createHmac("sha256", signingSecret).update(value).digest("base64url")}`;
+}
+const uploaderJwt = operatorJwt("documents_uploader");
+const validatorJwt = operatorJwt("documents_validator");
+const cleanupJwt = operatorJwt("documents_cleanup");
+const deleteAuthorizerJwt = operatorJwt("documents_delete_authorizer");
+const permitSecret = randomBytes(48).toString("hex");
+const validatorServiceSecret = randomBytes(48).toString("hex");
+const privateValues = [
+  target.serviceRoleKey,
+  serverCanary,
+  signingSecret,
+  uploaderJwt,
+  validatorJwt,
+  cleanupJwt,
+  deleteAuthorizerJwt,
+  permitSecret,
+  validatorServiceSecret,
+];
 function captured() {
   return captureAuthOutput({ publicKey: target.anonKey, privateValues });
 }
@@ -128,8 +177,11 @@ async function scanBuildAssets(
 }
 
 try {
-  const migrations = await migrateRecruitmentTarget(id);
+  const migrations = reuse
+    ? await migrateRecruitmentTarget(id)
+    : await verifyDocumentsUpgrade(id);
   evidence.migrations = migrations;
+  if (!reuse) evidence.stages.push("documents-upgrade-from-0022");
   await writeFile(
     join(root, ".recruitment-local", `runtime-${id}.json`),
     JSON.stringify(await recruitmentTargetEvidence(id), null, 2),
@@ -157,7 +209,7 @@ try {
     "subjectAltName=IP:127.0.0.1,DNS:localhost",
   ]);
   const env = {
-    ...process.env,
+    ...baseProcessEnvironment(process.env),
     APP_ENV: "test",
     APP_ORIGIN: target.appOrigin,
     NEXT_PUBLIC_APP_ORIGIN: target.appOrigin,
@@ -170,6 +222,17 @@ try {
     NODE_EXTRA_CA_CERTS: certPath,
     NEXT_TELEMETRY_DISABLED: "1",
     RECRUITMENT_TEST_SECRET: serverCanary,
+    DOCUMENTS_PERMIT_SECRET: permitSecret,
+    DOCUMENTS_UPLOADER_JWT: uploaderJwt,
+    DOCUMENTS_DELETE_AUTHORIZER_JWT: deleteAuthorizerJwt,
+    DOCUMENTS_VALIDATOR_URL: "http://127.0.0.1:3174",
+    DOCUMENTS_VALIDATOR_SERVICE_SECRET: validatorServiceSecret,
+  };
+  assertBffEnvironment(env);
+  const integrationEnv = {
+    ...env,
+    DOCUMENTS_VALIDATOR_TEST_URL: env.DOCUMENTS_VALIDATOR_URL,
+    DOCUMENTS_VALIDATOR_TEST_SECRET: validatorServiceSecret,
   };
   await run(
     ["node_modules/next/dist/bin/next", "build"],
@@ -188,35 +251,40 @@ try {
   if (!evidence.scannedGeneratedResponseFiles)
     throw new Error("Recruitment generated HTML/RSC scan found no files");
   evidence.stages.push("production-build");
-  for (const [upstreamPort, publicPort] of [[3152, 3153]] as const) {
-    const child = spawn(
-      node,
-      [
-        "node_modules/next/dist/bin/next",
-        "start",
-        "--hostname",
-        "127.0.0.1",
-        "--port",
-        String(upstreamPort),
-      ],
-      { cwd: root, env, stdio: ["ignore", "pipe", "pipe"] },
-    );
-    const output = captured();
-    child.stdout?.on("data", (chunk) => output.push(chunk));
-    child.stderr?.on("data", (chunk) => output.push(chunk));
-    serverOutputs.push(output);
-    childClosed.push(
-      new Promise<void>((ok) => child.once("close", () => ok())),
-    );
-    children.push(child);
-    child.once("error", () => {});
+  validatorRuntime = await startValidatorQa(id, {
+    validatorJwt,
+    serviceSecret: validatorServiceSecret,
+    anonKey: target.anonKey,
+  });
+  const bffKeys = [
+    "APP_ENV",
+    "APP_ORIGIN",
+    "NEXT_PUBLIC_APP_ORIGIN",
+    "NEXT_PUBLIC_AUTH_ENABLED",
+    "NEXT_PUBLIC_AUTH_LOCAL_TEST",
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "NEXT_PUBLIC_GOOGLE_AUTH_ENABLED",
+    "NEXT_TELEMETRY_DISABLED",
+    "RECRUITMENT_TARGET_ID",
+    "RECRUITMENT_TEST_SECRET",
+    "DOCUMENTS_PERMIT_SECRET",
+    "DOCUMENTS_UPLOADER_JWT",
+    "DOCUMENTS_DELETE_AUTHORIZER_JWT",
+    "DOCUMENTS_VALIDATOR_SERVICE_SECRET",
+  ];
+  const bffEnv = Object.fromEntries(
+    bffKeys.map((key) => [key, String(env[key as keyof typeof env] ?? "")]),
+  );
+  bffRuntime = await startBffQa(id, {
+    env: bffEnv,
+    validatorInternalUrl: validatorRuntime.internalUrl,
+  });
+  evidence.stages.push("isolated-bff-and-validator");
+  for (const [upstreamPort, publicPort] of [[3172, 3173]] as const) {
     const deadline = Date.now() + 30_000;
     let ready = false;
     while (Date.now() < deadline) {
-      if (child.exitCode !== null)
-        throw new Error(
-          "Recruitment application process exited before readiness",
-        );
       try {
         if ((await fetch(`http://127.0.0.1:${upstreamPort}/health/ready`)).ok) {
           ready = true;
@@ -264,6 +332,17 @@ try {
     [
       "--test",
       "--test-concurrency=1",
+      "tests/integration/recruitment/storage-runtime.test.ts",
+      "tests/integration/recruitment/documents-security.test.ts",
+      "tests/integration/recruitment/documents-validator-ipc.test.ts",
+      "tests/integration/recruitment/documents-delete.test.ts",
+      "tests/integration/recruitment/documents-application.test.ts",
+      "tests/integration/recruitment/documents-metadata.test.ts",
+      "tests/integration/recruitment/documents-operators.test.ts",
+      "tests/integration/recruitment/documents-owner-read.test.ts",
+      "tests/integration/recruitment/documents-reservation.test.ts",
+      "tests/integration/recruitment/documents-version-history.test.ts",
+      "tests/integration/recruitment/documents-content.test.ts",
       "tests/integration/recruitment/recruitment.test.ts",
       "tests/integration/recruitment/lifecycle.test.ts",
       "tests/integration/recruitment/stages.test.ts",
@@ -280,10 +359,15 @@ try {
       "tests/integration/recruitment/optional-email-queue.test.ts",
       "tests/integration/recruitment/quick-capture-atomic-action.test.ts",
     ],
-    env,
+    integrationEnv,
     "business-integration",
   );
   evidence.stages.push("real-business-auth-data-api");
+  cleanupRuntime = await startCleanupQa(id, {
+    cleanupJwt,
+    anonKey: target.anonKey,
+  });
+  evidence.stages.push("isolated-cleanup");
   await run(
     [
       "node_modules/@playwright/test/cli.js",
@@ -301,22 +385,15 @@ try {
     proxy.closeAllConnections();
     await new Promise<void>((ok) => proxy.close(() => ok()));
   }
-  for (const child of children) child.kill("SIGTERM");
-  await Promise.all(childClosed);
-  let outputError: unknown;
-  try {
-    serverOutputs.forEach((output, index) => {
-      const summary = output.verify();
-      evidence.outputChecks.push({
-        stage: `app-process-${index + 1}`,
-        ...summary,
-      });
-    });
-    evidence.stages.push("build-server-logs-and-browser-artifacts-redacted");
-  } catch (error) {
-    outputError = error;
-    succeeded = false;
-    evidence.status = "FAIL";
+  let runtimeError: unknown;
+  for (const runtime of [bffRuntime, cleanupRuntime, validatorRuntime]) {
+    try {
+      await runtime?.stop();
+    } catch (error) {
+      runtimeError ??= error;
+      succeeded = false;
+      evidence.status = "FAIL";
+    }
   }
   await writeFile(
     join(root, ".recruitment-local", `evidence-${id}.json`),
@@ -328,5 +405,5 @@ try {
     console.log(
       `Recruitment target retained for explicit inspection/cleanup: ${id}`,
     );
-  if (outputError) throw outputError;
+  if (runtimeError) throw runtimeError;
 }

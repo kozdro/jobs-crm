@@ -1,5 +1,9 @@
 # Kwestie otwarte i bramki decyzyjne (OPEN)
 
+## Documents Core — częściowe rozstrzygnięcie DEC-065, 2026-11-11
+
+PO zatwierdził warianty 1A/2A/3A/4A [analizy](../technical/documents-core-analysis.md#4-jeden-zbiorczy-pakiet-decyzji-po); [DEC-065](product-decisions.md#documents-core--2026-11-11) jest źródłem decyzji. W zakresie Documents Core **PARTIALLY RESOLVED**: OPEN-002/004/005 dla pól, relacji i audytu wskazań, OPEN-006/036 dla wersji, skutków delete i minimalnego śladu, OPEN-007 dla formatów, limitów i quota, OPEN-013/032 dla wskazanego pobierania, inicjacji delete i minimalizacji. Odpowiedzi nie rozstrzygają globalnej retencji/usuwania konta, eksportu, prawa, importu, sesji ani pozostałych pól i audytu. OPEN-014/042/043/045/046, produkcyjne backupy/restore/DR, koszty i publiczne zabezpieczenia pozostają otwarte. Wcześniejsze opisy nierozstrzygniętego podzakresu dokumentów są historyczne.
+
 ## Global Search — częściowe rozstrzygnięcie DEC-064, 2026-11-10
 
 PO zatwierdził 1A/2A/3A [kontraktu](../technical/global-search-analysis.md): OPEN-038 jest rozstrzygnięty dla opisanego dopasowania, rankingu, paginacji i obecnych danych bez osobnego archiwum; jego przyszła archiwizacja oraz cele wydajności pozostają OPEN. OPEN-002/004/020 rozstrzygnięto wyłącznie dla pól, dat, korekt i unieważnienia Notes oraz odpowiednich operacji CaseLinks. OPEN-025/026 rozstrzygnięto dla opisanych ról i kanonikalizacji CaseLink; identyfikacja publikacji, inne źródła i kanały pozostają OPEN. Ogólna retencja, hard delete oraz pozostałe obszary OPEN nie zostały rozstrzygnięte. Historyczne wiersze poniżej zachowują pierwotny kontekst.

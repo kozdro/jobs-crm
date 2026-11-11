@@ -59,3 +59,7 @@ BR-008/010/012: [3C](../technical/recruitment-lifecycle-3c.md) zatwierdza osiem 
 ## Katalog i relacje — DEC-058
 
 BR-001/002/016/018/019/027/028/030 pozostają obowiązujące. [CC 1A/2A/3A](../technical/companies-contacts-analysis.md) dopuszcza jawne opcjonalne relacje i ich audytowaną korektę; samo powiązanie kontaktu nie nadaje udziału w historii. Deduplikacja katalogu ostrzega owner-only po identycznej znormalizowanej nazwie lub e-mailu, pozwala reuse albo świadomy osobny profil; bez automatycznych scaleń lub globalnej unikalności nazw/e-maili. Nowe dopasowanie przy zapisie wymaga ponownego potwierdzenia.
+
+## Documents Core — DEC-065
+
+BR-026 obejmuje wiele jawnie potwierdzonych, konkretnych wersji CV w jednym fakcie application; dołączenie, nowa wersja, odłączenie i korekta nie tworzą nowego faktu aplikowania. Unieważnienie application zachowuje audyt, lecz nie jest ważnym potwierdzeniem wysyłki. BR-030 obejmuje ochronę bajtów, metadanych, audytu i receipt również przez bezpośrednie API oraz minimalizację po kasacji. Pełny zatwierdzony kontrakt: [Documents Core](../features/documents.md#documents-core--zatwierdzony-kontrakt-dec-065).

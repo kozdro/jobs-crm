@@ -173,8 +173,16 @@ ADR-0005 wymaga atomowego zapisu całego zaakceptowanego zbioru i rollbacku bł�
 - **Biblioteka:** wykaz dokumentów wielokrotnego użytku i wersji, z jasnymi metadanymi. Bez automatycznego odczytu zawartości plików na potrzeby wyszukiwania.
 - **W sprawie:** trzy odrębne akcje: dołącz z biblioteki, dodaj plik tylko do sprawy, dodaj nowy do biblioteki i powiąż. Nie nazywaj zwykłego powiązania „wysłano”.
 - **CV:** widok wersji pozwala wskazać dokładną wersję wysłaną przy potwierdzonej aplikacji; historyczne wskazanie nie zmienia się po dodaniu nowszej wersji.
-- **Plik usuwany:** nie buduj potwierdzeń ani automatycznych skutków retencji/usuwania jako ukończonego procesu, dopóki OPEN-006/036/032 nie są rozstrzygnięte.
+- **Usuwanie treści:** pokaż podgląd własnych powiązań i faktów aplikowania objętych operacją oraz wymagaj jawnego potwierdzenia. Pokaż oczekiwanie lub błąd aż Storage potwierdzi kasację; historia zachowuje numer wersji i fakt usunięcia bez usuniętych nazw i innych prywatnych metadanych.
 - Pusty stan biblioteki może zaproponować dodanie pliku; brak dokumentu nie blokuje sprawy bez reguły wymagającej pliku.
+
+### Documents Core — kontrakt interakcji (decyzja PO 2026-11-11, 1A/2A/3A/4A)
+
+- Lista biblioteki przedstawia nazwę, oznaczenie CV i dostępne wersje; użytkownik może dodać dokument, nową wersję, poprawić metadane lub pobrać konkretną wersję. Formularz wyjaśnia dopuszczone formaty, 20 MiB i quota 1 GiB oraz przedstawia błędy bez utraty pozostałych danych.
+- Sekcja sprawy oferuje trzy oddzielne ścieżki: wybór wersji z biblioteki, plik tylko dla sprawy oraz nowy plik w bibliotece z powiązaniem. Zmiana wersji jest jawna; odłączenie nie oznacza kasacji ani nie zmienia historii. Dla ostatniego powiązania case-only konieczny jest wybór kasacji albo anulowania.
+- Przy potwierdzonym aplikowaniu można wybrać wiele konkretnych wersji CV albo żadnej. Późniejsze przypisanie i audytowana korekta dotyczą wybranego faktu, także z nieznanym dniem i w zakończonej sprawie; powiązanie samo w sobie nie oznacza wysyłki. Po void aplikacji wskazania nie są ważnym potwierdzeniem wysłania.
+- Podgląd usunięcia identyfikuje zakres i konsekwencje przed potwierdzeniem. Zmiana zakresu lub konta wymaga ponownego podglądu; niedostępny Auth oznacza odmowę inicjacji. Przycisk pobierania jest dostępny tylko dla wersji możliwej do odczytu. Nie prezentuj sukcesu fizycznej kasacji przed jej potwierdzeniem.
+- Obsłuż ładowanie, pustą listę, błędy walidacji i quota, konflikt współbieżności, niedostępność Auth/Storage i ponowienie; etykiety, focus, klawiatura i komunikaty statusu pozostają dostępne również na małym ekranie.
 
 ## 11. Firmy — UX-013
 

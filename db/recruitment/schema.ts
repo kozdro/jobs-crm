@@ -109,6 +109,11 @@ export const recruitmentCaseEvent = pgTable(
       table.ownerId,
       table.requestId,
     ),
+    unique("recruitment_case_event_owner_case_id_unique").on(
+      table.ownerId,
+      table.caseId,
+      table.id,
+    ),
     foreignKey({
       name: "recruitment_case_event_owned_case_fk",
       columns: [table.ownerId, table.caseId],
@@ -943,6 +948,485 @@ export const caseContentCommand = pgTable(
       t.targetId,
       t.recordedAt,
       t.id,
+    ),
+  ],
+).enableRLS();
+
+/** Documents are private; case-only documents must stay bound to their case. */
+export const document = pgTable(
+  "document",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    name: text("name"),
+    isCv: boolean("is_cv").default(false),
+    caseId: uuid("case_id"),
+    revision: integer("revision").default(0).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    unique("document_owner_id_unique").on(t.ownerId, t.id),
+    foreignKey({
+      name: "document_owner_fk",
+      columns: [t.ownerId],
+      foreignColumns: [authUsers.id],
+    }),
+    foreignKey({
+      name: "document_owned_case_fk",
+      columns: [t.ownerId, t.caseId],
+      foreignColumns: [recruitmentCase.ownerId, recruitmentCase.id],
+    }),
+    check(
+      "document_name_valid",
+      sql`char_length(${t.name}) BETWEEN 1 AND 160 AND ${t.name}=public.recruitment_trim(${t.name})`,
+    ),
+    check("document_revision_valid", sql`${t.revision}>=0`),
+    check(
+      "document_minimized_fields",
+      sql`(${t.name} IS NULL) = (${t.isCv} IS NULL)`,
+    ),
+    index("document_owner_case_idx").on(t.ownerId, t.caseId, t.createdAt),
+  ],
+).enableRLS();
+
+export const documentVersion = pgTable(
+  "document_version",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    documentId: uuid("document_id").notNull(),
+    number: integer("number").notNull(),
+    label: text("label"),
+    filename: text("filename"),
+    mime: text("mime"),
+    size: integer("size"),
+    state: text("state").notNull(),
+    revision: integer("revision").default(0).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    unique("document_version_owner_id_unique").on(t.ownerId, t.id),
+    unique("document_version_number_unique").on(
+      t.ownerId,
+      t.documentId,
+      t.number,
+    ),
+    foreignKey({
+      name: "document_version_owned_document_fk",
+      columns: [t.ownerId, t.documentId],
+      foreignColumns: [document.ownerId, document.id],
+    }),
+    check(
+      "document_version_number_valid",
+      sql`${t.number}>0 AND ${t.revision}>=0`,
+    ),
+    check(
+      "document_version_state_valid",
+      sql`${t.state} IN ('pending','ready','deleting','deleted','error')`,
+    ),
+    check(
+      "document_version_label_valid",
+      sql`${t.label} IS NULL OR (char_length(${t.label}) BETWEEN 1 AND 160 AND ${t.label}=public.recruitment_trim(${t.label}))`,
+    ),
+    check(
+      "document_version_size_valid",
+      sql`${t.size} IS NULL OR ${t.size} BETWEEN 1 AND 20971520`,
+    ),
+    check(
+      "document_version_deleted_minimal",
+      sql`${t.state}<>'deleted' OR (${t.label} IS NULL AND ${t.filename} IS NULL AND ${t.mime} IS NULL AND ${t.size} IS NULL)`,
+    ),
+    index("document_version_owner_document_idx").on(
+      t.ownerId,
+      t.documentId,
+      t.number,
+    ),
+  ],
+).enableRLS();
+
+/** A working case link selects one concrete version, never a moving latest version. */
+export const caseDocument = pgTable(
+  "case_document",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    caseId: uuid("case_id").notNull(),
+    versionId: uuid("version_id").notNull(),
+    revision: integer("revision").default(0).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    unique("case_document_owner_id_unique").on(t.ownerId, t.id),
+    unique("case_document_version_unique").on(t.ownerId, t.caseId, t.versionId),
+    foreignKey({
+      name: "case_document_owned_case_fk",
+      columns: [t.ownerId, t.caseId],
+      foreignColumns: [recruitmentCase.ownerId, recruitmentCase.id],
+    }),
+    foreignKey({
+      name: "case_document_owned_version_fk",
+      columns: [t.ownerId, t.versionId],
+      foreignColumns: [documentVersion.ownerId, documentVersion.id],
+    }),
+    check("case_document_revision_valid", sql`${t.revision}>=0`),
+    index("case_document_owner_case_idx").on(t.ownerId, t.caseId),
+  ],
+).enableRLS();
+
+/** A sent reference is tied to a real application; revisions preserve corrections. */
+export const documentSentReference = pgTable(
+  "document_sent_reference",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    caseId: uuid("case_id").notNull(),
+    eventId: uuid("event_id").notNull(),
+    versionId: uuid("version_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    unique("document_sent_reference_owner_id_unique").on(t.ownerId, t.id),
+    foreignKey({
+      name: "document_sent_reference_case_fk",
+      columns: [t.ownerId, t.caseId],
+      foreignColumns: [recruitmentCase.ownerId, recruitmentCase.id],
+    }),
+    foreignKey({
+      name: "document_sent_reference_event_fk",
+      columns: [t.ownerId, t.caseId, t.eventId],
+      foreignColumns: [
+        recruitmentCaseEvent.ownerId,
+        recruitmentCaseEvent.caseId,
+        recruitmentCaseEvent.id,
+      ],
+    }),
+    foreignKey({
+      name: "document_sent_reference_version_fk",
+      columns: [t.ownerId, t.versionId],
+      foreignColumns: [documentVersion.ownerId, documentVersion.id],
+    }),
+    index("document_sent_reference_event_idx").on(t.ownerId, t.eventId),
+  ],
+).enableRLS();
+
+export const documentSentRevision = pgTable(
+  "document_sent_revision",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    referenceId: uuid("reference_id").notNull(),
+    revision: integer("revision").notNull(),
+    versionId: uuid("version_id"),
+    withdrawn: boolean("withdrawn").default(false).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    unique("document_sent_revision_unique").on(
+      t.ownerId,
+      t.referenceId,
+      t.revision,
+    ),
+    foreignKey({
+      name: "document_sent_revision_reference_fk",
+      columns: [t.ownerId, t.referenceId],
+      foreignColumns: [documentSentReference.ownerId, documentSentReference.id],
+    }),
+    foreignKey({
+      name: "document_sent_revision_version_fk",
+      columns: [t.ownerId, t.versionId],
+      foreignColumns: [documentVersion.ownerId, documentVersion.id],
+    }),
+    check(
+      "document_sent_revision_valid",
+      sql`${t.revision}>0 AND ((${t.withdrawn} AND ${t.versionId} IS NULL) OR (NOT ${t.withdrawn} AND ${t.versionId} IS NOT NULL))`,
+    ),
+  ],
+).enableRLS();
+
+/** Owner-scoped idempotency record for a new application and its sent versions. */
+export const documentApplicationCommand = pgTable(
+  "document_application_command",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    requestId: uuid("request_id").notNull(),
+    caseId: uuid("case_id").notNull(),
+    occurredOn: date("occurred_on", { mode: "string" }),
+    versionIds: uuid("version_ids").array().notNull(),
+    cancelled: boolean("cancelled").default(false).notNull(),
+    result: jsonb("result").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    unique("document_application_command_request_unique").on(
+      t.ownerId,
+      t.requestId,
+    ),
+    foreignKey({
+      name: "document_application_command_case_fk",
+      columns: [t.ownerId, t.caseId],
+      foreignColumns: [recruitmentCase.ownerId, recruitmentCase.id],
+    }),
+  ],
+).enableRLS();
+
+/** Private inventory retains reservations until physical deletion succeeds. */
+export const documentObject = recruitmentPrivate
+  .table(
+    "document_object",
+    {
+      versionId: uuid("version_id").primaryKey(),
+      ownerId: uuid("owner_id").notNull(),
+      requestId: uuid("request_id").notNull(),
+      objectKey: text("object_key").notNull(),
+      bytes: integer("bytes").notNull(),
+      phase: text("phase").notNull(),
+      createdAt: timestamp("created_at", { withTimezone: true })
+        .defaultNow()
+        .notNull(),
+      updatedAt: timestamp("updated_at", { withTimezone: true })
+        .defaultNow()
+        .notNull(),
+    },
+    (t) => [
+      unique("document_object_owner_request_unique").on(t.ownerId, t.requestId),
+      unique("document_object_key_unique").on(t.objectKey),
+      foreignKey({
+        name: "document_object_owned_version_fk",
+        columns: [t.ownerId, t.versionId],
+        foreignColumns: [documentVersion.ownerId, documentVersion.id],
+      }),
+      check(
+        "document_object_bytes_valid",
+        sql`${t.bytes} BETWEEN 1 AND 20971520`,
+      ),
+      check(
+        "document_object_phase_valid",
+        sql`${t.phase} IN ('pending','ready','deleting')`,
+      ),
+      index("document_object_owner_phase_idx").on(t.ownerId, t.phase),
+    ],
+  )
+  .enableRLS();
+
+/** Upload intent is scrubbed when its bytes are deleted. */
+export const documentUploadCommand = recruitmentPrivate
+  .table(
+    "document_upload_command",
+    {
+      ownerId: uuid("owner_id").notNull(),
+      requestId: uuid("request_id").notNull(),
+      documentId: uuid("document_id").notNull(),
+      versionId: uuid("version_id").notNull(),
+      intent: jsonb("intent"),
+      createdAt: timestamp("created_at", { withTimezone: true })
+        .defaultNow()
+        .notNull(),
+    },
+    (t) => [
+      unique("document_upload_command_owner_request_unique").on(
+        t.ownerId,
+        t.requestId,
+      ),
+      foreignKey({
+        name: "document_upload_command_owned_version_fk",
+        columns: [t.ownerId, t.versionId],
+        foreignColumns: [documentVersion.ownerId, documentVersion.id],
+      }),
+    ],
+  )
+  .enableRLS();
+
+/** Opaque deletion records protect against restoring previously removed bytes. */
+export const documentDeletionLedger = recruitmentPrivate
+  .table(
+    "document_deletion_ledger",
+    {
+      versionId: uuid("version_id").primaryKey(),
+      ownerId: uuid("owner_id").notNull(),
+      documentId: uuid("document_id").notNull(),
+      objectKey: text("object_key").notNull(),
+      requestedAt: timestamp("requested_at", { withTimezone: true })
+        .defaultNow()
+        .notNull(),
+      confirmedAt: timestamp("confirmed_at", { withTimezone: true }),
+      restoreHold: boolean("restore_hold").default(false).notNull(),
+    },
+    (t) => [
+      unique("document_deletion_ledger_object_unique").on(t.objectKey),
+      index("document_deletion_ledger_owner_idx").on(t.ownerId, t.requestedAt),
+    ],
+  )
+  .enableRLS();
+
+/** A bounded fence proves a missing upload will not commit later. */
+export const documentUploadFence = recruitmentPrivate
+  .table(
+    "document_upload_fence",
+    {
+      ownerId: uuid("owner_id").notNull(),
+      requestId: uuid("request_id").notNull(),
+      expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    },
+    (t) => [
+      unique("document_upload_fence_owner_request_unique").on(
+        t.ownerId,
+        t.requestId,
+      ),
+      index("document_upload_fence_expiry_idx").on(t.expiresAt),
+    ],
+  )
+  .enableRLS();
+
+/** Preview binds the confirmed scope to owner and observed revisions. */
+export const documentDeletePreview = recruitmentPrivate
+  .table(
+    "document_delete_preview",
+    {
+      token: uuid("token").defaultRandom().primaryKey(),
+      ownerId: uuid("owner_id").notNull(),
+      versionIds: uuid("version_ids").array().notNull(),
+      snapshot: jsonb("snapshot").notNull(),
+      expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+      createdAt: timestamp("created_at", { withTimezone: true })
+        .defaultNow()
+        .notNull(),
+    },
+    (t) => [
+      index("document_delete_preview_owner_idx").on(t.ownerId, t.expiresAt),
+    ],
+  )
+  .enableRLS();
+
+/** Minimal, bounded receipt for an explicitly confirmed deletion. */
+export const documentDeleteCommand = recruitmentPrivate
+  .table(
+    "document_delete_command",
+    {
+      ownerId: uuid("owner_id").notNull(),
+      requestId: uuid("request_id").notNull(),
+      previewToken: uuid("preview_token").notNull(),
+      versionIds: uuid("version_ids").array().notNull(),
+      expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    },
+    (t) => [
+      unique("document_delete_command_owner_request_unique").on(
+        t.ownerId,
+        t.requestId,
+      ),
+      index("document_delete_command_expiry_idx").on(t.expiresAt),
+    ],
+  )
+  .enableRLS();
+
+/** Idempotent sent-reference corrections contain only opaque identifiers. */
+export const documentSentCommand = pgTable(
+  "document_sent_command",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    requestId: uuid("request_id").notNull(),
+    caseId: uuid("case_id").notNull(),
+    eventId: uuid("event_id").notNull(),
+    payload: jsonb("payload").notNull(),
+    result: jsonb("result").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    unique("document_sent_command_owner_request_unique").on(
+      t.ownerId,
+      t.requestId,
+    ),
+    foreignKey({
+      name: "document_sent_command_event_fk",
+      columns: [t.ownerId, t.caseId, t.eventId],
+      foreignColumns: [
+        recruitmentCaseEvent.ownerId,
+        recruitmentCaseEvent.caseId,
+        recruitmentCaseEvent.id,
+      ],
+    }),
+  ],
+).enableRLS();
+
+/** Bounded command receipts can be scrubbed when the underlying bytes are removed. */
+export const documentCommand = pgTable(
+  "document_command",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    requestId: uuid("request_id").notNull(),
+    documentId: uuid("document_id").notNull(),
+    versionId: uuid("version_id"),
+    payload: jsonb("payload"),
+    result: jsonb("result").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    unique("document_command_owner_request_unique").on(t.ownerId, t.requestId),
+    index("document_command_owner_document_idx").on(t.ownerId, t.documentId),
+  ],
+).enableRLS();
+
+/** Audit may retain revisions but sensitive values are redacted on deletion. */
+export const documentMetadataRevision = pgTable(
+  "document_metadata_revision",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    documentId: uuid("document_id").notNull(),
+    versionId: uuid("version_id"),
+    action: text("action").notNull(),
+    beforeValues: jsonb("before_values"),
+    afterValues: jsonb("after_values"),
+    recordedAt: timestamp("recorded_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    check(
+      "document_metadata_revision_action_check",
+      sql`${t.action} IN ('rename','label')`,
+    ),
+    index("document_metadata_revision_owner_document_idx").on(
+      t.ownerId,
+      t.documentId,
+      t.recordedAt,
     ),
   ],
 ).enableRLS();
