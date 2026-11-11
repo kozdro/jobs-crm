@@ -211,6 +211,57 @@ test("both case upload paths and an atomic application with two actual CV versio
   await reference
     .getByLabel("Poprawna wersja")
     .selectOption({ label: `${names[1]} — wersja 2` });
+  // The sent-version command's errors must survive a successful data refresh.
+  await page.route(
+    "**/documents/permit",
+    (route) =>
+      route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: "{}",
+      }),
+    { times: 1 },
+  );
+  const failedPermitRefresh = page.waitForResponse(
+    (response) => response.url().includes("/documents/data?") && response.ok(),
+  );
+  await reference.getByRole("button", { name: "Zapisz korektę" }).click();
+  await failedPermitRefresh;
+  await expect(
+    reference.getByLabel("Poprawna wersja").locator("option:checked"),
+  ).toHaveText(`${names[1]} — wersja 2`);
+  await expect(historicalApplication.getByRole("alert")).toContainText(
+    "Wynik zapisu jest nieznany. Sprawdź stan przed ponowieniem.",
+  );
+  await page.route(
+    "**/documents/commands",
+    (route) =>
+      route.fulfill({
+        status: 409,
+        contentType: "application/json",
+        body: "{}",
+      }),
+    { times: 1 },
+  );
+  const failedCommandRefresh = page.waitForResponse(
+    (response) => response.url().includes("/documents/data?") && response.ok(),
+  );
+  await reference.getByRole("button", { name: "Zapisz korektę" }).click();
+  await failedCommandRefresh;
+  await expect(
+    reference.getByLabel("Poprawna wersja").locator("option:checked"),
+  ).toHaveText(`${names[1]} — wersja 2`);
+  await expect(historicalApplication.getByRole("alert")).toContainText(
+    "Wpis zmienił się. Odśwież stronę i ponownie sprawdź wybór.",
+  );
+  await historicalApplication
+    .getByRole("button", { name: "Sprawdź wynik operacji" })
+    .click();
+  await expect(
+    historicalApplication
+      .getByRole("status")
+      .filter({ hasText: "bezpiecznie anulowano" }),
+  ).toBeVisible();
   await reference.getByRole("button", { name: "Zapisz korektę" }).click();
   await expect(historicalApplication).toContainText(`${names[1]} — wersja 2`);
   await expect(sentAudit).toContainText(

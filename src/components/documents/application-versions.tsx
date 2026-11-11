@@ -55,6 +55,7 @@ export function ApplicationVersions({
   const [confirmed, setConfirmed] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [readError, setReadError] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [stale, setStale] = useState(false);
   const generation = useRef(0);
@@ -88,12 +89,12 @@ export function ApplicationVersions({
               })),
           ),
       );
-      setError(null);
+      setReadError(null);
       setStale(false);
     } catch {
       if (request !== generation.current) return;
       setStale(true);
-      setError("Nie udało się pobrać wskazań wersji CV.");
+      setReadError("Nie udało się pobrać wskazań wersji CV.");
     }
   }, [caseId, eventId, userId]);
   const recovery = useReceiptRecovery(
@@ -224,6 +225,11 @@ export function ApplicationVersions({
       {error && (
         <p role="alert" className="mt-2 text-destructive">
           {error}
+        </p>
+      )}
+      {readError && (
+        <p role="alert" className="mt-2 text-destructive">
+          {readError}
         </p>
       )}
       {references === null ? (
