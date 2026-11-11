@@ -51,7 +51,11 @@ export function ApplicationVersions({
   const [references, setReferences] = useState<Reference[] | null>(null);
   const [options, setOptions] = useState<SentVersionOption[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
-  const [editing, setEditing] = useState<string | null>(null);
+  const [editing, setEditing] = useState<{
+    id: string;
+    revision: number;
+    kind: "correct" | "withdraw";
+  } | null>(null);
   const [confirmed, setConfirmed] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -232,6 +236,26 @@ export function ApplicationVersions({
           {readError}
         </p>
       )}
+      {readError && (
+        <div className="mt-2 flex flex-wrap gap-2">
+          <button
+            type="button"
+            className={buttonStyles.secondary}
+            onClick={() => void load()}
+          >
+            Ponów odczyt wskazań
+          </button>
+          {selected.length > 0 && (
+            <button
+              type="button"
+              className={buttonStyles.secondary}
+              onClick={() => setSelected([])}
+            >
+              Usuń wybrane wersje
+            </button>
+          )}
+        </div>
+      )}
       {references === null ? (
         <button
           type="button"
@@ -269,7 +293,11 @@ export function ApplicationVersions({
                         type="button"
                         className={buttonStyles.secondary}
                         onClick={() => {
-                          setEditing(ref.id);
+                          setEditing({
+                            id: ref.id,
+                            revision: ref.revision,
+                            kind: "correct",
+                          });
                           setSelected([]);
                           setConfirmed(false);
                         }}
@@ -281,7 +309,11 @@ export function ApplicationVersions({
                         disabled={pending || Boolean(recovery.requestId)}
                         className={buttonStyles.secondary}
                         onClick={() => {
-                          setEditing(`withdraw:${ref.id}`);
+                          setEditing({
+                            id: ref.id,
+                            revision: ref.revision,
+                            kind: "withdraw",
+                          });
                           setConfirmed(false);
                         }}
                       >
@@ -289,7 +321,7 @@ export function ApplicationVersions({
                       </button>
                     </div>
                   )}
-                  {editing === `withdraw:${ref.id}` && (
+                  {editing?.kind === "withdraw" && editing.id === ref.id && (
                     <div className="mt-2">
                       <p>Wycofanie zachowa audyt wcześniejszego wskazania.</p>
                       <button
@@ -299,7 +331,7 @@ export function ApplicationVersions({
                         onClick={() =>
                           void save("sent-withdraw", {
                             referenceId: ref.id,
-                            revision: ref.revision,
+                            revision: editing.revision,
                           })
                         }
                       >
@@ -314,7 +346,7 @@ export function ApplicationVersions({
                       </button>
                     </div>
                   )}
-                  {editing === ref.id && (
+                  {editing?.kind === "correct" && editing.id === ref.id && (
                     <div className="mt-2">
                       <label>
                         Poprawna wersja
@@ -353,7 +385,7 @@ export function ApplicationVersions({
                         onClick={() =>
                           void save("sent-correct", {
                             referenceId: ref.id,
-                            revision: ref.revision,
+                            revision: editing.revision,
                             versionId: selected[0],
                           })
                         }

@@ -960,13 +960,11 @@ test("upload mode cannot change while its server result is pending", async ({
   await panel
     .getByRole("button", { name: "Dodaj dokument", exact: true })
     .click();
-  await panel
-    .getByLabel("Plik", { exact: true })
-    .setInputFiles({
-      name: "synthetic-recovery.txt",
-      mimeType: "text/plain",
-      buffer: Buffer.from("Recovery synthetic file\n"),
-    });
+  await panel.getByLabel("Plik", { exact: true }).setInputFiles({
+    name: "synthetic-recovery.txt",
+    mimeType: "text/plain",
+    buffer: Buffer.from("Recovery synthetic file\n"),
+  });
   await panel.getByLabel("Nazwa dokumentu").fill(recoveryName);
   await page.route(
     "**/documents/upload",
@@ -989,4 +987,203 @@ test("upload mode cannot change while its server result is pending", async ({
     panel.getByRole("heading", { name: recoveryName }),
   ).toBeVisible();
   await expect(panel).toContainText("synthetic-recovery.txt");
+});
+
+test("application CV read failure offers retry or explicit clearing without losing the draft", async ({
+  page,
+}) => {
+  const caseId = await createCase();
+  const name = `CV retry ${randomUUID()}`;
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
+  const panel = page.getByRole("region", { name: "Dokumenty sprawy" });
+  await panel
+    .getByRole("button", { name: "Dodaj do biblioteki i sprawy" })
+    .click();
+  await panel.getByLabel("Plik", { exact: true }).setInputFiles({
+    name: "synthetic-cv-retry.txt",
+    mimeType: "text/plain",
+    buffer: Buffer.from("Retry CV\n"),
+  });
+  await panel.getByLabel("Nazwa dokumentu").fill(name);
+  await panel.getByLabel("To jest CV").check();
+  await panel.getByRole("button", { name: "Dodaj plik", exact: true }).click();
+  await expect(panel.getByRole("heading", { name })).toBeVisible();
+  const actions = page.getByRole("region", { name: "Działania w sprawie" });
+  await actions
+    .getByRole("button", { name: "Zarejestruj aplikowanie" })
+    .click();
+  await actions.getByLabel(new RegExp(name)).check();
+  const confirmation = actions.getByLabel(
+    "Potwierdzam, że to zdarzenie rzeczywiście miało miejsce.",
+  );
+  await confirmation.check();
+  const failRead = async () => {
+    await page.route(
+      "**/documents/data?*",
+      (route) =>
+        route.fulfill({
+          status: 503,
+          contentType: "application/json",
+          body: "{}",
+        }),
+      { times: 1 },
+    );
+    await page.evaluate(
+      (ownerId) =>
+        window.dispatchEvent(
+          new CustomEvent("jobs-crm:documents-changed", {
+            detail: { owner: ownerId, pending: false },
+          }),
+        ),
+      owner.id,
+    );
+    await expect(actions).toContainText("Nie można pobrać wersji CV");
+    await expect(confirmation).toBeChecked();
+    await expect(
+      actions.getByRole("button", { name: "Zapisz zdarzenie" }),
+    ).toBeDisabled();
+  };
+  await failRead();
+  await actions.getByRole("button", { name: "Ponów odczyt wersji CV" }).click();
+  await expect(actions.getByLabel(new RegExp(name))).toBeChecked();
+  await expect(confirmation).toBeChecked();
+  await failRead();
+  await actions
+    .getByRole("button", { name: "Usuń wszystkie wskazania CV" })
+    .click();
+  await expect(confirmation).toBeChecked();
+  await actions.getByRole("button", { name: "Zapisz zdarzenie" }).click();
+  await expect(actions.getByRole("status")).toContainText(
+    "Zdarzenie zostało zapisane.",
+  );
+  const application = page
+    .locator("li")
+    .filter({ hasText: "Zarejestrowano aplikowanie" })
+    .first();
+  await expect(
+    application.getByText("Nie wskazano wersji.", { exact: true }),
+  ).toBeVisible();
+});
+
+test("sent correction and withdrawal use the revision observed when each draft opened", async ({
+  page,
+}) => {
+  const caseId = await createCase();
+  const names = [`Sent A ${randomUUID()}`, `Sent B ${randomUUID()}`];
+  await login(page);
+  await page.goto(`${target.appOrigin}/recruitments/${caseId}`);
+  const panel = page.getByRole("region", { name: "Dokumenty sprawy" });
+  for (const name of names) {
+    await panel
+      .getByRole("button", { name: "Dodaj do biblioteki i sprawy" })
+      .click();
+    await panel.getByLabel("Plik", { exact: true }).setInputFiles({
+      name: "synthetic-sent.txt",
+      mimeType: "text/plain",
+      buffer: Buffer.from("Sent draft CV\n"),
+    });
+    await panel.getByLabel("Nazwa dokumentu").fill(name);
+    await panel.getByLabel("To jest CV").check();
+    await panel
+      .getByRole("button", { name: "Dodaj plik", exact: true })
+      .click();
+    await expect(panel.getByRole("heading", { name })).toBeVisible();
+  }
+  const actions = page.getByRole("region", { name: "Działania w sprawie" });
+  await actions
+    .getByRole("button", { name: "Zarejestruj aplikowanie" })
+    .click();
+  await actions.getByLabel(new RegExp(names[0])).check();
+  await actions
+    .getByLabel("Potwierdzam, że to zdarzenie rzeczywiście miało miejsce.")
+    .check();
+  await actions.getByRole("button", { name: "Zapisz zdarzenie" }).click();
+  const history = page
+    .locator("li")
+    .filter({ hasText: "Zarejestrowano aplikowanie" })
+    .first();
+  const original = history
+    .locator("li")
+    .filter({ hasText: `${names[0]} — wersja 1` })
+    .first();
+  await original.getByRole("button", { name: "Skoryguj wskazanie" }).click();
+  await original
+    .getByLabel("Poprawna wersja")
+    .selectOption({ label: `${names[1]} — wersja 1` });
+  const other = await page.context().newPage();
+  await other.goto(`${target.appOrigin}/recruitments/${caseId}`);
+  const remoteHistory = other
+    .locator("li")
+    .filter({ hasText: "Zarejestrowano aplikowanie" })
+    .first();
+  const remoteOriginal = remoteHistory
+    .locator("li")
+    .filter({ hasText: `${names[0]} — wersja 1` })
+    .first();
+  await remoteOriginal
+    .getByRole("button", { name: "Skoryguj wskazanie" })
+    .click();
+  await remoteOriginal
+    .getByLabel("Poprawna wersja")
+    .selectOption({ label: `${names[1]} — wersja 1` });
+  await remoteOriginal.getByRole("button", { name: "Zapisz korektę" }).click();
+  await expect(
+    remoteHistory.getByText(`${names[1]} — wersja 1`, { exact: true }),
+  ).toBeVisible();
+  await page.evaluate(
+    (ownerId) =>
+      window.dispatchEvent(
+        new CustomEvent("jobs-crm:documents-changed", {
+          detail: { owner: ownerId, pending: false },
+        }),
+      ),
+    owner.id,
+  );
+  const changed = history
+    .locator("li")
+    .filter({ hasText: `${names[1]} — wersja 1` })
+    .first();
+  await expect(changed.getByLabel("Poprawna wersja")).toBeVisible();
+  await changed.getByRole("button", { name: "Zapisz korektę" }).click();
+  await expect(history.getByRole("alert")).toContainText("Wpis zmienił się");
+  await history.getByRole("button", { name: "Sprawdź wynik operacji" }).click();
+  await expect(
+    history.getByRole("status").filter({ hasText: "bezpiecznie anulowano" }),
+  ).toBeVisible();
+  await changed.getByRole("button", { name: "Anuluj", exact: true }).click();
+  await changed.getByRole("button", { name: "Wycofaj wskazanie" }).click();
+  const remoteChanged = remoteHistory
+    .locator("li")
+    .filter({ hasText: `${names[1]} — wersja 1` })
+    .first();
+  await remoteChanged
+    .getByRole("button", { name: "Skoryguj wskazanie" })
+    .click();
+  await remoteChanged
+    .getByLabel("Poprawna wersja")
+    .selectOption({ label: `${names[0]} — wersja 1` });
+  await remoteChanged.getByRole("button", { name: "Zapisz korektę" }).click();
+  await expect(
+    remoteHistory.getByText(`${names[0]} — wersja 1`, { exact: true }),
+  ).toBeVisible();
+  await page.evaluate(
+    (ownerId) =>
+      window.dispatchEvent(
+        new CustomEvent("jobs-crm:documents-changed", {
+          detail: { owner: ownerId, pending: false },
+        }),
+      ),
+    owner.id,
+  );
+  const changedAgain = history
+    .locator("li")
+    .filter({ hasText: `${names[0]} — wersja 1` })
+    .first();
+  await changedAgain
+    .getByRole("button", { name: "Potwierdź wycofanie" })
+    .click();
+  await expect(history.getByRole("alert")).toContainText("Wpis zmienił się");
+  await expect(history).not.toContainText("wskazanie wycofane");
+  await other.close();
 });

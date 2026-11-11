@@ -831,8 +831,8 @@ function EventSession({
                 <div className="space-y-2">
                   {cvError ? (
                     <p className="text-sm text-muted-foreground">
-                      Nie można pobrać wersji CV. Możesz zapisać aplikowanie bez
-                      wskazań i uzupełnić je później.
+                      Nie można pobrać wersji CV. Ponów odczyt albo usuń
+                      wskazania, aby zapisać aplikowanie bez nich.
                     </p>
                   ) : cvOptions ? (
                     <SentVersionPicker
@@ -853,6 +853,28 @@ function EventSession({
                     <p className="text-sm text-muted-foreground">
                       Pobieranie dostępnych wersji CV…
                     </p>
+                  )}
+                  {(cvError || cvStale) && (
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        disabled={locked}
+                        className={buttonStyles.secondary}
+                        onClick={loadCv}
+                      >
+                        Ponów odczyt wersji CV
+                      </button>
+                      {sentVersions.length > 0 && (
+                        <button
+                          type="button"
+                          disabled={locked}
+                          className={buttonStyles.secondary}
+                          onClick={() => setSentVersions([])}
+                        >
+                          Usuń wszystkie wskazania CV
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
               )}
