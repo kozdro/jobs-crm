@@ -394,6 +394,41 @@ export function DocumentsPanel({
           Spróbuj ponownie
         </button>
       )}
+      {mode && (
+        <div className="mt-4 rounded-md border border-border p-4">
+          <h3
+            ref={uploadHeading}
+            tabIndex={-1}
+            className="mb-3 font-medium outline-none focus:ring-2 focus:ring-ring"
+          >
+            {mode === "version" ? "Dodaj nową wersję" : "Dodaj dokument"}
+          </h3>
+          <DocumentUploadForm
+            key={`${mode}:${versionDocument}`}
+            onSubmit={upload}
+            pending={busy || Boolean(recovery.requestId)}
+            blocked={!data}
+            versionOnly={mode === "version"}
+          />
+          {!data && (
+            <p role="status" className="mt-2 text-sm">
+              Szkic pozostaje w tej karcie. Aby przesłać plik, ponów odczyt
+              dokumentów.
+            </p>
+          )}
+          <button
+            type="button"
+            disabled={busy || Boolean(recovery.requestId)}
+            className={`${buttonStyles.secondary} mt-3`}
+            onClick={() => {
+              setMode(null);
+              setVersionDocument(null);
+            }}
+          >
+            Anuluj
+          </button>
+        </div>
+      )}
       {data && (
         <>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -442,34 +477,6 @@ export function DocumentsPanel({
               </>
             )}
           </div>
-          {mode && (
-            <div className="mt-4 rounded-md border border-border p-4">
-              <h3
-                ref={uploadHeading}
-                tabIndex={-1}
-                className="mb-3 font-medium outline-none focus:ring-2 focus:ring-ring"
-              >
-                {mode === "version" ? "Dodaj nową wersję" : "Dodaj dokument"}
-              </h3>
-              <DocumentUploadForm
-                key={`${mode}:${versionDocument}`}
-                onSubmit={upload}
-                pending={busy || Boolean(recovery.requestId)}
-                versionOnly={mode === "version"}
-              />
-              <button
-                type="button"
-                disabled={busy || Boolean(recovery.requestId)}
-                className={`${buttonStyles.secondary} mt-3`}
-                onClick={() => {
-                  setMode(null);
-                  setVersionDocument(null);
-                }}
-              >
-                Anuluj
-              </button>
-            </div>
-          )}
           {data.documents.length === 0 && (
             <p className="mt-4 text-sm text-muted-foreground">
               Brak dokumentów.

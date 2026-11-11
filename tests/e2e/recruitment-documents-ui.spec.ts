@@ -630,3 +630,119 @@ test("document panel fences delayed reads through delete and recovers after setu
   await expect(panel).not.toContainText(name);
   await expect(panel).toContainText(/usuwanie|usunięta/i);
 });
+
+test("upload drafts survive a failed refresh without revealing document metadata", async ({
+  page,
+}) => {
+  const documentName = `Draft target ${randomUUID()}`;
+  const draftName = `Draft retained ${randomUUID()}`;
+  const privateFilename = "synthetic-existing-private.txt";
+  await login(page);
+  await page.goto(`${target.appOrigin}/documents`);
+  const library = page.getByRole("region", { name: "Biblioteka dokumentów" });
+  await library
+    .getByRole("button", { name: "Dodaj dokument", exact: true })
+    .click();
+  await library.getByLabel("Plik", { exact: true }).setInputFiles({
+    name: privateFilename,
+    mimeType: "text/plain",
+    buffer: Buffer.from("Existing synthetic bytes\n"),
+  });
+  await library.getByLabel("Nazwa dokumentu").fill(documentName);
+  await library.getByLabel("To jest CV").check();
+  await library
+    .getByRole("button", { name: "Dodaj plik", exact: true })
+    .click();
+  const item = library
+    .locator("li")
+    .filter({ has: page.getByRole("heading", { name: documentName }) })
+    .first();
+  await expect(item).toContainText(privateFilename);
+  for (const mode of ["library", "version"] as const) {
+    if (mode === "library")
+      await library
+        .getByRole("button", { name: "Dodaj dokument", exact: true })
+        .click();
+    else await item.getByRole("button", { name: "Dodaj wersję" }).click();
+    const draftFile = `synthetic-draft-${mode}.txt`;
+    const draftBytes = Buffer.from(`Synthetic draft ${mode}\n`);
+    const fileInput = library.getByLabel("Plik", { exact: true });
+    await fileInput.setInputFiles({
+      name: draftFile,
+      mimeType: "text/plain",
+      buffer: draftBytes,
+    });
+    if (mode === "library") {
+      await library.getByLabel("Nazwa dokumentu").fill(draftName);
+      await library.getByLabel("To jest CV").check();
+    }
+    await library
+      .getByLabel("Etykieta wersji (opcjonalnie)")
+      .fill(`Etykieta ${mode}`);
+    await page.route(
+      "**/documents/data",
+      (route) =>
+        route.fulfill({
+          status: 503,
+          contentType: "application/json",
+          body: "{}",
+        }),
+      { times: 1 },
+    );
+    await library.getByRole("button", { name: "Odśwież stan" }).click();
+    await expect(library.getByRole("alert")).toContainText(
+      "Nie udało się pobrać dokumentów",
+    );
+    await expect(library).not.toContainText(documentName);
+    await expect(library).not.toContainText(privateFilename);
+    await expect(
+      library.getByRole("button", { name: "Dodaj plik", exact: true }),
+    ).toBeDisabled();
+    expect(
+      await fileInput.evaluate(
+        (input: HTMLInputElement) => input.files?.[0]?.name,
+      ),
+    ).toBe(draftFile);
+    await expect(
+      library.getByLabel("Etykieta wersji (opcjonalnie)"),
+    ).toHaveValue(`Etykieta ${mode}`);
+    if (mode === "library") {
+      await expect(library.getByLabel("Nazwa dokumentu")).toHaveValue(
+        draftName,
+      );
+      await expect(library.getByLabel("To jest CV")).toBeChecked();
+    }
+    await library.getByRole("button", { name: "Spróbuj ponownie" }).click();
+    await expect(item).toContainText(privateFilename);
+    await expect(
+      library.getByRole("button", { name: "Dodaj plik", exact: true }),
+    ).toBeEnabled();
+    expect(
+      await fileInput.evaluate(
+        (input: HTMLInputElement) => input.files?.[0]?.name,
+      ),
+    ).toBe(draftFile);
+    await library
+      .getByRole("button", { name: "Dodaj plik", exact: true })
+      .click();
+    const uploaded =
+      mode === "library"
+        ? library
+            .locator("li")
+            .filter({ has: page.getByRole("heading", { name: draftName }) })
+            .first()
+        : item;
+    await expect(uploaded).toContainText(draftFile);
+    const downloadPromise = page.waitForEvent("download");
+    await uploaded
+      .locator("li")
+      .filter({ hasText: draftFile })
+      .getByRole("link", { name: "Pobierz" })
+      .click();
+    const download = await downloadPromise;
+    const chunks: Buffer[] = [];
+    for await (const chunk of (await download.createReadStream())!)
+      chunks.push(Buffer.from(chunk));
+    expect(Buffer.concat(chunks)).toEqual(draftBytes);
+  }
+});

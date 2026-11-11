@@ -34,10 +34,12 @@ export function validateUploadDraft(input: {
 export function DocumentUploadForm({
   onSubmit,
   pending = false,
+  blocked = false,
   versionOnly = false,
 }: {
   onSubmit: (draft: DocumentUploadDraft) => void | Promise<void>;
   pending?: boolean;
+  blocked?: boolean;
   versionOnly?: boolean;
 }) {
   const [file, setFile] = useState<File | null>(null);
@@ -127,7 +129,11 @@ export function DocumentUploadForm({
           {error}
         </p>
       )}
-      <button type="submit" disabled={pending} className={buttonStyles.primary}>
+      <button
+        type="submit"
+        disabled={pending || blocked}
+        className={buttonStyles.primary}
+      >
         {pending ? "Przesyłanie…" : "Dodaj plik"}
       </button>
     </form>
