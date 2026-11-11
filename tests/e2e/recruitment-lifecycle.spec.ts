@@ -293,13 +293,37 @@ test("Reload while event result is unknown recovers by owner-bound identifier wi
 
 async function tabTo(page: Page, targetControl: Locator) {
   await expect(targetControl).toBeVisible();
-  for (let presses = 0; presses < 30; presses++) {
+  await page.evaluate(() => {
+    (
+      window as Window & {
+        __qaFocusSeen?: WeakSet<Element>;
+        __qaLastFocus?: Element | null;
+      }
+    ).__qaFocusSeen = new WeakSet<Element>();
+    (window as Window & { __qaLastFocus?: Element | null }).__qaLastFocus =
+      null;
+  });
+  for (let presses = 0; presses < 60; presses++) {
     if (
       await targetControl.evaluate((node) => node === document.activeElement)
     ) {
       await expect(targetControl).toBeFocused();
       return;
     }
+    const cycled = await page.evaluate(() => {
+      const state = window as Window & {
+        __qaFocusSeen?: WeakSet<Element>;
+        __qaLastFocus?: Element | null;
+      };
+      const seen = state.__qaFocusSeen!;
+      const active = document.activeElement;
+      if (!active || active === state.__qaLastFocus) return false;
+      state.__qaLastFocus = active;
+      if (seen.has(active)) return true;
+      seen.add(active);
+      return false;
+    });
+    expect(cycled, "Tab focus cycled before reaching the control").toBe(false);
     await page.keyboard.press("Tab");
   }
   await expect(targetControl).toBeFocused();

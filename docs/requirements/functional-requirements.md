@@ -201,6 +201,8 @@ Każdy FR ma co najmniej jedno testowalne AC. Macierz powiązań ze scenariuszam
 
 ## GS — Global Search
 
+**DEC-064 APPROVED:** warianty 1A/2A/3A i kontrakt [Global Search, Notes i CaseLinks](../technical/global-search-analysis.md); zakres OPEN-038 i zależnych OPEN został częściowo rozstrzygnięty. Zatwierdzenie nie oznacza wykonania AC ani uruchomienia testów; poniższe historyczne bramki zachowują pozostały zakres OPEN.
+
 **Specyfikacja:** [Global Search](../features/global-search.md)
 
 | ID | Wymaganie (`APPROVED`, MVP) | Powiązane `DEC/BR` | Bramka `OPEN` | Test akceptacyjny |

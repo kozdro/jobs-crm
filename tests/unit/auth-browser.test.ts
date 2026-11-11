@@ -99,8 +99,10 @@ describe("AUTH-02/06 browser adapter URL boundary", () => {
 
   it.each([
     "#case-details",
+    "#case-links",
     "#case-relations",
     "#case-tasks",
+    "#case-calendar",
     "#case-lifecycle",
     "#case-actions",
     "#case-history",
@@ -127,6 +129,8 @@ describe("AUTH-02/06 browser adapter URL boundary", () => {
 
   it.each([
     ["/account", "#case-history"],
+    ["/account", "#case-links"],
+    ["/calendar", "#case-calendar"],
     ["/login", "#case-details"],
     ["/auth/callback", "#case-actions"],
     ["/recruitments/not-a-uuid", "#case-history"],
@@ -138,6 +142,14 @@ describe("AUTH-02/06 browser adapter URL boundary", () => {
     [
       "/recruitments/00000000-0000-4000-8000-000000000001",
       "#case-history&access_token=untrusted",
+    ],
+    [
+      "/recruitments/00000000-0000-4000-8000-000000000001",
+      "#case-links&access_token=untrusted",
+    ],
+    [
+      "/recruitments/00000000-0000-4000-8000-000000000001",
+      "#case-calendar?refresh_token=untrusted",
     ],
     ["/recruitments/00000000-0000-4000-8000-000000000001", "#%63ase-history"],
     ["/recruitments/00000000-0000-4000-8000-000000000001", "#history"],

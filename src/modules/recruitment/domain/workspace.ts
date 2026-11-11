@@ -42,6 +42,7 @@ export type WorkspaceTimelineItem =
       event: import("./calendar").CalendarEvent;
       recordedAt: string;
     }
+  | { type: "note"; note: import("./case-note").CaseNote }
   | { type: "fact"; fact: CaseEvent }
   | { type: "lifecycle"; entry: LifecycleEntry };
 export type WorkspacePreview = {

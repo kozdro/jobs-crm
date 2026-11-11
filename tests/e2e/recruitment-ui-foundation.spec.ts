@@ -132,7 +132,29 @@ for (const width of widths) {
     await expect(
       page.getByRole("button", { name: "Wyloguj wszędzie", exact: true }),
     ).not.toBeVisible();
-    await expect(page.getByRole("searchbox")).toHaveCount(0);
+    if (width >= 1024)
+      await expect(
+        page.getByRole("searchbox", { name: "Szukaj w Jobs CRM", exact: true }),
+      ).toBeVisible();
+    const searchTrigger = page.getByRole("button", {
+      name: "Szukaj w Jobs CRM",
+      exact: true,
+    });
+    await expect(searchTrigger).toBeVisible();
+    await searchTrigger.click();
+    const search = page.getByRole("dialog", {
+      name: "Wyszukiwanie",
+      exact: true,
+    });
+    await search
+      .getByLabel("Szukaj w Jobs CRM", { exact: true })
+      .fill(`brak${randomUUID().replaceAll("-", "")}`);
+    await expect(
+      search.getByText("Brak wyników. Spróbuj innej frazy."),
+    ).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(search).toHaveCount(0);
+    await expect(searchTrigger).toBeFocused();
     await capture(page, `dashboard-${width}`, info);
     await page.getByRole("button", { name: "Menu konta", exact: true }).click();
     await expect(

@@ -58,6 +58,42 @@ export function readRecruitmentCase(value: unknown): RecruitmentCase {
   };
 }
 
+/** The create receipt owns the immutable legacy URL; business reads resolve its
+ * current projection so an edited or voided link is never displayed as live. */
+export async function resolveLegacyCaseLinks<T extends RecruitmentCase>(
+  client: SupabaseClient,
+  cases: T[],
+): Promise<T[]> {
+  const ids = cases
+    .filter((item) => item.source_url !== null)
+    .map((item) => item.id);
+  if (!ids.length) return cases;
+  const { data, error } = await client
+    .from("case_link_current")
+    .select("case_id,url")
+    .eq("source", "legacy")
+    .eq("voided", false)
+    .in("case_id", ids);
+  if (error || !Array.isArray(data))
+    throw new CaseRepositoryError("unavailable");
+  const values = new Map<string, string>();
+  for (const row of data) {
+    if (
+      typeof row.case_id !== "string" ||
+      !ids.includes(row.case_id) ||
+      typeof row.url !== "string" ||
+      values.has(row.case_id)
+    )
+      throw new CaseRepositoryError("unavailable");
+    values.set(row.case_id, row.url);
+  }
+  return cases.map((item) =>
+    item.source_url === null
+      ? item
+      : { ...item, source_url: values.get(item.id) ?? null },
+  );
+}
+
 /** Client is request-scoped on the server or the official current-user browser SDK. */
 export async function createRecruitmentCase(
   client: SupabaseClient,
@@ -113,7 +149,10 @@ export async function listRecruitmentCases(client: SupabaseClient, page = 1) {
   if (error || !Array.isArray(data))
     throw new CaseRepositoryError("unavailable");
   return {
-    cases: data.slice(0, casePageSize).map(readRecruitmentCase),
+    cases: await resolveLegacyCaseLinks(
+      client,
+      data.slice(0, casePageSize).map(readRecruitmentCase),
+    ),
     hasMore: data.length > casePageSize,
     page,
   };
@@ -131,7 +170,11 @@ async function findCase(
     .eq(column, value)
     .maybeSingle();
   if (error) throw new CaseRepositoryError("unavailable");
-  return data ? readRecruitmentCase(data) : null;
+  if (!data) return null;
+  const parsed = readRecruitmentCase(data);
+  return column === "id"
+    ? (await resolveLegacyCaseLinks(client, [parsed]))[0]
+    : parsed;
 }
 export const getRecruitmentCase = (client: SupabaseClient, id: string) =>
   findCase(client, "id", id);

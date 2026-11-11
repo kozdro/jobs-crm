@@ -4,6 +4,40 @@ import type {
 } from "@/modules/recruitment/domain/calendar";
 import type { CalendarSchedule } from "@/modules/recruitment/domain/calendar-time";
 
+/** An absent event and an unreadable response require distinct UI states. */
+export function calendarTargetResult(
+  body: unknown,
+  eventId: string,
+): "found" | "missing" | "error" {
+  if (
+    !body ||
+    typeof body !== "object" ||
+    Array.isArray(body) ||
+    !("event" in body)
+  )
+    return "error";
+  const event = (body as { event: unknown }).event;
+  if (event === null) return "missing";
+  if (
+    !event ||
+    typeof event !== "object" ||
+    Array.isArray(event) ||
+    (event as { id?: unknown }).id !== eventId
+  )
+    return "error";
+  return "found";
+}
+
+/** Missing and foreign records share the same presentation; outages are retryable. */
+export function calendarTargetFailure(error: unknown): "missing" | "error" {
+  return !!error &&
+    typeof error === "object" &&
+    "status" in error &&
+    error.status === 404
+    ? "missing"
+    : "error";
+}
+
 export function eventDialogName(
   mode: "edit" | "resolve",
   status: CalendarStatus,

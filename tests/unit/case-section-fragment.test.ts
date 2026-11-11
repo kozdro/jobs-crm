@@ -5,8 +5,10 @@ const id = "a1b2c3d4-1234-4abc-8def-1234567890ab";
 const path = `/recruitments/${id}`;
 const fragments = [
   "#case-details",
+  "#case-links",
   "#case-relations",
   "#case-tasks",
+  "#case-calendar",
   "#case-lifecycle",
   "#case-actions",
   "#case-history",
@@ -72,4 +74,29 @@ describe("exact case section fragment boundary", () => {
   ])("rejects encoded, appended or token-like fragments %j", (fragment) => {
     expect(isCaseSectionFragment(path, fragment)).toBe(false);
   });
+  it.each(["#case-links", "#case-calendar"])(
+    "never accepts modified or token-bearing versions of %s",
+    (fragment) => {
+      for (const suffix of [
+        " ",
+        "\n",
+        "%00",
+        "&access_token=untrusted",
+        "?refresh_token=untrusted",
+        "#type=recovery",
+      ]) {
+        expect(isCaseSectionFragment(path, fragment + suffix)).toBe(false);
+      }
+      expect(
+        isCaseSectionFragment(path, fragment.replace("case", "%63ase")),
+      ).toBe(false);
+      expect(isCaseSectionFragment(`/recruitments/${id}/edit`, fragment)).toBe(
+        false,
+      );
+      expect(isCaseSectionFragment(`/recruitments/${id}\n`, fragment)).toBe(
+        false,
+      );
+      expect(isCaseSectionFragment("/account", fragment)).toBe(false);
+    },
+  );
 });

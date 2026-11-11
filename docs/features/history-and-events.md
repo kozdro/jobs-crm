@@ -1,5 +1,7 @@
 # Feature: History & Events
 
+**DEC-064 — APPROVED, Notes:** własne notatki sprawy są dostępne inline, z rozróżnieniem zwykłej notatki i znanej/nieznanej daty wcześniejszego zdarzenia, korektą, audytem oraz unieważnieniem. Aktualne ważne treści są wyszukiwalne przez Global Search; notatka nie tworzy faktu aplikowania ani rozmowy. Szczegółowy [kontrakt](../technical/global-search-analysis.md), [UX](../ux/global-search-slice.md). Wykonanie i testy raportuje oddzielny raport.
+
 **Stan:** `BASELINED` (główna semantyka `APPROVED`). **Aktor:** użytkownik. **FR:** `FR-HE-001`–`FR-HE-013`.
 
 ## Cel

@@ -1,5 +1,7 @@
 # Feature: Recruitment Lifecycle & Stages
 
+**DEC-064 — APPROVED, CaseLinks:** jedna sprawa może mieć wiele uporządkowanych URL-i z jawną rolą, korektą, audytem i unieważnieniem. Historyczny `source_url` zachowuje pochodzenie i zgodność ze starymi zamiarami; sam link nie oznacza aplikowania ani dostępu do korespondencji. [Kontrakt](../technical/global-search-analysis.md); wyniki wykonania są odrębne.
+
 **Calendar Core, DEC-062:** P1 zatwierdzono w ustalonym zakresie: trzy skutki dla otwartych wydarzeń, definicja otwartości, zachowanie powiązań uczestników, atomowe close z Task i brak zmian wydarzeń przez samo wznowienie. Pozostałe reguły uczestnictwa i inne kwestie pozostają OPEN; implementacja Calendar i pełny TC-012 nie są wykonane. [Analiza](../technical/calendar-core-analysis.md).
 
 ## Tasks Core — integracja BR-011, DEC-060 (2026-11-01)

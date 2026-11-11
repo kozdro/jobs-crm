@@ -22,6 +22,8 @@ import {
   type CaseEvent,
 } from "@/modules/recruitment/domain/case-events";
 import { CaseCreatedTime } from "./case-content";
+import { NoteEditor, NoteEntry } from "./case-content-tools";
+import { noteTimelineDay } from "./content-form-validation";
 
 export function formatEventDay(day: string) {
   const [year, month, date] = day.split("-");
@@ -46,9 +48,11 @@ type HistoryResult =
 function timelineDay(item: TimelineItem) {
   return item.type === "fact"
     ? item.fact.occurred_on
-    : item.type === "calendar"
-      ? (item.event.actual?.date ?? null)
-      : item.entry.occurred_on;
+    : item.type === "note"
+      ? noteTimelineDay(item.note)
+      : item.type === "calendar"
+        ? (item.event.actual?.date ?? null)
+        : item.entry.occurred_on;
 }
 type EditControls = { active: Editing; select: (event: Editing) => void };
 function HistoryEntry({
@@ -189,7 +193,17 @@ function HistoryEntries({
   caseId,
   active,
   select,
-}: { events: TimelineItem[]; userId?: string; caseId: string } & EditControls) {
+  noteEditing,
+  openNote,
+  closeNote,
+}: {
+  events: TimelineItem[];
+  userId?: string;
+  caseId: string;
+  noteEditing: string | null;
+  openNote: (id: string) => void;
+  closeNote: () => void;
+} & EditControls) {
   return (
     <ol className="mt-3 divide-y divide-border">
       {events.map((item) =>
@@ -201,6 +215,16 @@ function HistoryEntries({
             caseId={caseId}
             active={active}
             select={select}
+          />
+        ) : item.type === "note" && userId ? (
+          <NoteEntry
+            key={`${userId}:${item.note.id}`}
+            owner={userId}
+            note={item.note}
+            editing={noteEditing === item.note.id}
+            blocked={Boolean(noteEditing || active)}
+            onEdit={() => openNote(item.note.id)}
+            onClose={closeNote}
           />
         ) : item.type === "calendar" ? (
           <li key={`${userId}:${item.event.id}`} className="py-4 first:pt-0">
@@ -257,7 +281,7 @@ function HistoryEntries({
               Otwórz wydarzenia sprawy
             </a>
           </li>
-        ) : (
+        ) : item.type === "lifecycle" ? (
           <LifecycleHistoryEntry
             key={`${userId}:${item.entry.id}`}
             entry={item.entry}
@@ -273,7 +297,7 @@ function HistoryEntries({
             }
             onClose={() => select(null)}
           />
-        ),
+        ) : null,
       )}
     </ol>
   );
@@ -283,10 +307,12 @@ export function CaseHistory({
   result,
   userId,
   workspaceReturnToken,
+  historyPage,
 }: {
   caseId: string;
   userId?: string;
   workspaceReturnToken?: string;
+  historyPage?: number;
   result: HistoryResult | null;
 }) {
   function historyPageHref(page: number) {
@@ -296,6 +322,12 @@ export function CaseHistory({
     return `/recruitments/${caseId}?${params}#history`;
   }
   const [active, setActive] = useState<Editing>(null);
+  const [noteEditing, setNoteEditing] = useState<string | null>(null);
+  const [snapshot, setSnapshot] = useState<TimelineItem[]>([]);
+  const [snapshotResult, setSnapshotResult] = useState<HistoryResult | null>(
+    null,
+  );
+  const addNoteTrigger = useRef<HTMLButtonElement>(null);
   const [locked, setLocked] = useState(false);
   function select(value: Editing) {
     if (value && userId) {
@@ -322,11 +354,19 @@ export function CaseHistory({
     setLocked(false);
     setActive(value);
   }
-  const entries: TimelineItem[] = result
+  const liveEntries: TimelineItem[] = result
     ? "entries" in result
       ? result.entries
       : result.events.map((fact) => ({ type: "fact", fact }))
     : [];
+  const entries = noteEditing ? snapshot : liveEntries;
+  function openNote(id: string) {
+    if (noteEditing || active) return;
+    setSnapshot(liveEntries);
+    setSnapshotResult(result);
+    setNoteEditing(id);
+  }
+  const visibleResult = noteEditing ? snapshotResult : result;
   const dated = entries.filter((item) => timelineDay(item) !== null);
   const undated = entries.filter((item) => timelineDay(item) === null);
   return (
@@ -342,9 +382,30 @@ export function CaseHistory({
       >
         Historia sprawy
       </h2>
+      {userId &&
+        (noteEditing === "new" ? (
+          <NoteEditor
+            owner={userId}
+            caseId={caseId}
+            onCancel={() => {
+              setNoteEditing(null);
+              requestAnimationFrame(() => addNoteTrigger.current?.focus());
+            }}
+          />
+        ) : (
+          <button
+            ref={addNoteTrigger}
+            type="button"
+            className="ui-link min-h-11 py-2 text-sm"
+            disabled={Boolean(noteEditing || active)}
+            onClick={() => openNote("new")}
+          >
+            + Notatka
+          </button>
+        ))}
       {userId && (
         <HistoryRecovery
-          key={`${userId}:${caseId}`}
+          key={`${userId}:${caseId}:${historyPage ?? result?.page ?? 1}`}
           userId={userId}
           caseId={caseId}
         />
@@ -355,7 +416,7 @@ export function CaseHistory({
           operacji.
         </p>
       )}
-      {!result ? (
+      {!visibleResult ? (
         <p role="alert" className="mt-3 text-sm text-destructive">
           Nie udało się pobrać historii. Odśwież stronę i spróbuj ponownie.
         </p>
@@ -363,7 +424,7 @@ export function CaseHistory({
         <>
           {entries.length === 0 ? (
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              {result.page === 1
+              {visibleResult.page === 1
                 ? "Nie zarejestrowano jeszcze zdarzeń biznesowych. Samo zapisanie sprawy nie oznacza aplikowania ani kontaktu."
                 : "Brak zdarzeń na tej stronie historii."}
             </p>
@@ -375,8 +436,13 @@ export function CaseHistory({
                     events={dated}
                     userId={userId}
                     caseId={caseId}
-                    active={active}
+                    active={
+                      noteEditing ? { id: "", operation: "correct" } : active
+                    }
                     select={select}
+                    noteEditing={noteEditing}
+                    openNote={openNote}
+                    closeNote={() => setNoteEditing(null)}
                   />
                 </div>
               )}
@@ -393,43 +459,48 @@ export function CaseHistory({
                     events={undated}
                     userId={userId}
                     caseId={caseId}
-                    active={active}
+                    active={
+                      noteEditing ? { id: "", operation: "correct" } : active
+                    }
                     select={select}
+                    noteEditing={noteEditing}
+                    openNote={openNote}
+                    closeNote={() => setNoteEditing(null)}
                   />
                 </div>
               )}
             </>
           )}
-          {(result.page > 1 || result.hasMore) && (
+          {(visibleResult.page > 1 || visibleResult.hasMore) && (
             <nav
               aria-label="Strony historii sprawy"
               className="mt-4 flex flex-wrap items-center gap-5 text-sm text-muted-foreground"
             >
-              {active && (
+              {(active || noteEditing) && (
                 <p className="basis-full text-sm">
                   Zakończ lub anuluj otwartą korektę przed zmianą strony
                   historii. Dane formularza pozostają zachowane.
                 </p>
               )}
-              {result.page > 1 &&
-                (active ? (
+              {visibleResult.page > 1 &&
+                (active || noteEditing ? (
                   <span aria-disabled="true">Poprzednia strona historii</span>
                 ) : (
                   <Link
                     className="ui-link inline-flex min-h-11 items-center"
-                    href={historyPageHref(result.page - 1)}
+                    href={historyPageHref(visibleResult.page - 1)}
                   >
                     Poprzednia strona historii
                   </Link>
                 ))}
-              <span>Strona {result.page}</span>
-              {result.hasMore &&
-                (active ? (
+              <span>Strona {visibleResult.page}</span>
+              {visibleResult.hasMore &&
+                (active || noteEditing ? (
                   <span aria-disabled="true">Następna strona historii</span>
                 ) : (
                   <Link
                     className="ui-link inline-flex min-h-11 items-center"
-                    href={historyPageHref(result.page + 1)}
+                    href={historyPageHref(visibleResult.page + 1)}
                   >
                     Następna strona historii
                   </Link>

@@ -13,14 +13,37 @@ const signupResult = z.strictObject({
   identityCount: n.nullable(),
   errorCode: code,
 });
+// Fixed labels only: no browser data, query strings, identifiers or free-form text.
+export const MOVE_LINK_PHASES = [
+  "not_entered",
+  "unknown",
+  "case_setup",
+  "links_setup",
+  "login",
+  "open_case",
+  "next_page",
+  "move_up",
+  "row_visible",
+  "row_focus",
+  "move_status",
+  "page_status",
+  "persisted_position",
+] as const;
 const observationSchemas = {
-  F3_BROWSER_FAILURE: z.strictObject({
-    fileHash: z.string().regex(/^[a-f0-9]{64}$/),
-    line: z.number().int().min(1).max(1000000),
-    status: z.enum(["failed", "timedOut", "interrupted"]),
-    category: z.enum(["timeout", "assertion", "browser-closed", "other"]),
-    retry: z.number().int().min(0).max(1000),
-  }),
+  F3_BROWSER_FAILURE: z
+    .strictObject({
+      fileHash: z.string().regex(/^[a-f0-9]{64}$/),
+      line: z.number().int().min(1).max(1000000),
+      status: z.enum(["failed", "timedOut", "interrupted"]),
+      category: z.enum(["timeout", "assertion", "browser-closed", "other"]),
+      retry: z.number().int().min(0).max(1000),
+      phase: z.enum(MOVE_LINK_PHASES).optional(),
+    })
+    .refine(
+      (value) =>
+        value.phase === undefined ||
+        (value.category === "timeout" && value.status !== "interrupted"),
+    ),
   F3_BFCACHE_OBSERVATION: z.strictObject({
     cacheExclusionObserved: z.literal(true),
     backResponseSource: z.enum(["history-navigation", "explicit-SSR-request"]),

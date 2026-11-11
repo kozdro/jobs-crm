@@ -16,6 +16,7 @@ import {
 import { getBrowserClient } from "@/modules/identity/infrastructure/browser";
 import { buttonStyles, inputStyles } from "@/components/ui/styles";
 import { CaseCreatedTime, CaseStatus } from "./case-content";
+import { noteTimelineDay } from "./content-form-validation";
 import {
   clearWorkspaceNavigation,
   findWorkspaceNavigation,
@@ -1108,15 +1109,19 @@ function WorkspaceDrawer({
                     const entry =
                       item.type === "fact"
                         ? item.fact
-                        : item.type === "calendar"
-                          ? item.event
-                          : item.entry;
+                        : item.type === "note"
+                          ? item.note
+                          : item.type === "calendar"
+                            ? item.event
+                            : item.entry;
                     const occurredOn =
                       item.type === "calendar"
                         ? (item.event.actual?.date ?? null)
-                        : item.type === "fact"
-                          ? item.fact.occurred_on
-                          : item.entry.occurred_on;
+                        : item.type === "note"
+                          ? noteTimelineDay(item.note)
+                          : item.type === "fact"
+                            ? item.fact.occurred_on
+                            : item.entry.occurred_on;
                     const label =
                       item.type === "fact"
                         ? {
@@ -1131,15 +1136,24 @@ function WorkspaceDrawer({
                           }[item.fact.kind]
                         : item.type === "calendar"
                           ? `Odbyte wydarzenie: ${item.event.title}`
-                          : item.entry.kind === "close"
-                            ? "Zakończono sprawę"
-                            : "Wznowiono sprawę";
+                          : item.type === "note"
+                            ? item.note.voided
+                              ? "Unieważniona notatka"
+                              : "Notatka"
+                            : item.entry.kind === "close"
+                              ? "Zakończono sprawę"
+                              : "Wznowiono sprawę";
                     return (
                       <li
                         key={`${item.type}:${entry.id}`}
                         className="py-3 text-sm [overflow-wrap:anywhere]"
                       >
                         <p className="font-medium">{label}</p>
+                        {item.type === "note" && (
+                          <p className="whitespace-pre-wrap">
+                            {item.note.body}
+                          </p>
+                        )}
                         {item.type === "fact" && item.fact.voided && (
                           <p>Unieważniony wpis — nie wpływa na bieżący stan.</p>
                         )}

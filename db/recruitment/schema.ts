@@ -56,6 +56,10 @@ export const recruitmentCase = pgTable(
       table.id.desc(),
     ),
     index("recruitment_case_owner_title_idx").on(table.ownerId, table.title),
+    index("recruitment_case_search_gin").using(
+      "gin",
+      sql`to_tsvector('pg_catalog.simple'::regconfig,public.search_normalize(coalesce(${table.title},'')||' '||coalesce(${table.description},'')))`,
+    ),
     // Never index unbounded URL text directly: a valid long URL can exceed the B-tree tuple limit.
     index("recruitment_case_owner_url_idx")
       .on(table.ownerId, sql`md5(${table.sourceUrl})`)
@@ -389,6 +393,10 @@ export const catalogProfile = pgTable(
     ),
     check("catalog_profile_revision_valid", sql`${t.revision}>=0`),
     index("catalog_profile_owner_order_idx").on(t.ownerId, t.createdAt, t.id),
+    index("catalog_profile_search_gin").using(
+      "gin",
+      sql`to_tsvector('pg_catalog.simple'::regconfig,public.search_normalize(coalesce(${t.name},'')))`,
+    ),
   ],
 ).enableRLS();
 export const catalogRelation = pgTable(
@@ -639,6 +647,10 @@ export const recruitmentCalendarEvent = pgTable(
       t.status,
       t.id,
     ),
+    index("calendar_event_search_gin").using(
+      "gin",
+      sql`to_tsvector('pg_catalog.simple'::regconfig,public.search_normalize(coalesce(${t.title},'')||' '||coalesce(${t.description},'')))`,
+    ),
   ],
 ).enableRLS();
 
@@ -800,5 +812,137 @@ export const recruitmentManualContact = pgTable(
       columns: [t.eventId],
       foreignColumns: [recruitmentCaseEvent.id],
     }),
+  ],
+).enableRLS();
+
+/** DEC Global Search 2A/3A: only command-triggered owner-scoped projections. */
+export const caseNote = pgTable(
+  "case_note",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    caseId: uuid("case_id").notNull(),
+    body: text("body").notNull(),
+    dateKind: text("date_kind").notNull(),
+    occurredOn: date("occurred_on"),
+    voided: boolean("voided").default(false).notNull(),
+    revision: integer("revision").default(0).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    unique("case_note_owner_id_key").on(t.ownerId, t.id),
+    foreignKey({
+      name: "case_note_owner_id_case_id_fkey",
+      columns: [t.ownerId, t.caseId],
+      foreignColumns: [recruitmentCase.ownerId, recruitmentCase.id],
+    }),
+    check(
+      "case_note_body_check",
+      sql`char_length(${t.body}) BETWEEN 1 AND 10000 AND ${t.body}=public.recruitment_trim(${t.body})`,
+    ),
+    check(
+      "case_note_date_kind_check",
+      sql`${t.dateKind} IN ('ordinary','historical')`,
+    ),
+    check(
+      "case_note_check",
+      sql`${t.dateKind} <> 'ordinary' OR ${t.occurredOn} IS NULL`,
+    ),
+    check("case_note_revision_check", sql`${t.revision}>=0`),
+    index("case_note_owner_case_idx").on(
+      t.ownerId,
+      t.caseId,
+      t.createdAt,
+      t.id,
+    ),
+    index("case_note_search_gin").using(
+      "gin",
+      sql`to_tsvector('pg_catalog.simple'::regconfig,public.search_normalize(${t.body}))`,
+    ),
+  ],
+).enableRLS();
+export const caseLink = pgTable(
+  "case_link",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    caseId: uuid("case_id").notNull(),
+    legacy: boolean("legacy").default(false).notNull(),
+    url: text("url").notNull(),
+    role: text("role").notNull(),
+    position: integer("position").notNull(),
+    voided: boolean("voided").default(false).notNull(),
+    revision: integer("revision").default(0).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    unique("case_link_owner_id_key").on(t.ownerId, t.id),
+    foreignKey({
+      name: "case_link_owner_id_case_id_fkey",
+      columns: [t.ownerId, t.caseId],
+      foreignColumns: [recruitmentCase.ownerId, recruitmentCase.id],
+    }),
+    check(
+      "case_link_url_check",
+      sql`public.recruitment_source_url(${t.url}) IS NOT NULL AND public.recruitment_source_url(${t.url})=${t.url}`,
+    ),
+    check(
+      "case_link_role_check",
+      sql`${t.role} IN ('primary_offer','additional_offer','application_form','company_site','profile','correspondence','other','unspecified')`,
+    ),
+    check("case_link_check", sql`${t.position}>=0 AND ${t.revision}>=0`),
+    uniqueIndex("case_link_legacy_unique")
+      .on(t.ownerId, t.caseId)
+      .where(sql`${t.legacy}`),
+    index("case_link_owner_case_idx").on(t.ownerId, t.caseId, t.position, t.id),
+    index("case_link_search_gin").using(
+      "gin",
+      sql`to_tsvector('pg_catalog.simple'::regconfig,public.search_normalize(${t.url}))`,
+    ),
+  ],
+).enableRLS();
+export const caseContentCommand = pgTable(
+  "case_content_command",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    ownerId: uuid("owner_id")
+      .default(sql`auth.uid()`)
+      .notNull(),
+    requestId: uuid("request_id").notNull(),
+    payload: jsonb("payload").notNull(),
+    result: jsonb("result").notNull(),
+    targetId: uuid("target_id").notNull(),
+    caseId: uuid("case_id").notNull(),
+    beforeValues: jsonb("before_values"),
+    afterValues: jsonb("after_values").notNull(),
+    recordedAt: timestamp("recorded_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    unique("case_content_command_owner_id_request_id_key").on(
+      t.ownerId,
+      t.requestId,
+    ),
+    foreignKey({
+      name: "case_content_command_owner_id_case_id_fkey",
+      columns: [t.ownerId, t.caseId],
+      foreignColumns: [recruitmentCase.ownerId, recruitmentCase.id],
+    }),
+    index("case_content_command_audit_idx").on(
+      t.ownerId,
+      t.caseId,
+      t.targetId,
+      t.recordedAt,
+      t.id,
+    ),
   ],
 ).enableRLS();

@@ -14,6 +14,7 @@ import { SessionFeedback } from "@/components/auth/account-session";
 import { Sidebar, SidebarNavigation } from "./sidebar";
 import { buttonStyles } from "@/components/ui/styles";
 import { QuickCapture } from "@/components/recruitment/quick-capture";
+import { GlobalSearch } from "@/components/global-search/search";
 
 const collapseKey = "jobs-crm.sidebar-collapsed";
 const listeners = new Set<() => void>();
@@ -132,7 +133,8 @@ export function AppShell({
               </span>
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">
+            <GlobalSearch userId={userId} />
             <QuickCapture userId={userId} />
             <span
               aria-hidden="true"
