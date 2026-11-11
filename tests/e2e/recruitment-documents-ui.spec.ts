@@ -746,3 +746,68 @@ test("upload drafts survive a failed refresh without revealing document metadata
     expect(Buffer.concat(chunks)).toEqual(draftBytes);
   }
 });
+
+test("login rejects native submission before hydration and still supports switching accounts", async ({
+  page,
+}) => {
+  const second = await account(target);
+  let releaseScripts!: () => void;
+  const scriptsGate = new Promise<void>(
+    (resolve) => (releaseScripts = resolve),
+  );
+  let blockedScripts = 0;
+  const observedUrls: string[] = [];
+  page.on("request", (request) => observedUrls.push(request.url()));
+  await page.route("**/_next/static/**/*.js*", async (route) => {
+    blockedScripts += 1;
+    await scriptsGate;
+    await route.continue();
+  });
+  await page.goto(`${target.appOrigin}/login`, { waitUntil: "commit" });
+  const email = page.getByLabel("E-mail", { exact: true });
+  const password = page.getByLabel("Hasło", { exact: true });
+  const submit = page.getByRole("button", { name: "Zaloguj się", exact: true });
+  await expect(email).toBeDisabled();
+  await expect(password).toBeDisabled();
+  await expect(submit).toBeDisabled();
+  await expect(page.locator("form")).toHaveAttribute("method", "post");
+  await expect.poll(() => blockedScripts).toBeGreaterThan(0);
+  await page.keyboard.press("Enter");
+  await submit.evaluate((button: HTMLButtonElement) => button.click());
+  expect(page.url()).toBe(`${target.appOrigin}/login`);
+  expect(
+    observedUrls.some(
+      (url) =>
+        url.includes(owner.email) ||
+        url.includes(owner.password) ||
+        url.includes(second.email) ||
+        url.includes(second.password),
+    ),
+  ).toBe(false);
+  releaseScripts();
+  await expect(email).toBeEnabled();
+  await expect(password).toBeEnabled();
+  await email.fill(owner.email);
+  await password.fill(owner.password);
+  await submit.click();
+  await expect(page).toHaveURL(`${target.appOrigin}/dashboard`);
+  await page.goto(`${target.appOrigin}/account`);
+  await page
+    .getByRole("button", { name: "Wyloguj tutaj", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/login(?:\?|$)/);
+  await expect(email).toBeEnabled();
+  await email.fill(second.email);
+  await password.fill(second.password);
+  await submit.click();
+  await expect(page).toHaveURL(`${target.appOrigin}/dashboard`);
+  expect(
+    observedUrls.some(
+      (url) =>
+        url.includes(encodeURIComponent(owner.email)) ||
+        url.includes(encodeURIComponent(owner.password)) ||
+        url.includes(encodeURIComponent(second.email)) ||
+        url.includes(encodeURIComponent(second.password)),
+    ),
+  ).toBe(false);
+});
