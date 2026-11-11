@@ -47,6 +47,7 @@ for (const [fixture, filename, mime] of [
   ["truncated.pdf", "sample.pdf", "application/pdf"],
   ["active.pdf", "sample.pdf", "application/pdf"],
   ["launch-link.pdf", "sample.pdf", "application/pdf"],
+  ["submit-form.pdf", "sample.pdf", "application/pdf"],
   ["truncated.doc", "sample.doc", "application/msword"],
   ["dde-field.doc", "sample.doc", "application/msword"],
   [

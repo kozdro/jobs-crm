@@ -1,9 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { buttonStyles } from "@/components/ui/styles";
 import { useReceiptRecovery } from "./use-receipt-recovery";
 import { DocumentAudit } from "./document-audit";
+import {
+  documentsChangedEvent,
+  isDocumentsChangeFor,
+  isDocumentsChangePending,
+  notifyDocumentsChanged,
+} from "./document-events";
 import {
   SentVersionPicker,
   type SentVersionOption,
@@ -49,7 +55,9 @@ export function ApplicationVersions({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+  const generation = useRef(0);
   const load = useCallback(async () => {
+    const request = ++generation.current;
     try {
       const response = await fetch(
         `/documents/data?caseId=${encodeURIComponent(caseId)}`,
@@ -57,6 +65,7 @@ export function ApplicationVersions({
       );
       if (!response.ok) throw new Error("unavailable");
       const body = await response.json();
+      if (request !== generation.current) return;
       if (!Array.isArray(body.documents) || !Array.isArray(body.sent))
         throw new Error("invalid");
       const docs = body.documents as Document[];
@@ -79,14 +88,41 @@ export function ApplicationVersions({
       );
       setError(null);
     } catch {
+      if (request !== generation.current) return;
       setReferences(null);
       setError("Nie udało się pobrać wskazań wersji CV.");
     }
   }, [caseId, eventId, userId]);
-  const recovery = useReceiptRecovery(userId, `application.${eventId}`, load);
+  const recovery = useReceiptRecovery(
+    userId,
+    `application.${eventId}`,
+    useCallback(async () => {
+      notifyDocumentsChanged(userId);
+    }, [userId]),
+  );
   useEffect(() => {
     void Promise.resolve().then(load);
+    return () => {
+      generation.current += 1;
+    };
   }, [load]);
+  useEffect(() => {
+    const invalidate = (event: Event) => {
+      if (!isDocumentsChangeFor(event, userId)) return;
+      generation.current += 1;
+      setReferences(null);
+      setOptions([]);
+      setSelected([]);
+      if (!isDocumentsChangePending(event)) void load();
+    };
+    window.addEventListener(documentsChangedEvent, invalidate);
+    return () => window.removeEventListener(documentsChangedEvent, invalidate);
+  }, [load, userId]);
+  useEffect(() => {
+    if (!references?.some((ref) => ref.status === "deleting")) return;
+    const timer = window.setInterval(() => notifyDocumentsChanged(userId), 2000);
+    return () => window.clearInterval(timer);
+  }, [references, userId]);
   async function save(action: string, fields: Record<string, unknown>) {
     if (pending || recovery.requestId) return;
     setPending(true);
@@ -144,10 +180,10 @@ export function ApplicationVersions({
       setConfirmed(false);
       setEditing(null);
       setMessage("Wskazanie zapisano w historii.");
-      await load();
     } catch {
       setError("Wynik zapisu jest nieznany. Sprawdź stan przed ponowieniem.");
     } finally {
+      notifyDocumentsChanged(userId);
       setPending(false);
     }
   }

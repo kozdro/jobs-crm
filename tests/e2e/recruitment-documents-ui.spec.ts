@@ -187,6 +187,16 @@ test("both case upload paths and an atomic application with two actual CV versio
     .locator("li")
     .filter({ hasText: "Zarejestrowano aplikowanie" })
     .first();
+  const sentAudit = historicalApplication
+    .locator("details")
+    .filter({
+      has: page.getByText("Historia korekt dokumentu", { exact: true }),
+    })
+    .first();
+  await sentAudit
+    .getByText("Historia korekt dokumentu", { exact: true })
+    .click();
+  await expect(sentAudit).toContainText("Wskazano wysłaną wersję");
   await expect(historicalApplication).toContainText(`${names[1]} — wersja 1`);
   await expect(
     historicalApplication.locator("li").filter({
@@ -203,6 +213,9 @@ test("both case upload paths and an atomic application with two actual CV versio
     .selectOption({ label: `${names[1]} — wersja 2` });
   await reference.getByRole("button", { name: "Zapisz korektę" }).click();
   await expect(historicalApplication).toContainText(`${names[1]} — wersja 2`);
+  await expect(sentAudit).toContainText(
+    "Skorygowano wskazanie wysłanej wersji — wersja 2",
+  );
   const caseDocument = page
     .getByRole("region", { name: "Dokumenty sprawy" })
     .locator("li")
@@ -232,6 +245,10 @@ test("both case upload paths and an atomic application with two actual CV versio
       "Rozpoczęto usuwanie. Fizyczna kasacja wymaga potwierdzenia.",
     ),
   ).toBeVisible();
+  await expect(historicalApplication).toContainText(
+    /Wysłana wersja 2 — (trwa usuwanie|treść usunięta)/,
+  );
+  await expect(sentAudit).not.toContainText("synthetic-new.txt");
   await expect
     .poll(
       async () => {
@@ -257,10 +274,11 @@ test("both case upload paths and an atomic application with two actual CV versio
       { timeout: 90000, intervals: [1000, 2000] },
     )
     .toBe(true);
-  await page.reload();
   await expect(historicalApplication).toContainText(
     "Wysłana wersja 2 — treść usunięta",
+    { timeout: 15000 },
   );
+  await expect(sentAudit).toContainText("treść usunięta", { timeout: 15000 });
   await expect(historicalApplication).not.toContainText("synthetic-new.txt");
   expect(
     (await page.request.get(`${target.appOrigin}${downloadHref}`)).status(),

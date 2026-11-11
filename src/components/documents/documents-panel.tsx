@@ -7,6 +7,7 @@ import { DocumentUploadForm, type DocumentUploadDraft } from "./upload-form";
 import { useReceiptRecovery } from "./use-receipt-recovery";
 import { DocumentAudit } from "./document-audit";
 import { fingerprintFile } from "./upload-fingerprint";
+import { notifyDocumentsChanged } from "./document-events";
 
 type Version = {
   id: string;
@@ -86,10 +87,26 @@ export function DocumentsPanel({
       setLoading(false);
     }
   }, [caseId, userId]);
-  const recovery = useReceiptRecovery(userId, caseId ?? "library", load);
+  const recovery = useReceiptRecovery(
+    userId,
+    caseId ?? "library",
+    useCallback(async () => {
+      notifyDocumentsChanged(userId);
+      await load();
+    }, [load, userId]),
+  );
   useEffect(() => {
     void Promise.resolve().then(load);
   }, [load]);
+  useEffect(() => {
+    if (!data?.documents.some((doc) => doc.versions.some((version) =>
+      version.status === "pending" || version.status === "deleting"))) return;
+    const timer = window.setInterval(() => {
+      notifyDocumentsChanged(userId);
+      void load();
+    }, 2000);
+    return () => window.clearInterval(timer);
+  }, [data, load, userId]);
   useEffect(() => {
     if (preview) requestAnimationFrame(() => previewHeading.current?.focus());
   }, [preview]);
@@ -137,6 +154,7 @@ export function DocumentsPanel({
         );
         return null;
       }
+      if (mutating) notifyDocumentsChanged(userId, true);
       const response = await fetch("/documents/commands", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -168,6 +186,7 @@ export function DocumentsPanel({
       setError("Wynik operacji jest nieznany. Sprawdź stan przed ponowieniem.");
       return null;
     } finally {
+      if (mutating) notifyDocumentsChanged(userId);
       setBusy(false);
     }
   }
@@ -226,6 +245,7 @@ export function DocumentsPanel({
         }),
       );
       submitted = true;
+      notifyDocumentsChanged(userId, true);
       const response = await fetch("/documents/upload", {
         method: "POST",
         body,
@@ -256,6 +276,7 @@ export function DocumentsPanel({
           : "Nie udało się przygotować przesyłania. Plik nie został wysłany.",
       );
     } finally {
+      if (submitted) notifyDocumentsChanged(userId);
       setBusy(false);
     }
   }

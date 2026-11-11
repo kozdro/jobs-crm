@@ -1,5 +1,13 @@
 import * as cfb from "@stackline/cfb";
-import { PDFArray, PDFDict, PDFDocument, PDFName, PDFStream } from "pdf-lib";
+import {
+  PDFArray,
+  PDFDict,
+  PDFDocument,
+  PDFName,
+  PDFStream,
+  PDFString,
+  PDFHexString,
+} from "pdf-lib";
 import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { SaxesParser } from "saxes";
 import * as yauzl from "yauzl";
@@ -28,6 +36,54 @@ async function validatePdf(bytes: Uint8Array) {
     throwOnInvalidObject: true,
     updateMetadata: false,
   });
+  const name = (value: unknown) =>
+    value instanceof PDFName ? value.decodeText() : null;
+  const text = (value: unknown) =>
+    value instanceof PDFString || value instanceof PDFHexString
+      ? value.decodeText()
+      : null;
+  const resolve = (value: unknown) => structural.context.lookup(value as never);
+  const actionVisited = new Set<PDFDict>();
+  const inspectAction = (value: unknown): void => {
+    const action = resolve(value);
+    if (!(action instanceof PDFDict)) throw invalid();
+    if (actionVisited.has(action)) return;
+    actionVisited.add(action);
+    const subtype = name(action.lookup(PDFName.of("S")));
+    if (subtype === "GoTo") {
+      const dest = action.lookup(PDFName.of("D"));
+      if (!(
+        dest instanceof PDFArray ||
+        dest instanceof PDFName ||
+        dest instanceof PDFString ||
+        dest instanceof PDFHexString
+      ))
+        throw invalid();
+    } else if (subtype === "URI") {
+      const uri = text(action.lookup(PDFName.of("URI")));
+      if (
+        !uri ||
+        /[\x00-\x20\x7f]/.test(uri) ||
+        !/^(?:https?:|mailto:)/i.test(uri)
+      )
+        throw invalid();
+    } else if (subtype === "Named") {
+      if (
+        !["NextPage", "PrevPage", "FirstPage", "LastPage"].includes(
+          name(action.lookup(PDFName.of("N"))) ?? "",
+        )
+      )
+        throw invalid();
+    } else throw invalid();
+    const next = action.get(PDFName.of("Next"));
+    if (next) {
+      const resolved = resolve(next);
+      if (resolved instanceof PDFArray) {
+        for (let i = 0; i < resolved.size(); i++)
+          inspectAction(resolved.get(i));
+      } else inspectAction(next);
+    }
+  };
   const visited = new Set<object>();
   const inspect = (object: unknown): void => {
     if (!object || typeof object !== "object" || visited.has(object)) return;
@@ -36,9 +92,39 @@ async function validatePdf(bytes: Uint8Array) {
     if (object instanceof PDFArray) {
       for (let i = 0; i < object.size(); i++) inspect(object.get(i));
     } else if (object instanceof PDFDict) {
-      const subtype = object.lookup(PDFName.of("S"));
-      if (subtype instanceof PDFName && subtype.decodeText() === "Launch")
-        throw invalid();
+      // An explicitly typed action is subject to the same allowlist even if it
+      // is not reachable through a standard action key.
+      if (name(object.lookup(PDFName.of("Type"))) === "Action")
+        inspectAction(object);
+      const open = object.get(PDFName.of("OpenAction"));
+      if (open) {
+        const value = resolve(open);
+        if (value instanceof PDFDict) inspectAction(open);
+        else if (!(
+          value instanceof PDFArray ||
+          value instanceof PDFName ||
+          value instanceof PDFString ||
+          value instanceof PDFHexString
+        ))
+          throw invalid();
+      }
+      const additional = object.get(PDFName.of("AA"));
+      if (additional) {
+        const actions = resolve(additional);
+        if (!(actions instanceof PDFDict)) throw invalid();
+        for (const [, value] of actions.entries()) inspectAction(value);
+      }
+      const direct = object.get(PDFName.of("A"));
+      if (direct) {
+        const value = resolve(direct);
+        // Structure-element attributes also use /A; those have /O and are
+        // not action dictionaries. An action dictionary must carry /S.
+        if (
+          value instanceof PDFDict &&
+          (value.has(PDFName.of("S")) || !value.has(PDFName.of("O")))
+        )
+          inspectAction(direct);
+      }
       for (const [, value] of object.entries()) inspect(value);
     }
   };

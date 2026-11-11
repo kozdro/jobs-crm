@@ -1,7 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { buttonStyles } from "@/components/ui/styles";
+import {
+  documentsChangedEvent,
+  isDocumentsChangeFor,
+  isDocumentsChangePending,
+} from "./document-events";
 
 type Entry = {
   id: string;
@@ -32,8 +37,10 @@ export function DocumentAudit({
   const [entries, setEntries] = useState<Entry[] | null>(null);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
-  async function load() {
-    if (loading) return;
+  const opened = useRef(false);
+  const generation = useRef(0);
+  const load = useCallback(async () => {
+    const request = ++generation.current;
     setLoading(true);
     setError(false);
     try {
@@ -43,21 +50,39 @@ export function DocumentAudit({
         { cache: "no-store", headers: { "x-expected-user-id": userId } },
       );
       const body = await response.json();
+      if (request !== generation.current) return;
       if (!response.ok || !Array.isArray(body.entries))
         throw new Error("unavailable");
       setEntries(body.entries);
     } catch {
+      if (request !== generation.current) return;
       setEntries(null);
       setError(true);
     } finally {
-      setLoading(false);
+      if (request === generation.current) setLoading(false);
     }
-  }
+  }, [documentId, eventId, userId]);
+  useEffect(() => {
+    const invalidate = (event: Event) => {
+      if (!isDocumentsChangeFor(event, userId)) return;
+      generation.current += 1;
+      setEntries(null);
+      setError(false);
+      setLoading(false);
+      if (opened.current && !isDocumentsChangePending(event)) void load();
+    };
+    window.addEventListener(documentsChangedEvent, invalidate);
+    return () => {
+      generation.current += 1;
+      window.removeEventListener(documentsChangedEvent, invalidate);
+    };
+  }, [load, userId]);
   return (
     <details
       className="mt-2"
       onToggle={(event) => {
-        if (event.currentTarget.open && !loading) void load();
+        opened.current = event.currentTarget.open;
+        if (opened.current) void load();
       }}
     >
       <summary className="ui-link min-h-11 cursor-pointer py-2 text-sm">

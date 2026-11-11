@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import * as cfb from "@stackline/cfb";
-import { PDFDocument, PDFName } from "pdf-lib";
+import { PDFDocument, PDFName, PDFString } from "pdf-lib";
 import { describe, expect, it } from "vitest";
 import { validateDocumentContent } from "@/modules/documents/application/validate-content";
 
@@ -93,6 +93,93 @@ function pdf(openAction: string) {
 }
 
 describe("document content structure", () => {
+  it("rejects unsupported PDF actions in links, additional actions and chained actions", async () => {
+    const make = async (
+      actionName: string,
+      location: "link" | "additional" | "chain",
+    ) => {
+      const document = await PDFDocument.create();
+      const page = document.addPage();
+      const unsafe = document.context.obj({
+        S: PDFName.of(actionName),
+        F: "https://attacker.example/collect",
+      });
+      if (location === "link") {
+        const annotation = document.context.obj({
+          Type: PDFName.of("Annot"),
+          Subtype: PDFName.of("Link"),
+          Rect: [0, 0, 30, 30],
+          A: document.context.register(unsafe),
+        });
+        page.node.set(
+          PDFName.of("Annots"),
+          document.context.obj([document.context.register(annotation)]),
+        );
+      } else if (location === "additional") {
+        document.catalog.set(
+          PDFName.of("AA"),
+          document.context.obj({ WC: document.context.register(unsafe) }),
+        );
+      } else {
+        const first = document.context.obj({
+          S: PDFName.of("Named"),
+          N: PDFName.of("NextPage"),
+          Next: [document.context.register(unsafe)],
+        });
+        document.catalog.set(
+          PDFName.of("OpenAction"),
+          document.context.register(first),
+        );
+      }
+      return document.save({ useObjectStreams: true });
+    };
+    for (const action of [
+      "SubmitForm",
+      "ImportData",
+      "JavaScript",
+      "GoToR",
+      "UnknownAction",
+    ]) {
+      for (const location of ["link", "additional", "chain"] as const) {
+        await expect(
+          validateDocumentContent(
+            await make(action, location),
+            "test.pdf",
+            "application/pdf",
+          ),
+        ).rejects.toThrow();
+      }
+    }
+  });
+
+  it("allows a safe PDF link and rejects a non-web URI", async () => {
+    for (const [uri, allowed] of [
+      ["https://example.com/cv", true],
+      ["file:///tmp/x", false],
+      ["javascript:alert(1)", false],
+    ] as const) {
+      const document = await PDFDocument.create();
+      const page = document.addPage();
+      const annotation = document.context.obj({
+        Type: PDFName.of("Annot"),
+        Subtype: PDFName.of("Link"),
+        Rect: [0, 0, 30, 30],
+        A: { S: PDFName.of("URI"), URI: PDFString.of(uri) },
+      });
+      page.node.set(
+        PDFName.of("Annots"),
+        document.context.obj([document.context.register(annotation)]),
+      );
+      const result = validateDocumentContent(
+        await document.save(),
+        "test.pdf",
+        "application/pdf",
+      );
+      if (allowed) await expect(result).resolves.toBeDefined();
+      else await expect(result).rejects.toThrow();
+    }
+  });
+
   it("rejects Launch actions even when indirect objects are compressed", async () => {
     await expect(
       validateDocumentContent(
