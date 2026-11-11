@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import * as cfb from "@stackline/cfb";
+import { PDFDocument, PDFName } from "pdf-lib";
 import { describe, expect, it } from "vitest";
 import { validateDocumentContent } from "@/modules/documents/application/validate-content";
 
@@ -92,6 +93,30 @@ function pdf(openAction: string) {
 }
 
 describe("document content structure", () => {
+  it("rejects Launch actions even when indirect objects are compressed", async () => {
+    await expect(
+      validateDocumentContent(
+        pdf("<< /S /Launch /F (cmd.exe) >>"),
+        "test.pdf",
+        "application/pdf",
+      ),
+    ).rejects.toThrow();
+    const document = await PDFDocument.create();
+    document.addPage();
+    const action = document.context.obj({
+      S: PDFName.of("Launch"),
+      F: "cmd.exe",
+    });
+    document.catalog.set(
+      PDFName.of("OpenAction"),
+      document.context.register(action),
+    );
+    const compressed = await document.save({ useObjectStreams: true });
+    await expect(
+      validateDocumentContent(compressed, "test.pdf", "application/pdf"),
+    ).rejects.toThrow();
+  });
+
   it("rejects DDE fields in simple and split complex Word instructions", async () => {
     for (const body of [
       `<w:body><w:fldSimple w:instr=" DDEAUTO cmd topic item"/></w:body>`,
@@ -104,6 +129,42 @@ describe("document content structure", () => {
     ).resolves.toBeDefined();
   });
 
+  it("rejects a binary DOC DDE field split between compressed and Unicode pieces", async () => {
+    const original = await readFile(png("valid.doc"));
+    for (const text of ["DDEAUTO cmd topic", "DDE cmd topic", "PAGE"]) {
+      const container = cfb.read(original, { type: "buffer", WTF: true });
+      const entry = cfb.find(container, "WordDocument")!;
+      const oldWord = Buffer.from(entry.content!);
+      const first = Buffer.from("\x13 " + text.slice(0, 1), "latin1");
+      const second = Buffer.from(text.slice(1) + "\x15", "utf16le");
+      const word = Buffer.concat([oldWord, first, second]);
+      const tableName = word.readUInt16LE(10) & 0x0200 ? "1Table" : "0Table";
+      const oldTable = Buffer.from(cfb.find(container, tableName)!.content!);
+      const clx = Buffer.alloc(33);
+      clx[0] = 2;
+      clx.writeUInt32LE(28, 1);
+      clx.writeUInt32LE(0, 5);
+      clx.writeUInt32LE(first.length, 9);
+      clx.writeUInt32LE(first.length + second.length / 2, 13);
+      clx.writeUInt32LE((oldWord.length * 2) | 0x40000000, 19);
+      clx.writeUInt32LE(oldWord.length + first.length, 27);
+      let pos = 32;
+      pos += 2 + word.readUInt16LE(pos) * 2;
+      pos += 2 + word.readUInt16LE(pos) * 4;
+      pos += 2;
+      word.writeUInt32LE(oldTable.length, pos + 33 * 8);
+      word.writeUInt32LE(clx.length, pos + 33 * 8 + 4);
+      cfb.utils.cfb_add(container, "WordDocument", word);
+      cfb.utils.cfb_add(container, tableName, Buffer.concat([oldTable, clx]));
+      const result = validateDocumentContent(
+        cfb.write(container, { type: "buffer" }) as Buffer,
+        "test.doc",
+        "application/msword",
+      );
+      if (text === "PAGE") await expect(result).resolves.toBeDefined();
+      else await expect(result).rejects.toThrow();
+    }
+  });
   it("rejects a binary DOC with encryption flags or invalid FIB/table bounds", async () => {
     const original = await readFile(png("valid.doc"));
     for (const mutate of [

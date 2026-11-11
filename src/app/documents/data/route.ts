@@ -125,10 +125,13 @@ export async function GET(request: NextRequest) {
       revision: link.revision,
     }));
     const resultSent = refs.map((ref) => {
-      const latest = revisions
+      const history = revisions
         .filter((revision) => revision.reference_id === ref.id)
-        .sort((a, b) => Number(b.revision) - Number(a.revision))[0];
-      const versionId = latest?.version_id ?? ref.version_id;
+        .sort((a, b) => Number(b.revision) - Number(a.revision));
+      const latest = history[0];
+      const versionId =
+        history.find((revision) => revision.version_id)?.version_id ??
+        ref.version_id;
       const version = versions.find((item) => item.id === versionId);
       if (!version) throw new Error("Sent version unavailable");
       return {

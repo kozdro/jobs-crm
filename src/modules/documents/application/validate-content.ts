@@ -1,4 +1,5 @@
 import * as cfb from "@stackline/cfb";
+import { PDFArray, PDFDict, PDFDocument, PDFName, PDFStream } from "pdf-lib";
 import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { SaxesParser } from "saxes";
 import * as yauzl from "yauzl";
@@ -21,6 +22,28 @@ const invalid = () => new Error("Invalid document content");
 async function validatePdf(bytes: Uint8Array) {
   if (Buffer.from(bytes.subarray(0, 5)).toString("ascii") !== "%PDF-")
     throw invalid();
+  // Inspect parsed objects as well as PDF.js' presentation model: PDF.js
+  // deliberately omits some actions (notably Launch) from getOpenAction().
+  const structural = await PDFDocument.load(bytes, {
+    throwOnInvalidObject: true,
+    updateMetadata: false,
+  });
+  const visited = new Set<object>();
+  const inspect = (object: unknown): void => {
+    if (!object || typeof object !== "object" || visited.has(object)) return;
+    visited.add(object);
+    if (object instanceof PDFStream) return inspect(object.dict);
+    if (object instanceof PDFArray) {
+      for (let i = 0; i < object.size(); i++) inspect(object.get(i));
+    } else if (object instanceof PDFDict) {
+      const subtype = object.lookup(PDFName.of("S"));
+      if (subtype instanceof PDFName && subtype.decodeText() === "Launch")
+        throw invalid();
+      for (const [, value] of object.entries()) inspect(value);
+    }
+  };
+  for (const [, object] of structural.context.enumerateIndirectObjects())
+    inspect(object);
   const task = getDocument({
     data: Uint8Array.from(bytes),
     stopAtErrors: true,
@@ -112,6 +135,48 @@ function validateDoc(bytes: Uint8Array) {
   const stylesheetLength = fib.readUInt32LE(cursor + 12);
   if (!stylesheetLength || stylesheetStart + stylesheetLength > table.length)
     throw invalid();
+
+  // The logical text can be split across non-contiguous compressed/Unicode
+  // pieces. Reassemble it before checking field instructions.
+  const clxStart = fib.readUInt32LE(cursor + 33 * 8);
+  const clxLength = fib.readUInt32LE(cursor + 33 * 8 + 4);
+  const tableBytes = Buffer.from(table);
+  if (!clxLength || clxStart + clxLength > tableBytes.length) throw invalid();
+  const clx = tableBytes.subarray(clxStart, clxStart + clxLength);
+  let at = 0;
+  while (at < clx.length && clx[at] === 1) {
+    if (at + 3 > clx.length) throw invalid();
+    at += 3 + clx.readUInt16LE(at + 1);
+  }
+  if (at + 5 > clx.length || clx[at] !== 2) throw invalid();
+  const plcLength = clx.readUInt32LE(at + 1);
+  at += 5;
+  if (
+    plcLength < 4 ||
+    (plcLength - 4) % 12 !== 0 ||
+    at + plcLength !== clx.length
+  )
+    throw invalid();
+  const count = (plcLength - 4) / 12;
+  if (count > 100000 || clx.readUInt32LE(at) !== 0) throw invalid();
+  let logicalText = "";
+  for (let i = 0; i < count; i++) {
+    const begin = clx.readUInt32LE(at + i * 4);
+    const end = clx.readUInt32LE(at + (i + 1) * 4);
+    if (end < begin || end > maximumBytes) throw invalid();
+    const encoded = clx.readUInt32LE(at + (count + 1) * 4 + i * 8 + 2);
+    if (encoded & 0x80000000) throw invalid();
+    const compressed = (encoded & 0x40000000) !== 0;
+    const rawOffset = encoded & 0x3fffffff;
+    if (compressed && rawOffset % 2) throw invalid();
+    const offset = compressed ? rawOffset / 2 : rawOffset;
+    const length = (end - begin) * (compressed ? 1 : 2);
+    if (offset + length > fib.length) throw invalid();
+    logicalText += fib
+      .subarray(offset, offset + length)
+      .toString(compressed ? "latin1" : "utf16le");
+  }
+  if (/\x13\s*DDE(?:AUTO)?(?:\s|$|\\)/i.test(logicalText)) throw invalid();
 }
 
 function validateXml(name: string, bytes: Buffer) {
