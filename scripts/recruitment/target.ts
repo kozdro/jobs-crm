@@ -35,7 +35,7 @@ import {
 const root = resolve(import.meta.dirname, "../..");
 const state = join(root, ".recruitment-local");
 const label = "jobs-crm.recruitment-local";
-const freshPortProfile: RecruitmentPortProfile = "isolated";
+const freshPortProfile: RecruitmentPortProfile = "storage";
 const freshPorts = recruitmentPortProfiles[freshPortProfile];
 function portsFor(m: Manifest) {
   return recruitmentPortProfiles[m.portProfile ?? "legacy"];
@@ -49,7 +49,7 @@ function publishedPortsFor(m: Manifest) {
   };
 }
 const excluded =
-  "realtime,storage-api,imgproxy,postgres-meta,studio,edge-runtime,logflare,vector,supavisor";
+  "realtime,imgproxy,postgres-meta,studio,edge-runtime,logflare,vector,supavisor";
 const exec = promisify(execFile);
 type Manifest = RecruitmentManifest;
 export interface RecruitmentTarget extends Manifest {
@@ -145,7 +145,15 @@ async function manifestFor(id: string, retiringPrestartTarget = false) {
     id,
     dir,
     config,
-    await readFile(join(root, "supabase/recruitment-config.toml"), "utf8"),
+    await readFile(
+      join(
+        root,
+        m.storage
+          ? "supabase/recruitment-storage-config.toml"
+          : "supabase/recruitment-config.toml",
+      ),
+      "utf8",
+    ),
     retiringPrestartTarget,
   );
   return m;
@@ -219,13 +227,14 @@ async function inspectOwned(m: Manifest) {
         `Recruitment required service binding missing: ${service}`,
       );
   }
-  const expectedImages = {
+  const expectedImages: Record<string, string> = {
     db: "postgres:17.11.0.006",
     auth: "gotrue:v2.197.0",
     rest: "postgrest:v16.5",
     kong: "kong:2.8.1",
     inbucket: "mailpit:v1.31.3",
   };
+  if (m.storage) expectedImages.storage = "storage-api:v1.84.19";
   if (cs.length !== Object.keys(expectedImages).length)
     throw new Error("Recruitment unexpected service count");
   for (const [service, image] of Object.entries(expectedImages)) {
@@ -273,7 +282,10 @@ export async function startRecruitmentTarget(
     randomUUID().replaceAll("-", "").slice(0, 12),
   );
   const config = recruitmentConfigForProfile(
-    await readFile(join(root, "supabase/recruitment-config.toml"), "utf8"),
+    await readFile(
+      join(root, "supabase/recruitment-storage-config.toml"),
+      "utf8",
+    ),
     projectId,
     freshPortProfile,
   );
@@ -285,6 +297,7 @@ export async function startRecruitmentTarget(
     workdir: dir,
     configHash: sha256(config),
     portProfile: freshPortProfile,
+    storage: true,
     migrationCheckpoint: ledgerCheckpoint([]),
     createdAt: new Date().toISOString(),
   };
@@ -306,6 +319,7 @@ export async function startRecruitmentTarget(
   );
   const guard = await createDockerGuard(originalSocket, {
     ...m,
+    storageBootstrap: true,
     publishedPorts: publishedPortsFor(m),
     networkLabel: label,
   });
@@ -351,13 +365,21 @@ export async function readRecruitmentTarget(
   });
   if (!s.ANON_KEY || !s.SERVICE_ROLE_KEY)
     throw new Error("Recruitment fixture keys absent");
+  if (m.storage) {
+    const health = await fetch(`${s.API_URL}/storage/v1/status`, {
+      headers: { apikey: s.ANON_KEY, Authorization: `Bearer ${s.ANON_KEY}` },
+      signal: AbortSignal.timeout(10_000),
+      redirect: "error",
+    });
+    if (!health.ok) throw new Error("Recruitment Storage readiness failed");
+  }
   return {
     ...m,
     apiUrl: s.API_URL,
     anonKey: s.ANON_KEY,
     serviceRoleKey: s.SERVICE_ROLE_KEY,
     mailUrl: `http://127.0.0.1:${ports.smtp}`,
-    appOrigin: "https://127.0.0.1:3153",
+    appOrigin: m.storage ? "https://127.0.0.1:3173" : "https://127.0.0.1:3153",
     db: {
       host: "127.0.0.1",
       port: ports.db,

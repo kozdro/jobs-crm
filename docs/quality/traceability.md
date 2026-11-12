@@ -369,3 +369,11 @@ Wyniki, dokładne komendy, nieudane próby i ograniczenia: [raport slice'a](../t
 ## PR #26 — weryfikacja kontekstu zgody
 
 FR/AC-TN-005, DEC-027/063, BR-030 i UC/TC-023/037: niezależny snapshot zgody na dispatch, dryft i cofnięcie dryftu triggera, A→B→A, utrata weryfikacji, stale UI/replay i race. [Plan i macierz](../technical/optional-email-reminders-delivery.md#pr-26--security-hardening-2026-11-09), [wyniki i ograniczenia](../technical/optional-email-security-hardening-report.md). Status końcowy wyłącznie według raportu; historyczne PASS nie dowodzą poprawki.
+
+## Documents Core — DEC-065
+
+| Wymaganie | Kryteria i scenariusze | Decyzja / dowód |
+|---|---|---|
+| FR-DO-001–010; BR-026/030; NFR-001/002 | AC-DO-001–010 i 002-01/005-01/005-02/010-01/010-02; AC-DO-065-01–06; UC/TC-003/018/031, częściowo 034 | [DEC-065](../decisions/product-decisions.md#documents-core--2026-11-11), [macierz testów](../technical/documents-core-analysis.md#7-qa--macierz-i-dowody); PLANNED / NOT EXECUTED do przedstawienia wyników |
+
+Dotychczasowe OPEN w wierszach FR-DO zachowują zastosowanie do nierozstrzygniętych podzakresów; DEC-065 częściowo rozstrzyga wyłącznie wskazane aspekty Documents Core.

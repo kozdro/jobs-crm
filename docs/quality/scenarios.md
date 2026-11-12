@@ -712,3 +712,7 @@ Plan QA [CC](../technical/companies-contacts-analysis.md) obejmuje TC-006/008/01
 ## UC/TC-027 — podzakres Workspace DEC-059
 
 Kanban/lista → filtry/presety/sort/strony → read-only drawer → istniejący detal → powrót ze stanem i zamkniętym drawerem. Ponad25 spraw w kolumnie/globalnie, profile filtrów poza pierwszą stroną, M:N bez duplikacji/inferencji, OR/AND, remisy sortu, puste dopasowanie vs błąd, wyścig odpowiedzi ID, klawiatura/mobile. Snapshoty lifecycle/closure/relacji bez zmian; B/anon bez danych i metadanych A również po ID. DnD i edycja drawera poza wykonaniem; RW-011/TC-027 bez pełnego pokrycia przyszłych kontekstów. Wyniki osobno.
+
+## Documents Core — rozszerzenie UC/TC, DEC-065
+
+UC/TC-003 i 018 obejmują wiele rzeczywiście wskazanych wersji w jednym application, późniejsze przypisanie i audytowaną korektę oraz odróżnienie wersji jedynie dołączonej. UC/TC-031 i podzakres 034 obejmują realne bytes i prywatność A/B/anon również poza BFF, delete preview, blokadę nowych dostępów, rzeczywistą kasację, retry i minimalizację historii/audytu/receipt. Limity, walidacja, współbieżność oraz recovery są opisane w [macierzy](../technical/documents-core-analysis.md#7-qa--macierz-i-dowody). Scenariusze pozostają planem, dopóki nie istnieją dowody wykonania; nie dowodzą pełnego TC-034/036.

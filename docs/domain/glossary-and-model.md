@@ -93,3 +93,7 @@ Cykl sprawy: początkowy od utworzenia sprawy, kolejne od jawnego wznowienia. S�
 ## Companies & Contacts — DEC-058
 
 [Kontrakt CC](../technical/companies-contacts-analysis.md) zatwierdza nazwę organizacji i nazwę wyświetlaną osoby 1–160 po trim, opcjonalny pojedynczy e-mail osoby do 254 oraz edycję z kontrolą wersji i prywatnym audytem. Relacje M:N Case–Organization z kontekstową rolą pracodawca/agencja (również jawne obie role), Case–Contact i Organization–Contact są opcjonalne. Bieżące powiązanie organizacja–osoba nie potwierdza zatrudnienia ani jego historii. Attach/detach i korekta roli także dla zamkniętej sprawy nie zmieniają statusu, historii i uczestnictwa w faktach. Brak pracodawcy oznacza brak relacji. To nie zatwierdza uczestników źródłowych wydarzeń.
+
+## Documents Core — DEC-065
+
+Dokument biblioteczny jest wielokrotnego użytku, a case-only należy do jednej sprawy. Wersja identyfikuje niezmienne bajty i ma stabilny numer. Robocze powiązanie sprawy wskazuje konkretną wersję; osobna referencja wysłania wiąże konkretną wersję CV z konkretnym faktem application. Referencje są audytowalnie korygowane i nie są osobnymi aplikacjami. Usunięcie bajtów nie usuwa faktu aplikacji; dopuszczony ślad po kasacji opisuje [kontrakt](../features/documents.md#documents-core--zatwierdzony-kontrakt-dec-065). Dotychczasowe ogólne OPEN pozostają aktualne poza zakresem DEC-065.

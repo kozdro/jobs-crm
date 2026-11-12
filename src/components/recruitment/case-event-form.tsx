@@ -1,7 +1,23 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 import { useRouter } from "next/navigation";
+import {
+  SentVersionPicker,
+  type SentVersionOption,
+} from "@/components/documents/sent-version-picker";
+import {
+  documentsChangedEvent,
+  isDocumentsChangeFor,
+  isDocumentsChangePending,
+} from "@/components/documents/document-events";
+import { unavailableSelections } from "@/components/documents/refresh-state";
 import { getBrowserClient } from "@/modules/identity/infrastructure/browser";
 import { getRecruitmentCase } from "@/modules/recruitment/application/cases";
 import type { RecruitmentCase } from "@/modules/recruitment/domain/recruitment-case";
@@ -18,6 +34,7 @@ import {
   parsePendingEventIntent,
   eventMatchesIntent,
   confirmedStageRevision,
+  sameSentVersions,
 } from "./event-intent";
 import { recoveryRequiresLogin } from "./recovery-session";
 
@@ -29,6 +46,7 @@ type EventFormProps = {
   stageVersion: number;
 };
 type Direction = "inbound" | "outbound" | "";
+type EventIntent = RecordCaseEventInput & { sentVersionIds?: string[] };
 export function CaseEventForm({
   userId,
   caseId,
@@ -72,7 +90,13 @@ function EventSession({
   const [canRetry, setCanRetry] = useState(false);
   const [success, setSuccess] = useState(false);
   const [discard, setDiscard] = useState(false);
-  const frozen = useRef<RecordCaseEventInput | null>(null);
+  const frozen = useRef<EventIntent | null>(null);
+  const atomicDocuments = useRef(false);
+  const [cvOptions, setCvOptions] = useState<SentVersionOption[] | null>(null);
+  const [cvError, setCvError] = useState(false);
+  const [cvStale, setCvStale] = useState(false);
+  const cvGeneration = useRef(0);
+  const [sentVersions, setSentVersions] = useState<string[]>([]);
   const busy = useRef(false);
   const live = useRef(true);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -101,14 +125,18 @@ function EventSession({
       /* Memory retry remains available. */
     }
   }
-  function remember(requestId: string) {
+  function remember(requestId: string, atomic = false) {
     try {
-      sessionStorage.setItem(
-        storageKey,
-        JSON.stringify({ ownerId: userId, caseId, requestId }),
-      );
+      const encoded = JSON.stringify({
+        ownerId: userId,
+        caseId,
+        requestId,
+        ...(atomic ? { atomicDocuments: true } : {}),
+      });
+      sessionStorage.setItem(storageKey, encoded);
+      return sessionStorage.getItem(storageKey) === encoded;
     } catch {
-      /* Reload recovery requires storage. */
+      return false;
     }
   }
   function focusFeedback() {
@@ -129,6 +157,8 @@ function EventSession({
     setError(null);
     setFieldErrors({});
     setDiscard(false);
+    setSentVersions([]);
+    atomicDocuments.current = false;
     frozen.current = null;
     setCanRetry(false);
   }
@@ -156,6 +186,50 @@ function EventSession({
         throw new Error("unavailable");
       if (identity.error || identity.data.user?.id !== userId) {
         requireLogin();
+        return;
+      }
+      if (atomicDocuments.current) {
+        const response = await fetch(
+          `/documents/application-receipt?caseId=${encodeURIComponent(caseId)}&requestId=${encodeURIComponent(requestId)}`,
+          { cache: "no-store", headers: { "x-expected-user-id": userId } },
+        );
+        const receipt = await response.json().catch(() => null);
+        if (!response.ok || !receipt) throw new Error("unavailable");
+        if (receipt.kind === "cancelled") {
+          clearStored();
+          reset();
+          setError(
+            "Poprzedni zapis został bezpiecznie anulowany. Możesz rozpocząć nowy.",
+          );
+          focusFeedback();
+          return;
+        }
+        const original = frozen.current;
+        const actual = receipt.sentVersionIds;
+        if (
+          receipt.kind !== "found" ||
+          !receipt.event?.id ||
+          receipt.event.case_id !== caseId ||
+          receipt.event.kind !== "application" ||
+          !Array.isArray(actual) ||
+          actual.length === 0 ||
+          actual.some((id: unknown) => typeof id !== "string") ||
+          new Set(actual).size !== actual.length
+        )
+          throw new Error("unconfirmed");
+        if (
+          original &&
+          (!eventMatchesIntent(receipt.event, original) ||
+            !sameSentVersions(original.sentVersionIds ?? [], actual))
+        ) {
+          setCanRetry(false);
+          setError(
+            "Wynik dotyczy innych danych. Sprawdź historię przed kolejnym zapisem.",
+          );
+          focusFeedback();
+          return;
+        }
+        finish(receipt.event);
         return;
       }
       const found = await getRecruitmentCaseEventByRequestId(
@@ -203,6 +277,7 @@ function EventSession({
     if (intent)
       void Promise.resolve().then(() => {
         if (!live.current) return;
+        atomicDocuments.current = Boolean(intent.atomicDocuments);
         setUncertainId(intent.requestId);
         void recover(intent.requestId);
       });
@@ -213,8 +288,74 @@ function EventSession({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, caseId, storageKey]);
 
+  const loadCv = useCallback(() => {
+    const generation = ++cvGeneration.current;
+    void fetch(`/documents/data?caseId=${encodeURIComponent(caseId)}`, {
+      cache: "no-store",
+      headers: { "x-expected-user-id": userId },
+    })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("unavailable");
+        const data = await response.json();
+        if (!Array.isArray(data.documents)) throw new Error("invalid");
+        const options: SentVersionOption[] = data.documents.flatMap(
+          (doc: {
+            name: string;
+            isCv: boolean;
+            versions: {
+              id: string;
+              number: number;
+              label: string | null;
+              status: string;
+            }[];
+          }) =>
+            doc.isCv && Array.isArray(doc.versions)
+              ? doc.versions
+                  .filter((version) => version.status === "ready")
+                  .map((version) => ({
+                    id: version.id,
+                    documentName: doc.name,
+                    number: version.number,
+                    label: version.label,
+                  }))
+              : [],
+        );
+        if (live.current && generation === cvGeneration.current) {
+          setCvOptions(options);
+          setCvStale(false);
+          setCvError(false);
+        }
+      })
+      .catch(() => {
+        if (live.current && generation === cvGeneration.current) {
+          setCvError(true);
+          setCvStale(true);
+        }
+      });
+  }, [caseId, userId]);
+  useEffect(() => {
+    if (kind !== "application") return;
+    void Promise.resolve().then(loadCv);
+    const invalidate = (event: Event) => {
+      if (!isDocumentsChangeFor(event, userId)) return;
+      cvGeneration.current += 1;
+      setCvStale(true);
+      if (!isDocumentsChangePending(event)) loadCv();
+    };
+    window.addEventListener(documentsChangedEvent, invalidate);
+    return () => {
+      cvGeneration.current += 1;
+      window.removeEventListener(documentsChangedEvent, invalidate);
+    };
+  }, [kind, loadCv, userId]);
+  const cvMissing = unavailableSelections(sentVersions, cvOptions ?? []);
+
   function open(value: Kind) {
     if (busy.current || uncertainId) return;
+    if (value === "application") {
+      cvGeneration.current += 1;
+      setCvStale(true);
+    }
     triggerKind.current = value;
     // Never regress a locally confirmed revision while the RSC refresh settles.
     // An already open draft retains its own observed revision until explicit refresh.
@@ -228,6 +369,13 @@ function EventSession({
     requestAnimationFrame(() => heading.current?.focus());
   }
   function cancel() {
+    if (uncertainId && atomicDocuments.current) {
+      setError(
+        "Najpierw sprawdź wynik zapisu aplikacji i wersji CV. Nie można bezpiecznie porzucić niepotwierdzonej operacji.",
+      );
+      focusFeedback();
+      return;
+    }
     if (direction || occurredOn || stageName || confirmed || uncertainId) {
       setDiscard(true);
       return;
@@ -238,6 +386,15 @@ function EventSession({
   async function save(event?: FormEvent) {
     event?.preventDefault();
     if (busy.current) return;
+    if (
+      !frozen.current &&
+      kind === "application" &&
+      sentVersions.length > 0 &&
+      (cvStale || cvMissing.length > 0)
+    ) {
+      setError("Sprawdź dostępność wybranych wersji CV przed zapisaniem.");
+      return;
+    }
     let payload = frozen.current;
     if (!payload) {
       const errors: typeof fieldErrors = {};
@@ -268,11 +425,29 @@ function EventSession({
         focusFeedback();
         return;
       }
-      payload = parsed.data;
+      payload = {
+        ...parsed.data,
+        ...(kind === "application" && sentVersions.length
+          ? { sentVersionIds: sentVersions }
+          : {}),
+      };
     }
     frozen.current = payload;
     setCanRetry(true);
-    remember(payload.requestId);
+    atomicDocuments.current = Boolean(payload.sentVersionIds?.length);
+    if (
+      !remember(payload.requestId, atomicDocuments.current) &&
+      atomicDocuments.current
+    ) {
+      frozen.current = null;
+      setCanRetry(false);
+      atomicDocuments.current = false;
+      setError(
+        "Nie można bezpiecznie zachować identyfikatora zapisu w tej sesji.",
+      );
+      focusFeedback();
+      return;
+    }
     busy.current = true;
     setPending(true);
     setError(null);
@@ -283,11 +458,19 @@ function EventSession({
         credentials: "same-origin",
         cache: "no-store",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...payload,
-          action: "record-event",
-          expectedUserId: userId,
-        }),
+        body: JSON.stringify(
+          atomicDocuments.current
+            ? {
+                action: "record-application-with-documents",
+                contractVersion: 1,
+                expectedUserId: userId,
+                requestId: payload.requestId,
+                caseId,
+                occurredOn: payload.occurredOn,
+                sentVersionIds: payload.sentVersionIds,
+              }
+            : { ...payload, action: "record-event", expectedUserId: userId },
+        ),
         signal: AbortSignal.timeout(20000),
       });
       if (!live.current) return;
@@ -296,6 +479,15 @@ function EventSession({
         return;
       }
       if (response.status === 400) {
+        if (atomicDocuments.current) {
+          setUncertainId(payload.requestId);
+          setCanRetry(false);
+          setError(
+            "Nie potwierdzono zapisu. Sprawdź jego wynik przed nową próbą.",
+          );
+          focusFeedback();
+          return;
+        }
         frozen.current = null;
         setCanRetry(false);
         clearStored();
@@ -327,7 +519,12 @@ function EventSession({
       if (
         (result.kind !== "created" && result.kind !== "replayed") ||
         !result.event?.id ||
-        !eventMatchesIntent(result.event, payload)
+        !eventMatchesIntent(result.event, payload) ||
+        (atomicDocuments.current &&
+          !sameSentVersions(
+            payload.sentVersionIds ?? [],
+            result.sentVersionIds,
+          ))
       )
         throw new Error("unconfirmed");
       finish(result.event);
@@ -630,6 +827,57 @@ function EventSession({
                   </p>
                 )}
               </div>
+              {kind === "application" && (
+                <div className="space-y-2">
+                  {cvError ? (
+                    <p className="text-sm text-muted-foreground">
+                      Nie można pobrać wersji CV. Ponów odczyt albo usuń
+                      wskazania, aby zapisać aplikowanie bez nich.
+                    </p>
+                  ) : cvOptions ? (
+                    <SentVersionPicker
+                      options={
+                        cvStale
+                          ? cvOptions.map((option) => ({
+                              ...option,
+                              documentName: "Sprawdzanie wersji",
+                              label: null,
+                            }))
+                          : cvOptions
+                      }
+                      selected={sentVersions}
+                      onChange={setSentVersions}
+                      disabled={locked}
+                    />
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Pobieranie dostępnych wersji CV…
+                    </p>
+                  )}
+                  {(cvError || cvStale) && (
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        disabled={locked}
+                        className={buttonStyles.secondary}
+                        onClick={loadCv}
+                      >
+                        Ponów odczyt wersji CV
+                      </button>
+                      {sentVersions.length > 0 && (
+                        <button
+                          type="button"
+                          disabled={locked}
+                          className={buttonStyles.secondary}
+                          onClick={() => setSentVersions([])}
+                        >
+                          Usuń wszystkie wskazania CV
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
               <div>
                 <label className="flex min-h-11 items-start gap-3 text-sm leading-6">
                   <input
@@ -684,6 +932,25 @@ function EventSession({
               Sprawdź wynik zapisu
             </button>
           )}
+          {kind === "application" && !cvStale && cvMissing.length > 0 && (
+            <div role="alert">
+              <p>
+                Wybrana wersja CV nie jest już dostępna. Sprawdź wybór przed
+                zapisaniem.
+              </p>
+              <button
+                type="button"
+                className={buttonStyles.secondary}
+                onClick={() =>
+                  setSentVersions((current) =>
+                    current.filter((id) => !cvMissing.includes(id)),
+                  )
+                }
+              >
+                Usuń niedostępne wersje z wyboru
+              </button>
+            </div>
+          )}
           {stageConflict && (
             <button
               type="button"
@@ -698,7 +965,13 @@ function EventSession({
             {kind && (!uncertainId || canRetry) && (
               <button
                 type="submit"
-                disabled={pending}
+                disabled={
+                  pending ||
+                  (kind === "application" &&
+                    !uncertainId &&
+                    sentVersions.length > 0 &&
+                    (cvStale || cvMissing.length > 0))
+                }
                 className={buttonStyles.primary}
               >
                 {pending

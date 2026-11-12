@@ -388,3 +388,18 @@ Wykonanie DEC-058: [QA](../technical/companies-contacts-qa.md) i [raport](../tec
 | AC-RW-009-02 | Desktop overlay nie zwęża tablicy, pozwala przełączać dostępne karty; tło ignorowane, X/Escape zamykają z powrotem fokusu. Mobile Wstecz. Powrót z detalu odtwarza widok, filtry, sort, strony, rozwinięcie Zakończonych i scroll, drawer zamknięty. Wejście bezpośrednie nie fabrykuje kontekstu. | FR-RW-009 |
 
 AD-002 obejmuje listę, preview ID, relacje, lookupy i metadane: A pozytywnie, B/anon odmowa bez wycieku. Brak DnD nie oznacza PASS RW-008. RW-011 i TC-027 tylko częściowo. Źródło: DEC-059; wykonanie raportowane osobno.
+
+## Documents Core — kryteria DEC-065
+
+Poniższe kryteria są APPROVED, ich wykonanie wymaga dowodów rzeczywistego środowiska; nie oznaczają PASS.
+
+| ID | Kryterium | Powiązanie |
+|---|---|---|
+| AC-DO-065-01 | Reuse, case-only i trzy ścieżki zachowują własność oraz odrębność powiązania od potwierdzonej wysyłki. | FR-DO-001–003/006–009; BR-026 |
+| AC-DO-065-02 | Jedno application może atomowo otrzymać wiele różnych jawnie wybranych wersji CV; późniejsze przypisanie, audytowana korekta/wycofanie i void zachowują fakty i konkurencję bez podmiany historycznej tożsamości. | FR-DO-004–006; DEC-056/065 |
+| AC-DO-065-03 | Preview i potwierdzenie delete wiążą aktualne skutki; nowe dostępy zostają natychmiast zablokowane, fizyczna kasacja jest potwierdzana Storage API, awaria i retry są widoczne; historia faktu pozostaje z minimalnym śladem bez odzyskania metadanych przez audyt/receipt. | FR-DO-005/010; DEC-065 |
+| AC-DO-065-04 | Wszystkie sześć dopuszczonych formatów przechodzi strukturalną walidację rzeczywistych bytes, z odrzuceniem pustych, niespójnych, niewalidowalnych i aktywnych plików; limity 20 MiB i 1 GiB obejmują współbieżne rezerwacje i pending bytes. | FR-DO-003/009/010; DEC-065 |
+| AC-DO-065-05 | Owner może pobrać własny plik po bieżącej autoryzacji; B/anon i bezpośrednie Data/Storage API nie obchodzą ACL, immutable bytes, walidacji ani delete; inicjacja delete wymaga bieżącego Auth i fail-closed przy jego niedostępności. | FR-DO-010; BR-030; DEC-065 |
+| AC-DO-065-06 | Upload/finalize/delete są odporne na utratę odpowiedzi, retry, awarie i współbieżność bez powielania, obejścia quota lub przywrócenia usuniętych danych; ledger i restore respektują DEC-065. | FR-DO-010; DEC-065; ADR-0009 |
+
+Dodatkowe szczegółowe przypadki graniczne i dowody: [macierz QA](../technical/documents-core-analysis.md#7-qa--macierz-i-dowody).

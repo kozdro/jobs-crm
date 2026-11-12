@@ -18,6 +18,8 @@ import {
   getQuickCaptureAtomicReceipt,
 } from "@/modules/recruitment/application/quick-capture-atomic";
 import { parseQuickCaptureAtomicInput } from "@/modules/recruitment/domain/quick-capture-atomic";
+import { parseDocumentApplicationIntent } from "@/modules/documents/domain/application";
+import { recordApplicationWithDocuments } from "@/modules/documents/application/application";
 
 export const dynamic = "force-dynamic";
 
@@ -68,6 +70,17 @@ export async function POST(request: NextRequest) {
     const { expectedUserId, ...payload } = raw as Record<string, unknown>;
     if (typeof expectedUserId !== "string" || !uuidPattern.test(expectedUserId))
       return failure(400, "invalid");
+    if (payload.action === "record-application-with-documents") {
+      const applicationPayload = { ...payload };
+      delete applicationPayload.action;
+      const input = parseDocumentApplicationIntent(applicationPayload);
+      if (!input) return failure(400, "invalid");
+      const client = getRouteClient(request, cookieResponse);
+      const { data, error } = await client.auth.getUser();
+      if (error || !data.user) return failure(401, "unauthenticated");
+      if (data.user.id !== expectedUserId) return failure(403, "forbidden");
+      return reply(await recordApplicationWithDocuments(client, input));
+    }
     const eventAction = payload.action === "record-event";
     const eventPayload = { ...payload };
     if (eventAction) delete eventPayload.action;
