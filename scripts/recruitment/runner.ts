@@ -343,6 +343,7 @@ try {
       "tests/integration/recruitment/documents-reservation.test.ts",
       "tests/integration/recruitment/documents-version-history.test.ts",
       "tests/integration/recruitment/documents-content.test.ts",
+      "tests/integration/recruitment/documents-docx-parts.test.ts",
       "tests/integration/recruitment/recruitment.test.ts",
       "tests/integration/recruitment/lifecycle.test.ts",
       "tests/integration/recruitment/stages.test.ts",

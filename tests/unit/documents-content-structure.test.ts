@@ -16,7 +16,7 @@ function crc32(bytes: Buffer) {
   }
   return (crc ^ 0xffffffff) >>> 0;
 }
-function zip(parts: Record<string, string>, descriptor = false) {
+function zip(parts: Record<string, string | Buffer>, descriptor = false) {
   const locals: Buffer[] = [];
   const central: Buffer[] = [];
   let offset = 0;
@@ -64,7 +64,7 @@ function zip(parts: Record<string, string>, descriptor = false) {
   end.writeUInt32LE(offset, 16);
   return Buffer.concat([...locals, centralBytes, end]);
 }
-const contentTypes = `<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>`;
+const contentTypes = `<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>`;
 const rootRelationship = `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="r1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`;
 const doc = (body: string) =>
   `<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">${body}</w:document>`;
@@ -214,6 +214,80 @@ describe("document content structure", () => {
     await expect(
       checkDocx(zip(parts(`<w:body><w:fldSimple w:instr=" PAGE "/></w:body>`))),
     ).resolves.toBeDefined();
+  });
+
+  it("inspects typed custom XML independently of its filename", async () => {
+    for (const instruction of ["PAGE", "DDEAUTO cmd topic item"]) {
+      const packageParts = {
+        ...parts("<w:body/>"),
+        "[Content_Types].xml": contentTypes.replace(
+          "</Types>",
+          '<Override PartName="/word/custom.dat" ContentType="application/xml"/></Types>',
+        ),
+        "word/_rels/document.xml.rels": `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="custom" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/customXml" Target="custom.dat"/></Relationships>`,
+        "word/custom.dat": doc(
+          `<w:body><w:fldSimple w:instr="${instruction}"/></w:body>`,
+        ),
+      };
+      const result = checkDocx(zip(packageParts));
+      if (instruction === "PAGE") await expect(result).resolves.toBeDefined();
+      else await expect(result).rejects.toThrow();
+    }
+  });
+
+  it("validates typed PNG parts even with a non-image suffix", async () => {
+    const image = await readFile(png("valid.png"));
+    const packageParts = {
+      ...parts("<w:body/>"),
+      "[Content_Types].xml": contentTypes.replace(
+        "</Types>",
+        '<Override PartName="/word/media/photo.dat" ContentType="image/png"/></Types>',
+      ),
+      "word/_rels/document.xml.rels": `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="image" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/photo.dat"/></Relationships>`,
+      "word/media/photo.dat": image,
+    };
+    await expect(checkDocx(zip(packageParts))).resolves.toBeDefined();
+    packageParts["word/media/photo.dat"] = Buffer.from(doc("<w:body/>"));
+    await expect(checkDocx(zip(packageParts))).rejects.toThrow();
+  });
+
+  it("allows safe external Word hyperlinks and rejects active schemes", async () => {
+    for (const target of [
+      "https://example.com/cv",
+      "mailto:example@example.com",
+      "javascript:alert(1)",
+      "file:///tmp/active",
+    ]) {
+      const result = checkDocx(
+        zip({
+          ...parts("<w:body/>"),
+          "word/_rels/document.xml.rels": `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="link" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" TargetMode="External" Target="${target}"/></Relationships>`,
+        }),
+      );
+      if (target.startsWith("https:") || target.startsWith("mailto:"))
+        await expect(result).resolves.toBeDefined();
+      else await expect(result).rejects.toThrow();
+    }
+  });
+
+  it("rejects unreachable parts and mismatched content-type roots", async () => {
+    const packageParts = {
+      ...parts("<w:body/>"),
+      "[Content_Types].xml": contentTypes.replace(
+        "</Types>",
+        '<Override PartName="/word/header.dat" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/></Types>',
+      ),
+      "word/header.dat": `<w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>`,
+    };
+    await expect(checkDocx(zip(packageParts))).rejects.toThrow();
+    await expect(
+      checkDocx(
+        zip({
+          ...packageParts,
+          "word/_rels/document.xml.rels": `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="header" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header.dat"/></Relationships>`,
+        }),
+      ),
+    ).rejects.toThrow();
   });
 
   it("rejects a binary DOC DDE field split between compressed and Unicode pieces", async () => {

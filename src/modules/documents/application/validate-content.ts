@@ -12,6 +12,7 @@ import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { SaxesParser } from "saxes";
 import * as yauzl from "yauzl";
 import { validateImageContent } from "./validate-image.ts";
+import { validateDocxPackage } from "./validate-docx-package.ts";
 
 const maximumBytes = 20 * 1024 * 1024;
 const docxMime =
@@ -265,14 +266,7 @@ function validateDoc(bytes: Uint8Array) {
   if (/\x13\s*DDE(?:AUTO)?(?:\s|$|\\)/i.test(logicalText)) throw invalid();
 }
 
-function validateXml(name: string, bytes: Buffer) {
-  if (!name.endsWith(".xml") && !name.endsWith(".rels"))
-    return {
-      mainType: false,
-      wordRoot: false,
-      wordBody: false,
-      rootRelationship: false,
-    };
+function validateXml(bytes: Buffer, main: boolean) {
   const encoding =
     bytes[0] === 0xff && bytes[1] === 0xfe
       ? "utf-16le"
@@ -281,10 +275,8 @@ function validateXml(name: string, bytes: Buffer) {
         : "utf-8";
   const text = new TextDecoder(encoding, { fatal: true }).decode(bytes);
   const parser = new SaxesParser({ xmlns: true });
-  let mainType = false;
   let wordRoot = false;
   let wordBody = false;
-  let rootRelationship = false;
   let rootSeen = false;
   let depth = 0;
   let instruction = "";
@@ -335,7 +327,7 @@ function validateXml(name: string, bytes: Buffer) {
     if (!rootSeen) {
       rootSeen = true;
       wordRoot =
-        name === "word/document.xml" &&
+        main &&
         tag.local === "document" &&
         [
           "http://schemas.openxmlformats.org/wordprocessingml/2006/main",
@@ -343,7 +335,7 @@ function validateXml(name: string, bytes: Buffer) {
         ].includes(tag.uri);
     }
     if (
-      name === "word/document.xml" &&
+      main &&
       depth === 2 &&
       tag.local === "body" &&
       [
@@ -352,26 +344,6 @@ function validateXml(name: string, bytes: Buffer) {
       ].includes(tag.uri)
     )
       wordBody = true;
-    if (
-      name === "_rels/.rels" &&
-      tag.local === "Relationship" &&
-      tag.uri ===
-        "http://schemas.openxmlformats.org/package/2006/relationships" &&
-      /\/(?:officeDocument)$/i.test(tag.attributes.Type?.value ?? "") &&
-      /^\/?word\/document\.xml$/i.test(tag.attributes.Target?.value ?? "") &&
-      (tag.attributes.TargetMode?.value ?? "").toLowerCase() !== "external"
-    )
-      rootRelationship = true;
-    if (
-      name === "[content_types].xml" &&
-      tag.local === "Override" &&
-      tag.uri ===
-        "http://schemas.openxmlformats.org/package/2006/content-types" &&
-      tag.attributes.PartName?.value === "/word/document.xml" &&
-      tag.attributes.ContentType?.value ===
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"
-    )
-      mainType = true;
     for (const attribute of Object.values(tag.attributes)) {
       if (
         /vbaProject|macroEnabled|activeX|oleObject|attachedTemplate|aFChunk|\/package$/i.test(
@@ -387,7 +359,7 @@ function validateXml(name: string, bytes: Buffer) {
   });
   parser.write(text).close();
   flushInstruction();
-  return { mainType, wordRoot, wordBody, rootRelationship };
+  if (main && (!wordRoot || !wordBody)) throw invalid();
 }
 
 const crcTable = Uint32Array.from({ length: 256 }, (_, value) => {
@@ -457,10 +429,7 @@ async function validateDocx(bytes: Uint8Array) {
   const centralDirectoryStart = (zip as unknown as { readEntryCursor: number })
     .readEntryCursor;
   let total = 0;
-  let hasMainType = false;
-  let hasWordRoot = false;
-  let hasWordBody = false;
-  let hasRootRelationship = false;
+  const parts = new Map<string, Buffer>();
   await new Promise<void>((resolve, reject) => {
     zip.on("error", reject);
     zip.on("end", resolve);
@@ -544,11 +513,7 @@ async function validateDocx(bytes: Uint8Array) {
             try {
               const content = Buffer.concat(chunks);
               if (crc32(content) !== entry.crc32) throw invalid();
-              const result = validateXml(name, content);
-              hasMainType ||= result.mainType;
-              hasWordRoot ||= result.wordRoot;
-              hasWordBody ||= result.wordBody;
-              hasRootRelationship ||= result.rootRelationship;
+              parts.set(name, content);
               zip.readEntry();
             } catch (error) {
               zip.close();
@@ -560,16 +525,7 @@ async function validateDocx(bytes: Uint8Array) {
     });
     zip.readEntry();
   });
-  if (
-    !hasMainType ||
-    !hasWordRoot ||
-    !hasWordBody ||
-    !hasRootRelationship ||
-    !["[content_types].xml", "_rels/.rels", "word/document.xml"].every((name) =>
-      seen.has(name),
-    )
-  )
-    throw invalid();
+  await validateDocxPackage(parts, validateXml);
 }
 
 function decodeUtf32(bytes: Uint8Array, littleEndian: boolean, offset: number) {
