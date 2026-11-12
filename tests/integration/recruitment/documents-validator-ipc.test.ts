@@ -5,6 +5,11 @@ import test from "node:test";
 import postgres from "postgres";
 import { readRecruitmentTarget } from "../../../scripts/recruitment/target.ts";
 import { createAccounts } from "../rls/data-api.ts";
+import {
+  mime as docxMime,
+  parts as docxParts,
+  zip,
+} from "./documents-docx-fixtures.ts";
 const id = process.env.RECRUITMENT_TARGET_ID,
   url = process.env.DOCUMENTS_VALIDATOR_TEST_URL,
   secret = process.env.DOCUMENTS_VALIDATOR_TEST_SECRET;
@@ -46,19 +51,26 @@ test(
       });
     const setup = async (
       bytes: Buffer,
-      options: { upload?: boolean; hash?: string } = {},
+      options: {
+        upload?: boolean;
+        hash?: string;
+        filename?: string;
+        mime?: string;
+      } = {},
     ) => {
       const doc = randomUUID(),
         version = randomUUID(),
         key = randomUUID(),
         req = requestId();
       keys.push(key);
+      const filename = options.filename ?? "synthetic.txt";
+      const mime = options.mime ?? "text/plain";
       const digest =
         options.hash ?? createHash("sha256").update(bytes).digest("hex");
       await sql`insert into public.document(id,owner_id,name) values(${doc}::uuid,${a.id}::uuid,'Synthetic validator')`;
-      await sql`insert into public.document_version(id,owner_id,document_id,number,state,filename) values(${version}::uuid,${a.id}::uuid,${doc}::uuid,1,'pending','synthetic.txt')`;
+      await sql`insert into public.document_version(id,owner_id,document_id,number,state,filename) values(${version}::uuid,${a.id}::uuid,${doc}::uuid,1,'pending',${filename})`;
       await sql`insert into recruitment_private.document_object(version_id,owner_id,request_id,object_key,bytes,phase) values(${version}::uuid,${a.id}::uuid,${req}::uuid,${key},${bytes.length},'pending')`;
-      await sql`insert into recruitment_private.document_upload_command(owner_id,request_id,document_id,version_id,intent) values(${a.id}::uuid,${req}::uuid,${doc}::uuid,${version}::uuid,${sql.json({ filename: "synthetic.txt", mime: "text/plain", bytes: bytes.length, sha256: digest })})`;
+      await sql`insert into recruitment_private.document_upload_command(owner_id,request_id,document_id,version_id,intent) values(${a.id}::uuid,${req}::uuid,${doc}::uuid,${version}::uuid,${sql.json({ filename, mime, bytes: bytes.length, sha256: digest })})`;
       if (options.upload !== false) {
         const response = await fetch(
           `${target.apiUrl}/storage/v1/object/documents/${key}`,
@@ -67,7 +79,7 @@ test(
             headers: {
               apikey: target.serviceRoleKey,
               Authorization: `Bearer ${target.serviceRoleKey}`,
-              "content-type": "text/plain",
+              "content-type": mime,
             },
             body: new Uint8Array(bytes),
           },
@@ -97,6 +109,39 @@ test(
         !(await send(good.version, secret)).ok,
         "ready object cannot be revalidated",
       );
+      // Exercise the packaged worker, real Storage bytes and SQL finalize, not only the host parser.
+      const cleanDocx = await setup(zip(docxParts()), {
+        filename: "synthetic.docx",
+        mime: docxMime,
+      });
+      const acceptedDocx = await send(cleanDocx.version, secret);
+      assert.equal(
+        acceptedDocx.status,
+        200,
+        "benign header.dat DOCX must finalize in the isolated worker",
+      );
+      assert.deepEqual(await acceptedDocx.json(), {
+        kind: "ready",
+        versionId: cleanDocx.version,
+      });
+      const activeDocx = await setup(
+        zip(
+          docxParts(
+            '<w:p><w:fldSimple w:instr="DDEAUTO cmd topic item"/></w:p>',
+          ),
+        ),
+        { filename: "synthetic.docx", mime: docxMime },
+      );
+      const rejectedDocx = await send(activeDocx.version, secret);
+      assert.equal(
+        rejectedDocx.status,
+        422,
+        "active header.dat DOCX must be rejected by validation, not unavailable worker",
+      );
+      assert.deepEqual(await rejectedDocx.json(), { kind: "invalid" });
+      const [docxState] =
+        await sql`select state from public.document_version where id=${activeDocx.version}::uuid`;
+      assert.notEqual(docxState.state, "ready");
       const bad = await setup(Buffer.from("wrong bytes"), {
         hash: "a".repeat(64),
       });

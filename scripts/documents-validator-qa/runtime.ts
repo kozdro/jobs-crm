@@ -116,6 +116,13 @@ export async function startValidatorQa(
       join(context, "src/modules/documents/application/validate-image.ts"),
     );
     await cp(
+      join(root, "src/modules/documents/application/validate-docx-package.ts"),
+      join(
+        context,
+        "src/modules/documents/application/validate-docx-package.ts",
+      ),
+    );
+    await cp(
       join(root, "scripts/documents-validator-qa/proxy.mjs"),
       join(context, "proxy.mjs"),
     );
@@ -138,7 +145,7 @@ export async function startValidatorQa(
     ]);
     await writeFile(
       join(context, "Dockerfile"),
-      `FROM ${baseImage}\nWORKDIR /app\nCOPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./\nRUN npm install -g pnpm@12.16.1 && pnpm install --prod --frozen-lockfile\nCOPY scripts/documents-validator ./scripts/documents-validator\nCOPY src/modules/documents/application/validate-content.ts src/modules/documents/application/validate-image.ts ./src/modules/documents/application/\nCOPY --chmod=0444 proxy.mjs proxy.crt proxy.key ./\nLABEL ${label}=${owner}\n`,
+      `FROM ${baseImage}\nWORKDIR /app\nCOPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./\nRUN npm install -g pnpm@12.16.1 && pnpm install --prod --frozen-lockfile\nCOPY scripts/documents-validator ./scripts/documents-validator\nCOPY src/modules/documents/application/validate-content.ts src/modules/documents/application/validate-image.ts src/modules/documents/application/validate-docx-package.ts ./src/modules/documents/application/\nCOPY --chmod=0444 proxy.mjs proxy.crt proxy.key ./\nLABEL ${label}=${owner}\n`,
     );
     await docker("build", "--quiet", "--tag", image, context);
     imageCreated = true;
