@@ -1,6 +1,7 @@
 /** DEC-065/3A regression: OPC part identity is independent of its suffix. */
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFile } from "node:fs/promises";
 
 const modulePath =
   "../../../src/modules/documents/application/validate-content.ts";
@@ -13,13 +14,13 @@ const rel =
 const types = "application/vnd.openxmlformats-officedocument.wordprocessingml.";
 
 // Stored ZIP with real central-directory offsets and CRCs: no mocked parser.
-function zip(parts: Record<string, string>): Buffer {
+function zip(parts: Record<string, string | Buffer>): Buffer {
   const locals: Buffer[] = [],
     central: Buffer[] = [];
   let offset = 0;
   for (const [name, text] of Object.entries(parts)) {
     const filename = Buffer.from(name),
-      data = Buffer.from(text);
+      data = typeof text === "string" ? Buffer.from(text) : text;
     let crc = 0xffffffff;
     for (const byte of data) {
       crc ^= byte;
@@ -68,7 +69,7 @@ function parts(
     [`word/${name}`]: `<w:hdr xmlns:w="${word}">${header}</w:hdr>`,
   };
 }
-const check = (entries: Record<string, string>) =>
+const check = (entries: Record<string, string | Buffer>) =>
   validateDocumentContent(zip(entries), "synthetic.docx", mime);
 
 for (const name of ["header.xml", "header.dat", "header"]) {
@@ -184,3 +185,71 @@ test("reject active XML identified by Default content type rather than Override"
   );
   await assert.rejects(check(entries));
 });
+
+for (const [extension, type] of [
+  ["png", "image/png"],
+  ["jpg", "image/jpeg"],
+] as const) {
+  test(`accept package thumbnail with validated ${type} bytes`, async () => {
+    const entries: Record<string, string | Buffer> = parts();
+    entries["[Content_Types].xml"] = String(
+      entries["[Content_Types].xml"],
+    ).replace(
+      "</Types>",
+      `<Override PartName="/docProps/thumb.dat" ContentType="${type}"/></Types>`,
+    );
+    entries["_rels/.rels"] = String(entries["_rels/.rels"]).replace(
+      "</Relationships>",
+      '<Relationship Id="rThumbnail" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/thumbnail" Target="docProps/thumb.dat"/></Relationships>',
+    );
+    entries["docProps/thumb.dat"] = await readFile(
+      new URL(`../../fixtures/documents/valid.${extension}`, import.meta.url),
+    );
+    assert.equal((await check(entries)).mime, mime);
+    entries["docProps/thumb.dat"] = Buffer.from(
+      `<w:hdr xmlns:w="${word}"><w:fldSimple w:instr="DDEAUTO cmd topic item"/></w:hdr>`,
+    );
+    await assert.rejects(
+      check(entries),
+      "XML disguised as a binary thumbnail must fail closed",
+    );
+  });
+}
+
+function effectsPart(payload: string): Record<string, string> {
+  const entries = parts();
+  entries["[Content_Types].xml"] = entries["[Content_Types].xml"].replace(
+    "</Types>",
+    '<Override PartName="/word/effects.dat" ContentType="application/vnd.ms-word.stylesWithEffects+xml"/></Types>',
+  );
+  entries["word/_rels/document.xml.rels"] = entries[
+    "word/_rels/document.xml.rels"
+  ].replace(
+    "</Relationships>",
+    '<Relationship Id="rEffects" Type="http://schemas.microsoft.com/office/2007/relationships/stylesWithEffects" Target="effects.dat"/></Relationships>',
+  );
+  return {
+    ...entries,
+    "word/effects.dat": `<w:styles xmlns:w="${word}">${payload}</w:styles>`,
+  };
+}
+test("accept ordinary stylesWithEffects XML with nonstandard part name", async () => {
+  assert.equal(
+    (
+      await check(
+        effectsPart(
+          '<w:style w:type="paragraph" w:styleId="Synthetic"><w:name w:val="Synthetic"/></w:style>',
+        ),
+      )
+    ).mime,
+    mime,
+  );
+});
+for (const [label, payload] of [
+  ["DDEAUTO", '<w:fldSimple w:instr="DDEAUTO cmd topic item"/>'],
+  ["active object", "<w:object/>"],
+] as const) {
+  test(`reject ${label} in stylesWithEffects XML named effects.dat`, async () => {
+    await assert.rejects(check(effectsPart(payload)));
+  });
+}

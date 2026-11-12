@@ -11,6 +11,8 @@ const relationshipMime =
 const officeMime = "application/vnd.openxmlformats-officedocument.";
 const wordMime = `${officeMime}wordprocessingml.`;
 const mainMime = `${wordMime}document.main+xml`;
+// Microsoft MS-DOCX / StylesWithEffectsPart (Office2010).
+const stylesWithEffectsMime = "application/vnd.ms-word.stylesWithEffects+xml";
 const wordNamespaces = [
   "http://schemas.openxmlformats.org/wordprocessingml/2006/main",
   "http://purl.oclc.org/ooxml/wordprocessingml/main",
@@ -159,8 +161,17 @@ const relationTypes: Record<string, string[]> = {
   "extended-properties": [`${officeMime}extended-properties+xml`],
   "custom-properties": [`${officeMime}custom-properties+xml`],
   image: ["image/png", "image/jpeg"],
+  "package-thumbnail": ["image/png", "image/jpeg"],
+  "word-styles-with-effects": [stylesWithEffectsMime],
 };
 function relationKind(type: string) {
+  if (type === `${relationshipNamespace}/metadata/thumbnail`)
+    return "package-thumbnail";
+  if (
+    type ===
+    "http://schemas.microsoft.com/office/2007/relationships/stylesWithEffects"
+  )
+    return "word-styles-with-effects";
   for (const prefix of relationshipPrefixes)
     if (type.startsWith(prefix)) return type.slice(prefix.length);
   if (type === `${relationshipNamespace}/metadata/core-properties`)
@@ -172,6 +183,8 @@ relationTypes["core-properties"] = [
 ];
 
 function expectedRoot(type: string) {
+  if (type === stylesWithEffectsMime)
+    return { name: "styles", namespaces: wordNamespaces };
   if (type.startsWith(wordMime) && type.endsWith("+xml")) {
     const name = wordRoots[type.slice(wordMime.length, -4)];
     if (name) return { name, namespaces: wordNamespaces };
@@ -273,12 +286,15 @@ export async function validateDocxPackage(
     if (name.endsWith(".rels") !== (type === relationshipMime)) throw invalid();
   }
   const edges = new Map<string, string[]>();
+  const relationshipCounts = new Map<string, number>();
+  const thumbnails = new Set<string>();
   let main: string | undefined;
   for (const [name, type] of types) {
     if (type !== relationshipMime) continue;
     const source = relationshipSource(name);
     if (source && !parts.has(source)) throw invalid();
     const ids = new Set<string>();
+    let thumbnailCount = 0;
     const targets: string[] = [];
     xml(
       parts.get(name)!,
@@ -303,6 +319,9 @@ export async function validateDocxPackage(
           throw invalid();
         ids.add(attr.Id);
         const kind = relationKind(attr.Type);
+        // OPC thumbnail parts are internal, one per source, with no outgoing relations.
+        if (kind === "package-thumbnail" && ++thumbnailCount > 1)
+          throw invalid();
         if (attr.TargetMode === "External") {
           if (kind !== "hyperlink" || /[\u0000-\u0020]/u.test(attr.Target))
             throw invalid();
@@ -328,13 +347,18 @@ export async function validateDocxPackage(
           if (source || main) throw invalid();
           main = target;
         }
+        if (kind === "package-thumbnail") thumbnails.add(target);
         targets.push(target);
       },
       true,
     );
     edges.set(source, targets);
+    relationshipCounts.set(source, ids.size);
   }
   if (!main || types.get(main) !== mainMime) throw invalid();
+  for (const thumbnail of thumbnails) {
+    if (relationshipCounts.get(thumbnail)) throw invalid();
+  }
   const reached = new Set<string>();
   const pending = [""];
   while (pending.length) {

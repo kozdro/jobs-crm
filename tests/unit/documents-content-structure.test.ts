@@ -251,6 +251,101 @@ describe("document content structure", () => {
     await expect(checkDocx(zip(packageParts))).rejects.toThrow();
   });
 
+  it("accepts ordinary package thumbnails after decoding their PNG or JPEG bytes", async () => {
+    for (const [mime, fixture] of [
+      ["image/png", "valid.png"],
+      ["image/jpeg", "valid.jpg"],
+    ]) {
+      const packageParts = {
+        ...parts("<w:body/>"),
+        "[Content_Types].xml": contentTypes.replace(
+          "</Types>",
+          `<Override PartName="/docProps/thumbnail.dat" ContentType="${mime}"/></Types>`,
+        ),
+        "_rels/.rels": rootRelationship.replace(
+          "</Relationships>",
+          '<Relationship Id="thumbnail" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/thumbnail" Target="docProps/thumbnail.dat"/></Relationships>',
+        ),
+        "docProps/thumbnail.dat": await readFile(png(fixture)),
+      };
+      await expect(checkDocx(zip(packageParts))).resolves.toBeDefined();
+      packageParts["docProps/thumbnail.dat"] = Buffer.from(
+        doc('<w:body><w:fldSimple w:instr="DDEAUTO cmd topic item"/></w:body>'),
+      );
+      await expect(checkDocx(zip(packageParts))).rejects.toThrow();
+    }
+  });
+
+  it("rejects duplicate, external, or relationship-bearing thumbnail parts", async () => {
+    const thumbnailRel =
+      '<Relationship Id="thumbnail" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/thumbnail" Target="docProps/thumbnail.dat"/>';
+    const packageParts = {
+      ...parts("<w:body/>"),
+      "[Content_Types].xml": contentTypes.replace(
+        "</Types>",
+        '<Override PartName="/docProps/thumbnail.dat" ContentType="image/png"/></Types>',
+      ),
+      "_rels/.rels": rootRelationship.replace(
+        "</Relationships>",
+        `${thumbnailRel}</Relationships>`,
+      ),
+      "docProps/thumbnail.dat": await readFile(png("valid.png")),
+    };
+    await expect(
+      checkDocx(
+        zip({
+          ...packageParts,
+          "_rels/.rels": packageParts["_rels/.rels"].replace(
+            "</Relationships>",
+            `${thumbnailRel.replace('Id="thumbnail"', 'Id="duplicate"')}</Relationships>`,
+          ),
+        }),
+      ),
+    ).rejects.toThrow();
+    await expect(
+      checkDocx(
+        zip({
+          ...packageParts,
+          "_rels/.rels": packageParts["_rels/.rels"].replace(
+            'Target="docProps/thumbnail.dat"',
+            'TargetMode="External" Target="https://example.com/thumbnail.png"',
+          ),
+        }),
+      ),
+    ).rejects.toThrow();
+    await expect(
+      checkDocx(
+        zip({
+          ...packageParts,
+          "docProps/_rels/thumbnail.dat.rels":
+            '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="link" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" TargetMode="External" Target="https://example.com/"/></Relationships>',
+        }),
+      ),
+    ).rejects.toThrow();
+  });
+
+  it("accepts ordinary Word stylesWithEffects and inspects active XML despite a dat suffix", async () => {
+    for (const content of [
+      '<w:style w:type="paragraph" w:styleId="Normal"><w:name w:val="Normal"/></w:style>',
+      '<w:fldSimple w:instr="DDEAUTO cmd topic item"/>',
+      "<w:object/>",
+    ]) {
+      const packageParts = {
+        ...parts("<w:body/>"),
+        "[Content_Types].xml": contentTypes.replace(
+          "</Types>",
+          '<Override PartName="/word/effects.dat" ContentType="application/vnd.ms-word.stylesWithEffects+xml"/></Types>',
+        ),
+        "word/_rels/document.xml.rels": `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="effects" Type="http://schemas.microsoft.com/office/2007/relationships/stylesWithEffects" Target="effects.dat"/></Relationships>`,
+        "word/effects.dat": `<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">${content}</w:styles>`,
+      };
+      const result = checkDocx(zip(packageParts));
+      if (content.startsWith("<w:style "))
+        await expect(result).resolves.toBeDefined();
+      else await expect(result).rejects.toThrow();
+    }
+  });
+
   it("allows safe external Word hyperlinks and rejects active schemes", async () => {
     for (const target of [
       "https://example.com/cv",
