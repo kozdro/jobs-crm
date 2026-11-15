@@ -255,7 +255,10 @@ test("Calendar active and completed phases reject untrusted values", () => {
   good.push(
     `F3_BROWSER_FAILURE ${JSON.stringify({ ...base, activePhase: "edit_open" })}`,
   );
-  assert.equal(good.verify().observations[0].values.activePhase, "edit_open");
+  assert.deepEqual(good.verify().observations[0].values, {
+    ...base,
+    activePhase: "edit_open",
+  });
   const bad = capture();
   bad.push(
     `F3_BROWSER_FAILURE ${JSON.stringify({ ...base, activePhase: "private@example.test" })}`,
