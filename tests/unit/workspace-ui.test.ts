@@ -58,7 +58,7 @@ describe("Workspace presentation boundaries", () => {
       expect(html).toContain(label);
     expect(html).toContain("tokeny dostępu mogą działać do wygaśnięcia");
   });
-  it("marks the current module and renders future modules without invented destinations", () => {
+  it("marks the current module and links to the available modules", () => {
     const html = renderToStaticMarkup(
       createElement(SidebarNavigation, {
         pathname: "/recruitments/synthetic-case",
@@ -75,13 +75,13 @@ describe("Workspace presentation boundaries", () => {
       "Kontakty",
     ])
       expect(html).toContain(name);
-    expect((html.match(/aria-disabled="true"/g) ?? []).length).toBe(1);
-    expect((html.match(/<a /g) ?? []).length).toBe(6);
+    expect((html.match(/aria-disabled="true"/g) ?? []).length).toBe(0);
+    expect((html.match(/<a /g) ?? []).length).toBe(7);
     expect(html).toContain('href="/companies"');
     expect(html).toContain('href="/contacts"');
     expect(html).toContain('href="/tasks"');
     expect(html).toContain('href="/calendar"');
-    expect(html).not.toContain("/documents");
+    expect(html).toContain('href="/documents"');
   });
   it("retains compact record data and exact destination while escaping free text", () => {
     const html = renderToStaticMarkup(createElement(CaseListItem, { item }));

@@ -29,6 +29,33 @@ export const MOVE_LINK_PHASES = [
   "page_status",
   "persisted_position",
 ] as const;
+export const CALENDAR_PHASES = [
+  "not_entered",
+  "none",
+  "unknown",
+  "setup_planned",
+  "setup_occurred",
+  "login",
+  "navigate",
+  "create_open",
+  "create_verify",
+  "create_cancel",
+  "occurred_open",
+  "occurred_verify",
+  "occurred_cancel",
+  "edit_open",
+  "edit_verify",
+  "edit_cancel",
+  "reschedule_open",
+  "reschedule_verify",
+  "reschedule_cancel",
+  "resolve_open",
+  "resolve_verify",
+  "resolve_cancel",
+  "correct_open",
+  "correct_verify",
+  "correct_cancel",
+] as const;
 const observationSchemas = {
   F3_BROWSER_FAILURE: z
     .strictObject({
@@ -37,11 +64,12 @@ const observationSchemas = {
       status: z.enum(["failed", "timedOut", "interrupted"]),
       category: z.enum(["timeout", "assertion", "browser-closed", "other"]),
       retry: z.number().int().min(0).max(1000),
-      phase: z.enum(MOVE_LINK_PHASES).optional(),
+      phase: z.enum([...MOVE_LINK_PHASES, ...CALENDAR_PHASES]).optional(),
+      activePhase: z.enum(CALENDAR_PHASES).optional(),
     })
     .refine(
       (value) =>
-        value.phase === undefined ||
+        (value.phase === undefined && value.activePhase === undefined) ||
         (value.category === "timeout" && value.status !== "interrupted"),
     ),
   F3_BFCACHE_OBSERVATION: z.strictObject({

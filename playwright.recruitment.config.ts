@@ -10,7 +10,7 @@ export default defineConfig({
     : [["list"], ["./scripts/auth/safe-browser-reporter.ts"]],
   use: {
     ...devices["Desktop Chrome"],
-    baseURL: "https://127.0.0.1:3153",
+    baseURL: process.env.APP_ORIGIN ?? "https://127.0.0.1:3153",
     ignoreHTTPSErrors: true,
     channel: "chromium",
     trace: "off",

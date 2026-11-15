@@ -5,10 +5,21 @@ import type {
 import { uuidPattern } from "@/modules/recruitment/domain/recruitment-case";
 
 export const eventIntentStorageKey = "jobs-crm.case-event.pending";
+export function sameSentVersions(expected: string[], actual: unknown): boolean {
+  return (
+    Array.isArray(actual) &&
+    actual.every((id) => typeof id === "string") &&
+    new Set(actual).size === actual.length &&
+    new Set(expected).size === expected.length &&
+    actual.length === expected.length &&
+    actual.every((id) => expected.includes(id))
+  );
+}
 export type PendingEventIntent = {
   ownerId: string;
   caseId: string;
   requestId: string;
+  atomicDocuments?: boolean;
 };
 /** Persist identifiers only. Never restore another account's private action. */
 export function parsePendingEventIntent(
@@ -23,14 +34,23 @@ export function parsePendingEventIntent(
       return null;
     const row = value as Record<string, unknown>;
     if (
-      Object.keys(row).length !== 3 ||
+      Object.keys(row).some(
+        (key) =>
+          !["ownerId", "caseId", "requestId", "atomicDocuments"].includes(key),
+      ) ||
+      (row.atomicDocuments !== undefined && row.atomicDocuments !== true) ||
       row.ownerId !== ownerId ||
       row.caseId !== caseId ||
       typeof row.requestId !== "string" ||
       !uuidPattern.test(row.requestId)
     )
       return null;
-    return { ownerId, caseId, requestId: row.requestId };
+    return {
+      ownerId,
+      caseId,
+      requestId: row.requestId,
+      ...(row.atomicDocuments === true ? { atomicDocuments: true } : {}),
+    };
   } catch {
     return null;
   }

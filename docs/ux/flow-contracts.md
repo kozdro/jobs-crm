@@ -111,7 +111,11 @@ Przy close [DEC-062](../decisions/product-decisions.md) zatwierdza skutki anuluj
 - Wysłanie CV można skojarzyć z **konkretną wersją**, nie bieżącą zmienną wersją; brak automatycznego nadpisania historii.
 - Jedna firma może mieć kilka spraw; kontakt może nie mieć sprawy, ale komunikacja wymaga powiązania.
 - Profil kontaktu nie przejmuje historii innych spraw; uczestnicy wydarzenia są określani rzeczywistymi relacjami.
-- Operacje usunięcia/archiwizacji/retencji i prywatności nie mogą zostać narysowane jako zaakceptowana polityka: OPEN-005/006/013/030/032/036.
+- Documents Core: podgląd skutków, jawne potwierdzenie i weryfikacja Auth poprzedzają usunięcie; status oczekujący trwa do potwierdzenia kasacji. Pozostałe globalne zasady retencji i prywatności pozostają otwarte.
+
+### F04/F10 — Documents Core (PO 2026-11-11, 1A/2A/3A/4A)
+
+Użytkownik dodaje dokument do biblioteki albo wybiera jedną z trzech ścieżek w sprawie; wskazanie wersji jako faktycznie wysłanej jest oddzielnym świadomym działaniem przy konkretnym application. Wiele wersji CV można zapisać atomowo z nowym faktem lub skorygować później z audytem. Quick Capture zachowuje cztery kroki i umożliwia późniejsze uzupełnienie faktu. Usunięcie wersji lub dokumentu wymaga aktualnego podglądu skutków i potwierdzenia, natychmiast odbiera nowe dostępy, a wynik kasacji jest pokazywany dopiero po potwierdzeniu. Zdarzenie aplikowania pozostaje w historii bez ujawniania usuniętych metadanych. Szczegółowy kontrakt: [analiza Documents Core](../technical/documents-core-analysis.md), §4.
 
 ## F11: Import CSV/XLSX (UC-017/026; UX-007–009)
 

@@ -1,4 +1,5 @@
 import { CalendarPanel } from "@/components/calendar/calendar-panel";
+import { DocumentsPanel } from "@/components/documents/documents-panel";
 import { TasksPanel } from "@/components/tasks/tasks-panel";
 import { WorkspaceReturnLink } from "@/components/recruitment/workspace-return-link";
 import { RelationsPanel } from "@/components/companies-contacts/relations";
@@ -87,6 +88,7 @@ export default async function RecruitmentDetailPage({
           ["case-relations", "Powiązania"],
           ["case-tasks", "Zadania"],
           ["case-calendar", "Wydarzenia"],
+          ["case-documents", "Dokumenty"],
           ["case-lifecycle", "Zakończenie i kontynuacja"],
           ["case-actions", "Działania"],
           ["case-history", "Historia"],
@@ -141,6 +143,13 @@ export default async function RecruitmentDetailPage({
               userId={user.id}
               caseId={item.id}
               caseTitle={item.title}
+            />
+          </div>
+          <div id="case-documents" tabIndex={-1} className="mt-5 scroll-mt-6">
+            <DocumentsPanel
+              key={`${user.id}:${item.id}`}
+              userId={user.id}
+              caseId={item.id}
             />
           </div>
           <div id="case-lifecycle" tabIndex={-1} className="scroll-mt-6">

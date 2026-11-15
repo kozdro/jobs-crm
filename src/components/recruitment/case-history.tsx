@@ -1,6 +1,7 @@
 "use client";
 
 import { formatOffset } from "@/components/calendar/time";
+import { ApplicationVersions } from "@/components/documents/application-versions";
 
 import Link from "next/link";
 import { useRef, useState } from "react";
@@ -84,6 +85,15 @@ function HistoryEntry({
   return (
     <li id={`history-entry-${event.id}`} className="py-4 first:pt-0">
       <p className="text-sm font-semibold">{caseEventLabel(event)}</p>
+      {userId && event.kind === "application" && (
+        <ApplicationVersions
+          userId={userId}
+          caseId={caseId}
+          eventId={event.id}
+          eventRevision={event.revision ?? 0}
+          voided={Boolean(event.voided)}
+        />
+      )}
       {event.voided && (
         <p className="mt-1 text-sm font-semibold text-muted-foreground">
           Unieważniony wpis — nie wpływa na bieżący stan sprawy.

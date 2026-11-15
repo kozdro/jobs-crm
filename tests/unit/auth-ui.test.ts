@@ -51,8 +51,18 @@ describe("Auth UI policy and output boundary", () => {
         expectedUserId: "intended-owner-a",
       }),
     );
-    expect(withIdentity).not.toMatch(/<button[^>]* disabled=""/);
+    expect(withIdentity).toMatch(/<button[^>]* disabled=""/);
     expect(withIdentity).not.toContain("intended-owner-a");
+  });
+  it("renders credentials disabled until hydration and never defaults to GET", () => {
+    for (const mode of ["login", "signup", "forgot", "reset"] as const) {
+      const html = renderToStaticMarkup(
+        createElement(AuthForm, { mode, expectedUserId: "owner" }),
+      );
+      expect(html).toMatch(/<form[^>]*method="post"/);
+      expect(html).toMatch(/<input[^>]*disabled=""/);
+      expect(html).toMatch(/<button[^>]*disabled=""/);
+    }
   });
   it("does not expose a Google action without configured provider", () => {
     const html = renderToStaticMarkup(

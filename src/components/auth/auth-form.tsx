@@ -35,6 +35,10 @@ export function AuthForm({
 }) {
   const config = getPublicAuthConfig();
   const [pending, setPending] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    void Promise.resolve().then(() => setHydrated(true));
+  }, []);
   const [feedback, setFeedback] = useState<{
     message: string;
     error: boolean;
@@ -229,6 +233,7 @@ export function AuthForm({
       ) : (
         <form
           ref={formRef}
+          method="post"
           onSubmit={submit}
           className="space-y-4"
           aria-busy={pending}
@@ -244,7 +249,7 @@ export function AuthForm({
                 type="email"
                 autoComplete="email"
                 required
-                disabled={pending || resetBlocked}
+                disabled={!hydrated || pending || resetBlocked}
                 className={inputClass}
               />
             </div>
@@ -262,14 +267,14 @@ export function AuthForm({
                   mode === "login" ? "current-password" : "new-password"
                 }
                 required
-                disabled={pending || resetBlocked}
+                disabled={!hydrated || pending || resetBlocked}
                 className={inputClass}
               />
             </div>
           )}
           <Button
             type="submit"
-            disabled={pending || resetBlocked}
+            disabled={!hydrated || pending || resetBlocked}
             className={buttonClass}
           >
             {pending && (

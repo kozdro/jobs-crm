@@ -11,6 +11,7 @@ export const recruitmentPortProfiles = {
     studio: 57023,
     smtp: 57024,
   },
+  storage: { api: 57121, db: 57122, shadow: 57120, studio: 57123, smtp: 57124 },
 } as const;
 export type RecruitmentPortProfile = keyof typeof recruitmentPortProfiles;
 
@@ -72,6 +73,8 @@ export interface RecruitmentManifest {
   configHash: string;
   /** Missing means the original fixed 566xx profile; new targets bind explicitly to isolated. */
   portProfile?: RecruitmentPortProfile;
+  /** Storage is enabled only for targets created with the separate Storage template. */
+  storage?: true;
   createdAt: string;
   migrationCheckpoint: string;
   containers?: { id: string; name: string; imageId: string }[];
@@ -101,7 +104,10 @@ export function assertRecruitmentManifest(
     m.networkId !== `network-${m.projectId}` ||
     !/^[a-f0-9]{64}$/.test(m.migrationCheckpoint) ||
     sha256(config) !== m.configHash ||
-    !["legacy", "isolated"].includes(m.portProfile ?? "legacy") ||
+    !["legacy", "isolated", "storage"].includes(m.portProfile ?? "legacy") ||
+    (m.storage === true && m.portProfile !== "storage") ||
+    (m.storage !== true && m.portProfile === "storage") ||
+    (m.storage !== undefined && m.storage !== true) ||
     config !==
       recruitmentConfigForProfile(
         template,

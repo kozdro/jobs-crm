@@ -14,6 +14,7 @@ interface Scope {
   networkLabel?: string;
   /** DEV-only: replace the pinned Studio snippets bind with this owned named volume. */
   studioSnippetsVolume?: string;
+  storageBootstrap?: boolean;
 }
 class GuardRefusal extends Error {}
 const nonEmpty = (value: unknown) =>
@@ -63,13 +64,22 @@ export function bootstrapName(body: Record<string, unknown>, scope: Scope) {
   assertCanonicalKeys(body);
   const host = (body.HostConfig ?? {}) as Record<string, unknown>;
   const labels = body.Labels as Record<string, string> | undefined;
-  if (
-    ![
+  const authBootstrap =
+    [
       "public.ecr.aws/supabase/gotrue:v2.197.0",
       "ghcr.io/supabase/gotrue:v2.197.0",
       "supabase/gotrue:v2.197.0",
-    ].includes(String(body.Image)) ||
-    JSON.stringify(body.Cmd) !== JSON.stringify(["gotrue", "migrate"]) ||
+    ].includes(String(body.Image)) &&
+    JSON.stringify(body.Cmd) === JSON.stringify(["gotrue", "migrate"]);
+  const storageBootstrap =
+    scope.storageBootstrap === true &&
+    ["public.ecr.aws/supabase/", "ghcr.io/supabase/", "supabase/"].some(
+      (prefix) => body.Image === prefix + "storage-api:v1.84.19",
+    ) &&
+    JSON.stringify(body.Cmd) ===
+      JSON.stringify(["node", "dist/scripts/migrate-call.js"]);
+  if (
+    !(authBootstrap || storageBootstrap) ||
     host.AutoRemove !== true ||
     labels?.["com.supabase.cli.project"] !== scope.projectId ||
     labels?.["com.docker.compose.project"] !== scope.projectId ||
@@ -77,7 +87,7 @@ export function bootstrapName(body: Record<string, unknown>, scope: Scope) {
     nonEmpty(host.Binds)
   )
     throw new GuardRefusal("Unknown unnamed Docker bootstrap refused");
-  return `supabase_auth_migrate_${randomUUID().replaceAll("-", "").slice(0, 12)}_${scope.projectId}`;
+  return `supabase_${storageBootstrap ? "storage" : "auth"}_migrate_${randomUUID().replaceAll("-", "").slice(0, 12)}_${scope.projectId}`;
 }
 export function guardCreate(
   body: Record<string, unknown>,

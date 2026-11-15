@@ -189,3 +189,94 @@ test('moving link 26 across a page boundary preserves target, focus and status',
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test("Calendar diagnostics expose only allowlisted completed and active phases", () => {
+  const messages: string[] = [];
+  const original = console.log;
+  console.log = (message: string) => messages.push(message);
+  try {
+    const reporter = new SafeBrowserReporter();
+    const target = {
+      location: {
+        file: resolve("tests/e2e/recruitment-calendar.spec.ts"),
+        line: 742,
+      },
+      title:
+        "every Calendar form dialog exposes its own accessible name and focuses the title",
+    } as TestCase;
+    const result = {
+      status: "timedOut",
+      retry: 0,
+      errors: [{ message: "secret" }],
+    } as TestResult;
+    const completed = {
+      category: "test.step",
+      title: "CALENDAR_PHASE:login",
+    } as TestStep;
+    reporter.onStepBegin(target, result, completed);
+    reporter.onStepEnd(target, result, completed);
+    reporter.onStepBegin(target, result, {
+      category: "test.step",
+      title: "CALENDAR_PHASE:private@example.test",
+    } as TestStep);
+    reporter.onTestEnd(target, result);
+  } finally {
+    console.log = original;
+  }
+  assert.ok(!messages[0].includes("private@example.test"));
+  const value = JSON.parse(messages[0].slice("F3_BROWSER_FAILURE ".length));
+  assert.equal(value.phase, "login");
+  assert.equal(value.activePhase, "unknown");
+});
+
+test("Calendar completed and failed steps clear active state", () => {
+  const messages: string[] = [];
+  const original = console.log;
+  console.log = (message: string) => messages.push(message);
+  try {
+    const reporter = new SafeBrowserReporter();
+    const target = {
+      location: {
+        file: resolve("tests/e2e/recruitment-calendar.spec.ts"),
+        line: 742,
+      },
+      title:
+        "every Calendar form dialog exposes its own accessible name and focuses the title",
+    } as TestCase;
+    const result = {
+      status: "timedOut",
+      retry: 0,
+      errors: [],
+    } as unknown as TestResult;
+    const complete = {
+      category: "test.step",
+      title: "CALENDAR_PHASE:login",
+    } as TestStep;
+    reporter.onStepBegin(target, result, complete);
+    reporter.onStepEnd(target, result, complete);
+    reporter.onTestEnd(target, result);
+    const failed = {
+      category: "test.step",
+      title: "CALENDAR_PHASE:edit_open",
+      error: { message: "secret" },
+    } as TestStep;
+    reporter.onStepBegin(target, result, failed);
+    reporter.onTestEnd(target, result);
+    reporter.onStepEnd(target, result, failed);
+    reporter.onTestEnd(target, result);
+  } finally {
+    console.log = original;
+  }
+  const values = messages.map((message) =>
+    JSON.parse(message.slice("F3_BROWSER_FAILURE ".length)),
+  );
+  assert.deepEqual(
+    values.map(({ phase, activePhase }) => [phase, activePhase]),
+    [
+      ["login", "none"],
+      ["login", "edit_open"],
+      ["login", "none"],
+    ],
+  );
+  assert.ok(messages.every((message) => !message.includes("secret")));
+});

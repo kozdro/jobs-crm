@@ -21,3 +21,14 @@ export function getAuthConfig() {
   }
   return config;
 }
+
+/** Documents credentials are server-only and never part of the public config. */
+export function getDocumentsSecrets() {
+  return {
+    permit: process.env.DOCUMENTS_PERMIT_SECRET,
+    uploader: process.env.DOCUMENTS_UPLOADER_JWT,
+    deleteAuthorizer: process.env.DOCUMENTS_DELETE_AUTHORIZER_JWT,
+    validatorUrl: process.env.DOCUMENTS_VALIDATOR_URL,
+    validatorServiceSecret: process.env.DOCUMENTS_VALIDATOR_SERVICE_SECRET,
+  };
+}

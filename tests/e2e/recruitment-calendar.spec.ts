@@ -765,56 +765,69 @@ test("every Calendar form dialog exposes its own accessible name and focuses the
       endOffset: null,
     },
   };
-  const planned = await client.rpc("execute_recruitment_calendar_command", {
-    p_request_id: randomUUID(),
-    p_payload: { operation: "create", values },
-  });
+  const planned = await test.step("CALENDAR_PHASE:setup_planned", () =>
+    client.rpc("execute_recruitment_calendar_command", {
+      p_request_id: randomUUID(),
+      p_payload: { operation: "create", values },
+    }));
   expect(planned.error).toBeNull();
-  const occurred = await client.rpc("execute_recruitment_calendar_command", {
-    p_request_id: randomUUID(),
-    p_payload: {
-      operation: "create",
-      values: {
-        ...values,
-        title: occurredTitle,
-        status: "occurred",
-        schedule: null,
+  const occurred = await test.step("CALENDAR_PHASE:setup_occurred", () =>
+    client.rpc("execute_recruitment_calendar_command", {
+      p_request_id: randomUUID(),
+      p_payload: {
+        operation: "create",
+        values: {
+          ...values,
+          title: occurredTitle,
+          status: "occurred",
+          schedule: null,
+        },
       },
-    },
-  });
+    }));
   expect(occurred.error).toBeNull();
-  await login(page);
-  await page.goto(`${target.appOrigin}/calendar`);
-  for (const [action, name] of [
-    ["Dodaj wydarzenie", "Nowe wydarzenie"],
-    ["Zapisz odbytą rozmowę", "Zapisz odbytą rozmowę"],
+  await test.step("CALENDAR_PHASE:login", () => login(page));
+  await test.step("CALENDAR_PHASE:navigate", () =>
+    page.goto(`${target.appOrigin}/calendar`));
+  for (const [action, name, phase] of [
+    ["Dodaj wydarzenie", "Nowe wydarzenie", "create"],
+    ["Zapisz odbytą rozmowę", "Zapisz odbytą rozmowę", "occurred"],
   ]) {
-    await page.getByRole("button", { name: action, exact: true }).click();
+    await test.step(`CALENDAR_PHASE:${phase}_open`, () =>
+      page.getByRole("button", { name: action, exact: true }).click());
     const dialog = page.getByRole("dialog", { name, exact: true });
-    await expect(dialog).toBeVisible();
-    await expect(
-      dialog.getByLabel("Tytuł wydarzenia", { exact: true }),
-    ).toBeFocused();
-    await dialog.getByRole("button", { name: "Anuluj", exact: true }).click();
-    await expect(dialog).toHaveCount(0);
+    await test.step(`CALENDAR_PHASE:${phase}_verify`, async () => {
+      await expect(dialog).toBeVisible();
+      await expect(
+        dialog.getByLabel("Tytuł wydarzenia", { exact: true }),
+      ).toBeFocused();
+    });
+    await test.step(`CALENDAR_PHASE:${phase}_cancel`, async () => {
+      await dialog.getByRole("button", { name: "Anuluj", exact: true }).click();
+      await expect(dialog).toHaveCount(0);
+    });
   }
-  for (const [title, action, name] of [
-    [plannedTitle, "Edytuj wydarzenie", "Edytuj wydarzenie"],
-    [plannedTitle, "Przełóż termin", "Edytuj wydarzenie"],
-    [plannedTitle, "Rozlicz wydarzenie", "Rozlicz wydarzenie"],
-    [occurredTitle, "Skoryguj wydarzenie", "Skoryguj wydarzenie"],
+  for (const [title, action, name, phase] of [
+    [plannedTitle, "Edytuj wydarzenie", "Edytuj wydarzenie", "edit"],
+    [plannedTitle, "Przełóż termin", "Edytuj wydarzenie", "reschedule"],
+    [plannedTitle, "Rozlicz wydarzenie", "Rozlicz wydarzenie", "resolve"],
+    [occurredTitle, "Skoryguj wydarzenie", "Skoryguj wydarzenie", "correct"],
   ]) {
-    await page
-      .getByRole("article", { name: title, exact: true })
-      .getByRole("button", { name: action, exact: true })
-      .click();
+    await test.step(`CALENDAR_PHASE:${phase}_open`, () =>
+      page
+        .getByRole("article", { name: title, exact: true })
+        .getByRole("button", { name: action, exact: true })
+        .click());
     const dialog = page.getByRole("dialog", { name, exact: true });
-    await expect(dialog).toBeVisible();
-    await expect(
-      dialog.getByLabel("Tytuł wydarzenia", { exact: true }),
-    ).toBeFocused();
-    await dialog.getByRole("button", { name: "Anuluj", exact: true }).click();
-    await expect(dialog).toHaveCount(0);
+    await test.step(`CALENDAR_PHASE:${phase}_verify`, async () => {
+      await expect(dialog).toBeVisible();
+      await expect(
+        dialog.getByLabel("Tytuł wydarzenia", { exact: true }),
+      ).toBeFocused();
+    });
+    await test.step(`CALENDAR_PHASE:${phase}_cancel`, async () => {
+      await dialog.getByRole("button", { name: "Anuluj", exact: true }).click();
+      await expect(dialog).toHaveCount(0);
+    });
   }
 });
 

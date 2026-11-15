@@ -186,6 +186,40 @@ test("unnamed bootstrap contract denies other image/command/identity/lifetime/po
     assert.throws(() => bootstrapName({ ...good, ...change }, scope));
 });
 
+test("Storage migration bootstrap is pinned and explicitly scoped", () => {
+  const body = {
+    Image: "public.ecr.aws/supabase/storage-api:v1.84.19",
+    Cmd: ["node", "dist/scripts/migrate-call.js"],
+    Labels: {
+      "com.supabase.cli.project": scope.projectId,
+      "com.docker.compose.project": scope.projectId,
+    },
+    HostConfig: {
+      AutoRemove: true,
+      NetworkMode: scope.networkId,
+      PortBindings: {},
+      Binds: [],
+    },
+  };
+  assert.throws(() => bootstrapName(body, scope));
+  const storageScope = { ...scope, storageBootstrap: true };
+  const name = bootstrapName(body, storageScope);
+  assert.doesNotThrow(() => guardCreate(body, name, storageScope));
+  assert.throws(() => bootstrapName({ ...body, Cmd: ["sh"] }, storageScope));
+  assert.throws(() =>
+    bootstrapName(
+      { ...body, Image: "public.ecr.aws/supabase/storage-api:v1.88.0" },
+      storageScope,
+    ),
+  );
+  assert.throws(() =>
+    bootstrapName(
+      { ...body, HostConfig: { ...body.HostConfig, Binds: ["/tmp:/tmp"] } },
+      storageScope,
+    ),
+  );
+});
+
 // Docker waits for /wait response headers before issuing /start; its body waits for process exit.
 // This reproduces the real CLI handshake without contacting any Docker daemon.
 test(

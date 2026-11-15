@@ -280,3 +280,7 @@ FR-CC-001–006/008/011 i FR-AD-002: [kontrakt 1A/2A/3A](../technical/companies-
 ## Workspace DEC-059
 
 PO zatwierdził 1A/2A z [kontraktu](../technical/recruitment-workspace-analysis.md). FR-RW-001–007/009: read-only Kanban/lista/drawer; statusy OR, bezpośrednie aktywne relacje organizacji/osoby AND, filtrowanie przed paginacją, czas dodania asc/desc z remisem ID, presety Wszystkie/Aktywne/Zakończone i odtwarzanie kontekstu. Bez DnD, reorder i nowych komend lifecycle. RW-011 i operacyjny drawer pozostają szerszym zakresem; wyniki osobno.
+
+## Documents Core — doprecyzowanie DEC-065
+
+FR-DO-001–010 pozostają APPROVED i obowiązują w całości; ich zatwierdzone szczegóły, w tym wielokrotne wskazania CV dla application, kasacja, walidacja, quota i granice dostępu, określają [DEC-065](../decisions/product-decisions.md#documents-core--2026-11-11) oraz [kontrakt modułu](../features/documents.md#documents-core--zatwierdzony-kontrakt-dec-065). Podane w tabeli OPEN pozostają otwarte poza częściowym rozstrzygnięciem tego slice’a. To zatwierdzenie nie jest dowodem implementacji.

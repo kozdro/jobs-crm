@@ -162,6 +162,223 @@
       "when": 1794265451629,
       "tag": "0022_global_search",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1794419263710,
+      "tag": "0023_documents_core",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1794419302560,
+      "tag": "0024_case_documents",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1794419331211,
+      "tag": "0025_document_sent_references",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1794419348258,
+      "tag": "0026_document_event_owner_integrity",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1794419397972,
+      "tag": "0027_document_application_command",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1794419557904,
+      "tag": "0028_document_application_fence",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1794419761336,
+      "tag": "0029_document_object_inventory",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1794420147423,
+      "tag": "0030_document_storage_policies",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1794420223535,
+      "tag": "0031_document_upload_intent",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1794420278906,
+      "tag": "0032_document_uploader_role",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1794420324696,
+      "tag": "0033_document_validator_finalize",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1794420590675,
+      "tag": "0034_document_deletion_ledger",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1794420618557,
+      "tag": "0035_document_minimal_history",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1794420909258,
+      "tag": "0036_document_upload_fence",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1794421118554,
+      "tag": "0037_document_owner_reads",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1794421185503,
+      "tag": "0038_document_reconcile_grant",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1794421185504,
+      "tag": "0039_document_owner_download",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1794421302035,
+      "tag": "0040_document_cleanup_operations",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1794421571447,
+      "tag": "0041_document_delete_preview",
+      "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1794421623135,
+      "tag": "0042_document_delete_authorization",
+      "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1794421623136,
+      "tag": "0043_document_restore_hold",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1794421834879,
+      "tag": "0044_document_delete_receipt",
+      "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1794422046500,
+      "tag": "0045_document_application_permissions",
+      "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1794422159495,
+      "tag": "0046_document_application_atomic_fix",
+      "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1794422266121,
+      "tag": "0047_document_sent_command",
+      "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1794422558114,
+      "tag": "0048_document_commands",
+      "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "7",
+      "when": 1794423352433,
+      "tag": "0049_document_runtime_permissions",
+      "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1794423612333,
+      "tag": "0050_document_delete_early_redaction",
+      "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "7",
+      "when": 1794424290187,
+      "tag": "0051_document_validator_boundary",
+      "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "7",
+      "when": 1794424717281,
+      "tag": "0052_document_pending_recovery",
+      "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "7",
+      "when": 1794424717282,
+      "tag": "0053_document_version_sequence",
+      "breakpoints": true
     }
   ]
 }

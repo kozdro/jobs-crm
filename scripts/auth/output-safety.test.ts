@@ -241,3 +241,27 @@ test("browser phase diagnostics accept only the fixed allowlist and reject extra
     assert.throws(() => output.verify(), /withheld/);
   }
 });
+
+test("Calendar active and completed phases reject untrusted values", () => {
+  const base = {
+    fileHash: "a".repeat(64),
+    line: 742,
+    status: "timedOut",
+    category: "timeout",
+    retry: 0,
+    phase: "login",
+  };
+  const good = capture();
+  good.push(
+    `F3_BROWSER_FAILURE ${JSON.stringify({ ...base, activePhase: "edit_open" })}`,
+  );
+  assert.deepEqual(good.verify().observations[0].values, {
+    ...base,
+    activePhase: "edit_open",
+  });
+  const bad = capture();
+  bad.push(
+    `F3_BROWSER_FAILURE ${JSON.stringify({ ...base, activePhase: "private@example.test" })}`,
+  );
+  assert.throws(() => bad.verify(), /withheld/);
+});
