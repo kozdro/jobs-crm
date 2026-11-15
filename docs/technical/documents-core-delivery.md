@@ -47,3 +47,20 @@ Komendy QA dla przypiętych Node `24.22.2` i pnpm `12.16.1`: `pnpm lint`, `pnpm 
 ## Naprawa P1 DOCX — 2026-11-12
 
 [Task packet i historyczne lokalne ustalenia QA](documents-docx-p1.md) opisują potwierdzony bypass `DDEAUTO` w `header.dat` na `d635847`. Zakres naprawy obejmuje rozpoznawanie części na podstawie struktury OPC, typów zawartości i relacji, niezależnie od rozszerzenia. DEC-065 i pełna kwalifikacja 3A pozostają odrębnymi warunkami. Nowa regresja uruchomiona na bazie z samym testem dała **3 PASS / 10 FAIL / 0 SKIP**, log `/tmp/jobs-docx-parts-baseline.log`; wynik po poprawce i review trzeba ocenić na nowym kandydacie. Historyczne wyniki powyżej pozostają obowiązującym zapisem wcześniejszych wykonań.
+
+## Kwalifikacja 3A — 2026-11-12, kandydat `30499fba2f17fa02e5cd102f1347ba41082f81bf`
+
+Bezpośrednie wykonanie walidatora na Node 24.22.2, `node /tmp/jobs-qa-3a-20261112/check.mjs`, wynik `/tmp/jobs-qa-3a-20261112/results.txt`. Próbki syntetyczne, bez danych osobowych. To nie jest test całego uploadu; rzeczywisty worker i izolowany Storage testowano osobno według [raportu P1](documents-docx-p1.md) i PR #29.
+
+| Format | Potwierdzona próbka poprawna | Potwierdzona odmowa / granica |
+|---|---|---|
+| PDF | ReportLab — ACCEPT | Brak gwarancji wykrycia każdego aktywnego payloadu |
+| DOC | macOS textutil — ACCEPT | Rzeczywiście szyfrowany RC4 CryptoAPI — REJECT; nie dowodzi wszystkich starszych wariantów DOC |
+| DOCX | macOS textutil — ACCEPT | Rzeczywiście szyfrowany ECMA-376 Standard — REJECT; Word-generated NOT RUN, nietypowe wewnętrzne typy binarne mogą zostać odrzucone |
+| TXT | UTF-8 z/bez BOM, UTF-16 i UTF-32 z BOM oraz LE/BE bez BOM, Windows-1250, ISO-8859-2, Windows-1252 — ACCEPT | Same bajty często nie identyfikują jednoznacznie kodowania, zwłaszcza ASCII i kodowań 8-bitowych; akceptacja nie dowodzi poprawnej interpretacji tekstu |
+| JPEG | macOS sips — ACCEPT | Nie dowodzi wszystkich wariantów |
+| PNG | macOS sips — ACCEPT | Nie dowodzi wszystkich wariantów |
+
+Szyfrowanie obu próbek Office potwierdzono niezależnie `msoffcrypto.is_encrypted()`: źródło [msoffcrypto-tool tests/inputs](https://github.com/nolze/msoffcrypto-tool/tree/master/tests/inputs). Wcześniejsze regresje i rzeczywisty worker dla DDEAUTO opisuje [task packet](documents-docx-p1.md); nie są dowodem wykrycia wszystkich payloadów. Pierwsza próba wygenerowania PDF zakończyła się ENOENT z powodu niezgodnego środowiska ReportLab/Python; po instalacji zgodnej wersji wygenerowana próbka została przyjęta. Nie wykryto nowego defektu w tej skończonej macierzy; brak próbek Microsoft Word i pełnej zgodności historycznych odmian pozostaje nieudowodniony, bez zmiany sześciu zatwierdzonych formatów. Pełne skanowanie antywirusowe, malware/anti-abuse, koszty oraz backup/DR należą do odrębnych bramek publicznego udostępnienia.
+
+**Werdykt końcowy: BLOCKED.** Hosted [Application CI run 43236100260](https://github.com/kozdro/jobs-crm/actions/runs/43236100260) na tym SHA: pierwotnie **FAIL**, integracje 267/267 PASS, browser 244 PASS / 2 FAIL (timeouty Calendar, linie 742 i 1281). Jedno kontrolowane ponowienie failed jobs: **FAIL**, job `131327672581`, integracje 267/267 PASS, browser 245 PASS / 1 FAIL (timeout Calendar, linia 742); zależny Foundation required `131343238058` FAIL. Nie zmieniano timeoutów ani asercji i nie pominięto Calendar. Przyczyna timeoutu nie jest ustalona. Pierwotny FAIL pozostaje osobnym wynikiem; dalsze retry nie wykonano. Lokalny browser w rundzie P1 pozostaje NOT RUN, a wcześniejsze wyniki innych SHA zachowano powyżej i w PR. Bez merge, deploymentu i produkcyjnego provisioningu.

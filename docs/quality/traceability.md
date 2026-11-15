@@ -374,6 +374,8 @@ FR/AC-TN-005, DEC-027/063, BR-030 i UC/TC-023/037: niezależny snapshot zgody na
 
 | Wymaganie | Kryteria i scenariusze | Decyzja / dowód |
 |---|---|---|
-| FR-DO-001–010; BR-026/030; NFR-001/002 | AC-DO-001–010 i 002-01/005-01/005-02/010-01/010-02; AC-DO-065-01–06; UC/TC-003/018/031, częściowo 034 | [DEC-065](../decisions/product-decisions.md#documents-core--2026-11-11), [macierz testów](../technical/documents-core-analysis.md#7-qa--macierz-i-dowody); PLANNED / NOT EXECUTED do przedstawienia wyników |
+| FR-DO-001–010; BR-026/030; NFR-001/002 | AC-DO-001–010 i 002-01/005-01/005-02/010-01/010-02; AC-DO-065-01–06; UC/TC-003/018/031, częściowo 034 | [DEC-065](../decisions/product-decisions.md#documents-core--2026-11-11), [plan testów](../technical/documents-core-analysis.md#7-qa--macierz-i-dowody), [wyniki i granice 3A](../technical/documents-core-delivery.md#kwalifikacja-3a--2026-11-12-kandydat-30499fba2f17fa02e5cd102f1347ba41082f81bf) oraz [P1](../technical/documents-docx-p1.md); zakres szerszych UC/TC nie uzyskuje automatycznie PASS |
 
 Dotychczasowe OPEN w wierszach FR-DO zachowują zastosowanie do nierozstrzygniętych podzakresów; DEC-065 częściowo rozstrzyga wyłącznie wskazane aspekty Documents Core.
+
+Na `30499fba2f17fa02e5cd102f1347ba41082f81bf` skończona kwalifikacja 3A obejmuje sześć formatów i rzeczywiste szyfrowane Office, z ograniczeniami opisanymi w raporcie. Końcowa akceptacja **BLOCKED**: hosted CI pierwotnie 244 PASS / 2 Calendar FAIL, jedyne ponowienie 245 PASS / 1 Calendar FAIL; szczegóły i zachowana historia w [raporcie](../technical/documents-core-delivery.md#kwalifikacja-3a--2026-11-12-kandydat-30499fba2f17fa02e5cd102f1347ba41082f81bf).
